@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>评测集详情</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --line: #e2e8f0;
+      --line-soft: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --blue: #3b82f6;
+      --blue-hover: #2563eb;
+      --green: #22c55e;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 56px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .topbar a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .container {
+      padding: 20px 24px 24px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 20px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .meta {
+      margin-top: 8px;
+      color: #1f2937;
+      font-size: 16px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .meta span {
+      white-space: nowrap;
+    }
+
+    .meta .muted {
+      color: var(--muted);
+    }
+
+    .tabs {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .tab-btn {
+      height: 34px;
+      border: 0;
+      border-right: 1px solid var(--line);
+      background: #fff;
+      min-width: 108px;
+      cursor: pointer;
+      color: #334155;
+      font-size: 14px;
+    }
+
+    .tab-btn:last-child {
+      border-right: 0;
+    }
+
+    .tab-btn.active {
+      background: #eef2ff;
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .toolbar {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input {
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #334155;
+      padding: 0 12px;
+      min-width: 240px;
+      outline: none;
+    }
+
+    .btn {
+      height: 34px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--blue);
+      color: #fff;
+      padding: 0 14px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: var(--blue-hover);
+    }
+
+    .btn.secondary {
+      background: #fff;
+      color: #334155;
+      border: 1px solid var(--line);
+    }
+
+    .btn.secondary:hover {
+      background: #f8fafc;
+    }
+
+    .vars-box {
+      margin-top: 12px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .vars-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .vars-head .left {
+      color: #334155;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .vars-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .var-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px;
+      color: #334155;
+      background: #fff;
+    }
+
+    .var-chip.deleted {
+      opacity: 0.6;
+      text-decoration: line-through;
+      background: #f8fafc;
+    }
+
+    .var-type {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .table-wrap {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: auto;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line-soft);
+      padding: 12px;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 13px;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    td.actions {
+      white-space: nowrap;
+    }
+
+    .link-btn {
+      border: 0;
+      background: transparent;
+      color: var(--blue);
+      cursor: pointer;
+      padding: 0 4px;
+      font-size: 13px;
+    }
+
+    .link-btn.delete {
+      color: var(--danger);
+    }
+
+    .img-cell {
+      width: 52px;
+      height: 36px;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      display: inline-grid;
+      place-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .img-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .empty {
+      padding: 36px 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .task-empty {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 30px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 26px;
+      transform: translateX(-50%) translateY(-8px);
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all .2s ease;
+      z-index: 1200;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+  <link rel="stylesheet" href="./ui-refresh.css" />
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+
+    <main class="main">
+      <div class="topbar">
+        <a href="./frontend-eval-tasks.html">评测/评测集</a>
+        <span>/</span>
+        <span id="crumbName">评测集详情</span>
+      </div>
+
+      <div class="container">
+        <section class="card">
+          <div class="title-row">
+            <div>
+              <h1 id="setName">评测集详情</h1>
+              <div class="meta">
+                <span>类型：<strong id="setType">-</strong></span>
+                <span>对象：<strong id="setObject">-</strong></span>
+                <span>描述：<strong id="setDesc">-</strong></span>
+                <span>负责人：<strong id="setOwners">-</strong></span>
+                <span class="muted">更新时间：<strong id="setUpdated">-</strong></span>
+              </div>
+            </div>
+            <div>
+              <button id="backBtn" class="btn secondary" type="button">返回列表</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="tabs">
+            <button id="tabSet" class="tab-btn active" type="button">评测集</button>
+            <button id="tabTask" class="tab-btn" type="button">评测任务</button>
+          </div>
+
+          <div id="setTabPanel">
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <input id="caseSearch" class="input" placeholder="支持模糊检索" />
+              </div>
+              <div class="toolbar-right">
+                <button id="addCaseBtn" class="btn" type="button">新增用例</button>
+                <button id="importCaseBtn" class="btn" type="button">文件导入</button>
+              </div>
+            </div>
+
+            <div class="vars-box">
+              <div class="vars-head">
+                <div class="left">变量定义（默认仅展示 active）</div>
+                <div class="toolbar-right">
+                  <label style="font-size:12px;color:#64748b;"><input id="showDeletedVar" type="checkbox" /> 显示软删除</label>
+                  <button id="addVarBtn" class="btn secondary" type="button">新增变量</button>
+                  <button id="renameVarBtn" class="btn secondary" type="button">修改变量</button>
+                  <button id="deleteVarBtn" class="btn secondary" type="button">删除变量</button>
+                </div>
+              </div>
+              <div id="varsList" class="vars-list"></div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr id="caseHeadRow"></tr>
+                </thead>
+                <tbody id="caseBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="taskTabPanel" class="hidden">
+            <div class="task-empty">评测任务原型占位：后续将承接批量运行任务列表与结果回放。</div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    lucide.createIcons();
+
+    const EVAL_SET_STORAGE_KEY = "evaluation_sets_demo_v2";
+    const params = new URLSearchParams(window.location.search);
+    const setId = String(params.get("setId") || "").trim();
+
+    const setNameEl = document.getElementById("setName");
+    const setTypeEl = document.getElementById("setType");
+    const setObjectEl = document.getElementById("setObject");
+    const setDescEl = document.getElementById("setDesc");
+    const setOwnersEl = document.getElementById("setOwners");
+    const setUpdatedEl = document.getElementById("setUpdated");
+    const crumbName = document.getElementById("crumbName");
+    const varsList = document.getElementById("varsList");
+    const caseHeadRow = document.getElementById("caseHeadRow");
+    const caseBody = document.getElementById("caseBody");
+    const caseSearch = document.getElementById("caseSearch");
+    const showDeletedVar = document.getElementById("showDeletedVar");
+    const tabSet = document.getElementById("tabSet");
+    const tabTask = document.getElementById("tabTask");
+    const setTabPanel = document.getElementById("setTabPanel");
+    const taskTabPanel = document.getElementById("taskTabPanel");
+    const toast = document.getElementById("toast");
+
+    let sets = [];
+    let currentSet = null;
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1600);
+    }
+
+    function nowString() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(
+        d.getMinutes()
+      )}:${pad(d.getSeconds())}`;
+    }
+
+    function loadSets() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(EVAL_SET_STORAGE_KEY) || "[]");
+        return Array.isArray(raw) ? raw : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveSets() {
+      localStorage.setItem(EVAL_SET_STORAGE_KEY, JSON.stringify(sets));
+    }
+
+    function activeVariables(setObj) {
+      const showDeleted = showDeletedVar.checked;
+      return (setObj.variables || []).filter((v) => showDeleted || v.status === "active");
+    }
+
+    function variableByName(setObj, name) {
+      return (setObj.variables || []).find((v) => v.name === name);
+    }
+
+    function setTypeLabel(type) {
+      return type === "app" ? "应用" : "提示词";
+    }
+
+    function buildCaseColumns(setObj) {
+      const vars = activeVariables(setObj);
+      const textVars = vars.filter((v) => v.type === "text");
+      const imageVars = vars.filter((v) => v.type === "image");
+      const fileVars = vars.filter((v) => v.type === "file");
+      return { vars, textVars, imageVars, fileVars };
+    }
+
+    function renderHeader(setObj) {
+      setNameEl.textContent = setObj.name;
+      crumbName.textContent = setObj.name;
+      setTypeEl.textContent = setTypeLabel(setObj.type);
+      setObjectEl.textContent = setObj.objectLabel || `${setObj.project}/${setObj.app}/${setObj.targetName}`;
+      setDescEl.textContent = setObj.desc || "-";
+      setOwnersEl.textContent = setObj.owners || "-";
+      setUpdatedEl.textContent = setObj.updated || "-";
+    }
+
+    function renderVariables(setObj) {
+      const vars = activeVariables(setObj);
+      if (!vars.length) {
+        varsList.innerHTML = '<span class="var-chip">暂无变量</span>';
+        return;
+      }
+      varsList.innerHTML = vars
+        .map((v) => {
+          const cls = v.status === "soft_deleted" ? "var-chip deleted" : "var-chip";
+          return `<span class="${cls}">${v.name}<span class="var-type">${v.type}</span></span>`;
+        })
+        .join("");
+    }
+
+    function renderCaseTable(setObj) {
+      const keyword = caseSearch.value.trim().toLowerCase();
+      const { textVars, imageVars, fileVars } = buildCaseColumns(setObj);
+
+      const headCols = [
+        '<th style="width:72px;">id</th>',
+        ...textVars.map((v) => `<th>${v.name}</th>`),
+        ...imageVars.map((v) => `<th>${v.name}</th>`),
+        ...fileVars.map((v) => `<th>${v.name}</th>`),
+        '<th>reference_output</th>',
+        '<th style="width:132px;">操作</th>'
+      ];
+      caseHeadRow.innerHTML = headCols.join("");
+
+      const rows = (setObj.cases || []).filter((c) => {
+        if (!keyword) return true;
+        const text = [c.id, c.name, JSON.stringify(c.inputs || {})].join(" ").toLowerCase();
+        return text.includes(keyword);
+      });
+
+      if (!rows.length) {
+        caseBody.innerHTML = `<tr><td class="empty" colspan="${headCols.length}">暂无用例</td></tr>`;
+        return;
+      }
+
+      caseBody.innerHTML = rows
+        .map((c) => {
+          const cells = [
+            `<td>${c.id}</td>`,
+            ...textVars.map((v) => `<td>${String(c.inputs?.[v.name] || "-")}</td>`),
+            ...imageVars.map((v) => {
+              const img = String(c.inputs?.[v.name] || "");
+              if (!img) return '<td><span class="img-cell">-</span></td>';
+              return `<td><span class="img-cell"><img src="${img}" alt="${v.name}" /></span></td>`;
+            }),
+            ...fileVars.map((v) => `<td>${String(c.inputs?.[v.name] || "-")}</td>`),
+            `<td>${String(c.inputs?.reference_output || "-")}</td>`,
+            `<td class="actions">
+              <button class="link-btn" data-action="edit-case" data-case-id="${c.id}">编辑</button>
+              <button class="link-btn" data-action="copy-case" data-case-id="${c.id}">复制</button>
+              <button class="link-btn delete" data-action="delete-case" data-case-id="${c.id}">删除</button>
+            </td>`
+          ];
+          return `<tr data-case-id="${c.id}">${cells.join("")}</tr>`;
+        })
+        .join("");
+    }
+
+    function renderAll() {
+      if (!currentSet) return;
+      renderHeader(currentSet);
+      renderVariables(currentSet);
+      renderCaseTable(currentSet);
+    }
+
+    function nextCaseId(setObj) {
+      const max = (setObj.cases || []).reduce((acc, item) => {
+        const n = Number(String(item.id).replace(/[^\d]/g, ""));
+        return Number.isFinite(n) ? Math.max(acc, n) : acc;
+      }, 0);
+      return String(max + 1).padStart(2, "0");
+    }
+
+    function addCase() {
+      if (!currentSet) return;
+      const caseId = nextCaseId(currentSet);
+      const inputs = {};
+      (currentSet.variables || [])
+        .filter((v) => v.status === "active")
+        .forEach((v) => {
+          if (v.type === "image") inputs[v.name] = "";
+          else if (v.type === "file") inputs[v.name] = "";
+          else inputs[v.name] = "";
+        });
+      inputs.reference_output = "";
+      currentSet.cases = currentSet.cases || [];
+      currentSet.cases.push({ id: caseId, name: `${currentSet.name}-${caseId}`, inputs });
+      currentSet.updated = nowString();
+      saveSets();
+      renderAll();
+      showToast(`已新增用例 ${caseId}`);
+    }
+
+    function importCases() {
+      if (!currentSet) return;
+      addCase();
+      addCase();
+      showToast("文件导入完成（示例）");
+    }
+
+    function softDeleteVariable(setObj, name) {
+      const target = variableByName(setObj, name);
+      if (!target || target.status === "soft_deleted") return false;
+      target.status = "soft_deleted";
+      target.updatedAt = nowString();
+      return true;
+    }
+
+    function addVariable(setObj, name, type) {
+      if (!name) return false;
+      const exists = variableByName(setObj, name);
+      if (exists && exists.status === "active") return false;
+      if (exists && exists.status === "soft_deleted") {
+        setObj.variables.push({
+          name,
+          type,
+          status: "active",
+          source: setObj.type,
+          updatedAt: nowString()
+        });
+      } else {
+        setObj.variables = setObj.variables || [];
+        setObj.variables.push({
+          name,
+          type,
+          status: "active",
+          source: setObj.type,
+          updatedAt: nowString()
+        });
+      }
+      (setObj.cases || []).forEach((item) => {
+        item.inputs = item.inputs || {};
+        item.inputs[name] = "";
+      });
+      return true;
+    }
+
+    function handleAddVariable() {
+      if (!currentSet) return;
+      const name = prompt("请输入新增变量名（英文/数字/下划线）", "new_var") || "";
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      const type = (prompt("变量类型 text/image/file", "text") || "text").trim().toLowerCase();
+      const normalizedType = ["text", "image", "file"].includes(type) ? type : "text";
+      if (!addVariable(currentSet, trimmed, normalizedType)) {
+        showToast("变量已存在，无法新增");
+        return;
+      }
+      currentSet.updated = nowString();
+      saveSets();
+      renderAll();
+      showToast(`已新增变量 ${trimmed}`);
+    }
+
+    function handleRenameVariable() {
+      if (!currentSet) return;
+      const oldName = prompt("请输入要修改的变量名", "query") || "";
+      const oldVar = variableByName(currentSet, oldName.trim());
+      if (!oldVar || oldVar.status !== "active") {
+        showToast("变量不存在或已软删除");
+        return;
+      }
+      const newName = prompt("请输入新变量名（按新增处理）", `${oldName.trim()}_v2`) || "";
+      const nextName = newName.trim();
+      if (!nextName) return;
+      if (!softDeleteVariable(currentSet, oldName.trim())) {
+        showToast("变量修改失败");
+        return;
+      }
+      if (!addVariable(currentSet, nextName, oldVar.type || "text")) {
+        showToast("新变量已存在，请换一个名字");
+        return;
+      }
+      currentSet.updated = nowString();
+      saveSets();
+      renderAll();
+      showToast(`变量修改已按新增处理：${oldName.trim()} -> ${nextName}`);
+    }
+
+    function handleDeleteVariable() {
+      if (!currentSet) return;
+      const name = prompt("请输入要软删除的变量名", "query") || "";
+      const target = name.trim();
+      if (!target) return;
+      if (!softDeleteVariable(currentSet, target)) {
+        showToast("变量不存在或已软删除");
+        return;
+      }
+      currentSet.updated = nowString();
+      saveSets();
+      renderAll();
+      showToast(`已软删除变量 ${target}`);
+    }
+
+    function handleCaseAction(event) {
+      const btn = event.target.closest("[data-action]");
+      if (!btn || !currentSet) return;
+      const caseId = btn.getAttribute("data-case-id") || "";
+      const idx = (currentSet.cases || []).findIndex((c) => c.id === caseId);
+      if (idx < 0) return;
+      const targetCase = currentSet.cases[idx];
+
+      if (btn.dataset.action === "delete-case") {
+        currentSet.cases.splice(idx, 1);
+        currentSet.updated = nowString();
+        saveSets();
+        renderAll();
+        showToast(`已删除用例 ${caseId}`);
+        return;
+      }
+
+      if (btn.dataset.action === "copy-case") {
+        const newId = nextCaseId(currentSet);
+        currentSet.cases.push({
+          id: newId,
+          name: `${targetCase.name || "复制用例"}-${newId}`,
+          inputs: { ...(targetCase.inputs || {}) }
+        });
+        currentSet.updated = nowString();
+        saveSets();
+        renderAll();
+        showToast(`已复制为用例 ${newId}`);
+        return;
+      }
+
+      if (btn.dataset.action === "edit-case") {
+        const nextOutput = prompt("编辑 reference_output", String(targetCase.inputs?.reference_output || ""));
+        if (nextOutput == null) return;
+        targetCase.inputs = { ...(targetCase.inputs || {}), reference_output: nextOutput };
+        currentSet.updated = nowString();
+        saveSets();
+        renderAll();
+        showToast(`已更新用例 ${caseId}`);
+      }
+    }
+
+    function switchTab(next) {
+      const isSet = next === "set";
+      tabSet.classList.toggle("active", isSet);
+      tabTask.classList.toggle("active", !isSet);
+      setTabPanel.classList.toggle("hidden", !isSet);
+      taskTabPanel.classList.toggle("hidden", isSet);
+    }
+
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = "./frontend-eval-tasks.html";
+    });
+    document.getElementById("addCaseBtn").addEventListener("click", addCase);
+    document.getElementById("importCaseBtn").addEventListener("click", importCases);
+    document.getElementById("addVarBtn").addEventListener("click", handleAddVariable);
+    document.getElementById("renameVarBtn").addEventListener("click", handleRenameVariable);
+    document.getElementById("deleteVarBtn").addEventListener("click", handleDeleteVariable);
+    caseSearch.addEventListener("input", () => renderCaseTable(currentSet));
+    showDeletedVar.addEventListener("change", renderAll);
+    caseBody.addEventListener("click", handleCaseAction);
+    tabSet.addEventListener("click", () => switchTab("set"));
+    tabTask.addEventListener("click", () => switchTab("task"));
+
+    sets = loadSets();
+    currentSet = sets.find((item) => item.id === setId) || sets[0] || null;
+
+    if (!currentSet) {
+      setNameEl.textContent = "评测集不存在";
+      caseBody.innerHTML = '<tr><td class="empty" colspan="3">未找到评测集，请返回列表重试</td></tr>';
+    } else {
+      renderAll();
+    }
+  </script>
+</body>
+
+</html>

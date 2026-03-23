@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRD - OCR评测工作台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --success-50: #f0fdf4;
+            --success-100: #dcfce7;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            --warning-50: #fffbeb;
+            --warning-100: #fef3c7;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+            --danger-50: #fef2f2;
+            --danger-100: #fee2e2;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+            --duration-fast: 150ms;
+            --duration-normal: 250ms;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--gray-700);
+            background: var(--gray-50);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            z-index: 1001;
+            transition: width 0.1s linear;
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--gray-200);
+            z-index: 1000;
+            transition: all var(--duration-normal) var(--ease-out);
+        }
+
+        .nav-bar.scrolled {
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-inner {
+            max-width: none;
+            margin: 0;
+            padding: 0 var(--space-4);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gray-900);
+            text-decoration: none;
+        }
+
+        .nav-logo i {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .main-wrapper {
+            max-width: none;
+            width: 100%;
+            margin: 0;
+            padding: 76px var(--space-4) var(--space-12) var(--space-3);
+            display: grid;
+            grid-template-columns: 240px minmax(0, 1fr);
+            gap: var(--space-6);
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 76px;
+            height: calc(100vh - 96px);
+            overflow-y: auto;
+            padding-right: var(--space-3);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 2px;
+        }
+
+        .toc-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: var(--space-3);
+            padding-left: var(--space-3);
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            color: var(--gray-600);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all var(--duration-fast);
+            border-left: 2px solid transparent;
+            margin-bottom: 2px;
+        }
+
+        .toc-link:hover {
+            color: var(--gray-900);
+            background: var(--gray-100);
+        }
+
+        .toc-link.active {
+            color: var(--primary-600);
+            background: var(--primary-50);
+            border-left-color: var(--primary-500);
+        }
+
+        .toc-link i {
+            width: 16px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .toc-link.sub {
+            margin-left: var(--space-3);
+            font-size: 12px;
+            color: var(--gray-500);
+            padding: var(--space-1) var(--space-3);
+        }
+
+        .toc-link.sub.active {
+            color: var(--primary-600);
+            background: var(--primary-50);
+            border-left-color: var(--primary-400);
+        }
+
+        .toc-divider {
+            height: 1px;
+            background: var(--gray-200);
+            margin: var(--space-3) var(--space-3);
+        }
+
+        .main-content {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .doc-header {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            margin-bottom: var(--space-6);
+        }
+
+        .doc-header::before {
+            content: '';
+            display: block;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-8)) var(--space-6);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        }
+
+        .doc-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .doc-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .doc-meta-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .doc-meta-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-800);
+        }
+
+        .doc-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-3);
+        }
+
+        .doc-desc {
+            font-size: 15px;
+            color: var(--gray-600);
+            line-height: 1.7;
+        }
+
+        .section {
+            margin-bottom: var(--space-8);
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-5);
+            padding-bottom: var(--space-4);
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-4);
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: var(--space-3);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .info-box {
+            background: var(--gray-50);
+            border-left: 3px solid var(--gray-400);
+            padding: var(--space-4);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin: var(--space-4) 0;
+        }
+
+        .info-box.blue {
+            background: var(--primary-50);
+            border-left-color: var(--primary-500);
+        }
+
+        .info-box.green {
+            background: var(--success-50);
+            border-left-color: var(--success-500);
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--gray-700);
+        }
+
+        .feature-block {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--space-6);
+            overflow: hidden;
+            scroll-margin-top: 100px;
+        }
+
+        .feature-header {
+            background: linear-gradient(135deg, var(--gray-50), white);
+            padding: var(--space-5) var(--space-6);
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-4);
+        }
+
+        .feature-title-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            flex: 1;
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 15px;
+        }
+
+        .feature-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .feature-id {
+            font-size: 12px;
+            color: var(--gray-400);
+            font-weight: 500;
+            margin-left: var(--space-2);
+            font-family: var(--font-mono);
+        }
+
+        .feature-content {
+            padding: var(--space-6);
+        }
+
+        .feature-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: var(--space-6) 0 var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .feature-section-title:first-child {
+            margin-top: 0;
+        }
+
+        .feature-section-title i {
+            color: var(--primary-500);
+            font-size: 11px;
+        }
+
+        .overview-box {
+            background: var(--primary-50);
+            border: 1px solid var(--primary-100);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            position: relative;
+        }
+
+        .overview-box::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: var(--space-5);
+            bottom: var(--space-5);
+            width: 3px;
+            background: var(--primary-500);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .overview-box p {
+            margin: 0;
+            color: var(--gray-700);
+            line-height: 1.8;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 1px;
+            background: var(--gray-200);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: var(--space-4) 0;
+        }
+
+        .detail-label {
+            background: var(--gray-50);
+            padding: var(--space-3) var(--space-4);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-600);
+            display: flex;
+            align-items: center;
+        }
+
+        .detail-value {
+            background: white;
+            padding: var(--space-3) var(--space-4);
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+
+        .prototype-embed {
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin: var(--space-4) calc(-1 * var(--space-4));
+        }
+
+        .prototype-wrapper {
+            position: relative;
+            width: 100%;
+            height: 75vh;
+            min-height: 500px;
+        }
+
+        .prototype-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: var(--radius-md);
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .accordion {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            width: 100%;
+            padding: var(--space-4) var(--space-5);
+            background: white;
+            border: none;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all var(--duration-fast);
+        }
+
+        .accordion-header:hover {
+            background: var(--gray-50);
+        }
+
+        .accordion-header i {
+            color: var(--gray-400);
+            transition: transform var(--duration-fast);
+        }
+
+        .accordion-header.active i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--duration-normal) var(--ease-out);
+        }
+
+        .accordion-body.open {
+            max-height: 4000px;
+        }
+
+        .accordion-content {
+            padding: 0 var(--space-5) var(--space-5);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            background: white;
+            margin: var(--space-4) 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            background: var(--gray-50);
+            padding: var(--space-3) var(--space-4);
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-600);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--gray-200);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+            vertical-align: top;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover td {
+            background: var(--gray-50);
+        }
+
+        .data-table code {
+            background: var(--gray-100);
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--gray-700);
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .tag-p0 {
+            background: var(--danger-100);
+            color: var(--danger-700);
+        }
+
+        .tag-p1 {
+            background: var(--warning-100);
+            color: var(--warning-700);
+        }
+
+        .mermaid {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin: var(--space-4) 0;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .footer-section {
+            background: linear-gradient(135deg, var(--gray-900), var(--gray-800));
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            margin-top: var(--space-8);
+            color: white;
+        }
+
+        .footer-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: var(--space-5);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--space-4);
+        }
+
+        .footer-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+        }
+
+        .footer-card-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gray-400);
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .footer-link {
+            color: var(--primary-400);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-300);
+        }
+
+        h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: var(--space-5) 0 var(--space-3);
+        }
+
+        p {
+            margin-bottom: var(--space-3);
+        }
+
+        ul,
+        ol {
+            margin: var(--space-3) 0;
+            padding-left: var(--space-5);
+        }
+
+        @media (max-width: 1024px) {
+            .main-wrapper {
+                grid-template-columns: 1fr;
+                padding-left: var(--space-4);
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+
+        /* ========== OCR模型对比表格样式 ========== */
+        .ocr-compare-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+            margin: var(--space-4) 0;
+        }
+
+        .ocr-compare-table thead th {
+            background: var(--gray-50);
+            padding: var(--space-3) var(--space-4);
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-600);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--gray-200);
+            position: sticky;
+            top: 60px;
+            z-index: 10;
+        }
+
+        .ocr-compare-table thead th.col-model {
+            width: 140px;
+        }
+
+        .ocr-compare-table thead th.col-input {
+            width: 200px;
+        }
+
+        .ocr-compare-table thead th.col-output {
+            width: 280px;
+        }
+
+        .ocr-compare-table tbody tr {
+            transition: background var(--duration-fast);
+        }
+
+        .ocr-compare-table tbody tr:hover {
+            background: var(--primary-50);
+        }
+
+        .ocr-compare-table tbody td {
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--gray-100);
+            vertical-align: top;
+        }
+
+        /* 模型名称列 */
+        .model-name {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .model-vendor {
+            font-size: 11px;
+            color: var(--gray-500);
+            margin-top: 2px;
+        }
+
+        .model-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .badge-sota {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-open {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-api {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* 格式勾选矩阵 */
+        .format-matrix {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .format-check {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            background: var(--gray-100);
+            color: var(--gray-400);
+        }
+
+        .format-check.checked {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .format-check.checked.pdf {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .format-check.checked.image {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .format-check.checked.url {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .format-check.checked.base64 {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        .format-check.checked.docx {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .format-check.checked.video {
+            background: #fce7f3;
+            color: #9d174d;
+        }
+
+        .format-check i {
+            font-size: 10px;
+        }
+
+        .format-check .check-icon {
+            color: #22c55e;
+        }
+
+        /* 输出格式切换 */
+        .output-switcher {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .output-format-tabs {
+            display: flex;
+            gap: 2px;
+            background: var(--gray-100);
+            padding: 2px;
+            border-radius: 6px;
+        }
+
+        .output-format-tab {
+            padding: 4px 10px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .output-format-tab:hover {
+            color: var(--gray-700);
+        }
+
+        .output-format-tab.active {
+            background: white;
+            color: var(--gray-900);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .output-format-tab .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .dot-json {
+            background: #3b82f6;
+        }
+
+        .dot-md {
+            background: #22c55e;
+        }
+
+        .dot-html {
+            background: #f59e0b;
+        }
+
+        .dot-latex {
+            background: #8b5cf6;
+        }
+
+        .dot-video {
+            background: #ec4899;
+        }
+
+        /* 矩阵式对比表格 */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .matrix-table thead th {
+            background: var(--gray-50);
+            padding: 8px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 11px;
+            border: 1px solid var(--gray-200);
+            white-space: nowrap;
+        }
+
+        .matrix-table thead tr:first-child th {
+            border-bottom: none;
+        }
+
+        .matrix-table thead tr:nth-child(2) th {
+            border-top: none;
+            font-size: 10px;
+            padding: 6px 8px;
+        }
+
+        .matrix-table thead th.col-model {
+            text-align: left;
+            min-width: 140px;
+            border-bottom: 1px solid var(--gray-200) !important;
+        }
+
+        .matrix-table thead th.col-group {
+            background: var(--primary-50);
+            color: var(--primary-700);
+        }
+
+        .matrix-table tbody td {
+            padding: 8px 10px;
+            border: 1px solid var(--gray-200);
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .matrix-table tbody td:first-child {
+            text-align: left;
+        }
+
+        .matrix-table tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        /* 勾选标记 */
+        .check-yes {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: #dcfce7;
+            color: #16a34a;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .check-no {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: #f3f4f6;
+            color: #d1d5db;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* 模型名称单元格 */
+        .model-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .model-cell .name {
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 12px;
+        }
+
+        .model-cell .vendor {
+            font-size: 10px;
+            color: var(--gray-500);
+        }
+
+        .model-cell .badge {
+            display: inline-block;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 600;
+            margin-top: 2px;
+            width: fit-content;
+        }
+
+        .badge-sota {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-open {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-api {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        /* 分组行 */
+        .matrix-table .group-row td {
+            background: linear-gradient(135deg, #f1f5f9, #f8fafc);
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--gray-600);
+            padding: 6px 10px;
+            border-top: 2px solid var(--gray-300);
+            text-align: left !important;
+        }
+
+        .matrix-table .group-row:first-child td {
+            border-top: none;
+        }
+
+        /* API链接小号 */
+        .api-link-mini {
+            font-size: 10px;
+            color: var(--primary-600);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+
+        .api-link-mini:hover {
+            text-decoration: underline;
+        }
+
+        .api-link-mini i {
+            font-size: 10px;
+        }
+
+        .output-code-preview {
+            background: #1e293b;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: #e2e8f0;
+            max-height: 100px;
+            overflow: auto;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .output-code-preview.active {
+            display: block;
+        }
+
+        .output-code-preview .k {
+            color: #7dd3fc;
+        }
+
+        .output-code-preview .s {
+            color: #a5f3fc;
+        }
+
+        .output-code-preview .n {
+            color: #fcd34d;
+        }
+
+        .output-code-preview .c {
+            color: #64748b;
+        }
+
+        /* API链接 */
+        .api-link {
+            font-size: 11px;
+            color: var(--primary-600);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .api-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 分组标题 */
+        .table-group-header {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: var(--space-2) var(--space-4);
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--gray-600);
+            border-top: 1px solid var(--gray-200);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .table-group-header:first-child {
+            border-top: none;
+        }
+
+        /* ========== 保留卡片样式（备用） ========== */
+        .model-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: var(--space-5);
+            margin: var(--space-5) 0;
+        }
+
+        .model-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: all var(--duration-normal) var(--ease-out);
+        }
+
+        .model-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-300);
+        }
+
+        .model-card-header {
+            padding: var(--space-4);
+            background: linear-gradient(135deg, var(--gray-50), white);
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .model-card-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .model-card-meta {
+            font-size: 11px;
+            color: var(--gray-500);
+            margin-top: var(--space-1);
+        }
+
+        .model-card-badge {
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-domestic {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-intl {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-sota {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .model-card-body {
+            padding: var(--space-4);
+        }
+
+        /* 输入格式标签 */
+        .format-section {
+            margin-bottom: var(--space-4);
+        }
+
+        .format-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-2);
+        }
+
+        .format-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+        }
+
+        .format-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-pdf {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tag-image {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .tag-url {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tag-base64 {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        .tag-docx {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag-video {
+            background: #fce7f3;
+            color: #9d174d;
+        }
+
+        .format-tag i {
+            font-size: 11px;
+        }
+
+        .format-limit {
+            font-size: 11px;
+            color: var(--gray-400);
+            margin-top: var(--space-2);
+        }
+
+        /* 输出格式Tab */
+        .output-tabs {
+            display: flex;
+            gap: 2px;
+            background: var(--gray-100);
+            padding: 2px;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-2);
+        }
+
+        .output-tab {
+            flex: 1;
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .output-tab:hover {
+            color: var(--gray-700);
+        }
+
+        .output-tab.active {
+            background: white;
+            color: var(--gray-900);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .output-tab.tab-json {
+            border-left: 3px solid #3b82f6;
+        }
+
+        .output-tab.tab-md {
+            border-left: 3px solid #22c55e;
+        }
+
+        .output-tab.tab-html {
+            border-left: 3px solid #f59e0b;
+        }
+
+        .output-tab.tab-latex {
+            border-left: 3px solid #8b5cf6;
+        }
+
+        .output-example {
+            background: #1e293b;
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #e2e8f0;
+            overflow-x: auto;
+            max-height: 120px;
+            line-height: 1.5;
+        }
+
+        .output-example .key {
+            color: #7dd3fc;
+        }
+
+        .output-example .string {
+            color: #a5f3fc;
+        }
+
+        .output-example .number {
+            color: #fcd34d;
+        }
+
+        .output-example .comment {
+            color: #64748b;
+        }
+
+        .output-example .tag {
+            color: #f472b6;
+        }
+
+        .output-example .attr {
+            color: #a5b4fc;
+        }
+
+        .model-card-footer {
+            padding: var(--space-3) var(--space-4);
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .model-link {
+            font-size: 12px;
+            color: var(--primary-600);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .model-link:hover {
+            text-decoration: underline;
+        }
+
+        .model-stats {
+            display: flex;
+            gap: var(--space-4);
+            font-size: 11px;
+            color: var(--gray-500);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        /* Benchmark条 */
+        .benchmark-bar {
+            height: 6px;
+            background: var(--gray-200);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: var(--space-2);
+        }
+
+        .benchmark-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--primary-500), var(--success-500));
+        }
+
+        .section-subtitle {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin: var(--space-6) 0 var(--space-4);
+        }
+
+        .section-subtitle h4 {
+            margin: 0;
+            font-size: 14px;
+            color: var(--gray-800);
+        }
+
+        .section-subtitle .count {
+            background: var(--gray-200);
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 11px;
+            color: var(--gray-600);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <nav class="nav-bar" id="navBar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo"><i class="fas fa-file-lines"></i><span>PRD 文档</span></a>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <aside class="sidebar">
+            <div class="toc-title">文档导览</div>
+            <ul class="toc-list">
+                <li><a href="#meta" class="toc-link active"><i class="fas fa-circle-info"></i>基本信息</a></li>
+                <li><a href="#background" class="toc-link"><i class="fas fa-history"></i>项目背景</a></li>
+                <div class="toc-divider"></div>
+                <div class="toc-title">功能清单</div>
+                <li><a href="#feat-upload" class="toc-link"><i class="fas fa-upload"></i>F1: 文件上传与模型配置</a></li>
+                <li><a href="#feat-sidebar" class="toc-link"><i class="fas fa-list"></i>F2: 侧边栏任务管理</a></li>
+                <li><a href="#feat-compare" class="toc-link"><i class="fas fa-columns"></i>F3: 三栏对比评测视图</a></li>
+                <li><a href="#feat-interaction" class="toc-link"><i class="fas fa-mouse-pointer"></i>F4: 视图联动操作</a></li>
+                <div class="toc-divider"></div>
+                <li><a href="#appendix" class="toc-link"><i class="fas fa-paperclip"></i>附录</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <!-- 基本信息 -->
+            <section class="section" id="meta">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-circle-info"></i></div>
+                    <div>
+                        <div class="section-title">基本信息</div>
+                    </div>
+                </div>
+
+                <div class="doc-meta-grid">
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">需求名称</div>
+                        <div class="doc-meta-value">OCR评测工作台</div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">产品线</div>
+                        <div class="doc-meta-value">AI Infra 平台</div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">系统</div>
+                        <div class="doc-meta-value">前端工作流</div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">负责人</div>
+                        <div class="doc-meta-value">产品经理</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-file-lines"></i>功能简述</div>
+                    <p>为算法工程师和测试人员提供高效的
+                        OCR（光学字符识别）模型效果评测环境，允许上传文档同时调度多款模型出结果，并在三栏视图下便捷查看“源文档”、“原始结构化数据”与“渲染还原样式”，提升模型对比与评测体验。</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-clock-rotate-left"></i>更新记录</div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>更新时间</th>
+                                    <th>更新内容</th>
+                                    <th>更新人</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2026-03-03</td>
+                                    <td>基于工作台前端原型创建PRD</td>
+                                    <td>AI助手</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 项目背景 -->
+            <section class="section" id="background">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-history"></i></div>
+                    <div class="section-title">项目背景</div>
+                </div>
+
+                <div class="info-box">
+                    <p><strong>当前痛点：</strong>在对不同 OCR 大模型或小模型进行效果验收与性能摸底时，存在多次上传、肉眼难溯源对比、长文本滚动难以对齐、不支持页面级精确配置等问题。</p>
+                </div>
+
+                <div class="info-box green">
+                    <p><strong>解决方案：</strong>统一的 OCR 评测工作台。集成拖拽多文件上传、配置弹窗（可选取多个模型并行运行）；在结果呈现上，利用可拖拽调整宽度的三栏视图（PDF原文、Model
+                        Output、富文本渲染），并且高度同步滚动与高亮选词情况。</p>
+                </div>
+            </section>
+
+            <!-- 功能1：上传与模型配置 -->
+            <section class="feature-block" id="feat-upload">
+                <div class="feature-header">
+                    <div class="feature-title-group">
+                        <div class="feature-icon"><i class="fas fa-upload"></i></div>
+                        <div class="feature-title">功能一：文件上传与模型配置<span class="feature-id">F1</span></div>
+                    </div>
+                    <span class="tag tag-p0">P0</span>
+                </div>
+
+                <div class="feature-content">
+                    <div class="feature-section-title"><i class="fas fa-file-lines"></i>需求概述</div>
+                    <div class="overview-box">
+                        <p>支持拖出、点击上传图片及PDF。解析发起前，呼出集中配置弹窗，让用户选择要运行的 OCR 模型（可多选）并针对各类文件指定需要解析的页码范围。</p>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-desktop"></i>交互原型</div>
+                    <div class="prototype-embed">
+                        <div class="prototype-wrapper">
+                            <iframe class="prototype-frame" src="../frontend/pages/frontend-ocr-eval.html"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-list-ul"></i>需求详情</div>
+                    <h4>配置字段与选项</h4>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>字段/选项</th>
+                                    <th>类型</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>上传入口</td>
+                                    <td>拖拽/点击热区</td>
+                                    <td>支持 .pdf、.jpg、.png 格式</td>
+                                </tr>
+                                <tr>
+                                    <td>全局模型选择</td>
+                                    <td>复选框组件</td>
+                                    <td>列出支持模型（如 DeepSeek-OCR2，PaddleOCR-VL，Mistral OCR，Qwen2.5-VL
+                                        等）。详细模型出入参能力对比详见下方《2026业界SOTA模型能力调研》。</td>
+                                </tr>
+                                <tr>
+                                    <td>多文件交叉任务拆分</td>
+                                    <td>无形态逻辑</td>
+                                    <td>支持单次拖拽多个不同类型的文件。系统在后台将 <strong>Nx</strong> 个文件 和 <strong>Mx</strong>
+                                        个选中的模型进行组合，共派发 <strong>N x M</strong> 个子任务进入侧边栏队列进行排队解析。</td>
+                                </tr>
+                                <tr>
+                                    <td>已选文件列表</td>
+                                    <td>文件条目</td>
+                                    <td>展示文件Icon、名称、类别。右侧提供单文件的移除操作。</td>
+                                </tr>
+                                <tr>
+                                    <td>文件范围解析</td>
+                                    <td>下拉列表与输入</td>
+                                    <td>仅针对 PDF。可选择「全部解析」或「指定范围」(支持 1-3,5 等语法)</td>
+                                </tr>
+                                <tr>
+                                    <td>同步到全部</td>
+                                    <td>快捷按钮</td>
+                                    <td>位于范围配置标题栏，点击将第一行的范围设定同步到所有 PDF 文件配置</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 功能2：侧边栏任务管理 -->
+            <section class="feature-block" id="feat-sidebar">
+                <div class="feature-header">
+                    <div class="feature-title-group">
+                        <div class="feature-icon"><i class="fas fa-list"></i></div>
+                        <div class="feature-title">功能二：侧边栏任务管理<span class="feature-id">F2</span></div>
+                    </div>
+                    <span class="tag tag-p1">P1</span>
+                </div>
+
+                <div class="feature-content">
+                    <div class="feature-section-title"><i class="fas fa-file-lines"></i>需求概述</div>
+                    <div class="overview-box">
+                        <p>一旦发起解析任务，按照「文件 × 选中模型」的维度拆分任务实例，并展示在左侧列表，以进度条和状态指示当前任务池的处理情况。</p>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-list-ul"></i>详情与交互</div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>元素</th>
+                                    <th>呈现规则/交互</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>任务卡片</td>
+                                    <td>展示文件名称（截断支持）、文件大小、使用的模型名称及 Tag</td>
+                                </tr>
+                                <tr>
+                                    <td>任务状态</td>
+                                    <td>展示：完成(绿色)、解析中(橙色进度动画)、排队中/失败(灰色)。</td>
+                                </tr>
+                                <tr>
+                                    <td>卡片点击</td>
+                                    <td>激活该任务，右侧工作流转为该模型针对该文件的处理结果（自动加载PDF呈现对应结果）</td>
+                                </tr>
+                                <tr>
+                                    <td>全局进度</td>
+                                    <td>位于侧边栏底部。分子为完成数量，分母为总任务实例量，配合主颜色进度条</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 功能3：三栏对比评测视图 -->
+            <section class="feature-block" id="feat-compare">
+                <div class="feature-header">
+                    <div class="feature-title-group">
+                        <div class="feature-icon"><i class="fas fa-columns"></i></div>
+                        <div class="feature-title">功能三：三栏对比评测视图<span class="feature-id">F3</span></div>
+                    </div>
+                    <span class="tag tag-p0">P0</span>
+                </div>
+
+                <div class="feature-content">
+                    <div class="feature-section-title"><i class="fas fa-file-lines"></i>需求概述</div>
+                    <div class="overview-box">
+                        <p>右侧主面板划分为 3 个平行窗口：PDF原始文件预览、Raw大模型原始输出数据（支持 JSON/Markdown 等）、渲染后所见即所得的图文/表格网页视图。</p>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-list-ul"></i>各栏具体说明</div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>视窗名称</th>
+                                    <th>主要控件</th>
+                                    <th>作用与表现</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>面板 1：文件预览</td>
+                                    <td>缩放控制器、翻页器</td>
+                                    <td>解析PDF（使用 pdf.js）到 Canvas 渲染，底部隐藏文字层（支持高亮选词）。支持页面级缩放控制：放大、缩小、适应宽度自动缩放。</td>
+                                </tr>
+                                <tr>
+                                    <td>面板 2：原始数据 (Raw)</td>
+                                    <td>纯文本区域</td>
+                                    <td>代码字体的 <code>&lt;pre&gt;</code> 容器，保持换行。呈现大模型真实回包数据。
+                                        数据结构跟随模型而异：如 DeepSeek/GLM 输出结构化 Markdown，Paddle 输出带坐标点的 JSON 或嵌套
+                                        List。面板底部提供“数据格式”标识符。
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>面板 3：还原样式 (Render)</td>
+                                    <td>混合渲染区</td>
+                                    <td>依据面板 2 的输出进行自适应图文重绘。如果 Raw 为 Markdown，则直接解析器呈现出表格、标题等富文本结构；如果输出为 JSON
+                                        (带Bbox)，则在此结合前端逻辑在空白画板上重绘版面；或者如果是混合结构，将两者进行糅合，从而实现直观的“所见即所得”对齐比测。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 功能4：视图联动操作 -->
+            <section class="feature-block" id="feat-interaction">
+                <div class="feature-header">
+                    <div class="feature-title-group">
+                        <div class="feature-icon"><i class="fas fa-mouse-pointer"></i></div>
+                        <div class="feature-title">功能四：视图联动与响应式交互<span class="feature-id">F4</span></div>
+                    </div>
+                    <span class="tag tag-p0">P0</span>
+                </div>
+
+                <div class="feature-content">
+                    <div class="feature-section-title"><i class="fas fa-file-lines"></i>需求概述</div>
+                    <div class="overview-box">
+                        <p>极致丝滑的用户体验是平台一大核心竞争力。三栏之间具有强关联性：调整列宽与滚动阅读都能够产生联动体验。</p>
+                    </div>
+
+                    <h4>联动特性明细</h4>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>联动机制</th>
+                                    <th>具体交互描述</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>拖拽控制宽幅</td>
+                                    <td>栏与栏之间的空白条，悬停或拖拽时可拉伸/压缩相应视窗大小，自动重新自适应其它两栏尺寸。当拖拽释放，PDF如果选择为「自动适配宽度」将重新 Render 清晰度。
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>翻页同步</td>
+                                    <td>无论通过顶部翻页按钮、键盘左右键，还是单面板过度滚动（Overscroll 阻尼特效），只要切换页码，三个面板将同步重置并滚动到页的首部对其展示。</td>
+                                </tr>
+                                <tr>
+                                    <td>同页可见域感知</td>
+                                    <td>三个面板中任一面板处于被阅读并滚动的状态时，系统会计算并自动将顶部页码指示器更新到其占最多视区的该对应页码。</td>
+                                </tr>
+                                <tr>
+                                    <td>选中高亮同步</td>
+                                    <td>（重要！）在任一面板触发文本双击或滑动选中。只要字符数 >= 2 即可成为“查询靶标”。系统自动将该靶标在自身 PDF 文字层、Raw 文本甚至 渲染 HTML
+                                        中用 <code>&lt;mark&gt;</code> 黄色高亮标签全部标出位置，方便交叉校验错别字或是遗漏内容。释放后高亮保持，再次点击空白消失。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2026 SOTA 模型调研 -->
+            <section class="feature-block" id="feat-models">
+                <div class="feature-header">
+                    <div class="feature-title-group">
+                        <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                        <div class="feature-title">2026业界SOTA模型能力调研<span class="feature-id">Research</span></div>
+                    </div>
+                </div>
+
+                <div class="feature-content">
+                    <div class="overview-box">
+                        <p>矩阵式对比各模型的<strong>输入格式</strong>和<strong>输出格式</strong>支持情况，用于指导前端文件上传校验和结果渲染逻辑。✓ = 支持，✗ = 不支持
+                        </p>
+                    </div>
+
+                    <div class="table-wrapper" style="overflow-x: auto;">
+                        <table class="matrix-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-model" rowspan="2">模型</th>
+                                    <th rowspan="2">发布时间</th>
+                                    <th class="col-group" colspan="6">📥 输入格式</th>
+                                    <th class="col-group" colspan="4">📤 输出格式</th>
+                                    <th rowspan="2">API</th>
+                                </tr>
+                                <tr>
+                                    <!-- 输入格式子列 -->
+                                    <th title="PDF文档">PDF</th>
+                                    <th title="图片(JPG/PNG)">图片</th>
+                                    <th title="Base64编码">Base64</th>
+                                    <th title="URL链接">URL</th>
+                                    <th title="Office文档">DOCX</th>
+                                    <th title="视频片段">视频</th>
+                                    <!-- 输出格式子列 -->
+                                    <th>JSON</th>
+                                    <th>MD</th>
+                                    <th>HTML</th>
+                                    <th>LaTeX</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 国内模型分组 -->
+                                <tr class="group-row">
+                                    <td colspan="14">🇨🇳 国内模型 (5款) | 数据来源：官方文档原文</td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <div class="model-cell">
+                                            <span class="name">GLM-OCR</span>
+                                            <span class="vendor">智谱AI · 0.9B</span>
+                                            <span class="badge badge-sota">94.62%</span>
+                                        </div>
+                                    </td>
+                                    <td><small>2026-02</small></td>
+                                    <td><span class="check-yes" title="API支持file参数">?</span></td>
+                                    <td><span class="check-yes" title="API示例使用图片URL">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-yes" title="file参数支持URL">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-yes">✓</span></td>
+                                    <td><span class="check-yes" title="默认输出Markdown">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><a href="https://docs.bigmodel.cn/cn/guide/models/vlm/glm-ocr" target="_blank"
+                                            class="api-link-mini"><i class="fas fa-book"></i> API</a></td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <div class="model-cell">
+                                            <span class="name">PaddleOCR-VL-1.5</span>
+                                            <span class="vendor">百度 · 0.9B</span>
+                                            <span class="badge badge-sota">94.5%</span>
+                                        </div>
+                                    </td>
+                                    <td><small>2026-01</small></td>
+                                    <td><span class="check-yes" title="官方：PDF and image files">✓</span></td>
+                                    <td><span class="check-yes" title="官方：JPG, PNG, BMP, TIFF">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-yes">✓</span></td>
+                                    <td><span class="check-yes" title="官方：Markdown format">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><a href="https://github.com/PaddlePaddle/PaddleOCR" target="_blank"
+                                            class="api-link-mini"><i class="fab fa-github"></i> GitHub</a></td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <div class="model-cell">
+                                            <span class="name">HunyuanOCR</span>
+                                            <span class="vendor">腾讯 · 1B</span>
+                                            <span class="badge badge-sota">94.1%</span>
+                                        </div>
+                                    </td>
+                                    <td><small>2025-11</small></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-yes" title="代码示例：Image.open(img_path)">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-yes" title="官方：Video Subtitle Extraction">✓</span></td>
+                                    <td><span class="check-yes" title="Prompt：JSON格式返回">✓</span></td>
+                                    <td><span class="check-yes" title="Prompt：Markdown格式表示">✓</span></td>
+                                    <td><span class="check-yes" title="Prompt：表格解析为HTML">✓</span></td>
+                                    <td><span class="check-yes" title="Prompt：LaTeX格式表示">✓</span></td>
+                                    <td><a href="https://github.com/Tencent-Hunyuan/HunyuanOCR" target="_blank"
+                                            class="api-link-mini"><i class="fab fa-github"></i> GitHub</a></td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <div class="model-cell">
+                                            <span class="name">DeepSeek-OCR 2</span>
+                                            <span class="vendor">DeepSeek · 3B MoE</span>
+                                            <span class="badge badge-open">91.09%</span>
+                                        </div>
+                                    </td>
+                                    <td><small>2026-01</small></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-yes" title="代码：image_file = 'your_image.jpg'">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-yes" title="Prompt：Convert to markdown">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><a href="https://huggingface.co/deepseek-ai/DeepSeek-OCR-2" target="_blank"
+                                            class="api-link-mini"><i class="fas fa-cube"></i> HF</a></td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <div class="model-cell">
+                                            <span class="name">阿里云 OCR Parse</span>
+                                            <span class="vendor">qwen-vl-ocr-latest</span>
+                                            <span class="badge badge-api">API</span>
+                                        </div>
+                                    </td>
+                                    <td><small>2024-08</small></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-yes" title="官方：图片URL或fileKey">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-yes" title="官方：url参数">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-yes" title="官方：OCR文本输出">✓</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><span class="check-no">?</span></td>
+                                    <td><a href="https://help.aliyun.com/zh/model-studio/api-quanmiaolightapp-2024-08-01-runocrparse"
+                                            target="_blank" class="api-link-mini"><i class="fas fa-book"></i> API</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 1.5em;">
+                        <p><strong>📊 Benchmark (OmniDocBench V1.5):</strong> GLM-OCR (94.62%) > PaddleOCR-VL-1.5
+                            (94.5%) > HunyuanOCR (94.1%) > DeepSeek-OCR 2 (91.09%)</p>
+                        <p style="margin-top: 8px; font-size: 12px; color: var(--gray-600);">
+                            <strong>前端用途：</strong>输入格式列 → 文件上传校验 | 输出格式列 → 结果渲染逻辑（JSON需格式化，MD需渲染，HTML直接展示，LaTeX需公式渲染）
+                        </p>
+                        <p style="margin-top: 8px; font-size: 11px; color: var(--gray-500);">
+                            <strong>⚠️ 说明：</strong>✓ = 官方文档明确支持 | ? = 待确认（文档未明确说明）<br>
+                            <strong>📋 证据来源：</strong><br>
+                            • GLM-OCR: <a href="https://docs.bigmodel.cn/cn/guide/models/vlm/glm-ocr"
+                                target="_blank">docs.bigmodel.cn</a> - API示例显示file参数支持URL<br>
+                            • PaddleOCR: <a href="https://www.paddleocr.ai" target="_blank">paddleocr.ai</a> -
+                            官方声明"Multi-format support: PDF and image files"<br>
+                            • HunyuanOCR: <a href="https://github.com/Tencent-Hunyuan/HunyuanOCR"
+                                target="_blank">GitHub</a> - Prompt表格明确列出JSON/MD/HTML/LaTeX输出<br>
+                            • DeepSeek-OCR-2: <a href="https://huggingface.co/deepseek-ai/DeepSeek-OCR-2"
+                                target="_blank">HuggingFace</a> - Prompt示例"Convert the document to markdown"<br>
+                            • 阿里云OCR: <a
+                                href="https://help.aliyun.com/zh/model-studio/api-quanmiaolightapp-2024-08-01-runocrparse"
+                                target="_blank">阿里云文档</a> - 参数表明确url/fileKey二选一
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 附录 -->
+            <section class="section" id="appendix">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-paperclip"></i></div>
+                    <div class="section-title">附录</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-link"></i>相关链接</div>
+                    <ul>
+                        <li><a href="./frontend-ocr-eval.html">OCR 评测工作台交互原型</a></li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // 输出格式Tab切换（新版表格）
+        function switchOutputTab(btn, targetId) {
+            // 找到当前单元格内的所有tab和preview
+            const switcher = btn.closest('.output-switcher');
+            const tabs = switcher.querySelectorAll('.output-format-tab');
+            const previews = switcher.querySelectorAll('.output-code-preview');
+
+            // 移除所有active状态
+            tabs.forEach(t => t.classList.remove('active'));
+            previews.forEach(p => p.classList.remove('active'));
+
+            // 激活当前tab
+            btn.classList.add('active');
+            document.getElementById(targetId).classList.add('active');
+        }
+
+        // 输出格式Tab切换（旧版卡片 - 保留兼容）
+        function switchTab(btn, targetId) {
+            const card = btn.closest('.model-card-body');
+            if (card) {
+                const tabs = card.querySelectorAll('.output-tab');
+                const examples = card.querySelectorAll('.output-example');
+                tabs.forEach(t => t.classList.remove('active'));
+                examples.forEach(e => e.style.display = 'none');
+                btn.classList.add('active');
+                document.getElementById(targetId).style.display = 'block';
+            }
+        }
+
+        // 目录高亮
+        const sections = Array.from(document.querySelectorAll('.section[id], .feature-block[id]'));
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const offset = 100;
+        let isClickScrolling = false;
+        let clickScrollTimeout = null;
+        let lastActiveId = null;
+
+        function getActiveSection() {
+            const scrollPos = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const viewportTop = scrollPos + offset;
+
+            if (sections.length > 0 && viewportTop < sections[0].offsetTop) {
+                return sections[0].getAttribute('id');
+            }
+            if (scrollPos >= docHeight - 10) {
+                return sections[sections.length - 1]?.getAttribute('id');
+            }
+            for (let i = sections.length - 1; i >= 0; i--) {
+                if (viewportTop >= sections[i].offsetTop) {
+                    return sections[i].getAttribute('id');
+                }
+            }
+            return sections[0]?.getAttribute('id');
+        }
+
+        function updateActiveToc() {
+            if (isClickScrolling) return;
+            const currentId = getActiveSection();
+            if (currentId === lastActiveId) return;
+            lastActiveId = currentId;
+            tocLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+            });
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            if (isClickScrolling) return;
+            let topmostVisible = null;
+            let minTop = Infinity;
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.boundingClientRect.top < minTop) {
+                    minTop = entry.boundingClientRect.top;
+                    topmostVisible = entry.target.getAttribute('id');
+                }
+            });
+            if (topmostVisible && topmostVisible !== lastActiveId) {
+                lastActiveId = topmostVisible;
+                tocLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === '#' + topmostVisible);
+                });
+            }
+        }, { root: null, rootMargin: '-100px 0px -60% 0px', threshold: 0 });
+
+        sections.forEach(s => observer.observe(s));
+
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                if (!isClickScrolling) {
+                    const currentId = getActiveSection();
+                    if (currentId !== lastActiveId) {
+                        lastActiveId = currentId;
+                        tocLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+                        });
+                    }
+                }
+            }, 150);
+        }, { passive: true });
+
+        tocLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                isClickScrolling = true;
+                clearTimeout(clickScrollTimeout);
+                const targetId = link.getAttribute('href').slice(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    lastActiveId = targetId;
+                    tocLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                    const targetScroll = Math.max(0, Math.min(targetSection.offsetTop - offset, maxScroll));
+                    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                    clickScrollTimeout = setTimeout(() => { isClickScrolling = false; }, 600);
+                }
+            });
+        });
+
+        // 进度条
+        function updateProgress() {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('navBar').classList.toggle('scrolled', scrollTop > 10);
+        }
+        window.addEventListener('scroll', updateProgress, { passive: true });
+
+        // Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#eff6ff',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#3b82f6',
+                lineColor: '#64748b',
+                secondaryColor: '#f8fafc',
+                tertiaryColor: '#f1f5f9'
+            },
+            flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }
+        });
+
+        // 折叠
+        function toggleAccordion(h) {
+            h.classList.toggle('active');
+            h.nextElementSibling.classList.toggle('open');
+        }
+
+    </script>
+</body>
+
+</html>

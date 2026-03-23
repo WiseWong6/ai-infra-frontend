@@ -1,0 +1,25 @@
+/* Shared hotfix styles for local prototype pages. */
+
+.sync-modal {
+  z-index: 3000;
+}
+
+.sync-modal.hidden {
+  display: none !important;
+}
+
+.sync-eval-btn {
+  margin-top: 12px;
+}
+
+.var-image-wrap,
+.sync-file-inline {
+  position: relative;
+}
+
+.var-image-remove,
+.var-file-minus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

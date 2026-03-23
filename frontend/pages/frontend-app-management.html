@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>应用管理列表</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --sidebar: #ffffff;
+      --line: #f1f5f9;
+      --line-strong: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --active: #eff6ff;
+      --head: #fafbfc;
+      --blue: #3b82f6;
+      --blue-dark: #2563eb;
+      --danger: #dc2626;
+      --danger-dark: #b91c1c;
+      --success: #34d399;
+      /* Light green as in the mockup */
+      --success-dark: #10b981;
+      --hover-bg: #f8fafc;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+      /* 间距系统 */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 20px;
+      --spacing-2xl: 24px;
+
+      /* 过渡曲线 */
+      --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .fa-icon {
+      font-size: 14px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* 侧边栏样式 */
+    .sidebar {
+      width: 220px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line-strong);
+      padding: var(--spacing-lg) 0;
+      flex-shrink: 0;
+    }
+
+    .menu-group {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .menu-title {
+      margin: 0 0 var(--spacing-sm);
+      padding: 0 22px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .menu-item {
+      height: 44px;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-radius: 0;
+      position: relative;
+    }
+
+    .menu-item:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .menu-item.active {
+      background: var(--active);
+      color: var(--blue);
+    }
+
+    .menu-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--blue);
+    }
+
+    .menu-item i {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    .content {
+      flex: 1;
+      padding: var(--spacing-2xl);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 卡片视图 */
+    .card {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 var(--spacing-lg) 0;
+    }
+
+    /* 表单布局 */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .form-item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .form-item label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 1px solid var(--line);
+    }
+
+    /* 工具栏样式 */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    /* 按钮样式 */
+    .btn {
+      border: 0;
+      height: 36px;
+      border-radius: 6px;
+      background: #3b82f6;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 0 var(--spacing-xl);
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 2px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn:hover {
+      background: #2563eb;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid #e2e8f0;
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      color: var(--text);
+    }
+
+    .btn-success {
+      background: var(--success);
+      box-shadow: 0 1px 2px rgba(52, 211, 153, 0.15);
+    }
+
+    .btn-success:hover {
+      background: var(--success-dark);
+      box-shadow: 0 4px 12px rgba(52, 211, 153, 0.25);
+    }
+
+    .btn-danger {
+      background: #dc2626;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+    }
+
+    /* 输入框样式 */
+    .input-box {
+      height: 36px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      font-size: 14px;
+      transition: all 0.2s var(--ease-out);
+      padding: 0 var(--spacing-md);
+      width: 100%;
+    }
+
+    .input-box:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .input-box::placeholder {
+      color: #94a3b8;
+    }
+
+    select.input-box {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 36px;
+      color: #94a3b8;
+      /* when not selected */
+    }
+
+    select.input-box:focus,
+    select.input-box:valid {
+      color: var(--text);
+    }
+
+    /* Checkbox styled */
+    .checkbox-wrap {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .checkbox-wrap input {
+      margin: 0;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* 表格区域样式 */
+    .table-header-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .table-header-title .count {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: normal;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: var(--head);
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      height: 48px;
+      padding: 12px 20px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    td {
+      height: 56px;
+      padding: 12px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fcfcfd;
+    }
+
+    tbody tr:nth-child(even):hover {
+      background: #f8fafc;
+    }
+
+    /* 操作按钮样式 */
+    .actions {
+      display: inline-flex;
+      gap: 16px;
+    }
+
+    .actions a {
+      color: #3b82f6;
+      font-size: 13px;
+      text-decoration: none;
+      transition: color 0.15s ease;
+      cursor: pointer;
+    }
+
+    .actions a:hover {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+
+    <main class="main">
+      <section class="content">
+        <!-- 搜索区卡片 -->
+        <div class="card">
+          <h2 class="card-title">应用管理列表</h2>
+
+          <div class="filter-grid">
+            <div class="form-item">
+              <label>企业</label>
+              <select class="input-box" required>
+                <option value="" disabled selected hidden>请选择企业</option>
+                <option value="1">创信</option>
+                <option value="2">小雨伞</option>
+              </select>
+            </div>
+            <div class="form-item">
+              <label>搜索项目/应用</label>
+              <select class="input-box" required>
+                <option value="" disabled selected hidden>请选择项目/应用</option>
+                <option value="1">咔嚓保-投保助手 / 投保助手</option>
+                <option value="2">咔嚓保-保单托管 / 条款解析</option>
+              </select>
+            </div>
+            <div class="form-item">
+              <label>负责人</label>
+              <input type="text" class="input-box" placeholder="请输入负责人" />
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button type="button" class="btn btn-secondary">重置</button>
+            <button type="button" class="btn">查询</button>
+            <button type="button" class="btn btn-success">批量同步</button>
+            <button type="button" class="btn">创建应用</button>
+          </div>
+        </div>
+
+        <!-- 列表区卡片 -->
+        <div class="table-header-title">
+          搜索结果 <span class="count">(总条数：21)</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px; padding-left: 16px;">
+                  <label class="checkbox-wrap"><input type="checkbox" /></label>
+                </th>
+                <th>ID</th>
+                <th>企业</th>
+                <th>项目</th>
+                <th>应用</th>
+                <th>线上版本</th>
+                <th>最近编辑时间</th>
+                <th>负责人</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding-left: 16px;"><label class="checkbox-wrap"><input type="checkbox" /></label></td>
+                <td>3</td>
+                <td>创信</td>
+                <td>咔嚓保-投保助手</td>
+                <td>投保助手</td>
+                <td>1.5.9</td>
+                <td>2026-02-12 16:15:39</td>
+                <td>wisewong, jerry, martin, able...</td>
+                <td>
+                  <div class="actions">
+                    <a href="./frontend-trace.html">Trace追踪</a>
+                    <a href="./frontend-app-config.html">应用配置</a>
+                    <a>数据同步</a>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: 16px;"><label class="checkbox-wrap"><input type="checkbox" /></label></td>
+                <td>5</td>
+                <td>创信</td>
+                <td>咔嚓保-保单托管</td>
+                <td>条款解析</td>
+                <td>1.0.9</td>
+                <td>2026-02-11 15:57:00</td>
+                <td>wisewong, sueweng, weikun...</td>
+                <td>
+                  <div class="actions">
+                    <a href="./frontend-trace.html">Trace追踪</a>
+                    <a href="./frontend-app-config.html">应用配置</a>
+                    <a>数据同步</a>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: 16px;"><label class="checkbox-wrap"><input type="checkbox" /></label></td>
+                <td>9</td>
+                <td>创信</td>
+                <td>咔嚓保-AI商品检索</td>
+                <td>AI商品检索</td>
+                <td>-</td>
+                <td>2026-02-03 14:39:43</td>
+                <td>arya, wisewong, bruce, lurk</td>
+                <td>
+                  <div class="actions">
+                    <a href="./frontend-trace.html">Trace追踪</a>
+                    <a href="./frontend-app-config.html">应用配置</a>
+                    <a>数据同步</a>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: 16px;"><label class="checkbox-wrap"><input type="checkbox" /></label></td>
+                <td>21</td>
+                <td>创信</td>
+                <td>合同信息提取</td>
+                <td>保险合同提取指定字段</td>
+                <td>-</td>
+                <td>2026-02-03 11:22:32</td>
+                <td>xinghao, joyding, yolan, wis...</td>
+                <td>
+                  <div class="actions">
+                    <a href="./frontend-trace.html">Trace追踪</a>
+                    <a href="./frontend-app-config.html">应用配置</a>
+                    <a>数据同步</a>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: 16px;"><label class="checkbox-wrap"><input type="checkbox" /></label></td>
+                <td>6</td>
+                <td>创信</td>
+                <td>AI核保</td>
+                <td>AI健告咨询审核</td>
+                <td>-</td>
+                <td>2026-02-03 11:11:47</td>
+                <td>wisewong, lurk, ccddxiaoyu...</td>
+                <td>
+                  <div class="actions">
+                    <a href="./frontend-trace.html">Trace追踪</a>
+                    <a href="./frontend-app-config.html">应用配置</a>
+                    <a>数据同步</a>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: 16px;"><label class="checkbox-wrap"><input type="checkbox" /></label></td>
+                <td>8</td>
+                <td>创信</td>
+                <td>AI核保</td>
+                <td>AI人核审核</td>
+                <td>-</td>
+                <td>2026-02-03 11:11:40</td>
+                <td>wisewong, lurk, ccddxiaoyu...</td>
+                <td>
+                  <div class="actions">
+                    <a href="./frontend-trace.html">Trace追踪</a>
+                    <a href="./frontend-app-config.html">应用配置</a>
+                    <a>数据同步</a>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: 16px;"><label class="checkbox-wrap"><input type="checkbox" /></label></td>
+                <td>17</td>
+                <td>小雨伞</td>
+                <td>AI核保</td>
+                <td>AI健告咨询审核</td>
+                <td>-</td>
+                <td>2026-02-03 11:11:30</td>
+                <td>wisewong, lurk, ccddxiaoyu...</td>
+                <td>
+                  <div class="actions">
+                    <a href="./frontend-trace.html">Trace追踪</a>
+                    <a href="./frontend-app-config.html">应用配置</a>
+                    <a>数据同步</a>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left: 16px;"><label class="checkbox-wrap"><input type="checkbox" /></label></td>
+                <td>18</td>
+                <td>小雨伞</td>
+                <td>AI核保</td>
+                <td>AI人核审核</td>
+                <td>-</td>
+                <td>2026-02-03 11:11:17</td>
+                <td>wisewong, lurk, ccddxiaoyu...</td>
+                <td>
+                  <div class="actions">
+                    <a href="./frontend-trace.html">Trace追踪</a>
+                    <a href="./frontend-app-config.html">应用配置</a>
+                    <a>数据同步</a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // 应用配置链接统一携带 appId，便于下游按应用维度加载资源
+    document.querySelectorAll("tbody tr").forEach((row) => {
+      const appId = row.cells?.[1]?.textContent?.trim();
+      if (!appId) return;
+      const configLink = Array.from(row.querySelectorAll(".actions a")).find(
+        (a) => a.textContent.trim() === "应用配置"
+      );
+      if (configLink) {
+        configLink.href = `./frontend-app-config.html?appId=${encodeURIComponent(appId)}`;
+      }
+    });
+  </script>
+</body>
+
+</html>

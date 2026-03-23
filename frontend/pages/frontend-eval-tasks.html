@@ -1,0 +1,1577 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>评测/评测集</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* ============================================
+         设计系统变量
+         ============================================ */
+    :root {
+      /* 颜色系统 - 新配色方案 */
+      --bg: #fafbfc;
+      --sidebar: #ffffff;
+      --line: #f1f5f9;
+      --line-strong: #e2e8f0;
+      --text: #0f172a;
+      --text-secondary: #334155;
+      --text-tertiary: #64748b;
+      --muted: #64748b;
+      --active: #eff6ff;
+      --blue: #3b82f6;
+      --blue-hover: #2563eb;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --head: #fafbfc;
+      --hover-bg: #f8fafc;
+
+      /* 间距系统: 4px、8px、12px、16px、20px、24px、32px */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 20px;
+      --spacing-2xl: 24px;
+
+      /* 圆角系统 */
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 20px;
+
+      /* 阴影系统 */
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --shadow-btn: 0 2px 4px rgba(59, 130, 246, 0.2);
+
+      /* 过渡动画 */
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input,
+    select {
+      font-family: inherit;
+    }
+
+    /* ============================================
+         布局结构
+         ============================================ */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ============================================
+         侧边栏样式
+         ============================================ */
+    .sidebar {
+      width: 220px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line-strong);
+      padding: var(--spacing-lg) 0;
+      flex-shrink: 0;
+    }
+
+    .menu-group {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .menu-title {
+      margin: 0 0 var(--spacing-sm);
+      padding: 0 22px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .menu-item {
+      height: 44px;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-radius: 0;
+      position: relative;
+    }
+
+    .menu-item:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .menu-item.active {
+      background: var(--active);
+      color: var(--blue);
+    }
+
+    .menu-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--blue);
+    }
+
+    .menu-item i {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+         主内容区
+         ============================================ */
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    /* ============================================
+         顶部标题栏
+         ============================================ */
+    .topbar {
+      height: 60px;
+      border-bottom: 1px solid var(--line-strong);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      background: var(--bg);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .topbar h1::before {
+      content: "";
+      width: 4px;
+      height: 20px;
+      background: var(--blue);
+      border-radius: 2px;
+    }
+
+    /* ============================================
+         工具栏
+         ============================================ */
+    .toolbar {
+      padding: var(--spacing-xl) 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--spacing-lg);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      flex: 1;
+    }
+
+    .filter {
+      height: 36px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      color: var(--text-secondary);
+      padding: 0 var(--spacing-md);
+      font-size: 14px;
+      width: 180px;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .filter:hover {
+      border-color: #cbd5e1;
+    }
+
+    .filter:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .filter::placeholder {
+      color: var(--muted);
+    }
+
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .btn {
+      border: 0;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--blue);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 0 var(--spacing-lg);
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+    }
+
+    .btn:hover {
+      background: var(--blue-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-btn);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--text-secondary);
+      border: 1px solid var(--line-strong);
+    }
+
+    .btn-secondary:hover {
+      background: var(--hover-bg);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ============================================
+         表格区域
+         ============================================ */
+    .table-wrap {
+      padding: 0 32px;
+      flex: 1;
+    }
+
+    .table-container {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+    }
+
+    thead th {
+      background: var(--head);
+      border-bottom: 1px solid var(--line);
+      height: 56px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 12px 16px;
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    tbody td {
+      border-bottom: 1px solid var(--line);
+      height: 56px;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 12px 16px;
+      color: var(--text);
+      transition: background 0.15s ease;
+    }
+
+    tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    tbody tr:hover td {
+      background: transparent;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    /* 列宽定义 */
+    .col-check {
+      width: 48px;
+      text-align: center;
+    }
+
+    .col-type {
+      width: 80px;
+    }
+
+    .col-object {
+      width: 280px;
+      max-width: 280px;
+    }
+
+    .col-name {
+      width: 140px;
+    }
+
+    .col-desc {
+      width: 240px;
+      max-width: 240px;
+    }
+
+    .col-time,
+    .col-run {
+      width: 160px;
+    }
+
+    .col-owner {
+      width: 200px;
+      max-width: 200px;
+    }
+
+    .col-actions {
+      width: 140px;
+      text-align: center;
+    }
+
+    /* 文本截断 */
+    .col-object,
+    .col-desc,
+    .col-owner {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 复选框样式 */
+    .row-checkbox,
+    .head-checkbox {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .row-checkbox:hover,
+    .head-checkbox:hover {
+      border-color: var(--blue);
+    }
+
+    .row-checkbox:checked,
+    .head-checkbox:checked {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .row-checkbox:checked::after,
+    .head-checkbox:checked::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 5px;
+      height: 9px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    /* ============================================
+         标签样式
+         ============================================ */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: var(--radius-xl);
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
+    .tag-blue {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .tag-green {
+      background: #f0fdf4;
+      color: #22c55e;
+    }
+
+    /* ============================================
+         操作按钮
+         ============================================ */
+    .actions {
+      display: inline-flex;
+      flex-direction: row;
+      gap: var(--spacing-md);
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .action-link {
+      border: 0;
+      background: transparent;
+      color: var(--blue);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+    }
+
+    .action-link:hover {
+      background: rgba(59, 130, 246, 0.08);
+      color: var(--blue-hover);
+    }
+
+    .action-link.delete {
+      color: var(--danger);
+    }
+
+    .action-link.delete:hover {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--danger-hover);
+    }
+
+    /* ============================================
+         空状态
+         ============================================ */
+    .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      padding: var(--spacing-2xl) 0;
+      font-size: 14px;
+      min-height: 300px;
+    }
+
+    .empty-icon {
+      font-size: 56px;
+      color: var(--line-strong);
+      margin-bottom: var(--spacing-lg);
+      opacity: 0.6;
+    }
+
+    .empty-text {
+      font-size: 14px;
+      color: var(--text-tertiary);
+      margin-top: var(--spacing-sm);
+    }
+
+    /* ============================================
+         分页器
+         ============================================ */
+    .pager {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-lg) 32px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--line);
+    }
+
+    .pager-info {
+      margin-right: var(--spacing-md);
+      color: var(--muted);
+    }
+
+    .pager-btn {
+      min-width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line-strong);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 14px;
+      padding: 0 var(--spacing-sm);
+    }
+
+    .pager-btn:hover:not(:disabled) {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: rgba(59, 130, 246, 0.04);
+    }
+
+    .pager-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .pager-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: white;
+      font-weight: 500;
+      box-shadow: none;
+    }
+
+    .pager-input {
+      width: 40px;
+      height: 32px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      font-size: 14px;
+      color: var(--text);
+      background: #ffffff;
+      margin: 0 var(--spacing-xs);
+    }
+
+    .pager-input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+    }
+
+    /* ============================================
+         Toast 提示
+         ============================================ */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: var(--spacing-2xl);
+      transform: translateX(-50%) translateY(8px);
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      padding: var(--spacing-md) var(--spacing-xl);
+      border-radius: var(--radius-md);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 1100;
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-panel {
+      width: min(920px, calc(100vw - 48px));
+      max-height: min(760px, calc(100vh - 48px));
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+    }
+
+    .modal-head {
+      height: 56px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow: auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field-label {
+      margin: 0 0 6px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .full-span {
+      grid-column: 1 / -1;
+    }
+
+    .picker-btn {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: var(--text-secondary);
+      text-align: left;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+
+    .picker-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .radio-inline {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      height: 36px;
+    }
+
+    .modal-foot {
+      border-top: 1px solid var(--line);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .picker-table-wrap {
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      overflow: auto;
+      max-height: 420px;
+    }
+
+    .picker-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+    }
+
+    .picker-table th,
+    .picker-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .picker-table th {
+      background: var(--head);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .picker-empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 24px 8px;
+    }
+
+    /* ============================================
+         响应式适配
+         ============================================ */
+    @media (max-width: 1600px) {
+      .toolbar {
+        flex-wrap: wrap;
+      }
+
+      .filter-group {
+        flex-wrap: wrap;
+      }
+
+      .filter {
+        width: 160px;
+      }
+    }
+
+    @media (max-width: 1200px) {
+
+      .col-desc,
+      .col-run {
+        display: none;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="./ui-refresh.css" />
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>评测/评测集</h1>
+      </header>
+
+      <section class="toolbar">
+        <div class="filter-group">
+          <select id="typeFilter" class="filter">
+            <option value="">对象类型</option>
+            <option value="应用">应用</option>
+            <option value="提示词">提示词</option>
+          </select>
+
+          <select id="objectFilter" class="filter">
+            <option value="">评测对象</option>
+          </select>
+
+          <input id="nameFilter" class="filter" placeholder="搜索名称" />
+          <input id="ownerFilter" class="filter" placeholder="选择负责人" />
+        </div>
+        <div class="btn-group">
+          <button id="syncEnvBtn" class="btn btn-secondary" type="button">环境同步</button>
+          <button id="newSetBtn" class="btn" type="button">新建评测集</button>
+        </div>
+      </section>
+
+      <section class="table-wrap">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-check"><input id="headCheck" class="head-checkbox" type="checkbox" /></th>
+                <th class="col-type">类型</th>
+                <th class="col-object">评测对象</th>
+                <th class="col-name">名称</th>
+                <th class="col-desc">描述</th>
+                <th class="col-time">更新时间</th>
+                <th class="col-run">最近运行时间</th>
+                <th class="col-owner">负责人</th>
+                <th class="col-actions">操作</th>
+              </tr>
+            </thead>
+            <tbody id="taskBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="pager">
+        <span class="pager-info">共 3 条</span>
+        <button class="pager-btn" disabled>&lt;</button>
+        <button class="pager-btn active">1</button>
+        <button class="pager-btn">2</button>
+        <button class="pager-btn">3</button>
+        <button class="pager-btn">&gt;</button>
+        <span style="margin-left: 8px;">前往</span>
+        <input type="text" class="pager-input" value="1" />
+        <span>页</span>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="newSetModal" class="modal hidden">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>新建评测集</h3>
+        <button id="newSetClose" class="modal-close" type="button">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div>
+            <p class="field-label">项目</p>
+            <select id="newSetProject" class="filter" style="width:100%;">
+              <option value="">请选择项目</option>
+            </select>
+          </div>
+          <div>
+            <p class="field-label">应用</p>
+            <select id="newSetApp" class="filter" style="width:100%;">
+              <option value="">请选择应用</option>
+            </select>
+          </div>
+          <div class="full-span">
+            <p class="field-label">评测集类型</p>
+            <div class="radio-inline">
+              <label><input type="radio" name="newSetType" value="prompt" checked /> 提示词</label>
+              <label><input type="radio" name="newSetType" value="app" /> 应用</label>
+            </div>
+          </div>
+          <div class="full-span">
+            <p class="field-label">评测对象</p>
+            <button id="targetPickerBtn" class="picker-btn" type="button">请选择评测对象</button>
+          </div>
+          <div class="full-span">
+            <p class="field-label">评测集名称</p>
+            <input id="newSetName" class="filter" style="width:100%;" placeholder="请输入评测集名称" />
+          </div>
+          <div class="full-span">
+            <p class="field-label">描述</p>
+            <input id="newSetDesc" class="filter" style="width:100%;" placeholder="请输入描述（可选）" />
+          </div>
+          <div class="full-span">
+            <p class="field-label">负责人</p>
+            <input id="newSetOwner" class="filter" style="width:100%;" value="wisewong" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button id="newSetCancel" class="btn btn-secondary" type="button">取消</button>
+        <button id="newSetConfirm" class="btn" type="button">创建</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="targetPickerModal" class="modal hidden">
+    <div class="modal-panel" style="width:min(980px, calc(100vw - 48px));">
+      <div class="modal-head">
+        <h3>选择评测对象</h3>
+        <button id="targetPickerClose" class="modal-close" type="button">×</button>
+      </div>
+      <div class="modal-body">
+        <input id="targetPickerSearch" class="filter" style="width:100%;max-width:420px;" placeholder="支持按名称/ID模糊检索" />
+        <div class="picker-table-wrap">
+          <table class="picker-table">
+            <thead>
+              <tr>
+                <th style="width:48px;"></th>
+                <th>对象ID</th>
+                <th>对象名称</th>
+                <th>项目/应用</th>
+                <th>变量数</th>
+              </tr>
+            </thead>
+            <tbody id="targetPickerBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button id="targetPickerCancel" class="btn btn-secondary" type="button">取消</button>
+        <button id="targetPickerConfirm" class="btn" type="button">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    const EVAL_SET_STORAGE_KEY = "evaluation_sets_demo_v2";
+    const PROMPT_STORAGE_KEY = "prompt_rows_demo";
+    const params = new URLSearchParams(window.location.search);
+    const presetType = String(params.get("objectType") || "");
+    const presetObject = String(params.get("objectName") || "");
+
+    const projectTree = {
+      创信: ["投保助手", "条款解析", "AI商品检索"],
+      手回: ["insAI", "计划书识别"],
+      insAI: ["Agent", "问题推荐", "PDF转md大师"]
+    };
+
+    const APP_TARGETS = [
+      { id: "app-001", project: "创信", app: "投保助手", name: "投保助手", vars: ["query", "image"] },
+      { id: "app-002", project: "手回", app: "insAI", name: "计划书识别", vars: ["query", "ocr_text", "image"] },
+      { id: "app-003", project: "insAI", app: "Agent", name: "Agent总控", vars: ["query", "reference_text"] }
+    ];
+
+    const typeFilter = document.getElementById("typeFilter");
+    const objectFilter = document.getElementById("objectFilter");
+    const nameFilter = document.getElementById("nameFilter");
+    const ownerFilter = document.getElementById("ownerFilter");
+    const taskBody = document.getElementById("taskBody");
+    const headCheck = document.getElementById("headCheck");
+    const toast = document.getElementById("toast");
+    const pagerInfo = document.querySelector(".pager-info");
+
+    const newSetModal = document.getElementById("newSetModal");
+    const newSetProject = document.getElementById("newSetProject");
+    const newSetApp = document.getElementById("newSetApp");
+    const newSetName = document.getElementById("newSetName");
+    const newSetDesc = document.getElementById("newSetDesc");
+    const newSetOwner = document.getElementById("newSetOwner");
+    const targetPickerBtn = document.getElementById("targetPickerBtn");
+    const newSetTypeInputs = document.querySelectorAll('input[name="newSetType"]');
+    const targetPickerModal = document.getElementById("targetPickerModal");
+    const targetPickerSearch = document.getElementById("targetPickerSearch");
+    const targetPickerBody = document.getElementById("targetPickerBody");
+
+    let evaluationSets = [];
+    let newSetDraftTarget = null;
+    let targetPickerSelection = "";
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1600);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function nowString() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(
+        d.getMinutes()
+      )}:${pad(d.getSeconds())}`;
+    }
+
+    function inferVarType(name) {
+      const key = String(name || "").toLowerCase();
+      if (key.includes("img") || key.includes("image") || key.includes("photo")) return "image";
+      if (key.includes("file") || key.includes("pdf")) return "file";
+      return "text";
+    }
+
+    function buildVariables(varNames, source) {
+      const now = nowString();
+      return (varNames || []).map((name) => ({
+        name,
+        type: inferVarType(name),
+        status: "active",
+        source,
+        updatedAt: now
+      }));
+    }
+
+    function defaultCaseByVars(variables) {
+      const inputs = {};
+      (variables || [])
+        .filter((v) => v.status === "active")
+        .forEach((v) => {
+          if (v.type === "image") inputs[v.name] = "https://picsum.photos/seed/eval-demo/96/96";
+          else if (v.type === "file") inputs[v.name] = "demo-file.pdf";
+          else inputs[v.name] = "示例输入";
+        });
+      inputs.reference_output = "示例期望输出";
+      return [{ id: "01", name: "默认用例", inputs }];
+    }
+
+    function normalizeSet(raw, idx) {
+      const type = raw.type === "app" ? "app" : "prompt";
+      const project = String(raw.project || "创信");
+      const app = String(raw.app || "投保助手");
+      const targetName = String(raw.targetName || raw.name || `对象${idx + 1}`);
+      const vars = Array.isArray(raw.variables) ? raw.variables : [];
+      const variables = vars.map((v) => ({
+        name: String(v.name || ""),
+        type: v.type || inferVarType(v.name),
+        status: v.status === "soft_deleted" ? "soft_deleted" : "active",
+        source: v.source || (type === "app" ? "app" : "prompt"),
+        updatedAt: v.updatedAt || nowString()
+      }));
+      const cases = Array.isArray(raw.cases) && raw.cases.length ? raw.cases : defaultCaseByVars(variables);
+      return {
+        id: String(raw.id || `${type === "app" ? "A" : "P"}-${String(idx + 1).padStart(3, "0")}`),
+        type,
+        targetId: String(raw.targetId || `${type}-${idx + 1}`),
+        targetName,
+        project,
+        app,
+        objectLabel: String(raw.objectLabel || `${project}/${app}/${targetName}`),
+        name: String(raw.name || `${targetName}评测集`),
+        desc: String(raw.desc || ""),
+        updated: String(raw.updated || nowString()),
+        runAt: String(raw.runAt || "-"),
+        owners: String(raw.owners || "wisewong"),
+        variables,
+        cases
+      };
+    }
+
+    function seedSets() {
+      return [
+        normalizeSet(
+          {
+            id: "A-001",
+            type: "app",
+            targetId: "app-001",
+            targetName: "投保助手",
+            project: "创信",
+            app: "投保助手",
+            objectLabel: "创信/投保助手/投保助手",
+            name: "通用意图集",
+            desc: "验证意图分类是否正确",
+            updated: "2025/11/25 14:00:02",
+            runAt: "2025/11/25 14:00:02",
+            owners: "kyrie、wisewong、mollie",
+            variables: buildVariables(["query", "image"], "app"),
+            cases: [
+              {
+                id: "01",
+                name: "用户反馈Bad Case",
+                inputs: {
+                  query: "根据条款，人保大护甲易投版支持指定受益人吗？",
+                  image: "",
+                  reference_output: "支持指定受益人，可在投保流程中设置。"
+                }
+              }
+            ]
+          },
+          0
+        ),
+        normalizeSet(
+          {
+            id: "A-002",
+            type: "app",
+            targetId: "app-002",
+            targetName: "计划书识别",
+            project: "手回",
+            app: "insAI",
+            objectLabel: "手回/insAI/计划书识别",
+            name: "异常pdf集合",
+            desc: "验证指代消解是否成功",
+            updated: "2025/11/25 14:00:02",
+            runAt: "2025/11/25 14:00:02",
+            owners: "kyrie、wisewong、mollie",
+            variables: buildVariables(["query", "ocr_text", "image"], "app")
+          },
+          1
+        ),
+        normalizeSet(
+          {
+            id: "P-001",
+            type: "prompt",
+            targetId: "prompt-009",
+            targetName: "009-兼容提示词",
+            project: "创信",
+            app: "条款解析",
+            objectLabel: "创信/条款解析/009-兼容提示词",
+            name: "OCR疑难杂症",
+            desc: "验证条款咨询是否正确",
+            updated: "2025/11/25 14:00:02",
+            runAt: "2025/11/25 14:00:02",
+            owners: "kyrie",
+            variables: buildVariables(["ocr_text", "pdf_img"], "prompt")
+          },
+          2
+        )
+      ];
+    }
+
+    function loadEvalSets() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(EVAL_SET_STORAGE_KEY) || "[]");
+        if (!Array.isArray(raw) || !raw.length) {
+          const seeded = seedSets();
+          localStorage.setItem(EVAL_SET_STORAGE_KEY, JSON.stringify(seeded));
+          return seeded;
+        }
+        return raw.map(normalizeSet);
+      } catch {
+        const seeded = seedSets();
+        localStorage.setItem(EVAL_SET_STORAGE_KEY, JSON.stringify(seeded));
+        return seeded;
+      }
+    }
+
+    function saveEvalSets() {
+      localStorage.setItem(EVAL_SET_STORAGE_KEY, JSON.stringify(evaluationSets));
+    }
+
+    function getPromptTargets() {
+      const fallback = [
+        { id: "prompt-009", project: "创信", app: "条款解析", name: "009-兼容提示词", vars: ["ocr_text", "pdf_img"] },
+        { id: "prompt-011", project: "insAI", app: "Agent", name: "Agent路由提示词", vars: ["query", "reference_text"] }
+      ];
+      try {
+        const rows = JSON.parse(localStorage.getItem(PROMPT_STORAGE_KEY) || "[]");
+        if (!Array.isArray(rows) || !rows.length) return fallback;
+        const extracted = rows
+          .filter((row) => row && typeof row === "object")
+          .map((row, idx) => {
+            const messages = Array.isArray(row.messages) ? row.messages : [];
+            const all = messages.map((m) => String(m?.content || "")).join("\n");
+            const vars = [...all.matchAll(/\{\{\s*([^{}\s]+)\s*\}\}/g)].map((m) => m[1]);
+            const uniqueVars = [...new Set(vars)];
+            return {
+              id: String(row.id || `prompt-${idx + 1}`),
+              project: String(row.project || "创信"),
+              app: String(row.app || "投保助手"),
+              name: String(row.name || `提示词-${idx + 1}`),
+              vars: uniqueVars.length ? uniqueVars : ["query"]
+            };
+          });
+        return extracted.length ? extracted : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function typeLabel(type) {
+      return type === "app" ? "应用" : "提示词";
+    }
+
+    function refreshObjectOptions() {
+      const mappedType = typeFilter.value === "应用" ? "app" : typeFilter.value === "提示词" ? "prompt" : "";
+      const options = [...new Set(evaluationSets.filter((r) => !mappedType || r.type === mappedType).map((r) => r.objectLabel))];
+      const old = objectFilter.value;
+      objectFilter.innerHTML =
+        '<option value="">评测对象</option>' +
+        options.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+      if (options.includes(old)) objectFilter.value = old;
+    }
+
+    function renderTable() {
+      const type = typeFilter.value;
+      const object = objectFilter.value;
+      const nameKey = nameFilter.value.trim();
+      const ownerKey = ownerFilter.value.trim();
+
+      const rows = evaluationSets.filter((row) => {
+        if (type && typeLabel(row.type) !== type) return false;
+        if (object && row.objectLabel !== object) return false;
+        if (nameKey && !row.name.includes(nameKey)) return false;
+        if (ownerKey && !row.owners.includes(ownerKey)) return false;
+        return true;
+      });
+      pagerInfo.textContent = `共 ${rows.length} 条`;
+
+      if (!rows.length) {
+        taskBody.innerHTML = '<tr><td colspan="9" class="empty"><span class="empty-icon">📭</span><span class="empty-text">暂无数据</span></td></tr>';
+        return;
+      }
+
+      taskBody.innerHTML = rows
+        .map(
+          (row, idx) => `
+            <tr data-id="${escapeHtml(row.id)}">
+              <td class="col-check"><input class="row-checkbox" type="checkbox" data-row-check="${idx}" /></td>
+              <td class="col-type"><span class="tag ${row.type === "app" ? "tag-green" : "tag-blue"}">${escapeHtml(
+            typeLabel(row.type)
+          )}</span></td>
+              <td class="col-object" title="${escapeHtml(row.objectLabel)}">${escapeHtml(row.objectLabel)}</td>
+              <td class="col-name">${escapeHtml(row.name)}</td>
+              <td class="col-desc" title="${escapeHtml(row.desc)}">${escapeHtml(row.desc || "-")}</td>
+              <td class="col-time">${escapeHtml(row.updated)}</td>
+              <td class="col-run">${escapeHtml(row.runAt)}</td>
+              <td class="col-owner" title="${escapeHtml(row.owners)}">${escapeHtml(row.owners)}</td>
+              <td class="col-actions">
+                <div class="actions">
+                  <button class="action-link" data-action="detail">详情</button>
+                  <button class="action-link" data-action="copy">复制</button>
+                  <button class="action-link delete" data-action="delete">删除</button>
+                </div>
+              </td>
+            </tr>
+          `
+        )
+        .join("");
+    }
+
+    function generateSetId(type) {
+      const prefix = type === "app" ? "A" : "P";
+      const max = evaluationSets
+        .filter((item) => item.id.startsWith(`${prefix}-`))
+        .map((item) => Number(item.id.replace(/[^\d]/g, "")))
+        .filter((n) => Number.isFinite(n))
+        .reduce((acc, n) => Math.max(acc, n), 0);
+      return `${prefix}-${String(max + 1).padStart(3, "0")}`;
+    }
+
+    function resetNewSetDraft() {
+      newSetProject.innerHTML = '<option value="">请选择项目</option>' + Object.keys(projectTree).map((p) => `<option value="${p}">${p}</option>`).join("");
+      newSetApp.innerHTML = '<option value="">请选择应用</option>';
+      newSetName.value = "";
+      newSetDesc.value = "";
+      newSetOwner.value = "wisewong";
+      newSetDraftTarget = null;
+      targetPickerSelection = "";
+      targetPickerBtn.textContent = "请选择评测对象";
+      document.querySelector('input[name="newSetType"][value="prompt"]').checked = true;
+    }
+
+    function getDraftType() {
+      return document.querySelector('input[name="newSetType"]:checked')?.value || "prompt";
+    }
+
+    function refreshAppOptions() {
+      const project = newSetProject.value;
+      const apps = projectTree[project] || [];
+      newSetApp.innerHTML = '<option value="">请选择应用</option>' + apps.map((app) => `<option value="${app}">${app}</option>`).join("");
+      newSetDraftTarget = null;
+      targetPickerSelection = "";
+      targetPickerBtn.textContent = "请选择评测对象";
+    }
+
+    function getScopeTargets() {
+      const project = newSetProject.value;
+      const app = newSetApp.value;
+      if (!project || !app) return [];
+      const type = getDraftType();
+      const source = type === "prompt" ? getPromptTargets() : APP_TARGETS;
+      return source.filter((target) => target.project === project && target.app === app);
+    }
+
+    function renderTargetPickerRows() {
+      const targets = getScopeTargets();
+      if (!targets.length) {
+        targetPickerBody.innerHTML = '<tr><td class="picker-empty" colspan="5">当前项目/应用下暂无可选对象</td></tr>';
+        return;
+      }
+      const keyword = targetPickerSearch.value.trim().toLowerCase();
+      const filtered = targets.filter((target) => {
+        if (!keyword) return true;
+        const text = [target.id, target.name, `${target.project}/${target.app}`].join(" ").toLowerCase();
+        return text.includes(keyword);
+      });
+      if (!filtered.length) {
+        targetPickerBody.innerHTML = '<tr><td class="picker-empty" colspan="5">没有匹配到对象</td></tr>';
+        return;
+      }
+      targetPickerBody.innerHTML = filtered
+        .map((target) => {
+          const checked = targetPickerSelection === target.id ? "checked" : "";
+          return `
+            <tr data-target-id="${escapeHtml(target.id)}">
+              <td><input type="radio" name="targetPick" data-action="pick-target" data-target-id="${escapeHtml(
+                target.id
+              )}" ${checked} /></td>
+              <td>${escapeHtml(target.id)}</td>
+              <td>${escapeHtml(target.name)}</td>
+              <td>${escapeHtml(`${target.project}/${target.app}`)}</td>
+              <td>${escapeHtml(String((target.vars || []).length))}</td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    function openNewSetModal() {
+      resetNewSetDraft();
+      newSetModal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeNewSetModal() {
+      newSetModal.classList.add("hidden");
+      if (targetPickerModal.classList.contains("hidden")) {
+        document.body.style.overflow = "";
+      }
+    }
+
+    function openTargetPicker() {
+      if (!newSetProject.value || !newSetApp.value) {
+        showToast("请先选择项目和应用");
+        return;
+      }
+      targetPickerSelection = newSetDraftTarget?.id || "";
+      targetPickerSearch.value = "";
+      renderTargetPickerRows();
+      targetPickerModal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeTargetPicker() {
+      targetPickerModal.classList.add("hidden");
+      if (newSetModal.classList.contains("hidden")) {
+        document.body.style.overflow = "";
+      }
+    }
+
+    function applyTargetSelection() {
+      if (!targetPickerSelection) {
+        showToast("请选择评测对象");
+        return;
+      }
+      const target = getScopeTargets().find((item) => item.id === targetPickerSelection);
+      if (!target) {
+        showToast("评测对象不存在");
+        return;
+      }
+      newSetDraftTarget = target;
+      targetPickerBtn.textContent = `${target.name} (${target.id})`;
+      if (!newSetName.value.trim()) {
+        newSetName.value = `${target.name}评测集`;
+      }
+      closeTargetPicker();
+    }
+
+    function createSetFromDraft() {
+      const project = newSetProject.value;
+      const app = newSetApp.value;
+      const type = getDraftType();
+      const owner = newSetOwner.value.trim() || "wisewong";
+      const name = newSetName.value.trim();
+      if (!project || !app) {
+        showToast("请先选择项目和应用");
+        return;
+      }
+      if (!newSetDraftTarget) {
+        showToast("请选择评测对象");
+        return;
+      }
+      if (!name) {
+        showToast("请输入评测集名称");
+        return;
+      }
+
+      const id = generateSetId(type);
+      const variables = buildVariables(newSetDraftTarget.vars || ["query"], type === "app" ? "app" : "prompt");
+      const newSet = normalizeSet(
+        {
+          id,
+          type,
+          targetId: newSetDraftTarget.id,
+          targetName: newSetDraftTarget.name,
+          project,
+          app,
+          objectLabel: `${project}/${app}/${newSetDraftTarget.name}`,
+          name,
+          desc: newSetDesc.value.trim(),
+          updated: nowString(),
+          runAt: "-",
+          owners: owner,
+          variables,
+          cases: defaultCaseByVars(variables)
+        },
+        evaluationSets.length
+      );
+      evaluationSets.unshift(newSet);
+      saveEvalSets();
+      refreshObjectOptions();
+      renderTable();
+      closeTargetPicker();
+      closeNewSetModal();
+      showToast(`已创建评测集：${id}`);
+      window.location.href = `./frontend-eval-set-detail.html?setId=${encodeURIComponent(id)}`;
+    }
+
+    typeFilter.addEventListener("change", () => {
+      refreshObjectOptions();
+      renderTable();
+    });
+    objectFilter.addEventListener("change", renderTable);
+    nameFilter.addEventListener("input", renderTable);
+    ownerFilter.addEventListener("input", renderTable);
+
+    newSetProject.addEventListener("change", refreshAppOptions);
+    newSetApp.addEventListener("change", () => {
+      newSetDraftTarget = null;
+      targetPickerSelection = "";
+      targetPickerBtn.textContent = "请选择评测对象";
+    });
+    newSetTypeInputs.forEach((input) => {
+      input.addEventListener("change", () => {
+        newSetDraftTarget = null;
+        targetPickerSelection = "";
+        targetPickerBtn.textContent = "请选择评测对象";
+      });
+    });
+    targetPickerSearch.addEventListener("input", renderTargetPickerRows);
+
+    targetPickerBody.addEventListener("change", (event) => {
+      const input = event.target.closest('[data-action="pick-target"]');
+      if (!input) return;
+      targetPickerSelection = input.getAttribute("data-target-id") || "";
+    });
+
+    targetPickerBody.addEventListener("click", (event) => {
+      const input = event.target.closest('[data-action="pick-target"]');
+      if (input) {
+        targetPickerSelection = input.getAttribute("data-target-id") || "";
+        return;
+      }
+      const tr = event.target.closest("tr[data-target-id]");
+      if (!tr) return;
+      targetPickerSelection = tr.getAttribute("data-target-id") || "";
+      const radio = tr.querySelector('input[type="radio"][data-action="pick-target"]');
+      if (radio) radio.checked = true;
+    });
+
+    taskBody.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-action]");
+      if (!btn) return;
+      const tr = btn.closest("tr");
+      if (!tr) return;
+      const id = tr.getAttribute("data-id") || "";
+      const row = evaluationSets.find((item) => item.id === id);
+      if (!row) return;
+
+      if (btn.dataset.action === "detail") {
+        window.location.href = `./frontend-eval-set-detail.html?setId=${encodeURIComponent(id)}`;
+        return;
+      }
+
+      if (btn.dataset.action === "copy") {
+        const clone = normalizeSet(
+          {
+            ...row,
+            id: generateSetId(row.type),
+            name: `${row.name}-副本`,
+            updated: nowString(),
+            runAt: "-"
+          },
+          evaluationSets.length
+        );
+        evaluationSets.unshift(clone);
+        saveEvalSets();
+        refreshObjectOptions();
+        renderTable();
+        showToast(`已复制：${clone.id}`);
+        return;
+      }
+
+      if (btn.dataset.action === "delete") {
+        evaluationSets = evaluationSets.filter((item) => item.id !== id);
+        saveEvalSets();
+        refreshObjectOptions();
+        renderTable();
+        showToast(`已删除：${id}`);
+      }
+    });
+
+    headCheck.addEventListener("change", () => {
+      const checked = headCheck.checked;
+      taskBody.querySelectorAll(".row-checkbox").forEach((el) => {
+        el.checked = checked;
+      });
+    });
+
+    document.getElementById("syncEnvBtn").addEventListener("click", () => {
+      showToast("环境同步完成（示例）");
+    });
+
+    document.getElementById("newSetBtn").addEventListener("click", openNewSetModal);
+    document.getElementById("newSetClose").addEventListener("click", closeNewSetModal);
+    document.getElementById("newSetCancel").addEventListener("click", closeNewSetModal);
+    document.getElementById("newSetConfirm").addEventListener("click", createSetFromDraft);
+    targetPickerBtn.addEventListener("click", openTargetPicker);
+    document.getElementById("targetPickerClose").addEventListener("click", closeTargetPicker);
+    document.getElementById("targetPickerCancel").addEventListener("click", closeTargetPicker);
+    document.getElementById("targetPickerConfirm").addEventListener("click", applyTargetSelection);
+
+    newSetModal.addEventListener("click", (event) => {
+      if (event.target === newSetModal) closeNewSetModal();
+    });
+    targetPickerModal.addEventListener("click", (event) => {
+      if (event.target === targetPickerModal) closeTargetPicker();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (!targetPickerModal.classList.contains("hidden")) {
+        closeTargetPicker();
+        return;
+      }
+      if (!newSetModal.classList.contains("hidden")) {
+        closeNewSetModal();
+      }
+    });
+
+    evaluationSets = loadEvalSets();
+    if (presetType || presetObject) {
+      const newId = generateSetId(presetType === "应用" ? "app" : "prompt");
+      const seeded = normalizeSet(
+        {
+          id: newId,
+          type: presetType === "应用" ? "app" : "prompt",
+          targetId: "preset-target",
+          targetName: presetObject || "未命名对象",
+          project: "创信",
+          app: "投保助手",
+          objectLabel: `创信/投保助手/${presetObject || "未命名对象"}`,
+          name: `${presetObject || "未命名对象"}评测集`,
+          desc: "由批量运行入口自动创建",
+          updated: nowString(),
+          runAt: "-",
+          owners: "wisewong",
+          variables: buildVariables(["query"], presetType === "应用" ? "app" : "prompt")
+        },
+        evaluationSets.length
+      );
+      evaluationSets.unshift(seeded);
+      saveEvalSets();
+    }
+
+    if (presetType) typeFilter.value = presetType;
+    refreshObjectOptions();
+    if (presetObject) objectFilter.value = `创信/投保助手/${presetObject}`;
+    renderTable();
+  </script>
+</body>
+
+</html>

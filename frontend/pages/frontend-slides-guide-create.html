@@ -1,0 +1,4009 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>提示词管理 - 新建</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --sidebar: #ffffff;
+      --line: #f1f5f9;
+      --line-strong: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --active: #eff6ff;
+      --blue: #3b82f6;
+      --danger: #ef4444;
+
+      /* 间距系统 */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 20px;
+      --spacing-2xl: 24px;
+
+      /* 圆角系统 */
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 12px;
+
+      /* 阴影系统 */
+      --shadow-header: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.12);
+      --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+      /* 颜色系统 */
+      --color-system-bg: #fafbfc;
+      --color-system-text: #0f172a;
+      --color-system-border: #f1f5f9;
+      --color-user-bg: #eff6ff;
+      --color-user-text: #3b82f6;
+      --color-user-border: #bfdbfe;
+      --color-assistant-bg: #f0fdf4;
+      --color-assistant-text: #10b981;
+      --color-assistant-border: #bbf7d0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      width: 220px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line-strong);
+      padding: var(--spacing-lg) 0;
+      flex-shrink: 0;
+    }
+
+    .menu-group {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .menu-title {
+      margin: 0 0 var(--spacing-sm);
+      padding: 0 22px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .menu-item {
+      height: 44px;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-radius: 0;
+      position: relative;
+    }
+
+    .menu-item:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .menu-item.active {
+      background: var(--active);
+      color: var(--blue);
+    }
+
+    .menu-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--blue);
+    }
+
+    .menu-item i {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ===== 顶部Header区 ===== */
+    .topbar {
+      height: 60px;
+      border-bottom: 1px solid var(--line-strong);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      background: #ffffff;
+      box-shadow: var(--shadow-header);
+      flex-shrink: 0;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    /* ===== Head区域（表单头部） ===== */
+    .head {
+      padding: var(--spacing-lg) 32px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xl);
+      flex-wrap: wrap;
+      background: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .form-field {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .form-field label {
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      color: #64748b;
+    }
+
+    .field-input {
+      width: 180px;
+      height: 40px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      padding: 0 var(--spacing-md);
+      line-height: 40px;
+      font-size: 14px;
+      color: #0f172a;
+      transition: all 0.2s ease;
+    }
+
+    .field-input:hover {
+      border-color: #cbd5e1;
+    }
+
+    .field-input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: #ffffff;
+    }
+
+    .field-input::placeholder {
+      color: #94a3b8;
+    }
+
+    /* ===== 按钮样式 ===== */
+    .btn {
+      border: 0;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--blue);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 0 20px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn.ghost {
+      background: #ffffff;
+      color: #64748b;
+      border: 1px solid var(--line-strong);
+      box-shadow: none;
+    }
+
+    .btn.ghost:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: #cbd5e1;
+      color: #0f172a;
+      box-shadow: none;
+    }
+
+    .btn.danger {
+      background: var(--danger);
+    }
+
+    .btn.danger:hover:not(:disabled) {
+      background: #dc2626;
+    }
+
+    .btn.small {
+      height: 32px;
+      border-radius: var(--radius-md);
+      padding: 0 14px;
+      font-size: 13px;
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    /* ===== 级联选择器 ===== */
+    .cascade {
+      position: relative;
+      width: 180px;
+    }
+
+    .cascade-trigger {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      text-align: left;
+      color: #64748b;
+      font-size: 14px;
+      padding: 0 34px 0 var(--spacing-md);
+      line-height: 40px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .cascade-trigger:hover {
+      border-color: #cbd5e1;
+    }
+
+    .cascade-trigger::after {
+      content: "▾";
+      position: absolute;
+      right: var(--spacing-md);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .cascade-panel {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      z-index: 20;
+      width: 360px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-lg);
+      background: #fff;
+      box-shadow: var(--shadow-dropdown);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      animation: dropdownSlide 0.2s ease;
+    }
+
+    @keyframes dropdownSlide {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .cascade-col {
+      min-height: 220px;
+      max-height: 260px;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+    }
+
+    .cascade-col:last-child {
+      border-right: 0;
+    }
+
+    .cascade-item {
+      width: 100%;
+      border: 0;
+      background: #fff;
+      font-size: 14px;
+      text-align: left;
+      padding: 10px var(--spacing-md);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .cascade-item:hover {
+      background: var(--bg);
+    }
+
+    .cascade-item.active {
+      background: #eff6ff;
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    /* ===== 三栏主体布局 ===== */
+    .body {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 36% 34% 30%;
+      overflow: hidden;
+    }
+
+    .col {
+      min-width: 0;
+      height: 100%;
+      padding: var(--spacing-2xl);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .col:not(:last-child) {
+      border-right: 1px solid var(--line);
+    }
+
+    .col-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 0;
+    }
+
+    /* 自定义滚动条 */
+    .col-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .col-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .col-scroll::-webkit-scrollbar-thumb {
+      background: var(--line);
+      border-radius: 3px;
+    }
+
+    .col-scroll::-webkit-scrollbar-thumb:hover {
+      background: var(--line-strong);
+    }
+
+    /* ===== 区块标题 ===== */
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 36px;
+      margin-bottom: var(--spacing-lg);
+      flex-shrink: 0;
+    }
+
+    .section-head h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    /* ===== Prompt消息区 ===== */
+    .msg-add-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .msg-role-select {
+      min-width: 140px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      padding: 0 10px;
+      color: #4b5563;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .msg-role-select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px #bfdbfe;
+    }
+
+    /* 消息卡片 */
+    .msg-card {
+      margin-bottom: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      transition: all 0.2s ease;
+      border: 1px solid var(--line-strong);
+      background: #ffffff;
+    }
+
+    .msg-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    /* System Prompt 卡片 */
+    .msg-card[data-role="system"] {
+      background: var(--color-system-bg);
+      border-color: var(--color-system-border);
+      border-left: 3px solid var(--color-system-border);
+    }
+
+    /* User Prompt 卡片 */
+    .msg-card[data-role="user"] {
+      background: var(--color-user-bg);
+      border-color: var(--color-user-border);
+      border-left: 3px solid var(--color-user-border);
+    }
+
+    /* Assistant Prompt 卡片 */
+    .msg-card[data-role="assistant"] {
+      background: var(--color-assistant-bg);
+      border-color: var(--color-assistant-border);
+      border-left: 3px solid var(--color-assistant-border);
+    }
+
+    .msg-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* 角色标签颜色 */
+    .msg-card[data-role="system"] .msg-title span {
+      color: var(--color-system-text);
+    }
+
+    .msg-card[data-role="user"] .msg-title span {
+      color: var(--color-user-text);
+    }
+
+    .msg-card[data-role="assistant"] .msg-title span {
+      color: var(--color-assistant-text);
+    }
+
+    .delete-msg {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .delete-msg:hover {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    /* 文本域 */
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      resize: vertical;
+      background: #ffffff;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: var(--spacing-md);
+      transition: all 0.2s ease;
+    }
+
+    textarea:hover {
+      border-color: #cbd5e1;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    textarea::placeholder {
+      color: #94a3b8;
+    }
+
+    /* ===== 次级标题 ===== */
+    .sub-title {
+      margin: var(--spacing-xl) 0 var(--spacing-md);
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .sub-title:first-of-type {
+      margin-top: 0;
+    }
+
+    /* ===== 变量提取框 ===== */
+    .var-box {
+      min-height: 40px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      color: var(--muted);
+      padding: var(--spacing-sm) var(--spacing-md);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ===== 表单字段组 ===== */
+    .kv {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .kv .label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    .kv .hint {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: pre-line;
+      line-height: 1.5;
+    }
+
+    .kv .label.required::before {
+      content: "* ";
+      color: #ef4444;
+    }
+
+    .kv .error-hint {
+      display: none;
+      margin-top: 6px;
+      color: #ef4444;
+      font-size: 12px;
+    }
+
+    .kv input:invalid+.hint+.error-hint,
+    .kv input.error+.hint+.error-hint {
+      display: block;
+    }
+
+    .kv input:invalid,
+    .kv input.error,
+    .kv textarea:invalid,
+    .kv textarea.error {
+      border-color: #ef4444;
+    }
+
+    .kv input,
+    .kv select,
+    .kv textarea {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      padding: 0 var(--spacing-md);
+      line-height: 40px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .kv textarea {
+      height: 80px;
+      min-height: 80px;
+      line-height: 1.6;
+      padding: var(--spacing-sm) var(--spacing-md);
+      resize: vertical;
+    }
+
+    .kv input:hover,
+    .kv select:hover,
+    .kv textarea:hover {
+      border-color: #cbd5e1;
+    }
+
+    .kv input:focus,
+    .kv select:focus,
+    .kv textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: #ffffff;
+    }
+
+    .input-empty {
+      background: #ffffff !important;
+      border-color: var(--line-strong) !important;
+      color: #94a3b8 !important;
+    }
+
+    .input-filled {
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+
+    /* 单选行 */
+    .radio-row {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xl);
+      margin: var(--spacing-sm) 0 var(--spacing-lg);
+    }
+
+    .radio-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .radio-row input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    /* ===== 结果展示区 ===== */
+    .result-head {
+      margin-top: var(--spacing-xl);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .result-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .copy-result {
+      height: 28px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      color: #64748b;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 0 10px;
+      transition: all 0.2s ease;
+    }
+
+    .copy-result:hover {
+      background: var(--bg);
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    .copy-result:active {
+      background: var(--line);
+    }
+
+    .result-box {
+      margin-top: var(--spacing-sm);
+      min-height: 120px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      color: var(--muted);
+      padding: var(--spacing-md);
+      font-size: 13px;
+      font-family: "Menlo", "Monaco", "Consolas", "SF Mono", monospace;
+      line-height: 1.6;
+      resize: vertical;
+      width: 100%;
+      white-space: pre-wrap;
+      word-break: break-word;
+      transition: all 0.2s ease;
+    }
+
+    .trace-tip {
+      margin-top: var(--spacing-md);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: pre-line;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      padding: var(--spacing-md);
+      line-height: 1.5;
+      font-family: "Menlo", "Monaco", "Consolas", "SF Mono", monospace;
+    }
+
+    /* 结果状态 */
+    .result-box.state-idle,
+    .trace-tip.state-idle {
+      background: #ffffff;
+      color: var(--muted);
+      border-color: var(--line-strong);
+    }
+
+    .result-box.state-running,
+    .trace-tip.state-running {
+      background: #fffbeb;
+      color: #b45309;
+      border-color: #fcd34d;
+      animation: pulseBorder 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulseBorder {
+
+      0%,
+      100% {
+        border-color: #fcd34d;
+      }
+
+      50% {
+        border-color: #fbbf24;
+      }
+    }
+
+    .result-box.state-done,
+    .trace-tip.state-done {
+      background: #f0fdf4;
+      color: #15803d;
+      border-color: #86efac;
+    }
+
+    /* ===== 用例选择器 ===== */
+    .case-picker-btn {
+      flex: 1;
+      height: 40px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      color: #6b7280;
+      text-align: left;
+      padding: 0 var(--spacing-md);
+      line-height: 40px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .case-picker-btn:hover:not(:disabled) {
+      border-color: #cbd5e1;
+      background: #ffffff;
+    }
+
+    .case-picker-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .case-picker-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: grid;
+      place-items: center;
+      z-index: 120;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .case-picker-panel {
+      width: min(1360px, calc(100vw - 64px));
+      max-height: min(760px, calc(100vh - 64px));
+      background: #ffffff;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-modal);
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      overflow: hidden;
+      animation: modalSlideUp 0.3s ease;
+    }
+
+    @keyframes modalSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .case-picker-head {
+      height: 56px;
+      border-bottom: 1px solid var(--line);
+      padding: 0 var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .case-picker-head h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .case-picker-close {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #fff;
+      cursor: pointer;
+      color: #64748b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .case-picker-close:hover {
+      background: var(--bg);
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    .case-picker-search {
+      padding: var(--spacing-lg);
+    }
+
+    .case-picker-search input {
+      width: 100%;
+      max-width: 400px;
+      height: 44px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      color: #374151;
+      font-size: 14px;
+      line-height: 44px;
+      padding: 0 var(--spacing-md);
+      transition: all 0.2s ease;
+    }
+
+    .case-picker-search input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: #ffffff;
+    }
+
+    .case-picker-table-wrap {
+      margin: 0 var(--spacing-lg);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #fff;
+      overflow: auto;
+    }
+
+    .case-picker-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+    }
+
+    .case-picker-table thead th {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      padding: var(--spacing-md);
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .case-picker-table tbody td {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .case-picker-table tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    .case-picker-table tbody tr:hover {
+      background: var(--bg);
+    }
+
+    .case-col-check {
+      width: 44px;
+      text-align: center;
+    }
+
+    .case-col-id {
+      width: 80px;
+    }
+
+    .case-picker-table input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    .case-query,
+    .case-ref {
+      max-width: 400px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .case-image {
+      width: 60px;
+      height: 60px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: #f1f5f9;
+    }
+
+    .case-empty {
+      text-align: center;
+      color: var(--muted);
+      padding: var(--spacing-xl) var(--spacing-md) !important;
+    }
+
+    .case-picker-foot {
+      border-top: 1px solid var(--line);
+      height: 60px;
+      padding: 0 var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--spacing-sm);
+    }
+
+    /* ===== 流程提示 ===== */
+    .flow-hint {
+      margin-top: var(--spacing-sm);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* ===== 变量输入列表 ===== */
+    .var-input-list {
+      display: grid;
+      gap: var(--spacing-md);
+    }
+
+    .var-input-item {
+      display: grid;
+      gap: 6px;
+    }
+
+    .var-input-item label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    .var-item-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--spacing-sm);
+      align-items: center;
+    }
+
+    .var-name-field {
+      width: 100%;
+    }
+
+    .var-type-select {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      padding: 0 10px;
+      background: #ffffff;
+      color: #64748b;
+    }
+
+    .var-type-select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .var-input-control {
+      display: flex;
+      gap: var(--spacing-sm);
+      align-items: center;
+    }
+
+    .var-input-item input,
+    .var-input-item textarea {
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      padding: 0 10px;
+      font-size: 14px;
+      line-height: 36px;
+      transition: all 0.2s ease;
+    }
+
+    .var-input-item input:hover,
+    .var-input-item textarea:hover {
+      border-color: #cbd5e1;
+    }
+
+    .var-input-item input:focus,
+    .var-input-item textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: #ffffff;
+    }
+
+    .var-input-item input {
+      height: 36px;
+    }
+
+    .var-input-item textarea {
+      min-height: 60px;
+      resize: vertical;
+      line-height: 1.5;
+      padding: 8px 10px;
+    }
+
+    .var-input-action {
+      min-width: 52px;
+      height: 32px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      color: #4b5563;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      transition: all 0.2s ease;
+    }
+
+    .var-input-action:hover {
+      border-color: #cbd5e1;
+      background: var(--bg);
+      color: #0f172a;
+    }
+
+    .var-file-link {
+      color: var(--blue);
+      font-size: 13px;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    .var-file-strip {
+      width: 100%;
+      min-height: 40px;
+      border-radius: var(--radius-md);
+      background: #f1f5f9;
+      border: 1px solid var(--line-strong);
+      display: flex;
+      align-items: center;
+      padding: 0 var(--spacing-md);
+    }
+
+    .var-file-strip .var-file-link {
+      color: #64748b;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .var-file-minus {
+      margin-top: var(--spacing-sm);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--danger);
+      background: #fff;
+      color: var(--danger);
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .var-file-minus:hover {
+      background: #fee2e2;
+    }
+
+    .var-image-wrap {
+      margin-top: var(--spacing-xs);
+      position: relative;
+      width: 120px;
+    }
+
+    .var-image-link {
+      display: block;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .var-image-preview {
+      width: 120px;
+      height: 160px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: #f1f5f9;
+      object-fit: cover;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .var-image-preview:hover {
+      border-color: var(--blue);
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    .var-image-remove {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: var(--danger);
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .var-image-remove:hover {
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+
+    /* ===== 图片预览模态框 ===== */
+    .image-preview-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 180;
+      background: rgba(15, 23, 42, 0.8);
+      display: grid;
+      place-items: center;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .image-preview-stage {
+      position: relative;
+      max-width: min(92vw, 1200px);
+      max-height: 90vh;
+    }
+
+    .image-preview-large {
+      display: block;
+      max-width: 100%;
+      max-height: 90vh;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      box-shadow: var(--shadow-modal);
+    }
+
+    .image-preview-close {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: var(--danger);
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .image-preview-close:hover {
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+
+    .sync-eval-btn {
+      margin-top: var(--spacing-lg);
+      align-self: flex-start;
+    }
+
+    /* ===== 同步模态框 ===== */
+    .sync-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(15, 23, 42, 0.5);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .sync-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: min(860px, 56vw);
+      height: 100%;
+      background: #ffffff;
+      border-left: 1px solid var(--line-strong);
+      padding: var(--spacing-2xl);
+      overflow: auto;
+      box-shadow: var(--shadow-modal);
+      animation: slideInRight 0.3s ease;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    .sync-panel h2 {
+      margin: 0 0 var(--spacing-xl);
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .sync-form-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 var(--spacing-sm);
+      color: #0f172a;
+    }
+
+    .sync-row {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .sync-row select,
+    .sync-row textarea,
+    .sync-row input {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      padding: 0 var(--spacing-md);
+      min-height: 40px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .sync-row select:focus,
+    .sync-row textarea:focus,
+    .sync-row input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: #ffffff;
+    }
+
+    .sync-row textarea {
+      min-height: 80px;
+      padding: 10px var(--spacing-md);
+      resize: vertical;
+    }
+
+    .sync-hint {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: var(--spacing-sm);
+      line-height: 1.5;
+    }
+
+    .sync-vars {
+      margin-top: var(--spacing-sm);
+      border-top: 1px solid var(--line);
+      padding-top: var(--spacing-md);
+    }
+
+    .sync-var-item {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .sync-var-name {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #64748b;
+    }
+
+    .sync-file-inline {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .sync-file-inline img {
+      width: 56px;
+      height: 56px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+    }
+
+    .sync-foot {
+      margin-top: var(--spacing-xl);
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing-sm);
+    }
+
+    .var-input-empty {
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      color: var(--muted);
+      font-size: 13px;
+      padding: var(--spacing-md);
+      text-align: center;
+    }
+
+    .var-type-popover {
+      position: fixed;
+      z-index: 220;
+      min-width: 160px;
+      background: #ffffff;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-dropdown);
+      overflow: hidden;
+    }
+
+    .var-type-item {
+      width: 100%;
+      border: 0;
+      background: #ffffff;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 14px;
+      color: #0f172a;
+      cursor: pointer;
+    }
+
+    .var-type-item+.var-type-item {
+      border-top: 1px solid var(--line);
+    }
+
+    .var-type-item:hover {
+      background: var(--bg);
+    }
+
+    /* ===== 变量输入视觉优化 ===== */
+    .var-input-list {
+      gap: 14px;
+    }
+
+    .var-input-item {
+      gap: 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-lg);
+      background: #ffffff;
+      padding: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .var-input-item:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    }
+
+    .var-item-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .var-remove-variable {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: 2px solid var(--danger);
+      background: #ffffff;
+      color: var(--danger);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      transition: all 0.2s ease;
+    }
+
+    .var-remove-variable:hover {
+      background: #fee2e2;
+      transform: translateY(-1px);
+    }
+
+    .var-input-item textarea {
+      min-height: 78px;
+    }
+
+    .var-input-control {
+      gap: 8px;
+    }
+
+    .var-input-control input {
+      flex: 1;
+    }
+
+    .var-input-action {
+      height: 36px;
+      min-width: 56px;
+    }
+
+    .var-file-strip {
+      min-height: 42px;
+    }
+
+    /* ===== Toast通知 ===== */
+    .toast {
+      position: fixed;
+      right: var(--spacing-lg);
+      bottom: var(--spacing-lg);
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      font-size: 14px;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-dropdown);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== 输入框最小宽度保护 ===== */
+    .field-input,
+    .cascade {
+      min-width: 120px;
+    }
+
+    /* ===== 响应式布局 ===== */
+    @media (max-width: 1200px) {
+      .body {
+        grid-template-columns: 1fr;
+        overflow: auto;
+      }
+
+      .col {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        overflow: visible;
+        min-height: 400px;
+      }
+
+      .col:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--line-strong);
+        padding: var(--spacing-md) 0;
+      }
+
+      .menu-group {
+        margin-bottom: var(--spacing-sm);
+      }
+
+      /* Head 区域响应式优化 */
+      .head {
+        gap: var(--spacing-md);
+        padding: var(--spacing-md);
+        flex-wrap: wrap;
+      }
+
+      .form-field {
+        flex: 1 1 calc(50% - var(--spacing-md));
+        min-width: 200px;
+        flex-wrap: nowrap;
+      }
+
+      .form-field label {
+        flex-shrink: 0;
+      }
+
+      .field-input,
+      .cascade {
+        flex: 1;
+        min-width: 120px;
+        max-width: none;
+      }
+
+      .spacer {
+        display: none;
+      }
+
+      /* 按钮组 */
+      .head>.btn {
+        flex-shrink: 0;
+      }
+
+      .topbar {
+        padding: 0 var(--spacing-md);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+      }
+
+      .form-field {
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: auto;
+      }
+
+      .form-field label {
+        width: 80px;
+        flex-shrink: 0;
+      }
+
+      .field-input,
+      .cascade {
+        width: auto;
+        flex: 1;
+      }
+
+      /* 按钮组垂直排列 */
+      .head>.btn {
+        width: 100%;
+        margin-top: var(--spacing-sm);
+      }
+
+      /* 级联选择器面板 */
+      .cascade-panel {
+        width: calc(100vw - 48px);
+        max-width: 360px;
+        left: 0;
+        right: auto;
+      }
+
+      /* 消息卡片 */
+      .msg-card {
+        padding: var(--spacing-md);
+      }
+
+      /* 变量输入 */
+      .var-item-head {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+      }
+
+      .var-item-actions {
+        justify-content: flex-end;
+      }
+
+      /* 结果区域 */
+      .result-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+      }
+    }
+
+    @media (max-width: 480px) {
+      html {
+        font-size: 13px;
+      }
+
+      .head {
+        padding: var(--spacing-sm);
+      }
+
+      .form-field {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .form-field label {
+        width: auto;
+      }
+
+      .field-input,
+      .cascade {
+        width: 100%;
+      }
+
+      /* 按钮简化 */
+      .btn {
+        height: 36px;
+        padding: 0 var(--spacing-md);
+      }
+
+      /* 角色选择简化 */
+      .msg-add-controls {
+        width: 100%;
+      }
+
+      .msg-role-select {
+        flex: 1;
+      }
+
+      /* 消息标题简化 */
+      .msg-title {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+      }
+
+      .msg-title>span {
+        font-size: 12px;
+      }
+
+      /* 单选行垂直 */
+      .radio-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+      }
+
+      /* 用例选择器模态框 */
+      .case-picker-panel {
+        width: 100vw;
+        max-width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+      }
+
+      .case-picker-search input {
+        max-width: 100%;
+      }
+
+      /* 同步面板全屏 */
+      .sync-panel {
+        width: 100vw;
+        max-width: 100vw;
+      }
+
+      /* Toast 调整 */
+      .toast {
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        text-align: center;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="./ui-refresh.css" />
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+
+    <main class="main no-topbar">
+      <section class="head">
+        <div class="form-field">
+          <label>项目/应用</label>
+          <div id="editorCascade" class="cascade">
+            <button class="cascade-trigger" type="button">请选择项目/应用</button>
+            <div class="cascade-panel hidden">
+              <div class="cascade-col projects"></div>
+              <div class="cascade-col apps"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>名称</label>
+          <input id="promptName" class="field-input" placeholder="请输入名称" />
+        </div>
+
+        <div class="form-field">
+          <label>描述</label>
+          <input id="promptDesc" class="field-input" placeholder="请输入描述" maxlength="200" />
+        </div>
+
+        <div class="form-field">
+          <label>负责人</label>
+          <input id="promptOwner" class="field-input" placeholder="请输入负责人" value="wisewong" />
+        </div>
+
+        <div class="spacer"></div>
+        <button id="newEvalTaskBtn" class="btn" type="button" style="display: none;">批量运行</button>
+        <button id="savePromptBtn" class="btn" type="button">保存</button>
+      </section>
+
+      <section class="body">
+        <div class="col">
+          <div class="section-head">
+            <h3>Prompt消息</h3>
+            <div class="msg-add-controls">
+              <button id="addMessageBtn" class="btn small add-menu-btn" type="button">添加Assistant Prompt</button>
+            </div>
+          </div>
+          <div class="col-scroll">
+            <div id="messageList"></div>
+
+            <div class="sub-title">变量提取</div>
+            <div id="variableBox" class="var-box">暂无提取到变量</div>
+
+            <div class="sub-title" style="margin-top: var(--spacing-xl)">变量引用</div>
+            <div class="radio-row">
+              <label><input type="radio" name="refMode" value="custom" checked /> 自定义变量</label>
+            </div>
+            <div class="flow-hint" style="margin-top: 4px;">新建提示词仅支持自定义变量，保存后可引用评测集。</div>
+
+            <div class="sub-title" style="margin-top: var(--spacing-xl)">变量输入</div>
+            <div id="varInputContainer" class="var-input-list"></div>
+            <div id="varInputHint" class="flow-hint">未提取到变量，请先在 Prompt 中使用 {{变量名}}。</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="section-head">
+            <h3>节点配置</h3>
+          </div>
+          <div class="col-scroll">
+            <div class="kv">
+              <label class="label">模型选择</label>
+              <select id="modelSelect">
+                <option>Deepseek v 3.2</option>
+                <option>doubao-seed 1.6 flash</option>
+                <option>gpt-4o-mini</option>
+              </select>
+              <div class="hint">价格信息
+                ≤32,000 tokens，输入: 0.002，输出: 0.003
+                >32,001 tokens，输入: 0.004，输出: 0.006
+                单位：元/千tokens</div>
+            </div>
+
+            <div class="sub-title">模型参数</div>
+
+            <div class="kv">
+              <label class="label">深度思考</label>
+              <div class="radio-row" style="margin-top: 6px; margin-bottom: 6px">
+                <label><input type="radio" name="deepMode" value="off" /> 关闭</label>
+                <label><input type="radio" name="deepMode" value="on" checked /> 开启</label>
+                <label><input type="radio" name="deepMode" value="auto" /> 自动</label>
+              </div>
+            </div>
+
+            <div class="kv">
+              <label class="label required">温度</label>
+              <input id="temperatureInput" value="0.3" placeholder="请输入温度值(0-2)" required />
+              <span class="hint">控制输出的随机性，0为确定性输出，2为最大随机性</span>
+              <span class="error-hint">请输入温度值</span>
+            </div>
+
+            <div class="kv">
+              <label class="label required">Seed</label>
+              <input id="seedInput" value="42" placeholder="请输入Seed值(0-10000)" required />
+              <span class="hint">随机种子，用于确保输出的可重现性</span>
+              <span class="error-hint">请输入Seed值</span>
+            </div>
+
+            <div class="kv">
+              <label class="label required">MaxTokens</label>
+              <input id="maxTokensInput" value="32000" placeholder="请输入MaxTokens值(0-32000)" required />
+              <span class="hint">最大输出令牌数，取值范围：0-32000</span>
+              <span class="error-hint">请输入MaxTokens值</span>
+            </div>
+
+            <div class="kv">
+              <label class="label required">Timeout</label>
+              <input id="timeoutInput" value="300" placeholder="请输入超时时间(0-86400秒)" required />
+              <span class="hint">模型调用超时时间，默认300秒</span>
+              <span class="error-hint">请输入Timeout值</span>
+            </div>
+
+            <div class="kv">
+              <label class="label">Extra Body</label>
+              <textarea id="extraBodyInput" placeholder='{"key": "value"}'></textarea>
+              <span class="hint">额外的请求参数（JSON格式）</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="section-head">
+            <h3>预览调试</h3>
+          </div>
+          <div class="col-scroll">
+            <div style="margin-top: 0">
+              <button id="runBtn" class="btn" type="button" style="width: 106px">
+                <i data-lucide="play" style="width: 14px; height: 14px;"></i>
+                运行
+              </button>
+            </div>
+
+            <div class="result-head">
+              <div class="result-title">模型响应</div>
+              <button class="copy-result" data-target="responseBox" type="button">
+                <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+                <span>复制</span>
+              </button>
+            </div>
+            <textarea id="responseBox" class="result-box state-idle" placeholder="待运行" readonly></textarea>
+
+            <div class="result-head">
+              <div class="result-title">模型输出</div>
+              <button class="copy-result" data-target="outputBox" type="button">
+                <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+                <span>复制</span>
+              </button>
+            </div>
+            <textarea id="outputBox" class="result-box state-idle" placeholder="待运行" readonly></textarea>
+
+            <div id="tracePerf" class="trace-tip state-idle hidden">耗时: - | 输入Tokens:- | 输出Tokens:-\n输入成本: - | 输出成本: -
+            </div>
+            <button id="syncEvalBtn" class="btn small sync-eval-btn hidden" type="button">同步到评测集</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="casePickerModal" class="case-picker-modal hidden">
+    <div class="case-picker-panel">
+      <div class="case-picker-head">
+        <h4>选择用例</h4>
+        <button id="casePickerClose" class="case-picker-close" type="button" aria-label="关闭">
+          <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+        </button>
+      </div>
+      <div class="case-picker-search">
+        <input id="caseSearchInput" placeholder="支持模糊检索" />
+      </div>
+      <div class="case-picker-table-wrap">
+        <table class="case-picker-table">
+          <thead>
+            <tr>
+              <th class="case-col-check"></th>
+              <th class="case-col-id">id</th>
+              <th id="caseTextHead">变量文本</th>
+              <th id="caseImageHead">变量图片</th>
+              <th id="caseOutputHead">期望输出（reference_output）</th>
+            </tr>
+          </thead>
+          <tbody id="casePickerBody"></tbody>
+        </table>
+      </div>
+      <div class="case-picker-foot">
+        <button id="casePickerCancel" class="btn ghost small" type="button">取消</button>
+        <button id="casePickerConfirm" class="btn small" type="button">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="syncEvalModal" class="sync-modal hidden">
+    <div class="sync-panel">
+      <h2>同步到评测集</h2>
+
+      <div class="sync-row">
+        <div class="sync-form-title">同步方式</div>
+        <div class="radio-row" style="margin: 0">
+          <label><input type="radio" name="syncMode" value="add" /> 新增用例</label>
+          <label><input type="radio" name="syncMode" value="overwrite" /> 覆盖用例</label>
+        </div>
+      </div>
+
+      <div class="sync-row">
+        <div class="sync-form-title">评测集</div>
+        <select id="syncEvalSetSelect"></select>
+      </div>
+
+      <div class="sync-row">
+        <div class="sync-form-title">用例id</div>
+        <select id="syncCaseSelect"></select>
+      </div>
+
+      <div class="sync-vars" id="syncVarPreview"></div>
+
+      <div class="sync-row">
+        <div class="sync-form-title">期望输出（reference_output）</div>
+        <textarea id="syncReferenceOutput" readonly></textarea>
+      </div>
+
+      <div id="syncModeHint" class="sync-hint"></div>
+
+      <div class="sync-foot">
+        <button id="syncEvalCancel" class="btn ghost small" type="button">取消</button>
+        <button id="syncEvalConfirm" class="btn small" type="button">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="imagePreviewModal" class="image-preview-modal hidden">
+    <div class="image-preview-stage">
+      <button id="imagePreviewClose" class="image-preview-close" type="button" aria-label="关闭预览">
+        <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+      </button>
+      <img id="imagePreviewLarge" class="image-preview-large" alt="图片预览" />
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "prompt_rows_demo";
+    const ROLE_OPTIONS = [
+      { value: "system", label: "System Prompt" },
+      { value: "user", label: "User Prompt" },
+      { value: "assistant", label: "Assistant Prompt" }
+    ];
+    const VAR_TYPE_OPTIONS = [
+      { value: "text", label: "文本变量" },
+      { value: "image", label: "图片变量" },
+      { value: "file", label: "文件变量" }
+    ];
+    const VARIABLE_NAME_RE = /^[A-Za-z][A-Za-z0-9_]*$/;
+    const DEFAULT_SYSTEM_PROMPT = "";
+    const DEFAULT_USER_PROMPT = "";
+
+    const projectTree = {
+      手小保: ["手小保", "理赔助手"],
+      insAI: ["Agent", "问题推荐", "PDF转md大师"],
+      增长项目: ["营销分析", "外呼助手"]
+    };
+
+    const evaluationSetMap = {
+      "手小保/手小保": [
+        {
+          id: "es_claim_base",
+          name: "理赔基础评测集",
+          cases: [
+            {
+              id: "C001",
+              name: "理赔材料咨询",
+              inputs: {
+                query: "理赔要准备哪些材料？",
+                reference_text: "产品A条款第5节：理赔需身份证、病历、发票等材料。",
+                reference_output: "需要准备身份证、病历、发票和就诊证明，具体以保单条款为准。"
+              }
+            },
+            {
+              id: "C002",
+              name: "理赔时效咨询",
+              inputs: {
+                query: "一般多久能赔付到账？",
+                reference_text: "审核通过后3-5个工作日打款，复杂案件延长。",
+                reference_output: "常规案件审核通过后 3-5 个工作日到账，复杂案件会延长。"
+              }
+            }
+          ]
+        },
+        {
+          id: "es_claim_pdf",
+          name: "条款OCR评测集",
+          cases: [
+            {
+              id: "C901",
+              name: "条款段落识别",
+              inputs: {
+                pdf_img: "https://picsum.photos/seed/claim901/128/128",
+                ocr_text: "<table><tr><td>1.1</td><td>保障责任</td><td>本合同生效后...</td></tr></table>",
+                reference_output: "### 1.1 保障责任\n本合同生效后..."
+              }
+            },
+            {
+              id: "C902",
+              name: "免责条款拆解",
+              inputs: {
+                pdf_img: "https://picsum.photos/seed/claim902/128/128",
+                ocr_text: "<table><tr><td>2.3</td><td>免责条款</td><td>以下情形不承担责任...</td></tr></table>",
+                reference_output: "### 2.3 免责条款\n以下情形不承担责任..."
+              }
+            }
+          ]
+        }
+      ],
+      "insAI/Agent": [
+        {
+          id: "es_agent_reg",
+          name: "Agent回归评测集",
+          cases: [
+            {
+              id: "C101",
+              name: "产品责任问答",
+              inputs: {
+                query: "这款产品保什么，不保什么？",
+                reference_text: "保障责任见条款第2章，免责见第8章。",
+                user_level: "new_user",
+                reference_output: "保障责任见第2章，免责责任见第8章，可按用户等级补充解释。"
+              }
+            },
+            {
+              id: "C102",
+              name: "分红解释",
+              inputs: {
+                query: "分红实现率是什么意思？",
+                reference_text: "分红实现率=实际分红/演示分红，受经营情况影响。",
+                user_level: "advanced_user",
+                reference_output: "分红实现率=实际分红/演示分红，受经营情况影响，并非保证收益。"
+              }
+            },
+            {
+              id: "C103",
+              name: "保全流程",
+              inputs: {
+                query: "退保和减保流程分别是什么？",
+                reference_text: "退保需确认现金价值；减保需满足保单生效满2年等条件。",
+                user_level: "new_user",
+                reference_output: "退保需确认现金价值，减保需满足生效年限及条款条件。"
+              }
+            }
+          ]
+        },
+        {
+          id: "es_agent_rag",
+          name: "知识库检索评测集",
+          cases: [
+            {
+              id: "C201",
+              name: "条款检索-重疾定义",
+              inputs: {
+                query: "合同里重疾定义在哪一条？",
+                reference_text: "见保险条款附录A，重疾定义第3条至第27条。",
+                reference_output: "重疾定义位于附录A第3-27条。"
+              }
+            },
+            {
+              id: "C202",
+              name: "免责条款检索",
+              inputs: {
+                query: "免责条款有哪些常见场景？",
+                reference_text: "免责一般包括故意行为、酒驾、特定既往症等。",
+                reference_output: "常见免责场景有故意行为、酒驾和特定既往症。"
+              }
+            }
+          ]
+        },
+        {
+          id: "es_agent_pdf",
+          name: "Agent文档还原评测集",
+          cases: [
+            {
+              id: "C903",
+              name: "行列错位修复",
+              inputs: {
+                pdf_img: "https://picsum.photos/seed/agent903/128/128",
+                ocr_text: "<table><tr><td>[x1,y1,x2,y2]</td><td>错位文本</td></tr></table>",
+                reference_output: "<table><tr><td>修复后文本</td></tr></table>"
+              }
+            },
+            {
+              id: "C904",
+              name: "假表格拆解",
+              inputs: {
+                pdf_img: "https://picsum.photos/seed/agent904/128/128",
+                ocr_text: "<table><tr><td>术语</td><td>解释内容很长...</td></tr></table>",
+                reference_output: "### 术语\n解释内容很长..."
+              }
+            }
+          ]
+        }
+      ],
+      "insAI/问题推荐": [
+        {
+          id: "es_reco_base",
+          name: "问题推荐基线集",
+          cases: [
+            {
+              id: "C301",
+              name: "家庭保障规划",
+              inputs: {
+                query: "一家三口怎么买保险？",
+                user_profile: "双职工+一孩",
+                reference_output: "优先重疾/医疗/意外，再补寿险，按家庭预算分层配置。"
+              }
+            },
+            {
+              id: "C302",
+              name: "预算有限建议",
+              inputs: {
+                query: "预算不高怎么配置优先级？",
+                user_profile: "预算每年5000",
+                reference_output: "预算有限时优先保大病和医疗，意外险可作为基础补充。"
+              }
+            }
+          ]
+        },
+        {
+          id: "es_reco_pdf",
+          name: "问题推荐文档评测集",
+          cases: [
+            {
+              id: "C905",
+              name: "扫描文档重排",
+              inputs: {
+                pdf_img: "https://picsum.photos/seed/reco905/128/128",
+                ocr_text: "<table><tr><td>A</td><td>B</td><td>C</td></tr></table>",
+                reference_output: "<table><tr><td>A</td><td>B</td><td>C</td></tr></table>"
+              }
+            },
+            {
+              id: "C906",
+              name: "条款段落提取",
+              inputs: {
+                pdf_img: "https://picsum.photos/seed/reco906/128/128",
+                ocr_text: "<table><tr><td>3</td><td>投保规则</td><td>规则正文...</td></tr></table>",
+                reference_output: "### 3 投保规则\n规则正文..."
+              }
+            }
+          ]
+        }
+      ],
+      "insAI/PDF转md大师": [
+        {
+          id: "es_pdf_abnormal",
+          name: "异常PDF集",
+          cases: [
+            {
+              id: "001",
+              name: "错位表格识别",
+              inputs: {
+                pdf_img: "https://picsum.photos/seed/pdf001/128/128",
+                ocr_text: "<table><tr><td>[87,468,880,850]</td></tr></table>",
+                reference_output: "<table><tr><td>修复后结果</td></tr></table>"
+              }
+            },
+            {
+              id: "002",
+              name: "旋转扫描件识别",
+              inputs: {
+                pdf_img: "https://picsum.photos/seed/pdf002/128/128",
+                ocr_text: "文本块识别顺序异常，列关系丢失",
+                reference_output: "按原表头重建列顺序并输出Markdown表格"
+              }
+            },
+            {
+              id: "003",
+              name: "条款假表格拆解",
+              inputs: {
+                pdf_img: "https://picsum.photos/seed/pdf003/128/128",
+                ocr_text:
+                  "<table><tr><td>1</td><td>保险责任</td><td>在合同有效期内，满足条件即承担责任...</td></tr></table>",
+                reference_output: "### 1 保险责任\n在合同有效期内，满足条件即承担责任..."
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    const mode = "create";
+    const editId = "";
+    const TRACE_IDLE_TEXT = "耗时: - | 输入Tokens:- | 输出Tokens:-\n输入成本: - | 输出成本: -";
+    const TRACE_DONE_TEXT =
+      "耗时: 58.26s | 输入Tokens:2260 Tokens | 输出Tokens:2260 Tokens\n输入成本: 0.05元 | 输出成本：0.05元";
+
+    const editorState = {
+      project: "",
+      app: "",
+      name: "",
+      desc: "",
+      owner: "wisewong",
+      messages: [
+        { role: "System Prompt", content: DEFAULT_SYSTEM_PROMPT },
+        { role: "User Prompt", content: DEFAULT_USER_PROMPT }
+      ],
+      model: "Deepseek v 3.2",
+      deepMode: "on",
+      temp: "0.3",
+      seed: "42",
+      maxTokens: "32000",
+      timeout: "300",
+      extraBody: "",
+      refMode: "custom",
+      evalSet: "",
+      caseId: "",
+      variableInputs: {},
+      variableFiles: {},
+      variableMeta: {},
+      extractedVars: [],
+      response: "待运行",
+      output: "待运行",
+      tracePerf: TRACE_IDLE_TEXT
+    };
+
+    const LEGACY_ROW_009 = {
+      id: "009",
+      project: "手小保",
+      app: "手小保",
+      name: "009-兼容提示词",
+      desc: "兼容旧缓存ID",
+      updated: "2026/02/26 15:50:00",
+      owners: ["wisewong"],
+      refMode: "eval",
+      evalSet: "es_claim_pdf",
+      caseId: "C901",
+      variableInputs: {
+        ocr_text: "<table><tr><td>1.1</td><td>保障责任</td><td>本合同生效后...</td></tr></table>",
+        pdf_img: "https://picsum.photos/seed/claim901/128/128"
+      },
+      variableMeta: {
+        ocr_text: { type: "text" },
+        pdf_img: { type: "image" }
+      },
+      messages: [
+        { role: "System Prompt", content: DEFAULT_SYSTEM_PROMPT },
+        { role: "User Prompt", content: DEFAULT_USER_PROMPT }
+      ]
+    };
+
+    function ensureLegacyRow009(rows) {
+      const list = Array.isArray(rows) ? [...rows] : [];
+      const normalized009 = (id) => {
+        const raw = String(id ?? "").trim();
+        const digits = raw.replace(/[^\d]/g, "");
+        return digits ? String(Number(digits)).padStart(3, "0") : "";
+      };
+      let has009 = false;
+      const deduped = [];
+      list.forEach((row) => {
+        if (normalized009(row?.id) === "009") {
+          if (has009) return;
+          has009 = true;
+          deduped.push({ ...row, id: "009" });
+          return;
+        }
+        deduped.push(row);
+      });
+      if (!has009) {
+        deduped.push({ ...LEGACY_ROW_009 });
+      }
+      return deduped;
+    }
+
+    const promptName = document.getElementById("promptName");
+    const promptDesc = document.getElementById("promptDesc");
+    const promptOwner = document.getElementById("promptOwner");
+    const messageList = document.getElementById("messageList");
+    const addMessageBtn = document.getElementById("addMessageBtn");
+    const variableBox = document.getElementById("variableBox");
+    const responseBox = document.getElementById("responseBox");
+    const outputBox = document.getElementById("outputBox");
+    const modelSelect = document.getElementById("modelSelect");
+    const temperatureInput = document.getElementById("temperatureInput");
+    const seedInput = document.getElementById("seedInput");
+    const maxTokensInput = document.getElementById("maxTokensInput");
+    const timeoutInput = document.getElementById("timeoutInput");
+    const extraBodyInput = document.getElementById("extraBodyInput");
+    const varInputContainer = document.getElementById("varInputContainer");
+    const varInputHint = document.getElementById("varInputHint");
+    const tracePerf = document.getElementById("tracePerf");
+    const syncEvalBtn = document.getElementById("syncEvalBtn");
+    const toast = document.getElementById("toast");
+    const casePickerModal = document.getElementById("casePickerModal");
+    const caseSearchInput = document.getElementById("caseSearchInput");
+    const casePickerBody = document.getElementById("casePickerBody");
+    const caseTextHead = document.getElementById("caseTextHead");
+    const caseImageHead = document.getElementById("caseImageHead");
+    const casePickerClose = document.getElementById("casePickerClose");
+    const casePickerCancel = document.getElementById("casePickerCancel");
+    const casePickerConfirm = document.getElementById("casePickerConfirm");
+    const syncEvalModal = document.getElementById("syncEvalModal");
+    const syncEvalSetSelect = document.getElementById("syncEvalSetSelect");
+    const syncCaseSelect = document.getElementById("syncCaseSelect");
+    const syncVarPreview = document.getElementById("syncVarPreview");
+    const syncReferenceOutput = document.getElementById("syncReferenceOutput");
+    const syncModeHint = document.getElementById("syncModeHint");
+    const syncEvalCancel = document.getElementById("syncEvalCancel");
+    const syncEvalConfirm = document.getElementById("syncEvalConfirm");
+    const imagePreviewModal = document.getElementById("imagePreviewModal");
+    const imagePreviewClose = document.getElementById("imagePreviewClose");
+    const imagePreviewLarge = document.getElementById("imagePreviewLarge");
+    const varTypePopover = document.createElement("div");
+    varTypePopover.id = "varTypePopover";
+    varTypePopover.className = "var-type-popover hidden";
+    varTypePopover.innerHTML = VAR_TYPE_OPTIONS.map(
+      (item) => `<button class="var-type-item" type="button" data-var-type="${item.value}">${item.label}</button>`
+    ).join("");
+    document.body.appendChild(varTypePopover);
+    let casePickerSelection = "";
+    let syncMode = "add";
+    let addVarMessageIndex = -1;
+    const SYNC_DEBUG = true;
+    const varFilePicker = document.createElement("input");
+    varFilePicker.type = "file";
+    varFilePicker.accept = "image/*,.pdf,.txt,.md,.json";
+    varFilePicker.className = "hidden";
+    document.body.appendChild(varFilePicker);
+
+    function syncLog(event, payload = {}) {
+      if (!SYNC_DEBUG) return;
+      const stamp = new Date().toISOString();
+      console.log(`[SyncEval][${stamp}] ${event}`, payload);
+    }
+
+    function loadRows() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        const normalized = ensureLegacyRow009(parsed);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+        return normalized;
+      } catch {
+        const fallback = ensureLegacyRow009([]);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
+        return fallback;
+      }
+    }
+
+    function saveRows(rows) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+    }
+
+    function nowString() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(
+        d.getHours()
+      )}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    function nextId(rows) {
+      const max = rows.reduce((acc, row) => {
+        const n = Number(String(row?.id ?? "").replace(/[^\d]/g, ""));
+        return Number.isFinite(n) ? Math.max(acc, n) : acc;
+      }, 0);
+      return String(max + 1).padStart(3, "0");
+    }
+
+    function normalizeRowId(id) {
+      const raw = String(id ?? "").trim();
+      if (!raw) return "";
+      if (/^\d+$/.test(raw)) return String(Number(raw)).padStart(3, "0");
+      const digits = raw.replace(/[^\d]/g, "");
+      return digits ? String(Number(digits)).padStart(3, "0") : raw;
+    }
+
+    function isSameRowId(a, b) {
+      return normalizeRowId(a) === normalizeRowId(b);
+    }
+
+    function parseOwnersFromRow(row) {
+      if (Array.isArray(row?.owners)) return row.owners.filter(Boolean).map((x) => String(x).trim()).filter(Boolean);
+      if (typeof row?.owners === "string") {
+        return row.owners
+          .split(/[、,，\s]+/)
+          .map((x) => x.trim())
+          .filter(Boolean);
+      }
+      if (typeof row?.owner === "string") {
+        return row.owner
+          .split(/[、,，\s]+/)
+          .map((x) => x.trim())
+          .filter(Boolean);
+      }
+      return [];
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1500);
+    }
+
+    function copyText(text, okText = "已复制") {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast(okText));
+      } else {
+        const t = document.createElement("textarea");
+        t.value = text;
+        document.body.appendChild(t);
+        t.select();
+        document.execCommand("copy");
+        t.remove();
+        showToast(okText);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function getRoleKey(roleLabel) {
+      const key = String(roleLabel || "").toLowerCase();
+      if (key.includes("system")) return "system";
+      if (key.includes("assistant")) return "assistant";
+      return "user";
+    }
+
+    function escapeRegExp(value) {
+      return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function normalizeVariableType(type) {
+      if (type === "textarea") return "text";
+      if (type === "image" || type === "file") return type;
+      return "text";
+    }
+
+    function getUserPromptText() {
+      return editorState.messages
+        .filter((m) => getRoleKey(m.role) === "user")
+        .map((m) => m.content)
+        .join("\n");
+    }
+
+    function getPromptVariableKeys() {
+      return [...editorState.extractedVars].sort();
+    }
+
+    function getCaseInputKeys(testCase) {
+      return Object.keys(testCase?.inputs || {})
+        .filter((k) => k !== "reference_output")
+        .sort();
+    }
+
+    function isCaseVariableCompatible(testCase) {
+      const promptKeys = getPromptVariableKeys();
+      if (!promptKeys.length) return false;
+      const caseKeys = getCaseInputKeys(testCase);
+      if (promptKeys.length !== caseKeys.length) return false;
+      return promptKeys.every((key, idx) => key === caseKeys[idx]);
+    }
+
+    function buildConstrainedMessages(rawMessages = []) {
+      const roleMap = new Map();
+      const assistants = [];
+      rawMessages.forEach((msg) => {
+        const roleKey = getRoleKey(msg?.role);
+        const content = String(msg?.content || "");
+        if (roleKey === "assistant") {
+          assistants.push({ role: "Assistant Prompt", content });
+          return;
+        }
+        if (!roleMap.has(roleKey)) {
+          const roleLabel = ROLE_OPTIONS.find((option) => option.value === roleKey)?.label || "User Prompt";
+          roleMap.set(roleKey, { role: roleLabel, content });
+        }
+      });
+
+      const normalized = [
+        { role: "System Prompt", content: roleMap.get("system")?.content || DEFAULT_SYSTEM_PROMPT },
+        { role: "User Prompt", content: roleMap.get("user")?.content || DEFAULT_USER_PROMPT }
+      ];
+      return normalized.concat(assistants);
+    }
+
+    function renderAddMessageRoleOptions() {
+      addMessageBtn.disabled = false;
+    }
+
+    function refreshInputVisualState(root = document) {
+      const fields = root.querySelectorAll("input, textarea, select");
+      fields.forEach((field) => {
+        const tag = field.tagName.toLowerCase();
+        const type = (field.getAttribute("type") || "").toLowerCase();
+        if (type === "radio" || type === "checkbox" || type === "button" || type === "submit") return;
+        if (tag === "select") {
+          const filled = !!field.value;
+          field.classList.toggle("input-filled", filled);
+          field.classList.toggle("input-empty", !filled);
+          return;
+        }
+        const filled = String(field.value || "").trim().length > 0;
+        field.classList.toggle("input-filled", filled);
+        field.classList.toggle("input-empty", !filled);
+      });
+    }
+
+    function setRunState(state) {
+      const targets = [responseBox, outputBox, tracePerf];
+      targets.forEach((el) => {
+        el.classList.remove("state-idle", "state-running", "state-done");
+        el.classList.add(
+          state === "running" ? "state-running" : state === "done" ? "state-done" : "state-idle"
+        );
+      });
+      tracePerf.classList.toggle("hidden", state !== "done");
+      // 新建提示词在未保存且无关联评测集阶段不支持“同步到评测集”
+      syncLog("setRunState(create)", { state, forceDisableSync: true });
+      syncEvalBtn.classList.add("hidden");
+      syncEvalBtn.disabled = true;
+      if (!syncEvalModal.classList.contains("hidden")) {
+        closeSyncModal();
+      }
+    }
+
+    function restoreBodyScrollIfAllClosed() {
+      if (
+        casePickerModal.classList.contains("hidden") &&
+        syncEvalModal.classList.contains("hidden") &&
+        imagePreviewModal.classList.contains("hidden")
+      ) {
+        document.body.style.overflow = "";
+      }
+    }
+
+    function showSyncModal() {
+      syncEvalModal.classList.remove("hidden");
+      syncEvalModal.style.display = "block";
+    }
+
+    function openImagePreview(url) {
+      if (!url) return;
+      imagePreviewLarge.src = url;
+      imagePreviewModal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeImagePreview() {
+      imagePreviewModal.classList.add("hidden");
+      imagePreviewLarge.removeAttribute("src");
+      restoreBodyScrollIfAllClosed();
+    }
+
+    function validateUserPromptHasVariables(showToastOnFail = true) {
+      const userText = getUserPromptText().trim();
+      if (!userText) {
+        if (showToastOnFail) showToast("请填写 User Prompt");
+        return false;
+      }
+      if (!editorState.extractedVars.length) {
+        if (showToastOnFail) showToast("User Prompt 必须包含变量（如 {{ocr_text}}）");
+        return false;
+      }
+      return true;
+    }
+
+    function validatePromptEvalPrerequisites(showToastOnFail = true) {
+      // 新建页面只支持自定义变量，不需要验证评测集
+      return validateUserPromptHasVariables(showToastOnFail);
+    }
+
+    function enforceCreateCustomMode() {
+      editorState.refMode = "custom";
+      editorState.evalSet = "";
+      editorState.caseId = "";
+    }
+
+    function createCascade(rootEl, placeholder, onSelect) {
+      const trigger = rootEl.querySelector(".cascade-trigger");
+      const panel = rootEl.querySelector(".cascade-panel");
+      const projectCol = rootEl.querySelector(".projects");
+      const appCol = rootEl.querySelector(".apps");
+
+      let activeProject = "";
+      let selected = { project: "", app: "" };
+
+      function setLabel() {
+        trigger.textContent =
+          selected.project && selected.app ? `${selected.project}/${selected.app}` : placeholder;
+      }
+
+      function renderProjects() {
+        projectCol.innerHTML = Object.keys(projectTree)
+          .map(
+            (project) =>
+              `<button class="cascade-item ${activeProject === project ? "active" : ""}" data-project="${project}">${project}</button>`
+          )
+          .join("");
+      }
+
+      function renderApps() {
+        if (!activeProject) {
+          appCol.innerHTML = '<button class="cascade-item active" data-app="">请先选项目</button>';
+          return;
+        }
+        appCol.innerHTML = projectTree[activeProject]
+          .map(
+            (app) =>
+              `<button class="cascade-item ${selected.project === activeProject && selected.app === app ? "active" : ""}" data-app="${app}">${app}</button>`
+          )
+          .join("");
+      }
+
+      function setValue(project, app) {
+        selected = { project: project || "", app: app || "" };
+        activeProject = selected.project || "";
+        setLabel();
+        renderProjects();
+        renderApps();
+      }
+
+      rootEl.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (event.target === trigger) {
+          panel.classList.toggle("hidden");
+          return;
+        }
+
+        const p = event.target.closest("[data-project]");
+        if (p) {
+          activeProject = p.dataset.project;
+          renderProjects();
+          renderApps();
+          return;
+        }
+
+        const a = event.target.closest("[data-app]");
+        if (a && activeProject) {
+          selected = { project: activeProject, app: a.dataset.app };
+          panel.classList.add("hidden");
+          setLabel();
+          onSelect(selected.project, selected.app);
+          renderProjects();
+          renderApps();
+        }
+      });
+
+      renderProjects();
+      renderApps();
+      setLabel();
+
+      return { setValue };
+    }
+
+    const cascade = createCascade(document.getElementById("editorCascade"), "请选择项目/应用", (project, app) => {
+      editorState.project = project;
+      editorState.app = app;
+      editorState.evalSet = "";
+      editorState.caseId = "";
+      syncReferenceSelectors();
+    });
+
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".cascade-panel").forEach((panel) => panel.classList.add("hidden"));
+    });
+
+    function getLinkedEvalSets() {
+      if (!editorState.project || !editorState.app) return [];
+      return evaluationSetMap[`${editorState.project}/${editorState.app}`] || [];
+    }
+
+    function getCompatibleLinkedEvalSets() {
+      const linkedSets = getLinkedEvalSets();
+      if (!editorState.extractedVars.length) return [];
+      return linkedSets.filter((set) => ensureVariableSchemaCompatible(set));
+    }
+
+    function getSelectedCase() {
+      const linkedSets = getLinkedEvalSets();
+      const selectedSet = linkedSets.find((set) => set.id === editorState.evalSet);
+      if (!selectedSet) return null;
+      return selectedSet.cases.find((testCase) => testCase.id === editorState.caseId) || null;
+    }
+
+    function getSelectedEvalSet() {
+      return getLinkedEvalSets().find((set) => set.id === editorState.evalSet) || null;
+    }
+
+    function getCaseLabel(testCase) {
+      return testCase ? `${testCase.id} · ${testCase.name}` : "请选择用例";
+    }
+
+    function getCaseReferencePreview(testCase) {
+      const ref = String(testCase.inputs?.reference_output ?? "-");
+      return ref.length > 120 ? `${ref.slice(0, 120)}...` : ref;
+    }
+
+    function getPrimaryTextVarKey() {
+      return editorState.extractedVars.find((name) => {
+        const t = inferVariableFieldType(name);
+        return t === "text" || t === "textarea";
+      });
+    }
+
+    function getPrimaryImageVarKey() {
+      return editorState.extractedVars.find((name) => inferVariableFieldType(name) === "image");
+    }
+
+    function getCompatibleCases(selectedSet) {
+      return (selectedSet?.cases || []).filter((testCase) => isCaseVariableCompatible(testCase));
+    }
+
+    function renderCasePickerRows() {
+      const questionKey = getPrimaryTextVarKey();
+      const imageKey = getPrimaryImageVarKey();
+      caseTextHead.textContent = questionKey ? `变量文本（${questionKey}）` : "变量文本";
+      caseImageHead.textContent = imageKey ? `变量图片（${imageKey}）` : "变量图片";
+
+      const selectedSet = getSelectedEvalSet();
+      if (!selectedSet) {
+        casePickerBody.innerHTML = '<tr><td class="case-empty" colspan="5">请先选择评测集</td></tr>';
+        return;
+      }
+
+      if (!editorState.extractedVars.length) {
+        casePickerBody.innerHTML =
+          '<tr><td class="case-empty" colspan="5">请先在 Prompt 中提取变量，再选择用例。</td></tr>';
+        return;
+      }
+
+      const baseRows = getCompatibleCases(selectedSet);
+      if (!baseRows.length) {
+        casePickerBody.innerHTML =
+          '<tr><td class="case-empty" colspan="5">当前评测集用例字段与提取变量不一致。</td></tr>';
+        return;
+      }
+
+      const keyword = caseSearchInput.value.trim().toLowerCase();
+      const rows = baseRows.filter((testCase) => {
+        if (!keyword) return true;
+        const searchText = [
+          testCase.id,
+          testCase.name,
+          testCase.inputs?.[questionKey] || "",
+          testCase.inputs?.reference_output || "",
+          testCase.inputs?.[imageKey] || ""
+        ]
+          .join(" ")
+          .toLowerCase();
+        return searchText.includes(keyword);
+      });
+
+      if (!rows.length) {
+        casePickerBody.innerHTML = '<tr><td class="case-empty" colspan="5">没有匹配到用例</td></tr>';
+        return;
+      }
+
+      casePickerBody.innerHTML = rows
+        .map((testCase) => {
+          const checked = casePickerSelection === testCase.id ? "checked" : "";
+          const query = escapeHtml(String((questionKey && testCase.inputs?.[questionKey]) || testCase.name || "-"));
+          const refPreview = escapeHtml(getCaseReferencePreview(testCase));
+          const imageUrl = String((imageKey && testCase.inputs?.[imageKey]) || "").trim();
+          const imageHtml = imageUrl
+            ? `<img class="case-image" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(testCase.id)}" />`
+            : "-";
+          return `
+              <tr data-case-id="${escapeHtml(testCase.id)}">
+                <td class="case-col-check">
+                  <input type="radio" name="casePickerRadio" data-action="pick-case" data-case-id="${escapeHtml(
+            testCase.id
+          )}" ${checked} />
+                </td>
+                <td class="case-col-id">${escapeHtml(testCase.id)}</td>
+                <td><div class="case-query">${query}</div></td>
+                <td>${imageHtml}</td>
+                <td><div class="case-ref">${refPreview}</div></td>
+              </tr>
+            `;
+        })
+        .join("");
+    }
+
+    function openCasePickerModal() {
+      const selectedSet = getSelectedEvalSet();
+      if (!selectedSet) {
+        showToast("请先选择评测集");
+        return;
+      }
+      if (!editorState.extractedVars.length) {
+        showToast("请先在 Prompt 中提取变量");
+        return;
+      }
+      if (!getCompatibleCases(selectedSet).length) {
+        showToast("该评测集用例字段与提取变量不一致");
+        return;
+      }
+      casePickerSelection = editorState.caseId || "";
+      caseSearchInput.value = "";
+      renderCasePickerRows();
+      casePickerModal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+      setTimeout(() => caseSearchInput.focus(), 0);
+    }
+
+    function closeCasePickerModal() {
+      casePickerModal.classList.add("hidden");
+      restoreBodyScrollIfAllClosed();
+    }
+
+    function applyCaseSelection(caseId) {
+      if (!caseId) {
+        showToast("请选择用例");
+        return;
+      }
+      editorState.caseId = caseId;
+      syncReferenceSelectors();
+      closeCasePickerModal();
+    }
+
+    function isOutputReady() {
+      const text = String(outputBox.textContent || "").trim();
+      return text && text !== "待运行" && text !== "运行中...";
+    }
+
+    function getOutputTextForSync() {
+      return isOutputReady() ? String(outputBox.textContent || "").trim() : "";
+    }
+
+    function getSyncEvalSet() {
+      const linkedSets = getLinkedEvalSets();
+      return linkedSets.find((set) => set.id === syncEvalSetSelect.value) || null;
+    }
+
+    function getSyncPreviewText(value) {
+      const text = String(value ?? "");
+      const MAX_PREVIEW = 1200;
+      if (text.length <= MAX_PREVIEW) return text;
+      return `${text.slice(0, MAX_PREVIEW)}\n...(预览已截断，实际同步仍使用完整内容)`;
+    }
+
+    function isHeavyInlineAsset(url) {
+      const text = String(url || "");
+      return text.startsWith("data:") && text.length > 6000;
+    }
+
+    function renderSyncVarPreview() {
+      const vars = editorState.extractedVars;
+      if (!vars.length) {
+        syncVarPreview.innerHTML = '<div class="sync-hint">暂无可同步变量（仅会同步期望输出）。</div>';
+        return;
+      }
+
+      syncVarPreview.innerHTML = vars
+        .map((name) => {
+          const type = inferVariableFieldType(name);
+          const value = getVariableSyncValue(name);
+          if (type === "file" || type === "image") {
+            const meta = getVariableFileMeta(name);
+            if (!meta) {
+              return `
+                  <div class="sync-var-item">
+                    <div class="sync-var-name">${escapeHtml(name)}</div>
+                    <input value="" placeholder="${type === "image" ? "未上传图片" : "未上传文件"}" readonly />
+                  </div>
+                `;
+            }
+            const heavyInline = isHeavyInlineAsset(meta.url);
+            const filePreview = meta.isImage && !heavyInline
+              ? `<img src="${escapeHtml(meta.url)}" alt="${escapeHtml(meta.name)}" />`
+              : "";
+            const fileLabel = heavyInline
+              ? `<span class="sync-hint">已上传文件：${escapeHtml(meta.name)}（预览省略）</span>`
+              : `<a class="var-file-link" href="${escapeHtml(meta.url)}" target="_blank" rel="noreferrer">${escapeHtml(
+                meta.name
+              )}</a>`;
+            return `
+                <div class="sync-var-item">
+                  <div class="sync-var-name">${escapeHtml(name)}</div>
+                  <div class="sync-file-inline">
+                    ${filePreview}
+                    ${fileLabel}
+                  </div>
+                </div>
+              `;
+          }
+
+          return `
+              <div class="sync-var-item">
+                <div class="sync-var-name">${escapeHtml(name)}</div>
+                <textarea readonly>${escapeHtml(getSyncPreviewText(value))}</textarea>
+              </div>
+            `;
+        })
+        .join("");
+    }
+
+    function renderSyncCaseOptions() {
+      const setObj = getSyncEvalSet();
+      if (syncMode === "add") {
+        syncCaseSelect.disabled = true;
+        syncCaseSelect.innerHTML = '<option value="">新增后会自动创建</option>';
+        return;
+      }
+
+      if (!setObj) {
+        syncCaseSelect.disabled = true;
+        syncCaseSelect.innerHTML = '<option value="">请先选择评测集</option>';
+        return;
+      }
+
+      const compatibleCases = getCompatibleCases(setObj);
+      if (!compatibleCases.length) {
+        syncCaseSelect.disabled = true;
+        syncCaseSelect.innerHTML = '<option value="">字段不一致，无可覆盖用例</option>';
+        return;
+      }
+
+      syncCaseSelect.disabled = false;
+      syncCaseSelect.innerHTML =
+        '<option value="">请选择用例</option>' +
+        compatibleCases.map((testCase) => `<option value="${testCase.id}">${testCase.id} · ${testCase.name}</option>`).join("");
+      if (editorState.caseId && compatibleCases.some((item) => item.id === editorState.caseId)) {
+        syncCaseSelect.value = editorState.caseId;
+      }
+    }
+
+    function setSyncMode(nextMode) {
+      syncMode = nextMode;
+      document.querySelectorAll('input[name="syncMode"]').forEach((input) => {
+        input.checked = input.value === syncMode;
+      });
+      renderSyncCaseOptions();
+      if (syncMode === "overwrite") {
+        syncModeHint.textContent = "将模型实际输出同步到已选用例的 reference_output，不同步变量填充值。";
+      } else {
+        syncModeHint.textContent = "将在评测集新增一行用例，变量需与评测集字段一致。";
+      }
+    }
+
+    function renderSyncEvalSetOptions(preferredId = "") {
+      if (!editorState.extractedVars.length) {
+        syncEvalSetSelect.innerHTML = '<option value="">请先提取变量</option>';
+        syncEvalSetSelect.disabled = true;
+        return;
+      }
+
+      const compatibleSets = getCompatibleLinkedEvalSets();
+      if (!compatibleSets.length) {
+        syncEvalSetSelect.innerHTML = '<option value="">暂无字段一致的评测集</option>';
+        syncEvalSetSelect.disabled = true;
+        return;
+      }
+
+      syncEvalSetSelect.disabled = false;
+      syncEvalSetSelect.innerHTML =
+        '<option value="">请选择评测集</option>' +
+        compatibleSets.map((set) => `<option value="${set.id}">${set.name}</option>`).join("");
+
+      const targetId = preferredId && compatibleSets.some((set) => set.id === preferredId) ? preferredId : "";
+      syncEvalSetSelect.value = targetId || compatibleSets[0].id;
+    }
+
+    function openSyncModal() {
+      syncLog("openSyncModal(create):blocked", {
+        reason: "create_page_sync_disabled",
+        outputReady: isOutputReady(),
+        outputLength: String(outputBox.textContent || "").trim().length
+      });
+      showToast("新建提示词暂不支持同步到评测集，请先保存后在编辑页操作");
+    }
+
+    function closeSyncModal() {
+      syncEvalModal.classList.add("hidden");
+      syncEvalModal.style.display = "";
+      restoreBodyScrollIfAllClosed();
+    }
+
+    function getExpectedInputKeys(setObj) {
+      const firstCase = setObj?.cases?.[0];
+      if (!firstCase) return [];
+      return Object.keys(firstCase.inputs || {}).filter((key) => key !== "reference_output").sort();
+    }
+
+    function ensureVariableSchemaCompatible(setObj) {
+      const expected = getExpectedInputKeys(setObj);
+      if (!expected.length) return true;
+      const current = [...editorState.extractedVars].sort();
+      if (expected.length !== current.length) return false;
+      return expected.every((key, idx) => key === current[idx]);
+    }
+
+    function nextCaseIdForSet(setObj) {
+      const max = (setObj.cases || []).reduce((acc, c) => {
+        const n = Number(String(c.id).replace(/[^\d]/g, ""));
+        return Number.isFinite(n) ? Math.max(acc, n) : acc;
+      }, 0);
+      return String(max + 1).padStart(3, "0");
+    }
+
+    function syncToEvaluationSet() {
+      const setObj = getSyncEvalSet();
+      if (!setObj) {
+        showToast("请选择评测集");
+        return;
+      }
+
+      const outputText = getOutputTextForSync();
+      if (!outputText) {
+        showToast("请先运行，生成模型输出后再同步");
+        return;
+      }
+
+      if (syncMode === "overwrite") {
+        const caseId = syncCaseSelect.value || editorState.caseId;
+        if (!caseId) {
+          showToast("请选择要覆盖的用例");
+          return;
+        }
+        const targetCase = setObj.cases.find((item) => item.id === caseId);
+        if (!targetCase) {
+          showToast("用例不存在");
+          return;
+        }
+        targetCase.inputs = { ...(targetCase.inputs || {}), reference_output: outputText };
+        editorState.evalSet = setObj.id;
+        editorState.caseId = caseId;
+        syncReferenceSelectors();
+        showToast("已覆盖用例的期望输出");
+        closeSyncModal();
+        return;
+      }
+
+      if (!ensureVariableSchemaCompatible(setObj)) {
+        showToast("变量与评测集不一致，无法同步新增用例");
+        return;
+      }
+
+      const newCaseId = nextCaseIdForSet(setObj);
+      const inputs = {};
+      editorState.extractedVars.forEach((name) => {
+        inputs[name] = getVariableSyncValue(name);
+      });
+      inputs.reference_output = outputText;
+      setObj.cases.push({
+        id: newCaseId,
+        name: `${editorState.name || "新增用例"}-${newCaseId}`,
+        inputs
+      });
+
+      if (editorState.refMode === "eval" && editorState.evalSet === setObj.id) {
+        syncReferenceSelectors();
+      }
+      showToast(`已新增用例 ${newCaseId}`);
+      closeSyncModal();
+    }
+
+    function syncVariableInputsFromExtracted(extractedVars) {
+      const prevVars = editorState.extractedVars || [];
+      const removed = prevVars.filter((name) => !extractedVars.includes(name));
+      const added = extractedVars.filter((name) => !prevVars.includes(name));
+      const migrated =
+        removed.length === 1 && added.length === 1
+          ? { from: removed[0], to: added[0] }
+          : null;
+
+      const nextInputs = {};
+      const nextMeta = {};
+      const nextFiles = {};
+      const reusedFilesFrom = new Set();
+
+      extractedVars.forEach((name) => {
+        const sourceName = migrated && migrated.to === name ? migrated.from : name;
+        nextInputs[name] = editorState.variableInputs[sourceName] ?? "";
+        nextMeta[name] = {
+          type: normalizeVariableType(editorState.variableMeta[sourceName]?.type || inferVariableFieldType(sourceName))
+        };
+        if (editorState.variableFiles[sourceName]) {
+          nextFiles[name] = editorState.variableFiles[sourceName];
+          reusedFilesFrom.add(sourceName);
+        }
+      });
+
+      Object.keys(editorState.variableFiles).forEach((name) => {
+        if (!reusedFilesFrom.has(name)) {
+          releaseVariableFile(name);
+        }
+      });
+
+      editorState.variableInputs = nextInputs;
+      editorState.variableMeta = nextMeta;
+      editorState.variableFiles = nextFiles;
+      editorState.extractedVars = extractedVars;
+    }
+
+    function fillVariablesFromCase(selectedCase) {
+      if (!selectedCase) return;
+      editorState.extractedVars.forEach((name) => {
+        releaseVariableFile(name);
+        editorState.variableInputs[name] = selectedCase.inputs?.[name] ?? "";
+      });
+    }
+
+    function clearVariableInputValues() {
+      editorState.extractedVars.forEach((name) => {
+        releaseVariableFile(name);
+        editorState.variableInputs[name] = "";
+      });
+    }
+
+    function inferVariableFieldType(name) {
+      const metaType = editorState.variableMeta[name]?.type;
+      if (metaType) return normalizeVariableType(metaType);
+      const key = String(name || "").toLowerCase();
+      if (/img|image|pic|photo|图|截图/.test(key)) return "image";
+      if (/file|pdf|doc|word|excel|sheet|ppt|附件|文档/.test(key)) return "file";
+      return "text";
+    }
+
+    function shouldShowImagePreview(value) {
+      const v = String(value || "").trim().toLowerCase();
+      if (!v) return false;
+      if (v.startsWith("data:image/")) return true;
+      return /\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/.test(v) || v.includes("picsum.photos");
+    }
+
+    function releaseVariableFile(name) {
+      const meta = editorState.variableFiles[name];
+      if (!meta) return;
+      if (meta.source === "upload" && meta.url && meta.url.startsWith("blob:")) {
+        URL.revokeObjectURL(meta.url);
+      }
+      delete editorState.variableFiles[name];
+    }
+
+    function getVariableFileMeta(name) {
+      const uploaded = editorState.variableFiles[name];
+      if (uploaded) return uploaded;
+      const raw = String(editorState.variableInputs[name] ?? "").trim();
+      if (!raw) return null;
+      const fileName = raw.split("/").pop()?.split("?")[0] || raw;
+      return {
+        name: fileName,
+        url: raw,
+        isImage: shouldShowImagePreview(raw),
+        source: "value"
+      };
+    }
+
+    function getVariableSyncValue(name) {
+      const type = inferVariableFieldType(name);
+      if (type === "file" || type === "image") {
+        const meta = getVariableFileMeta(name);
+        return meta?.url || "";
+      }
+      return String(editorState.variableInputs[name] ?? "");
+    }
+
+    function summarizeVarValue(value) {
+      const text = String(value ?? "").trim();
+      if (!text) return "∅";
+      if (text.startsWith("data:image/")) return "[图片]";
+      return text.length > 48 ? `${text.slice(0, 48)}...` : text;
+    }
+
+    function renderVariableInputs() {
+      const vars = editorState.extractedVars;
+      if (!vars.length) {
+        varInputContainer.innerHTML = '<div class="var-input-empty">暂无可输入变量</div>';
+        varInputHint.textContent = "未提取到变量，请先在 Prompt 中使用 {{变量名}}。";
+        return;
+      }
+
+      varInputContainer.innerHTML = vars
+        .map((name) => {
+          const type = inferVariableFieldType(name);
+          const value = editorState.variableInputs[name] ?? "";
+          let controlHtml = "";
+          let previewHtml = "";
+
+          if (type === "text") {
+            controlHtml = `<textarea data-action="var-value" data-var-name="${name}" placeholder="请输入${name}">${escapeHtml(
+              value
+            )}</textarea>`;
+          } else if (type === "file" || type === "image") {
+            const fileMeta = getVariableFileMeta(name);
+            if (!fileMeta) {
+              controlHtml = `
+                  <div class="var-input-control">
+                    <input data-action="var-value" data-var-name="${name}" value="" placeholder="请上传${type === "image" ? "图片" : "文件"}" readonly />
+                    <button type="button" class="var-input-action" data-action="var-upload" data-var-kind="${type}" data-var-name="${escapeHtml(
+                name
+              )}">上传</button>
+                  </div>
+                `;
+            } else if (type === "image") {
+              previewHtml = `
+                  <div class="var-image-wrap">
+                    <img class="var-image-preview" data-action="open-image" data-url="${escapeHtml(
+                fileMeta.url
+              )}" src="${escapeHtml(fileMeta.url)}" alt="${escapeHtml(name)}" />
+                    <button type="button" class="var-image-remove" data-action="var-remove-file" data-var-name="${escapeHtml(
+                name
+              )}" title="移除">
+                      <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+                    </button>
+                  </div>
+                `;
+            } else {
+              controlHtml = `
+                  <div class="var-file-strip">
+                    <a class="var-file-link" href="${escapeHtml(fileMeta.url)}" target="_blank" rel="noreferrer">${escapeHtml(
+                fileMeta.name
+              )}</a>
+                  </div>
+                `;
+              previewHtml = `
+                  <button type="button" class="var-file-minus" data-action="var-remove-file" data-var-name="${escapeHtml(
+                name
+              )}" title="移除">
+                    <i data-lucide="minus" style="width: 14px; height: 14px;"></i>
+                  </button>
+                `;
+            }
+          } else {
+            controlHtml = `<textarea data-action="var-value" data-var-name="${name}" placeholder="请输入${name}">${escapeHtml(
+              value
+            )}</textarea>`;
+          }
+
+          return `
+              <div class="var-input-item">
+                <div class="var-item-head">
+                  <input
+                    class="var-name-field"
+                    data-action="var-rename"
+                    data-var-name="${name}"
+                    value="${escapeHtml(name)}"
+                    placeholder="变量名"
+                  />
+                  <div class="var-item-actions">
+                    <select class="var-type-select" data-action="var-type" data-var-name="${name}">
+                      <option value="text" ${type === "text" ? "selected" : ""}>text</option>
+                      <option value="image" ${type === "image" ? "selected" : ""}>image</option>
+                      <option value="file" ${type === "file" ? "selected" : ""}>file</option>
+                    </select>
+                    <button
+                      type="button"
+                      class="var-remove-variable"
+                      data-action="var-remove"
+                      data-var-name="${escapeHtml(name)}"
+                      title="删除变量"
+                    >−</button>
+                  </div>
+                </div>
+                ${controlHtml}
+                ${previewHtml}
+              </div>
+            `;
+        })
+        .join("");
+
+      // Re-initialize Lucide icons for dynamically added elements
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+
+      refreshInputVisualState(varInputContainer);
+      varInputHint.textContent = "自定义变量模式：请手动填写变量值。";
+    }
+
+    function renameVariable(oldName, nextNameRaw) {
+      const nextName = String(nextNameRaw || "")
+        .trim()
+        .replace(/^\{\{\s*/, "")
+        .replace(/\s*\}\}$/, "");
+      if (!nextName || nextName === oldName) return;
+      if (!VARIABLE_NAME_RE.test(nextName)) {
+        showToast("变量名格式不正确，仅支持英文、数字、下划线，且需字母开头");
+        renderVariableInputs();
+        return;
+      }
+      if (editorState.extractedVars.includes(nextName)) {
+        showToast("变量名已存在");
+        renderVariableInputs();
+        return;
+      }
+
+      const tokenPattern = new RegExp(`\\{\\{\\s*${escapeRegExp(oldName)}\\s*\\}\\}`, "g");
+      editorState.messages = editorState.messages.map((msg) => ({
+        ...msg,
+        content: String(msg.content || "").replace(tokenPattern, `{{${nextName}}}`)
+      }));
+
+      if (Object.prototype.hasOwnProperty.call(editorState.variableInputs, oldName)) {
+        editorState.variableInputs[nextName] = editorState.variableInputs[oldName];
+        delete editorState.variableInputs[oldName];
+      }
+      if (Object.prototype.hasOwnProperty.call(editorState.variableMeta, oldName)) {
+        editorState.variableMeta[nextName] = editorState.variableMeta[oldName];
+        delete editorState.variableMeta[oldName];
+      }
+      if (Object.prototype.hasOwnProperty.call(editorState.variableFiles, oldName)) {
+        editorState.variableFiles[nextName] = editorState.variableFiles[oldName];
+        delete editorState.variableFiles[oldName];
+      }
+
+      renderMessages();
+    }
+
+    function updateVariableType(varName, nextType) {
+      const normalized = normalizeVariableType(nextType);
+      const prevType = inferVariableFieldType(varName);
+      if (prevType === normalized) return;
+      editorState.variableMeta[varName] = { type: normalized };
+      if (normalized === "text") {
+        releaseVariableFile(varName);
+      } else {
+        editorState.variableInputs[varName] = "";
+        releaseVariableFile(varName);
+      }
+      renderVariableInputs();
+    }
+
+    function removeVariable(varName) {
+      if (!varName) return;
+      const tokenPattern = new RegExp(`\\{\\{\\s*${escapeRegExp(varName)}\\s*\\}\\}`, "g");
+      editorState.messages = editorState.messages.map((msg) => {
+        const content = String(msg.content || "")
+          .replace(tokenPattern, "")
+          .replace(/[ \t]+\n/g, "\n")
+          .replace(/\n{3,}/g, "\n\n")
+          .trimEnd();
+        return { ...msg, content };
+      });
+      releaseVariableFile(varName);
+      delete editorState.variableInputs[varName];
+      delete editorState.variableMeta[varName];
+      delete editorState.variableFiles[varName];
+      renderMessages();
+      showToast(`已删除变量 ${varName}`);
+    }
+
+    function syncReferenceSelectors() {
+      enforceCreateCustomMode();
+      renderVariableInputs();
+    }
+
+    function extractVariables() {
+      const all = editorState.messages.map((m) => m.content || "").join("\n");
+      const vars = [...all.matchAll(/\{\{\s*([^{}\s]+)\s*\}\}/g)].map((m) => m[1]);
+      const unique = [...new Set(vars)];
+      variableBox.textContent = unique.length ? unique.join("、") : "暂无提取到变量";
+      syncVariableInputsFromExtracted(unique);
+      syncReferenceSelectors();
+    }
+
+    function getVariableNameBaseByType(varType) {
+      if (varType === "image") return "image";
+      if (varType === "file") return "file";
+      return "text";
+    }
+
+    function generateUniqueVariableName(varType) {
+      const base = getVariableNameBaseByType(varType);
+      const used = new Set(editorState.extractedVars);
+      if (!used.has(base)) return base;
+      let n = 2;
+      while (used.has(`${base}_${n}`)) n += 1;
+      return `${base}_${n}`;
+    }
+
+    function closeVarTypePopover() {
+      addVarMessageIndex = -1;
+      varTypePopover.classList.add("hidden");
+    }
+
+    function openVarTypePopover(triggerButton, messageIndex) {
+      const rect = triggerButton.getBoundingClientRect();
+      addVarMessageIndex = messageIndex;
+      varTypePopover.classList.remove("hidden");
+      const popoverRect = varTypePopover.getBoundingClientRect();
+      const left = Math.max(8, Math.min(window.innerWidth - popoverRect.width - 8, rect.right - popoverRect.width));
+      varTypePopover.style.top = `${rect.bottom + 6}px`;
+      varTypePopover.style.left = `${left}px`;
+    }
+
+    function appendVariableToMessage(messageIndex, variableName, varType) {
+      const message = editorState.messages[messageIndex];
+      if (!message) return;
+      const variableToken = `{{${variableName}}}`;
+      const current = message.content || "";
+      if (!current.trim()) {
+        message.content = variableToken;
+      } else if (/\s$/.test(current)) {
+        message.content = `${current}${variableToken}`;
+      } else {
+        message.content = `${current}\n${variableToken}`;
+      }
+      renderMessages();
+      const area = messageList.querySelector(
+        `.msg-card[data-index="${messageIndex}"] textarea[data-action="msg-content"]`
+      );
+      if (area) {
+        area.focus();
+        const len = area.value.length;
+        area.setSelectionRange(len, len);
+      }
+      editorState.variableMeta[variableName] = { type: normalizeVariableType(varType) };
+      showToast(`已添加变量 ${variableToken}`);
+    }
+
+    function renderMessages() {
+      editorState.messages = buildConstrainedMessages(editorState.messages);
+      messageList.innerHTML = editorState.messages
+        .map(
+          (msg, idx) => {
+            const roleKey = getRoleKey(msg.role);
+            const canDelete = roleKey === "assistant";
+            let roleBadgeClass = '';
+            if (roleKey === 'system') {
+              roleBadgeClass = 'style="color: #0f172a;"';
+            } else if (roleKey === 'user') {
+              roleBadgeClass = 'style="color: #3b82f6;"';
+            } else if (roleKey === 'assistant') {
+              roleBadgeClass = 'style="color: #10b981;"';
+            }
+            return `
+            <div class="msg-card" data-index="${idx}" data-role="${roleKey}">
+              <div class="msg-title">
+                <span ${roleBadgeClass}>${escapeHtml(msg.role)}</span>
+                <span class="msg-tools">
+                  <button class="add-var-msg" data-action="add-var-msg" title="添加变量">
+                    <i data-lucide="plus" style="width: 12px; height: 12px;"></i>变量
+                  </button>
+                  ${canDelete
+                ? `<button class="delete-msg" data-action="delete-msg" title="删除">
+                    <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                  </button>`
+                : ""}
+                </span>
+              </div>
+              <textarea data-action="msg-content" placeholder="请输入${escapeHtml(
+                  msg.role
+                )}，双击可放大编辑">${escapeHtml(msg.content)}</textarea>
+            </div>
+          `;
+          }
+        )
+        .join("");
+
+      // Re-initialize Lucide icons for dynamically added elements
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+
+      extractVariables();
+      renderAddMessageRoleOptions();
+      refreshInputVisualState(messageList);
+    }
+
+    function fillForm() {
+      enforceCreateCustomMode();
+      cascade.setValue(editorState.project, editorState.app);
+      promptName.value = editorState.name;
+      promptDesc.value = String(editorState.desc || "").slice(0, 200);
+      promptOwner.value = editorState.owner;
+      modelSelect.value = editorState.model;
+      temperatureInput.value = editorState.temp;
+      seedInput.value = editorState.seed;
+      maxTokensInput.value = editorState.maxTokens;
+      timeoutInput.value = editorState.timeout;
+      extraBodyInput.value = editorState.extraBody;
+      responseBox.textContent = editorState.response;
+      outputBox.textContent = editorState.output;
+      tracePerf.textContent = editorState.tracePerf || TRACE_IDLE_TEXT;
+      document.querySelectorAll('input[name="deepMode"]').forEach((el) => {
+        el.checked = el.value === editorState.deepMode;
+      });
+      document.querySelectorAll('input[name="refMode"]').forEach((el) => {
+        el.checked = el.value === editorState.refMode;
+      });
+      setRunState(isOutputReady() ? "done" : "idle");
+      syncReferenceSelectors();
+      renderMessages();
+      renderAddMessageRoleOptions();
+      refreshInputVisualState();
+    }
+
+    function loadForEdit() {
+      if (mode !== "edit" || !editId) return;
+      const rows = loadRows();
+      const row = rows.find((item) => isSameRowId(item.id, editId));
+      if (!row) return;
+      editorState.project = row.project || "";
+      editorState.app = row.app || "";
+      editorState.name = row.name || "";
+      editorState.desc = row.desc === "-" ? "" : row.desc || "";
+      editorState.owner = parseOwnersFromRow(row).join("、") || "";
+      editorState.messages = buildConstrainedMessages(
+        row.messages?.map((m) => ({ role: m.role, content: m.content })) || editorState.messages
+      );
+      editorState.refMode = row.refMode || editorState.refMode;
+      editorState.evalSet = row.evalSet || "";
+      editorState.caseId = row.caseId || "";
+      editorState.variableInputs = row.variableInputs || {};
+      editorState.variableMeta = row.variableMeta || {};
+      editorState.variableFiles = {};
+      editorState.response = row.response || "待运行";
+      editorState.output = row.output || "待运行";
+      editorState.tracePerf = row.tracePerf || TRACE_IDLE_TEXT;
+    }
+
+    messageList.addEventListener("input", (event) => {
+      const area = event.target.closest('textarea[data-action="msg-content"]');
+      if (!area) return;
+      const idx = Number(area.closest(".msg-card").dataset.index);
+      editorState.messages[idx].content = area.value;
+      extractVariables();
+    });
+
+    messageList.addEventListener("click", (event) => {
+      const addVarBtn = event.target.closest('[data-action="add-var-msg"]');
+      if (addVarBtn) {
+        const idx = Number(addVarBtn.closest(".msg-card").dataset.index);
+        openVarTypePopover(addVarBtn, idx);
+        return;
+      }
+
+      const deleteBtn = event.target.closest('[data-action="delete-msg"]');
+      if (!deleteBtn) return;
+      const idx = Number(deleteBtn.closest(".msg-card").dataset.index);
+      const targetRole = getRoleKey(editorState.messages[idx]?.role);
+      if (targetRole !== "assistant") {
+        showToast("仅 Assistant Prompt 支持删除");
+        return;
+      }
+      editorState.messages.splice(idx, 1);
+      renderMessages();
+    });
+
+    varInputContainer.addEventListener("input", (event) => {
+      const valueField = event.target.closest('[data-action="var-value"]');
+      if (!valueField) return;
+      const key = valueField.getAttribute("data-var-name");
+      editorState.variableInputs[key] = valueField.value;
+      refreshInputVisualState(varInputContainer);
+    });
+
+    varInputContainer.addEventListener("change", (event) => {
+      const renameField = event.target.closest('[data-action="var-rename"]');
+      if (renameField) {
+        const oldName = renameField.getAttribute("data-var-name") || "";
+        renameVariable(oldName, renameField.value);
+        return;
+      }
+
+      const typeField = event.target.closest('[data-action="var-type"]');
+      if (typeField) {
+        const varName = typeField.getAttribute("data-var-name") || "";
+        updateVariableType(varName, typeField.value);
+      }
+    });
+
+    varInputContainer.addEventListener("click", (event) => {
+      const removeVarBtn = event.target.closest('[data-action="var-remove"]');
+      if (removeVarBtn) {
+        const key = removeVarBtn.getAttribute("data-var-name") || "";
+        removeVariable(key);
+        return;
+      }
+
+      const imagePreview = event.target.closest('[data-action="open-image"]');
+      if (imagePreview) {
+        openImagePreview(imagePreview.getAttribute("data-url") || "");
+        return;
+      }
+
+      const uploadBtn = event.target.closest('[data-action="var-upload"]');
+      if (uploadBtn) {
+        const key = uploadBtn.getAttribute("data-var-name") || "";
+        const kind = uploadBtn.getAttribute("data-var-kind") || "file";
+        if (!key) return;
+        varFilePicker.accept = kind === "image" ? "image/*" : ".pdf,.doc,.docx,.xls,.xlsx,.txt,.md,.json,image/*";
+        varFilePicker.dataset.targetVar = key;
+        varFilePicker.value = "";
+        varFilePicker.click();
+        return;
+      }
+
+      const removeBtn = event.target.closest('[data-action="var-remove-file"]');
+      if (removeBtn) {
+        const key = removeBtn.getAttribute("data-var-name") || "";
+        if (!key) return;
+        releaseVariableFile(key);
+        editorState.variableInputs[key] = "";
+        renderVariableInputs();
+        showToast(`已移除 ${key}`);
+      }
+    });
+
+    varFilePicker.addEventListener("change", () => {
+      const file = varFilePicker.files?.[0];
+      const key = varFilePicker.dataset.targetVar || "";
+      if (!file || !key) return;
+      releaseVariableFile(key);
+      const isImage = file.type.startsWith("image/");
+      if (isImage) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = String(reader.result || "");
+          editorState.variableFiles[key] = {
+            name: file.name,
+            url: dataUrl,
+            isImage: true,
+            source: "upload"
+          };
+          editorState.variableInputs[key] = dataUrl;
+          renderVariableInputs();
+          showToast(`已选择图片：${file.name}`);
+        };
+        reader.onerror = () => showToast("图片读取失败，请重试");
+        reader.readAsDataURL(file);
+        return;
+      }
+      editorState.variableFiles[key] = {
+        name: file.name,
+        url: URL.createObjectURL(file),
+        isImage: false,
+        source: "upload"
+      };
+      editorState.variableInputs[key] = file.name;
+      renderVariableInputs();
+      showToast(`已选择文件：${file.name}`);
+    });
+
+    addMessageBtn.addEventListener("click", () => {
+      editorState.messages.push({ role: "Assistant Prompt", content: "" });
+      renderMessages();
+    });
+
+    varTypePopover.addEventListener("click", (event) => {
+      const typeBtn = event.target.closest("[data-var-type]");
+      if (!typeBtn || addVarMessageIndex < 0) return;
+      const varType = normalizeVariableType(typeBtn.getAttribute("data-var-type"));
+      const variableName = generateUniqueVariableName(varType);
+      appendVariableToMessage(addVarMessageIndex, variableName, varType);
+      closeVarTypePopover();
+    });
+
+    promptName.addEventListener("input", (e) => (editorState.name = e.target.value));
+    promptDesc.addEventListener("input", (e) => {
+      const value = String(e.target.value || "").slice(0, 200);
+      e.target.value = value;
+      editorState.desc = value;
+    });
+    promptOwner.addEventListener("input", (e) => (editorState.owner = e.target.value));
+    modelSelect.addEventListener("change", (e) => (editorState.model = e.target.value));
+    temperatureInput.addEventListener("input", (e) => (editorState.temp = e.target.value));
+    seedInput.addEventListener("input", (e) => (editorState.seed = e.target.value));
+    maxTokensInput.addEventListener("input", (e) => (editorState.maxTokens = e.target.value));
+    timeoutInput.addEventListener("input", (e) => (editorState.timeout = e.target.value));
+    extraBodyInput.addEventListener("input", (e) => (editorState.extraBody = e.target.value));
+
+    document.addEventListener("input", () => {
+      refreshInputVisualState();
+    });
+    document.addEventListener("change", () => {
+      refreshInputVisualState();
+    });
+    document.addEventListener("click", (event) => {
+      if (!varTypePopover.contains(event.target) && !event.target.closest('[data-action="add-var-msg"]')) {
+        closeVarTypePopover();
+      }
+      // 状态自愈：避免出现“弹层隐藏但页面仍锁定”的异常
+      restoreBodyScrollIfAllClosed();
+    });
+
+    caseSearchInput.addEventListener("input", () => {
+      renderCasePickerRows();
+    });
+
+    casePickerBody.addEventListener("change", (event) => {
+      const pickRadio = event.target.closest('[data-action="pick-case"]');
+      if (!pickRadio) return;
+      casePickerSelection = pickRadio.getAttribute("data-case-id") || "";
+    });
+
+    casePickerBody.addEventListener("click", (event) => {
+      const pickRadio = event.target.closest('[data-action="pick-case"]');
+      if (pickRadio) {
+        casePickerSelection = pickRadio.getAttribute("data-case-id") || "";
+        return;
+      }
+      const row = event.target.closest("tr[data-case-id]");
+      if (row) {
+        const caseId = row.getAttribute("data-case-id") || "";
+        casePickerSelection = caseId;
+        const radio = row.querySelector('input[type="radio"][data-action="pick-case"]');
+        if (radio) radio.checked = true;
+      }
+    });
+
+    casePickerConfirm.addEventListener("click", () => {
+      applyCaseSelection(casePickerSelection);
+    });
+
+    casePickerClose.addEventListener("click", closeCasePickerModal);
+    casePickerCancel.addEventListener("click", closeCasePickerModal);
+    casePickerModal.addEventListener("click", (event) => {
+      if (event.target === casePickerModal) {
+        closeCasePickerModal();
+      }
+    });
+
+    syncEvalBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      syncLog("syncEvalBtn:click(create)", {
+        disabled: syncEvalBtn.disabled,
+        hidden: syncEvalBtn.classList.contains("hidden")
+      });
+      try {
+        openSyncModal();
+      } catch (err) {
+        console.error("openSyncModal(create) failed:", err);
+        syncLog("syncEvalBtn:openFailed(create)", { message: err?.message || String(err) });
+      }
+    });
+
+    syncEvalCancel.addEventListener("click", closeSyncModal);
+    syncEvalModal.addEventListener("click", (event) => {
+      if (event.target === syncEvalModal) {
+        closeSyncModal();
+      }
+    });
+
+    imagePreviewClose.addEventListener("click", closeImagePreview);
+    imagePreviewModal.addEventListener("click", (event) => {
+      if (event.target === imagePreviewModal) {
+        closeImagePreview();
+      }
+    });
+
+    document.querySelectorAll('input[name="syncMode"]').forEach((input) => {
+      input.addEventListener("change", (event) => {
+        setSyncMode(event.target.value);
+      });
+    });
+
+    syncEvalSetSelect.addEventListener("change", () => {
+      renderSyncCaseOptions();
+    });
+
+    syncEvalConfirm.addEventListener("click", () => {
+      syncToEvaluationSet();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !varTypePopover.classList.contains("hidden")) {
+        closeVarTypePopover();
+        return;
+      }
+      if (event.key === "Escape" && !casePickerModal.classList.contains("hidden")) {
+        closeCasePickerModal();
+        return;
+      }
+      if (event.key === "Escape" && !imagePreviewModal.classList.contains("hidden")) {
+        closeImagePreview();
+        return;
+      }
+      if (event.key === "Escape" && !syncEvalModal.classList.contains("hidden")) {
+        closeSyncModal();
+      }
+    });
+
+    document.querySelectorAll('input[name="deepMode"]').forEach((el) => {
+      el.addEventListener("change", (event) => {
+        editorState.deepMode = event.target.value;
+      });
+    });
+
+    document.querySelectorAll('input[name="refMode"]').forEach((el) => {
+      el.addEventListener("change", () => {
+        editorState.refMode = "custom";
+        syncReferenceSelectors();
+      });
+    });
+
+    document.getElementById("runBtn").addEventListener("click", () => {
+      enforceCreateCustomMode();
+
+      responseBox.textContent = "运行中...";
+      outputBox.textContent = "运行中...";
+      tracePerf.textContent = "性能计算中...";
+      editorState.response = "运行中...";
+      editorState.output = "运行中...";
+      editorState.tracePerf = "性能计算中...";
+      setRunState("running");
+      setTimeout(() => {
+        const userMsg =
+          editorState.messages.find((m) => m.role.includes("User"))?.content.trim() || "（空输入）";
+        const varsSummary = Object.keys(editorState.variableInputs).length
+          ? Object.entries(editorState.variableInputs)
+            .map(([k, v]) => `${k}=${summarizeVarValue(v)}`)
+            .join(" | ")
+          : "无变量";
+        const refInfo = "\n评测集/用例：自定义变量";
+        responseBox.textContent = `已完成模型调用\n模型：${editorState.model}${refInfo}\n输入摘要：${userMsg.slice(0, 52)}\n变量输入：${varsSummary}`;
+        outputBox.textContent = `结构化输出\n- 名称：${editorState.name || "未命名"}\n- 负责人：${editorState.owner || "未指定"
+          }\n- 变量：${variableBox.textContent}`;
+        tracePerf.textContent = TRACE_DONE_TEXT;
+        editorState.response = responseBox.textContent;
+        editorState.output = outputBox.textContent;
+        editorState.tracePerf = tracePerf.textContent;
+        setRunState("done");
+        showToast("运行完成");
+      }, 700);
+    });
+
+    document.querySelectorAll(".copy-result").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = document.getElementById(btn.dataset.target);
+        copyText(target.textContent, "内容已复制");
+      });
+    });
+
+    document.getElementById("newEvalTaskBtn").addEventListener("click", () => {
+      const targetName = (editorState.name || "未命名提示词").trim();
+      window.location.href = `./frontend-eval-tasks.html?objectType=${encodeURIComponent(
+        "提示词"
+      )}&objectName=${encodeURIComponent(targetName)}`;
+    });
+
+    document.getElementById("savePromptBtn").addEventListener("click", () => {
+      enforceCreateCustomMode();
+      if (!editorState.project || !editorState.app) {
+        showToast("请先选择项目/应用");
+        return;
+      }
+      if (!editorState.name.trim()) {
+        showToast("请输入名称");
+        return;
+      }
+
+      const rows = loadRows();
+      const payload = {
+        project: editorState.project,
+        app: editorState.app,
+        name: editorState.name.trim(),
+        desc: editorState.desc.trim() || "-",
+        owners: editorState.owner
+          .split(/[、,\s]+/)
+          .map((x) => x.trim())
+          .filter(Boolean),
+        refMode: "custom",
+        evalSet: "",
+        caseId: "",
+        variableInputs: { ...editorState.variableInputs },
+        variableMeta: { ...editorState.variableMeta },
+        response: editorState.response,
+        output: editorState.output,
+        tracePerf: editorState.tracePerf,
+        updated: nowString(),
+        messages: editorState.messages.map((m) => ({ role: m.role, content: m.content }))
+      };
+
+      if (mode === "edit" && editId) {
+        const idx = rows.findIndex((item) => isSameRowId(item.id, editId));
+        const resolvedId = normalizeRowId(editId) || nextId(rows);
+        if (idx >= 0) {
+          rows[idx] = { ...rows[idx], id: normalizeRowId(rows[idx].id) || resolvedId, ...payload };
+        } else {
+          rows.unshift({ id: resolvedId, ...payload });
+        }
+      } else {
+        rows.unshift({ id: nextId(rows), ...payload });
+      }
+
+      saveRows(rows);
+      showToast("已保存");
+      // 保存成功后显示批量运行按钮
+      document.getElementById("newEvalTaskBtn").style.display = "inline-flex";
+    });
+
+    document.querySelector(".menu-item.active").addEventListener("click", (event) => {
+      event.preventDefault();
+      window.location.href = "./frontend-slides-guide.html";
+    });
+
+    loadForEdit();
+    fillForm();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  </script>
+</body>
+
+</html>

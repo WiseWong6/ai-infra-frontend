@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRD - AI平台功能优化</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary-50: #eff6ff; --primary-100: #dbeafe; --primary-500: #3b82f6; --primary-600: #2563eb; --primary-700: #1d4ed8;
+            --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-400: #94a3b8;
+            --gray-500: #64748b; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a;
+            --success-50: #f0fdf4; --success-100: #dcfce7; --success-500: #22c55e; --success-600: #16a34a;
+            --warning-50: #fffbeb; --warning-100: #fef3c7; --warning-500: #f59e0b; --warning-600: #d97706;
+            --danger-50: #fef2f2; --danger-100: #fee2e2; --danger-500: #ef4444; --danger-600: #dc2626;
+            --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem;
+            --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+            --font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+            --duration-fast: 150ms; --duration-normal: 250ms;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+        body { font-family: var(--font-sans); font-size: 14px; line-height: 1.7; color: var(--gray-700); background: var(--gray-50); -webkit-font-smoothing: antialiased; }
+
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--primary-500), var(--primary-600)); z-index: 1001; transition: width 0.1s linear; }
+        .nav-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--gray-200); z-index: 1000; transition: all var(--duration-normal) var(--ease-out); }
+        .nav-bar.scrolled { box-shadow: var(--shadow-md); }
+        .nav-inner { max-width: none; margin: 0; padding: 0 var(--space-4); height: 100%; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { display: flex; align-items: center; gap: var(--space-3); font-size: 16px; font-weight: 700; color: var(--gray-900); text-decoration: none; }
+        .nav-logo i { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
+
+        .main-wrapper { max-width: none; width: 100%; margin: 0; padding: 76px var(--space-4) var(--space-12) var(--space-3); display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--space-6); }
+        .sidebar { position: sticky; top: 76px; height: calc(100vh - 96px); overflow-y: auto; padding-right: var(--space-3); }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
+        .toc-title { font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-3); padding-left: var(--space-3); }
+        .toc-list { list-style: none; }
+        .toc-link { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); color: var(--gray-600); text-decoration: none; font-size: 13px; font-weight: 500; border-radius: var(--radius-md); transition: all var(--duration-fast); border-left: 2px solid transparent; margin-bottom: 2px; }
+        .toc-link:hover { color: var(--gray-900); background: var(--gray-100); }
+        .toc-link.active { color: var(--primary-600); background: var(--primary-50); border-left-color: var(--primary-500); }
+        .toc-link i { width: 16px; text-align: center; font-size: 12px; }
+        .toc-link.sub { margin-left: var(--space-3); font-size: 12px; color: var(--gray-500); padding: var(--space-1) var(--space-3); }
+        .toc-link.sub.active { color: var(--primary-600); background: var(--primary-50); border-left-color: var(--primary-400); }
+        .toc-divider { height: 1px; background: var(--gray-200); margin: var(--space-3) var(--space-3); }
+
+        .main-content { min-width: 0; width: 100%; }
+
+        .doc-header { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-xl); padding: var(--space-8); margin-bottom: var(--space-6); }
+        .doc-header::before { content: ''; display: block; height: 4px; background: linear-gradient(90deg, var(--primary-500), var(--primary-600)); margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-8)) var(--space-6); border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+        .doc-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
+        .doc-meta-item { display: flex; flex-direction: column; gap: 4px; }
+        .doc-meta-label { font-size: 12px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.05em; }
+        .doc-meta-value { font-size: 14px; font-weight: 500; color: var(--gray-800); }
+        .doc-title { font-size: 28px; font-weight: 700; color: var(--gray-900); margin-bottom: var(--space-3); }
+        .doc-desc { font-size: 15px; color: var(--gray-600); line-height: 1.7; }
+
+        .section { margin-bottom: var(--space-8); scroll-margin-top: 100px; }
+        .section-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); padding-bottom: var(--space-4); border-bottom: 2px solid var(--gray-200); }
+        .section-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+        .section-title { font-size: 20px; font-weight: 700; color: var(--gray-900); }
+
+        .card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: var(--space-5); margin-bottom: var(--space-4); }
+        .card-title { font-size: 14px; font-weight: 700; color: var(--gray-800); margin-bottom: var(--space-3); display: flex; align-items: center; gap: var(--space-2); }
+
+        .info-box { background: var(--gray-50); border-left: 3px solid var(--gray-400); padding: var(--space-4); border-radius: 0 var(--radius-md) var(--radius-md) 0; margin: var(--space-4) 0; }
+        .info-box.blue { background: var(--primary-50); border-left-color: var(--primary-500); }
+        .info-box.green { background: var(--success-50); border-left-color: var(--success-500); }
+        .info-box p { margin: 0; color: var(--gray-700); }
+
+        .feature-block { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-xl); margin-bottom: var(--space-6); overflow: hidden; scroll-margin-top: 100px; }
+        .feature-header { background: linear-gradient(135deg, var(--gray-50), white); padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+        .feature-title-group { display: flex; align-items: center; gap: var(--space-3); flex: 1; }
+        .feature-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; font-size: 15px; }
+        .feature-title { font-size: 16px; font-weight: 700; color: var(--gray-900); }
+        .feature-id { font-size: 12px; color: var(--gray-400); font-weight: 500; margin-left: var(--space-2); font-family: var(--font-mono); }
+        .feature-content { padding: var(--space-6); }
+
+        .feature-section-title { font-size: 13px; font-weight: 700; color: var(--gray-700); text-transform: uppercase; letter-spacing: 0.05em; margin: var(--space-6) 0 var(--space-4); display: flex; align-items: center; gap: var(--space-2); }
+        .feature-section-title:first-child { margin-top: 0; }
+        .feature-section-title i { color: var(--primary-500); font-size: 11px; }
+
+        .overview-box { background: var(--primary-50); border: 1px solid var(--primary-100); border-radius: var(--radius-lg); padding: var(--space-5); position: relative; }
+        .overview-box::before { content: ''; position: absolute; left: 0; top: var(--space-5); bottom: var(--space-5); width: 3px; background: var(--primary-500); border-radius: 0 2px 2px 0; }
+        .overview-box p { margin: 0; color: var(--gray-700); line-height: 1.8; }
+
+        .detail-grid { display: grid; grid-template-columns: 100px 1fr; gap: 1px; background: var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; margin: var(--space-4) 0; }
+        .detail-label { background: var(--gray-50); padding: var(--space-3) var(--space-4); font-size: 13px; font-weight: 600; color: var(--gray-600); display: flex; align-items: center; }
+        .detail-value { background: white; padding: var(--space-3) var(--space-4); font-size: 14px; color: var(--gray-700); }
+
+        .prototype-embed { background: var(--gray-100); border-radius: var(--radius-lg); padding: var(--space-4); margin: var(--space-4) calc(-1 * var(--space-4)); }
+        .prototype-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 10; }
+        .prototype-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: var(--radius-md); background: white; box-shadow: var(--shadow-sm); }
+
+        .accordion { border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; }
+        .accordion-header { width: 100%; padding: var(--space-4) var(--space-5); background: white; border: none; text-align: left; font-size: 14px; font-weight: 600; color: var(--gray-700); cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all var(--duration-fast); }
+        .accordion-header:hover { background: var(--gray-50); }
+        .accordion-header i { color: var(--gray-400); transition: transform var(--duration-fast); }
+        .accordion-header.active i { transform: rotate(180deg); }
+        .accordion-body { max-height: 0; overflow: hidden; transition: max-height var(--duration-normal) var(--ease-out); }
+        .accordion-body.open { max-height: 4000px; }
+        .accordion-content { padding: 0 var(--space-5) var(--space-5); }
+
+        .table-wrapper { overflow-x: auto; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); background: white; margin: var(--space-4) 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { background: var(--gray-50); padding: var(--space-3) var(--space-4); text-align: left; font-weight: 600; color: var(--gray-600); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+        .data-table td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--gray-100); color: var(--gray-700); vertical-align: top; }
+        .data-table tbody tr:last-child td { border-bottom: none; }
+        .data-table tbody tr:hover td { background: var(--gray-50); }
+        .data-table code { background: var(--gray-100); padding: 2px 6px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 12px; color: var(--gray-700); }
+
+        .tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+        .tag-p0 { background: var(--danger-100); color: var(--danger-700); }
+        .tag-p1 { background: var(--warning-100); color: var(--warning-700); }
+
+        .mermaid { background: white; border-radius: var(--radius-lg); padding: var(--space-4); margin: var(--space-4) 0; }
+        .mermaid svg { max-width: 100%; height: auto; }
+
+        .footer-section { background: linear-gradient(135deg, var(--gray-900), var(--gray-800)); border-radius: var(--radius-xl); padding: var(--space-8); margin-top: var(--space-8); color: white; }
+        .footer-title { font-size: 16px; font-weight: 600; margin-bottom: var(--space-5); display: flex; align-items: center; gap: var(--space-2); }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-4); }
+        .footer-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-lg); padding: var(--space-4); }
+        .footer-card-title { font-size: 11px; font-weight: 600; color: var(--gray-400); margin-bottom: var(--space-2); text-transform: uppercase; letter-spacing: 0.05em; }
+        .footer-link { color: var(--primary-400); text-decoration: none; font-size: 13px; }
+        .footer-link:hover { color: var(--primary-300); }
+
+        h4 { font-size: 15px; font-weight: 600; color: var(--gray-800); margin: var(--space-5) 0 var(--space-3); }
+        p { margin-bottom: var(--space-3); }
+        ul, ol { margin: var(--space-3) 0; padding-left: var(--space-5); }
+
+        @media (max-width: 1024px) { .main-wrapper { grid-template-columns: 1fr; padding-left: var(--space-4); } .sidebar { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <nav class="nav-bar" id="navBar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo"><i class="fas fa-file-lines"></i><span>PRD 文档</span></a>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <aside class="sidebar">
+            <div class="toc-title">文档导览</div>
+            <ul class="toc-list">
+                <li><a href="#meta" class="toc-link active"><i class="fas fa-circle-info"></i>基本信息</a></li>
+                <li><a href="#background" class="toc-link"><i class="fas fa-history"></i>项目背景</a></li>
+                <div class="toc-divider"></div>
+                <div class="toc-title">功能清单</div>
+                <li><a href="#feat-trace" class="toc-link"><i class="fas fa-cube"></i>F1: Trace追踪列表</a></li>
+                <li><a href="#feat-app" class="toc-link"><i class="fas fa-cube"></i>F2: 应用配置</a></li>
+                <div class="toc-divider"></div>
+                <li><a href="#tracking" class="toc-link"><i class="fas fa-chart-line"></i>数据埋点</a></li>
+                <li><a href="#appendix" class="toc-link"><i class="fas fa-paperclip"></i>附录</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <!-- 基本信息 -->
+            <section class="section" id="meta">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-circle-info"></i></div>
+                    <div>
+                        <div class="section-title">基本信息</div>
+                    </div>
+                </div>
+                
+                <div class="doc-meta-grid">
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">需求名称</div>
+                        <div class="doc-meta-value">AI平台功能优化</div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">产品线</div>
+                        <div class="doc-meta-value">AI Infra 平台</div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">系统</div>
+                        <div class="doc-meta-value">前端管理后台</div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">负责人</div>
+                        <div class="doc-meta-value">产品经理</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-file-lines"></i>功能简述</div>
+                    <p>优化 Trace 追踪查询体验和应用配置管理功能，提升运维效率和用户体验。</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-clock-rotate-left"></i>更新记录</div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead><tr><th>更新时间</th><th>更新内容</th><th>更新人</th></tr></thead>
+                            <tbody>
+                                <tr><td>2024-03-03</td><td>基于前端原型自动生成初版</td><td>AI助手</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 项目背景 -->
+            <section class="section" id="background">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-history"></i></div>
+                    <div class="section-title">项目背景</div>
+                </div>
+
+                <div class="info-box">
+                    <p><strong>当前痛点：</strong>运维人员需要频繁查询 Trace 数据进行问题定位，但现有筛选条件不够灵活；应用配置分散管理，版本控制和协作效率低。</p>
+                </div>
+
+                <div class="info-box green">
+                    <p><strong>解决方案：</strong>增强 Trace 列表的多维筛选和批量操作能力；重构应用配置页面，支持版本管理和可视化编辑。</p>
+                </div>
+            </section>
+
+            <!-- 功能1：Trace追踪 -->
+            <section class="feature-block" id="feat-trace">
+                <div class="feature-header">
+                    <div class="feature-title-group">
+                        <div class="feature-icon"><i class="fas fa-cube"></i></div>
+                        <div class="feature-title">功能一：Trace追踪列表<span class="feature-id">F1</span></div>
+                    </div>
+                    <span class="tag tag-p0">P0</span>
+                </div>
+                
+                <div class="feature-content">
+                    <div class="feature-section-title"><i class="fas fa-file-lines"></i>需求概述</div>
+                    <div class="overview-box">
+                        <p>提供多维度的 Trace 数据查询能力，支持按时间、应用、反馈类型等条件筛选，支持批量标注和质检操作，方便运维人员快速定位问题。</p>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-desktop"></i>交互原型</div>
+                    <div class="prototype-embed">
+                        <div class="prototype-wrapper">
+                            <iframe class="prototype-frame" src="file:///Users/wisewong/Desktop/%E6%89%8B%E5%9B%9E/11-AI%20Infra/frontend/pages/frontend-trace.html"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-list-ul"></i>需求详情</div>
+                    <div class="detail-grid">
+                        <div class="detail-label">需求页面</div>
+                        <div class="detail-value">Trace追踪列表页、详情弹窗</div>
+                        <div class="detail-label">前置条件</div>
+                        <div class="detail-value">用户已登录且有 Trace 查看权限</div>
+                        <div class="detail-label">操作路径</div>
+                        <div class="detail-value">选择筛选条件 → 点击查询 → 查看列表 → 点击运行结果/过程日志/反馈质检查看详情</div>
+                    </div>
+
+                    <h4>筛选功能</h4>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+                            <tbody>
+                                <tr><td>Trace创建时间</td><td>时间范围</td><td>起始时间和结束时间</td></tr>
+                                <tr><td>企业</td><td>下拉选择</td><td>按企业筛选</td></tr>
+                                <tr><td>项目/应用</td><td>搜索选择</td><td>支持关键词搜索</td></tr>
+                                <tr><td>用户反馈</td><td>下拉选择</td><td>有无反馈</td></tr>
+                                <tr><td>问题类型</td><td>下拉选择</td><td>分类筛选</td></tr>
+                                <tr><td>质检评价</td><td>下拉选择</td><td>评价等级</td></tr>
+                                <tr><td>TraceId</td><td>文本输入</td><td>精确查询</td></tr>
+                                <tr><td>用户标识</td><td>文本输入</td><td>扩展ID类型和值</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>操作按钮</h4>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead><tr><th>按钮</th><th>功能</th></tr></thead>
+                            <tbody>
+                                <tr><td>查询</td><td>根据筛选条件搜索数据</td></tr>
+                                <tr><td>重置</td><td>清空所有筛选条件</td></tr>
+                                <tr><td>导出</td><td>导出当前筛选结果</td></tr>
+                                <tr><td>批量标注</td><td>对选中数据进行批量反馈标注</td></tr>
+                                <tr><td>运行结果</td><td>查看 Trace 运行结果详情</td></tr>
+                                <tr><td>过程日志</td><td>查看完整过程日志</td></tr>
+                                <tr><td>反馈质检</td><td>查看和编辑质检反馈</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>详情弹窗交互</h4>
+                    <div class="accordion">
+                        <button class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>查看详情弹窗字段说明</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <div class="table-wrapper">
+                                    <table class="data-table">
+                                        <thead><tr><th>Tab</th><th>字段</th><th>说明</th></tr></thead>
+                                        <tbody>
+                                            <tr><td rowspan="4">运行结果</td><td>输入</td><td>请求输入内容</td></tr>
+                                            <tr><td>输出</td><td>模型输出内容</td></tr>
+                                            <tr><td>日志</td><td>运行日志</td></tr>
+                                            <tr><td>格式切换</td><td>混合格式/HTML/JSON/MD</td></tr>
+                                            <tr><td>过程日志</td><td>完整日志</td><td>可复制全部或当前切片</td></tr>
+                                            <tr><td rowspan="2">反馈质检</td><td>添加标注</td><td>编辑反馈标签</td></tr>
+                                            <tr><td>质检标签</td><td>质量评价标签</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 功能2：应用配置 -->
+            <section class="feature-block" id="feat-app">
+                <div class="feature-header">
+                    <div class="feature-title-group">
+                        <div class="feature-icon"><i class="fas fa-cube"></i></div>
+                        <div class="feature-title">功能二：应用配置<span class="feature-id">F2</span></div>
+                    </div>
+                    <span class="tag tag-p1">P1</span>
+                </div>
+                
+                <div class="feature-content">
+                    <div class="feature-section-title"><i class="fas fa-file-lines"></i>需求概述</div>
+                    <div class="overview-box">
+                        <p>支持应用配置的版本化管理，提供可视化编辑界面，包括提示词管理、资源配置、模型参数设置等功能。</p>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-desktop"></i>交互原型</div>
+                    <div class="prototype-embed">
+                        <div class="prototype-wrapper">
+                            <iframe class="prototype-frame" src="file:///Users/wisewong/Desktop/%E6%89%8B%E5%9B%9E/11-AI%20Infra/frontend/pages/frontend-app-config.html"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-list-ul"></i>需求详情</div>
+                    <div class="detail-grid">
+                        <div class="detail-label">需求页面</div>
+                        <div class="detail-value">应用配置主页面、分栏编辑弹窗</div>
+                        <div class="detail-label">前置条件</div>
+                        <div class="detail-value">用户有应用配置编辑权限</div>
+                        <div class="detail-label">操作路径</div>
+                        <div class="detail-value">查看配置 → 点击编辑 → 修改字段 → 保存/取消</div>
+                    </div>
+
+                    <h4>配置字段</h4>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+                            <tbody>
+                                <tr><td>提示词管理</td><td>状态标签</td><td>已上线/未上线</td></tr>
+                                <tr><td>资源名称</td><td>文本输入</td><td>资源标识</td></tr>
+                                <tr><td>选择提示词</td><td>下拉选择</td><td>关联提示词模板</td></tr>
+                                <tr><td>模型选择</td><td>下拉选择</td><td>AI模型</td></tr>
+                                <tr><td>深度思考</td><td>开关</td><td>关闭/开启/自动</td></tr>
+                                <tr><td>温度</td><td>数值</td><td>模型温度参数</td></tr>
+                                <tr><td>Seed</td><td>数值</td><td>随机种子</td></tr>
+                                <tr><td>MaxTokens</td><td>数值</td><td>最大token数</td></tr>
+                                <tr><td>Timeout</td><td>数值</td><td>超时时间(秒)</td></tr>
+                                <tr><td>Extra Body</td><td>JSON</td><td>额外请求体</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>功能按钮</h4>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead><tr><th>按钮</th><th>功能</th></tr></thead>
+                            <tbody>
+                                <tr><td>数据同步</td><td>同步最新配置数据</td></tr>
+                                <tr><td>版本历史</td><td>查看配置版本记录</td></tr>
+                                <tr><td>版本发布</td><td>发布当前配置</td></tr>
+                                <tr><td>添加资源</td><td>新增资源配置</td></tr>
+                                <tr><td>编辑</td><td>编辑配置项</td></tr>
+                                <tr><td>删除</td><td>删除配置项</td></tr>
+                                <tr><td>保存</td><td>保存修改</td></tr>
+                                <tr><td>取消</td><td>放弃修改</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 数据埋点 -->
+            <section class="section" id="tracking">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="section-title">数据埋点</div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr><th>序号</th><th>事件名称</th><th>相关页面</th><th>触发条件</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>trace_query</td><td>Trace列表</td><td>点击查询按钮</td></tr>
+                            <tr><td>2</td><td>trace_export</td><td>Trace列表</td><td>点击导出</td></tr>
+                            <tr><td>3</td><td>trace_batch_tag</td><td>Trace列表</td><td>批量标注</td></tr>
+                            <tr><td>4</td><td>trace_view_detail</td><td>Trace列表</td><td>查看详情弹窗</td></tr>
+                            <tr><td>5</td><td>app_config_save</td><td>应用配置</td><td>保存配置</td></tr>
+                            <tr><td>6</td><td>app_config_publish</td><td>应用配置</td><td>发布版本</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 附录 -->
+            <section class="section" id="appendix">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-paperclip"></i></div>
+                    <div class="section-title">附录</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-link"></i>相关链接</div>
+                    <ul>
+                        <li><a href="./frontend/pages/frontend-trace.html" target="_blank">Trace追踪原型</a></li>
+                        <li><a href="./frontend/pages/frontend-app-config.html" target="_blank">应用配置原型</a></li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 底部 -->
+            <div class="footer-section">
+                <div class="footer-title"><i class="fas fa-link"></i>相关资源</div>
+                <div class="footer-grid">
+                    <div class="footer-card">
+                        <div class="footer-card-title">原型预览</div>
+                        <div><a href="#" class="footer-link">前端原型目录 →</a></div>
+                    </div>
+                    <div class="footer-card">
+                        <div class="footer-card-title">技术文档</div>
+                        <div><a href="#" class="footer-link">API 接口文档 →</a></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // 目录高亮
+        const sections = Array.from(document.querySelectorAll('.section[id], .feature-block[id]'));
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const offset = 100;
+        let isClickScrolling = false;
+        let clickScrollTimeout = null;
+        let lastActiveId = null;
+        
+        function getActiveSection() {
+            const scrollPos = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const viewportTop = scrollPos + offset;
+            
+            if (sections.length > 0 && viewportTop < sections[0].offsetTop) {
+                return sections[0].getAttribute('id');
+            }
+            if (scrollPos >= docHeight - 10) {
+                return sections[sections.length - 1]?.getAttribute('id');
+            }
+            for (let i = sections.length - 1; i >= 0; i--) {
+                if (viewportTop >= sections[i].offsetTop) {
+                    return sections[i].getAttribute('id');
+                }
+            }
+            return sections[0]?.getAttribute('id');
+        }
+        
+        function updateActiveToc() {
+            if (isClickScrolling) return;
+            const currentId = getActiveSection();
+            if (currentId === lastActiveId) return;
+            lastActiveId = currentId;
+            tocLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+            });
+        }
+        
+        const observer = new IntersectionObserver((entries) => {
+            if (isClickScrolling) return;
+            let topmostVisible = null;
+            let minTop = Infinity;
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.boundingClientRect.top < minTop) {
+                    minTop = entry.boundingClientRect.top;
+                    topmostVisible = entry.target.getAttribute('id');
+                }
+            });
+            if (topmostVisible && topmostVisible !== lastActiveId) {
+                lastActiveId = topmostVisible;
+                tocLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === '#' + topmostVisible);
+                });
+            }
+        }, { root: null, rootMargin: '-100px 0px -60% 0px', threshold: 0 });
+        
+        sections.forEach(s => observer.observe(s));
+        
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                if (!isClickScrolling) {
+                    const currentId = getActiveSection();
+                    if (currentId !== lastActiveId) {
+                        lastActiveId = currentId;
+                        tocLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+                        });
+                    }
+                }
+            }, 150);
+        }, { passive: true });
+        
+        tocLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                isClickScrolling = true;
+                clearTimeout(clickScrollTimeout);
+                const targetId = link.getAttribute('href').slice(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    lastActiveId = targetId;
+                    tocLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                    const targetScroll = Math.max(0, Math.min(targetSection.offsetTop - offset, maxScroll));
+                    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                    clickScrollTimeout = setTimeout(() => { isClickScrolling = false; }, 600);
+                }
+            });
+        });
+
+        // 进度条
+        function updateProgress() {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('navBar').classList.toggle('scrolled', scrollTop > 10);
+        }
+        window.addEventListener('scroll', updateProgress, { passive: true });
+
+        // Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#eff6ff',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#3b82f6',
+                lineColor: '#64748b',
+                secondaryColor: '#f8fafc',
+                tertiaryColor: '#f1f5f9'
+            },
+            flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }
+        });
+
+        // 折叠
+        function toggleAccordion(h) {
+            h.classList.toggle('active');
+            h.nextElementSibling.classList.toggle('open');
+        }
+
+    </script>
+</body>
+</html>

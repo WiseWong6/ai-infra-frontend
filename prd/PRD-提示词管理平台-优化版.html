@@ -1,0 +1,2654 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRD - 提示词管理平台重构</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+SC:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        /* ============================================
+           设计系统 - 浅色清爽风格
+           ============================================ */
+        :root {
+            /* 主色调 */
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+
+            /* 中性色 */
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+
+            /* 语义色 */
+            --success-50: #f0fdf4;
+            --success-100: #dcfce7;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            --warning-50: #fffbeb;
+            --warning-100: #fef3c7;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+            --danger-50: #fef2f2;
+            --danger-100: #fee2e2;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+
+            /* 间距 */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+
+            /* 字体 */
+            --font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+
+            /* 圆角 */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+
+            /* 阴影 */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+            /* 动画 */
+            --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+            --duration-fast: 150ms;
+            --duration-normal: 250ms;
+            --duration-slow: 350ms;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+            overscroll-behavior-y: none;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--gray-700);
+            background: var(--gray-50);
+            -webkit-font-smoothing: antialiased;
+            overscroll-behavior-y: none;
+        }
+
+        /* ============================================
+           导航栏
+           ============================================ */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--gray-200);
+            z-index: 1000;
+            transition: all var(--duration-normal) var(--ease-out);
+        }
+
+        .nav-bar.scrolled {
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-inner {
+            max-width: none;
+            margin: 0;
+            padding: 0 var(--space-4);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+            text-decoration: none;
+        }
+
+        .nav-logo i {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .nav-link {
+            padding: var(--space-2) var(--space-4);
+            color: var(--gray-600);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all var(--duration-fast) var(--ease-out);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--gray-900);
+            background: var(--gray-100);
+        }
+
+        .nav-link.active {
+            color: var(--primary-600);
+            background: var(--primary-50);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 2px;
+            background: var(--primary-600);
+            border-radius: 1px;
+        }
+
+        /* 移动端菜单按钮 */
+        .nav-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            color: var(--gray-600);
+        }
+
+        .nav-toggle:hover {
+            background: var(--gray-100);
+        }
+
+        /* ============================================
+           主容器
+           ============================================ */
+        .main-wrapper {
+            max-width: none;
+            width: 100%;
+            margin: 0;
+            padding: 80px var(--space-4) var(--space-12) var(--space-3);
+            display: grid;
+            grid-template-columns: 240px minmax(0, 1fr);
+            gap: var(--space-5);
+        }
+
+        /* ============================================
+           侧边目录
+           ============================================ */
+        .sidebar {
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            padding-right: var(--space-3);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 2px;
+        }
+
+        .toc-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-4);
+            padding-left: var(--space-3);
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            margin-bottom: var(--space-1);
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-2) var(--space-3);
+            color: var(--gray-600);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all var(--duration-fast) var(--ease-out);
+            border-left: 2px solid transparent;
+        }
+
+        .toc-link:hover {
+            color: var(--gray-900);
+            background: var(--gray-100);
+        }
+
+        .toc-link.active {
+            color: var(--primary-600);
+            background: var(--primary-50);
+            border-left-color: var(--primary-500);
+        }
+
+        .toc-link i {
+            width: 16px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .toc-item.sub {
+            margin-left: var(--space-6);
+        }
+
+        .toc-link.sub {
+            gap: var(--space-2);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-500);
+            padding: var(--space-1) var(--space-3);
+        }
+
+        .toc-link.sub i {
+            width: 12px;
+            font-size: 10px;
+            color: var(--gray-400);
+        }
+
+        .toc-link.sub.active {
+            color: var(--primary-600);
+            background: var(--primary-50);
+            border-left-color: var(--primary-400);
+        }
+
+        /* 三级目录项样式 */
+        .toc-item.sub-deep {
+            margin-left: var(--space-10);
+        }
+
+        .toc-item.sub-deepest {
+            margin-left: 4.5rem;
+        }
+
+        .toc-link.sub-deep {
+            gap: var(--space-2);
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--gray-400);
+            padding: var(--space-1) var(--space-3);
+        }
+
+        .toc-link.sub-deep i {
+            width: 10px;
+            font-size: 8px;
+            color: var(--gray-300);
+        }
+
+        .toc-link.sub-deepest {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--gray-400);
+            padding-top: var(--space-1);
+            padding-bottom: var(--space-1);
+            padding-right: var(--space-3);
+            padding-left: 2.5rem;
+        }
+
+        .toc-link.sub-deepest i {
+            width: 8px;
+            font-size: 6px;
+            color: var(--gray-300);
+        }
+
+        .toc-link.sub-deep.active {
+            color: var(--primary-600);
+            background: var(--primary-50);
+            border-left-color: var(--primary-300);
+        }
+
+        /* ============================================
+           主内容区
+           ============================================ */
+        .main-content {
+            min-width: 0;
+            width: 100%;
+        }
+
+        /* ============================================
+           文档头部
+           ============================================ */
+        .doc-header {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            padding: var(--space-10);
+            margin-bottom: var(--space-6);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .doc-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600), #8b5cf6);
+        }
+
+        .doc-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-1) var(--space-3);
+            background: var(--primary-50);
+            color: var(--primary-700);
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 9999px;
+            margin-bottom: var(--space-4);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .doc-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--gray-900);
+            line-height: 1.2;
+            margin-bottom: var(--space-3);
+            letter-spacing: -0.02em;
+        }
+
+        .doc-subtitle {
+            font-size: 17px;
+            color: var(--gray-500);
+            margin-bottom: var(--space-6);
+        }
+
+        .doc-meta {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-8);
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 14px;
+            color: var(--gray-500);
+        }
+
+        .meta-item i {
+            color: var(--gray-400);
+        }
+
+        /* ============================================
+           内容区块
+           ============================================ */
+        .section {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            margin-bottom: var(--space-6);
+            scroll-margin-top: 80px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-6);
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .section-title-group {
+            flex: 1;
+        }
+
+        .section-number {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary-600);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: var(--space-1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-900);
+            letter-spacing: -0.01em;
+        }
+
+        .section-desc {
+            font-size: 15px;
+            color: var(--gray-500);
+            margin-top: var(--space-2);
+        }
+
+        .section-content {
+            color: var(--gray-700);
+        }
+
+        .section-content>*:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ============================================
+           引用框
+           ============================================ */
+        .highlight-box {
+            background: linear-gradient(135deg, var(--primary-50), #f0f9ff);
+            border: 1px solid var(--primary-100);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin: var(--space-6) 0;
+            position: relative;
+        }
+
+        .highlight-box::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: var(--space-5);
+            bottom: var(--space-5);
+            width: 3px;
+            background: linear-gradient(180deg, var(--primary-500), var(--primary-600));
+            border-radius: 0 2px 2px 0;
+        }
+
+        .highlight-box-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-700);
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .highlight-box p {
+            margin: 0;
+            color: var(--gray-700);
+        }
+
+        /* 警告框 */
+        .warning-box {
+            background: linear-gradient(135deg, var(--warning-50), var(--warning-100));
+            border: 1px solid #fed7aa;
+        }
+
+        .warning-box::before {
+            background: linear-gradient(180deg, var(--warning-500), var(--warning-600));
+        }
+
+        .warning-box .highlight-box-title {
+            color: var(--warning-700);
+        }
+
+        /* 信息框 */
+        .info-box {
+            background: linear-gradient(135deg, var(--gray-50), var(--gray-100));
+            border: 1px solid var(--gray-200);
+        }
+
+        .info-box::before {
+            background: linear-gradient(180deg, var(--gray-400), var(--gray-500));
+        }
+
+        .info-box .highlight-box-title {
+            color: var(--gray-700);
+        }
+
+        /* 成功框 */
+        .success-box {
+            background: linear-gradient(135deg, var(--success-50), var(--success-100));
+            border: 1px solid #bbf7d0;
+        }
+
+        .success-box::before {
+            background: linear-gradient(180deg, var(--success-500), var(--success-600));
+        }
+
+        .success-box .highlight-box-title {
+            color: var(--success-700);
+        }
+
+        /* 危险框 */
+        .danger-box {
+            background: linear-gradient(135deg, var(--danger-50), var(--danger-100));
+            border: 1px solid #fecaca;
+        }
+
+        .danger-box::before {
+            background: linear-gradient(180deg, var(--danger-500), var(--danger-600));
+        }
+
+        .danger-box .highlight-box-title {
+            color: var(--danger-700);
+        }
+
+        /* ============================================
+           卡片网格
+           ============================================ */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-5);
+            margin: var(--space-6) 0;
+        }
+
+        .card-grid-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            transition: all var(--duration-normal) var(--ease-out);
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: var(--gray-300);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: var(--space-4);
+        }
+
+        .card-icon.blue {
+            background: var(--primary-50);
+            color: var(--primary-600);
+        }
+
+        .card-icon.green {
+            background: var(--success-50);
+            color: var(--success-600);
+        }
+
+        .card-icon.purple {
+            background: #f3e8ff;
+            color: #9333ea;
+        }
+
+        .card-icon.orange {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+        .card-icon.red {
+            background: var(--danger-50);
+            color: var(--danger-600);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-2);
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: var(--gray-500);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* 问题卡片 */
+        .card.problem {
+            border-color: #fecaca;
+            background: linear-gradient(135deg, #fef2f2, white);
+        }
+
+        .card.problem:hover {
+            border-color: var(--danger-300);
+        }
+
+        .card.problem .card-icon {
+            background: var(--danger-100);
+            color: var(--danger-600);
+        }
+
+        /* 解决方案卡片 */
+        .card.solution {
+            border-color: #bbf7d0;
+            background: linear-gradient(135deg, #f0fdf4, white);
+        }
+
+        .card.solution:hover {
+            border-color: #86efac;
+        }
+
+        .card.solution .card-icon {
+            background: var(--success-100);
+            color: var(--success-600);
+        }
+
+        /* ============================================
+           表格
+           ============================================ */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: var(--space-5) 0;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            background: white;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 600px;
+        }
+
+        .data-table th {
+            background: var(--gray-50);
+            padding: var(--space-4) var(--space-5);
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-600);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-bottom: 1px solid var(--gray-200);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: var(--space-4) var(--space-5);
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+            vertical-align: top;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover td {
+            background: var(--gray-50);
+        }
+
+        .data-table code {
+            background: var(--gray-100);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--gray-700);
+        }
+
+        /* ============================================
+           标签
+           ============================================ */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-1) var(--space-3);
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-blue {
+            background: var(--primary-100);
+            color: var(--primary-700);
+        }
+
+        .tag-green {
+            background: var(--success-100);
+            color: var(--success-700);
+        }
+
+        .tag-orange {
+            background: var(--warning-100);
+            color: var(--warning-700);
+        }
+
+        .tag-red {
+            background: var(--danger-100);
+            color: var(--danger-700);
+        }
+
+        .tag-gray {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        /* ============================================
+           列表
+           ============================================ */
+        .content-list {
+            margin: var(--space-4) 0;
+            padding-left: var(--space-6);
+        }
+
+        .content-list li {
+            margin-bottom: var(--space-3);
+            line-height: 1.7;
+        }
+
+        .content-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ============================================
+           原型展示
+           ============================================ */
+        .prototype-section {
+            margin: var(--space-6) 0;
+        }
+
+        .prototype-tabs {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+            border-bottom: 1px solid var(--gray-200);
+            padding-bottom: var(--space-3);
+        }
+
+        .prototype-tab {
+            padding: var(--space-2) var(--space-4);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-out);
+        }
+
+        .prototype-tab:hover {
+            color: var(--gray-900);
+            background: var(--gray-100);
+        }
+
+        .prototype-tab.active {
+            color: var(--primary-600);
+            background: var(--primary-50);
+            border-color: var(--primary-200);
+        }
+
+        .prototype-container {
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            position: relative;
+        }
+
+        .prototype-frame {
+            width: 100%;
+            max-width: 100%;
+            min-height: 600px;
+            height: 75vh;
+            border: none;
+            border-radius: var(--radius-md);
+            background: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .prototype-frame.mobile {
+            max-width: 375px;
+            margin: 0 auto;
+            height: 667px;
+        }
+
+        .prototype-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-3);
+            margin: var(--space-4) 0;
+        }
+
+        .prototype-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 14px;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-600);
+            text-decoration: none;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .prototype-link i {
+            font-size: 12px;
+            color: var(--primary-500);
+            flex-shrink: 0;
+        }
+
+        .prototype-link:hover {
+            background: var(--primary-50, #eff6ff);
+            border-color: var(--primary-300);
+            color: var(--primary-600);
+        }
+
+        .prototype-link:hover i {
+            color: var(--primary-600);
+        }
+
+        .prototype-link-arrow {
+            font-size: 10px;
+            color: var(--gray-400);
+            margin-left: 2px;
+        }
+
+        .prototype-link:hover .prototype-link-arrow {
+            color: var(--primary-400);
+        }
+
+        .feature-prototype-block {
+            margin-bottom: var(--space-5);
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+        }
+
+        .feature-prototype-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-3);
+            margin-bottom: var(--space-3);
+            flex-wrap: wrap;
+        }
+
+        .feature-prototype-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-500);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .feature-prototype-tabs {
+            display: inline-flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .feature-prototype-tab {
+            padding: var(--space-2) var(--space-4);
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-out);
+        }
+
+        .feature-prototype-tab:hover {
+            border-color: var(--gray-300);
+            color: var(--gray-900);
+        }
+
+        .feature-prototype-tab.active {
+            color: var(--primary-600);
+            background: var(--primary-50);
+            border-color: var(--primary-200);
+        }
+
+        .feature-prototype-container {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-prototype-frame {
+            width: 100%;
+            height: 760px;
+            border: none;
+            display: block;
+            background: white;
+        }
+
+        /* ============================================
+           流程图
+           ============================================ */
+        .flow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+            padding: var(--space-8);
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+            flex-wrap: wrap;
+            margin: var(--space-6) 0;
+        }
+
+        .flow-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-5);
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            min-width: 140px;
+            max-width: 180px;
+            text-align: center;
+            transition: all var(--duration-normal) var(--ease-out);
+        }
+
+        .flow-step:hover {
+            border-color: var(--primary-300);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .flow-step-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .flow-step-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .flow-step-desc {
+            font-size: 12px;
+            color: var(--gray-500);
+            line-height: 1.5;
+        }
+
+        .flow-arrow {
+            color: var(--gray-400);
+            font-size: 20px;
+        }
+
+        /* ============================================
+           时间线
+           ============================================ */
+        .timeline {
+            position: relative;
+            padding-left: 32px;
+            margin: var(--space-5) 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gray-200);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: var(--space-6);
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -28px;
+            top: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--gray-300);
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--gray-200);
+        }
+
+        .timeline-item.active .timeline-dot {
+            background: var(--primary-500);
+            box-shadow: 0 0 0 2px var(--primary-200);
+        }
+
+        .timeline-item.completed .timeline-dot {
+            background: var(--success-500);
+            box-shadow: 0 0 0 2px var(--success-200);
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: var(--gray-400);
+            margin-bottom: var(--space-1);
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .timeline-desc {
+            font-size: 14px;
+            color: var(--gray-500);
+        }
+
+        /* ============================================
+           折叠面板
+           ============================================ */
+        .accordion {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: var(--space-4) 0;
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .accordion-item:last-child {
+            border-bottom: none;
+        }
+
+        .accordion-header {
+            width: 100%;
+            padding: var(--space-4) var(--space-5);
+            background: white;
+            border: none;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-900);
+            cursor: default;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: none;
+            scroll-margin-top: 88px;
+        }
+
+        .accordion-header:hover {
+            background: white;
+        }
+
+        .accordion-header i {
+            display: none;
+            color: var(--gray-400);
+        }
+
+        .accordion-header.active i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            max-height: none;
+            overflow: visible;
+            transition: none;
+        }
+
+        .accordion-body.open {
+            max-height: none;
+        }
+
+        .accordion-content {
+            padding: 0 var(--space-5) var(--space-5);
+        }
+
+        /* ============================================
+           排版
+           ============================================ */
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: var(--space-8) 0 var(--space-4);
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: var(--space-6) 0 var(--space-3);
+            scroll-margin-top: 88px;
+        }
+
+        h5 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin: var(--space-4) 0 var(--space-2);
+        }
+
+        p {
+            margin-bottom: var(--space-4);
+            line-height: 1.7;
+        }
+
+        strong {
+            color: var(--gray-900);
+            font-weight: 600;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            background: var(--gray-100);
+            padding: 0.1em 0.4em;
+            border-radius: var(--radius-sm);
+            color: var(--gray-700);
+        }
+
+        /* ============================================
+           阅读进度条
+           ============================================ */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            z-index: 1001;
+            transition: width 0.1s linear;
+        }
+
+        /* ============================================
+           响应式
+           ============================================ */
+        @media (max-width: 1200px) {
+            .main-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --space-6: 1rem;
+                --space-8: 1.5rem;
+            }
+
+            .doc-header {
+                padding: var(--space-6);
+            }
+
+            .doc-title {
+                font-size: 24px;
+            }
+
+            .section {
+                padding: var(--space-5);
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .prototype-frame {
+                height: 400px;
+            }
+
+            .feature-prototype-frame {
+                height: 520px;
+            }
+
+            .doc-meta {
+                flex-direction: column;
+                gap: var(--space-3);
+            }
+        }
+
+        /* ============================================
+           动画
+           ============================================ */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.5s var(--ease-out) forwards;
+        }
+
+        /* 滚动显现 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 进度条 -->
+    <div class="progress-bar" id="progressBar" style="width: 67.8637%;"></div>
+
+    <!-- 导航栏 -->
+    <nav class="nav-bar scrolled" id="navBar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">
+                <i class="fa-solid fa-file-lines"></i>
+                <span>提示词管理平台 PRD</span>
+            </a>
+            <div class="nav-links">
+                <a href="#background" class="nav-link">背景</a>
+                <a href="#solution" class="nav-link">方案</a>
+                <a href="#scope" class="nav-link">范围</a>
+                <a href="#flow" class="nav-link">流程</a>
+                <a href="#features" class="nav-link active">功能</a>
+                <a href="#prototype" class="nav-link">原型</a>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <!-- 侧边目录 -->
+        <aside class="sidebar">
+            <div class="toc-title">文档目录</div>
+            <ul class="toc-list">
+                <li class="toc-item">
+                    <a href="#background" class="toc-link">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span>需求背景</span>
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#solution" class="toc-link">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>解决方案</span>
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#scope" class="toc-link">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <span>需求范围</span>
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#flow" class="toc-link">
+                        <i class="fa-solid fa-diagram-project"></i>
+                        <span>业务流程</span>
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#features" class="toc-link active">
+                        <i class="fa-solid fa-star"></i>
+                        <span>功能需求</span>
+                    </a>
+                </li>
+                <li class="toc-item sub">
+                    <a href="#feature-6-1" class="toc-link sub">
+                        <i class="fa-solid fa-circle"></i>
+                        <span>6.1 提示词列表</span>
+                    </a>
+                </li>
+                <li class="toc-item sub">
+                    <a href="#feature-6-2" class="toc-link sub">
+                        <i class="fa-solid fa-circle"></i>
+                        <span>6.2 新建/编辑提示词</span>
+                    </a>
+                </li>
+                <li class="toc-item sub-deep">
+                    <a href="#feature-6-2-1" class="toc-link sub-deep">
+                        <i class="fa-solid fa-minus"></i>
+                        <span>6.2.1 基础信息配置</span>
+                    </a>
+                </li>
+                <li class="toc-item sub-deep">
+                    <a href="#feature-6-2-2" class="toc-link sub-deep">
+                        <i class="fa-solid fa-minus"></i>
+                        <span>6.2.2 Prompt编辑器</span>
+                    </a>
+                </li>
+                <li class="toc-item sub-deep">
+                    <a href="#feature-6-2-3" class="toc-link sub-deep">
+                        <i class="fa-solid fa-minus"></i>
+                        <span>6.2.3 节点配置</span>
+                    </a>
+                </li>
+                <li class="toc-item sub-deep">
+                    <a href="#feature-6-2-4" class="toc-link sub-deep">
+                        <i class="fa-solid fa-minus"></i>
+                        <span>6.2.4 预览调试</span>
+                    </a>
+                </li>
+                <li class="toc-item sub-deepest">
+                    <a href="#feature-6-2-4-1" class="toc-link sub-deepest">
+                        <i class="fa-solid fa-dot-circle"></i>
+                        <span>引用评测集模式</span>
+                    </a>
+                </li>
+                <li class="toc-item sub-deepest">
+                    <a href="#feature-6-2-4-2" class="toc-link sub-deepest">
+                        <i class="fa-solid fa-dot-circle"></i>
+                        <span>自定义变量模式</span>
+                    </a>
+                </li>
+                <li class="toc-item sub-deepest">
+                    <a href="#feature-6-2-4-3" class="toc-link sub-deepest">
+                        <i class="fa-solid fa-dot-circle"></i>
+                        <span>调试运行</span>
+                    </a>
+                </li>
+                <li class="toc-item sub-deep">
+                    <a href="#feature-6-2-5" class="toc-link sub-deep active">
+                        <i class="fa-solid fa-minus"></i>
+                        <span>6.2.5 同步评测集</span>
+                    </a>
+                </li>
+                <li class="toc-item sub-deep">
+                    <a href="#feature-6-2-6" class="toc-link sub-deep">
+                        <i class="fa-solid fa-minus"></i>
+                        <span>6.2.6 评测集创建与变量演进</span>
+                    </a>
+                </li>
+                <li class="toc-item sub">
+                    <a href="#feature-6-3" class="toc-link sub">
+                        <i class="fa-solid fa-circle"></i>
+                        <span>6.3 版本管理</span>
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#prototype" class="toc-link">
+                        <i class="fa-solid fa-desktop"></i>
+                        <span>交互原型</span>
+                    </a>
+                </li>
+                <li class="toc-item sub">
+                    <a href="#prototype" class="toc-link sub">
+                        <i class="fa-solid fa-circle"></i>
+                        <span>iframe预览</span>
+                    </a>
+                </li>
+                <li class="toc-item sub">
+                    <a href="#prototype-links" class="toc-link sub">
+                        <i class="fa-solid fa-circle"></i>
+                        <span>原型链接</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 主内容 -->
+        <main class="main-content">
+            <!-- 文档头部 -->
+            <header class="doc-header reveal visible">
+                <div class="doc-badge">
+                    <i class="fa-solid fa-file-lines"></i>
+                    产品需求文档
+                </div>
+                <h1 class="doc-title">提示词管理平台 PRD</h1>
+                <p class="doc-subtitle">重建提示词管理系统，打通提示词调试与应用管理链路</p>
+                <div class="doc-meta">
+                    <div class="meta-item">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span>2026-02-25</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fa-solid fa-code-branch"></i>
+                        <span>v1.0</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Wise Wong</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 2. 需求背景 -->
+            <section class="section reveal visible" id="background">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+                    <div class="section-title-group">
+                        <div class="section-number">Chapter 01</div>
+                        <h2 class="section-title">需求背景</h2>
+                        <p class="section-desc" style="outline-offset: 4px; border-radius: 2px;">当前系统面临的问题与挑战</p>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="card-grid">
+                        <div class="card problem">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-bug"></i>
+                            </div>
+                            <h4 class="card-title">旧系统维护困难</h4>
+                            <p class="card-desc">原提示词平台基于Vibe Coding快速搭建，代码质量差、BUG频发。随着功能迭代，技术债务累积到难以维护的程度，严重影响团队效率。</p>
+                        </div>
+                        <div class="card problem">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-copy"></i>
+                            </div>
+                            <h4 class="card-title">复制粘贴易出错</h4>
+                            <p class="card-desc">AI Infra应用管理的提示词配置是"文本框填写"模式。研发需要从旧平台调试好、复制、粘贴到应用配置，流程繁琐且容易出错。</p>
+                        </div>
+                        <div class="card problem">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-flask"></i>
+                            </div>
+                            <h4 class="card-title">变量调试效率低</h4>
+                            <p class="card-desc">提示词调试时需要反复修改变量值进行测试。每次都要手动输入变量，无法复用评测集中的测试数据，批量测试效率极低。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 解决方案 -->
+            <section class="section reveal visible" id="solution">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div class="section-title-group">
+                        <div class="section-number">Chapter 02</div>
+                        <h2 class="section-title">解决方案</h2>
+                        <p class="section-desc">系统性的产品方案设计</p>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="highlight-box success-box">
+                        <div class="highlight-box-title">
+                            <i class="fa-solid fa-rocket"></i>
+                            核心方案：重建提示词管理平台
+                        </div>
+                        <p>采用全新架构重建提示词管理系统，实现提示词的全生命周期管理，并与AI Infra应用管理深度打通。</p>
+                    </div>
+
+                    <h3>方案要点</h3>
+                    <div class="card-grid card-grid-4">
+                        <div class="card solution">
+                            <div class="card-icon" style="background: #dbeafe; color: #2563eb;">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <h4 class="card-title">提示词即服务</h4>
+                            <p class="card-desc">提示词作为一等公民，支持完整的生命周期管理（创建、编辑、调试、发布、归档）</p>
+                        </div>
+                        <div class="card solution">
+                            <div class="card-icon" style="background: #dcfce7; color: #16a34a;">
+                                <i class="fa-solid fa-link"></i>
+                            </div>
+                            <h4 class="card-title">与应用管理打通</h4>
+                            <p class="card-desc">AI Infra可直接选用已调试好的提示词，告别复制粘贴，降低出错率</p>
+                        </div>
+                        <div class="card solution">
+                            <div class="card-icon" style="background: #f3e8ff; color: #9333ea;">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <h4 class="card-title">评测集变量引用</h4>
+                            <p class="card-desc">调试时可直接引用评测集变量，支持批量测试，大幅提升调试效率</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 需求范围 -->
+            <section class="section reveal visible" id="scope">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <div class="section-title-group">
+                        <div class="section-number">Chapter 03</div>
+                        <h2 class="section-title">需求范围</h2>
+                        <p class="section-desc">明确本次迭代的边界与范围</p>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="highlight-box info-box">
+                        <div class="highlight-box-title">
+                            <i class="fa-solid fa-info-circle"></i>
+                            范围说明
+                        </div>
+                        <p>本PRD仅覆盖<strong>提示词管理模块</strong>，与评测体系PRD并列。批量运行评测时跳转到评测中心，仅筛选条件自动选中当前提示词。</p>
+                    </div>
+
+                    <h3>包含功能</h3>
+                    <div class="card-grid card-grid-4">
+                        <div class="card">
+                            <div class="card-icon blue">
+                                <i class="fa-solid fa-list"></i>
+                            </div>
+                            <h4 class="card-title">提示词列表</h4>
+                            <p class="card-desc">支持按项目/应用筛选、搜索、排序、分页</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon green">
+                                <i class="fa-solid fa-plus"></i>
+                            </div>
+                            <h4 class="card-title">新建提示词</h4>
+                            <p class="card-desc">可视化编辑器，支持System/User多消息配置</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon purple">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </div>
+                            <h4 class="card-title">编辑提示词</h4>
+                            <p class="card-desc">版本管理、变更对比、历史回溯</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon orange">
+                                <i class="fa-solid fa-vial"></i>
+                            </div>
+                            <h4 class="card-title">调试与评测</h4>
+                            <p class="card-desc">新建仅自定义变量，编辑可引用评测集并批量测试</p>
+                        </div>
+                    </div>
+
+                    <h3>预期迭代</h3>
+                    <ul class="content-list">
+                        <li><strong>AI辅助提示词优化</strong>：基于AIOps的提示词优化建议</li>
+                        <li><strong>多模型对比评测</strong>：需在评测中心完成</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 5. 业务流程 -->
+            <section class="section reveal visible" id="flow">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                        <i class="fa-solid fa-diagram-project"></i>
+                    </div>
+                    <div class="section-title-group">
+                        <div class="section-number">Chapter 04</div>
+                        <h2 class="section-title">业务流程</h2>
+                        <p class="section-desc">提示词从创建到应用的核心流程</p>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="flow-container">
+                        <div class="flow-step">
+                            <div class="flow-step-icon">
+                                <i class="fa-solid fa-plus"></i>
+                            </div>
+                            <div class="flow-step-title">创建提示词</div>
+                            <div class="flow-step-desc">选择项目/应用<br>填写基础信息</div>
+                        </div>
+                        <div class="flow-arrow">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-icon">
+                                <i class="fa-solid fa-code"></i>
+                            </div>
+                            <div class="flow-step-title">编辑Prompt</div>
+                            <div class="flow-step-desc">System/User消息<br>变量占位符</div>
+                        </div>
+                        <div class="flow-arrow">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-icon">
+                                <i class="fa-solid fa-bug"></i>
+                            </div>
+                            <div class="flow-step-title">调试运行</div>
+                            <div class="flow-step-desc">新建：自定义变量<br>编辑：可引用评测集</div>
+                        </div>
+                        <div class="flow-arrow">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                            <div class="flow-step-title">发布选用</div>
+                            <div class="flow-step-desc">版本发布<br>应用配置选用</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. 功能需求 -->
+            <section class="section reveal visible" id="features">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div class="section-title-group">
+                        <div class="section-number">Chapter 05</div>
+                        <h2 class="section-title">功能需求</h2>
+                        <p class="section-desc">详细的功能规格说明与交互设计</p>
+                    </div>
+                </div>
+                <div class="section-content">
+
+                    <!-- 6.1 提示词列表 -->
+                    <div class="accordion">
+                        <div class="accordion-item">
+                            <button id="feature-6-1" class="accordion-header" data-accordion-anchor="6.1,feature-6-1">
+                                <span>6.1 提示词列表</span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                            <div class="accordion-body open">
+                                <div class="accordion-content">
+                                    <div class="feature-prototype-block">
+                                        <div class="feature-prototype-header">
+                                            <span class="feature-prototype-label">交互原型预览</span>
+                                        </div>
+                                        <div class="feature-prototype-container">
+                                            <iframe class="feature-prototype-frame" src="../frontend/pages/frontend-slides-guide.html" title="提示词列表交互原型"></iframe>
+                                        </div>
+                                    </div>
+
+                                    <h4>页面结构</h4>
+                                    <p>提示词列表页采用经典的"筛选区 + 列表区 + 操作区 + 分页区"四区布局，各区域职责明确。</p>
+
+                                    <div class="table-wrapper">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 15%;">区域</th>
+                                                    <th style="width: 35%;">功能</th>
+                                                    <th style="width: 50%;">规则说明</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>筛选区</td>
+                                                    <td>多维度检索提示词</td>
+                                                    <td>
+                                                        • <strong>级联筛选</strong>：项目与应用采用级联选择器，选择项目后自动加载该项目下的应用列表<br>
+                                                        • <strong>关键词搜索</strong>：支持按提示词名称、负责人进行模糊搜索，输入时实时触发搜索
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>列表区</td>
+                                                    <td>展示提示词核心信息（ID、项目、应用、名称、描述、更新时间、负责人）</td>
+                                                    <td>
+                                                        • <strong>排序规则</strong>：默认按最近更新时间倒序排列（时间越晚在越前面）<br>
+                                                        • <strong>ID 生成</strong>：自增主键，删除后不回滚<br>
+                                                        • <strong>权限控制</strong>：列表内容基于当前用户权限过滤，只展示可见范围内的提示词
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>操作区</td>
+                                                    <td>每行数据末尾提供快捷操作入口</td>
+                                                    <td>
+                                                        • <strong>编辑</strong>：点击后跳转到提示词编辑页<br>
+                                                        • <strong>复制</strong>：以"原名称-副本"为名称创建新提示词，复制原有的 Prompt 内容和配置<br>
+                                                        • <strong>删除</strong>：点击后弹出二次确认对话框，确认后删除该提示词
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>分页区</td>
+                                                    <td>列表底部提供分页导航</td>
+                                                    <td>
+                                                        • 默认每页展示 10 条数据<br>
+                                                        • 页码区显示总页数，支持上一页/下一页/首页/尾页快捷跳转<br>
+                                                        • 支持直接输入页码跳转到指定页
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <button id="feature-6-2" class="accordion-header" data-accordion-anchor="6.2,feature-6-2">
+                                <span>6.2 新建/编辑提示词</span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <div id="feature-6-2-prototype" class="feature-prototype-block">
+                                        <div class="feature-prototype-header">
+                                            <span class="feature-prototype-label">交互原型预览</span>
+                                            <div class="feature-prototype-tabs">
+                                                <button type="button" class="feature-prototype-tab active" onclick="switchFeaturePromptPrototype('create', this)">
+                                                    新建提示词
+                                                </button>
+                                                <button type="button" class="feature-prototype-tab" onclick="switchFeaturePromptPrototype('edit', this)">
+                                                    编辑提示词
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="feature-prototype-container">
+                                            <iframe id="featurePromptFrame" class="feature-prototype-frame" src="../frontend/pages/frontend-slides-guide-create.html" title="新建与编辑提示词交互原型"></iframe>
+                                        </div>
+                                    </div>
+                                    <div class="highlight-box info-box">
+                                        <div class="highlight-box-title">
+                                            <i class="fa-solid fa-layout"></i>
+                                            页面布局
+                                        </div>
+                                        <p>采用三栏布局设计，每个区域职责明确，各自拥有独立的滚动条</p>
+                                    </div>
+
+                                    <div class="card-grid">
+                                        <div class="card" style="border-color: #bfdbfe;">
+                                            <div class="card-icon blue">
+                                                <i class="fa-solid fa-align-left"></i>
+                                            </div>
+                                            <h4 class="card-title">左栏 (36%)</h4>
+                                            <p class="card-desc">
+                                                <strong>Prompt编辑器与变量配置</strong><br>
+                                                • System/User/Assistant消息卡片<br>
+                                                • 消息增删改<br>
+                                                • 角色标签颜色区分<br>
+                                                • 变量提取<br>
+                                                • 变量引用（引用评测集/自定义变量）<br>
+                                                • 变量输入<br>
+                                                • 独立滚动区域
+                                            </p>
+                                        </div>
+                                        <div class="card" style="border-color: #86efac;">
+                                            <div class="card-icon green">
+                                                <i class="fa-solid fa-sliders"></i>
+                                            </div>
+                                            <h4 class="card-title">中栏 (34%)</h4>
+                                            <p class="card-desc">
+                                                <strong>节点配置</strong><br>
+                                                • 模型选择与参数配置<br>
+                                                • 深度思考与温度等参数设置<br>
+                                                • Seed / MaxTokens / Timeout / Extra Body<br>
+                                                • 独立滚动区域
+                                            </p>
+                                        </div>
+                                        <div class="card" style="border-color: #fcd34d;">
+                                            <div class="card-icon orange">
+                                                <i class="fa-solid fa-play"></i>
+                                            </div>
+                                            <h4 class="card-title">右栏 (30%)</h4>
+                                            <p class="card-desc">
+                                                <strong>预览调试与运行</strong><br>
+                                                • 单条运行调试<br>
+                                                • 调试态持久化（保存后回填）<br>
+                                                • 同步到评测集（新增/覆盖）<br>
+                                                • 批量运行评测<br>
+                                                • 独立滚动区域
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <h4 id="feature-6-2-1">6.2.1 基础信息配置</h4>
+                                    <p>页面顶部配置提示词的基础信息，包含以下字段：</p>
+
+                                    <div class="table-wrapper">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 15%;">字段</th>
+                                                    <th style="width: 15%;">控件类型</th>
+                                                    <th style="width: 70%;">规则说明</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>项目 <span class="required">*</span></td>
+                                                    <td>级联选择器</td>
+                                                    <td>从系统项目列表中选择，选择后自动加载该项目下的应用列表</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>应用 <span class="required">*</span></td>
+                                                    <td>级联选择器</td>
+                                                    <td>依赖项目选择；项目未选择时为禁用状态；支持搜索过滤应用名称</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>名称 <span class="required">*</span></td>
+                                                    <td>文本输入</td>
+                                                    <td>长度 2-50 字符，全局唯一；输入框失焦时校验唯一性，名称重复时提示"该名称已存在"</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>描述</td>
+                                                    <td>文本域</td>
+                                                    <td>长度 0-200 字符；不显示剩余字数提示；输入长度达到上限后无法继续输入</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>负责人 <span class="required">*</span></td>
+                                                    <td>文本输入</td>
+                                                    <td>创建人默认写入为负责人；支持多个负责人，用英文逗号 <code>,</code> 分隔；前端自动将中文逗号 <code>，</code> 转译为英文逗号，并去除多余空格后再保存</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <h4 id="feature-6-2-2">6.2.2 Prompt编辑器（左栏）</h4>
+                                    <p>左栏为 Prompt 内容编辑区域，采用卡片式设计，支持多角色消息配置。</p>
+
+                                    <div class="table-wrapper">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 15%;">功能</th>
+                                                    <th style="width: 85%;">规则说明</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>消息卡片结构</td>
+                                                    <td>
+                                                        卡片顺序固定为：System → User → Assistant（可多个）<br>
+                                                        • <strong>System Prompt</strong>：默认卡片，不可删除，始终展示在最前面<br>
+                                                        • <strong>User Prompt</strong>：默认卡片，不可删除，位于 System 卡片之后<br>
+                                                        • <strong>Assistant Prompt</strong>：可动态添加，支持添加多个，每个卡片右上角提供删除按钮
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>添加消息</td>
+                                                    <td>点击"添加 Assistant Prompt"按钮，系统在最后一个卡片之后插入新的 Assistant 卡片。可连续添加多个。</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>编辑内容</td>
+                                                    <td>
+                                                        在卡片内的文本域中编辑消息内容：<br>
+                                                        • 文本域根据内容高度自动增高<br>
+                                                        • 变量占位符（如 <code>{{variable_name}}</code>）高亮显示，便于识别<br>
+                                                        • 支持 Tab 键缩进，方便编辑格式化内容
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>添加变量占位符</td>
+                                                    <td>
+                                                        点击卡片内的 <code>+ 变量</code> 按钮（位于右下角），弹出变量类型选择浮层：<br>
+                                                        • 支持插入三种类型：文本(text)、图片(image)、文件(file)<br>
+                                                        • 插入后在光标位置生成占位符，格式为 <code>{{variable_name}}</code><br>
+                                                        • 系统实时扫描左栏内容，自动提取所有符合格式的占位符，去重后同步到右栏"变量输入"区域
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>变量名双向联动</td>
+                                                    <td>
+                                                        左栏与右栏的变量名实现双向同步：<br>
+                                                        • 在左栏修改占位符名称，右栏对应变量名自动更新<br>
+                                                        • 在右栏修改变量名，系统自动回写左栏所有消息中的同名占位符<br>
+                                                        • 变量命名规则：必须以字母开头，只能包含字母、数字、下划线
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>删除卡片</td>
+                                                    <td>仅 Assistant 卡片右上角显示删除按钮，点击后移除该消息卡片。System 和 User 卡片不显示删除入口。删除卡片时，该卡片内的变量占位符从左栏移除，右栏对应的变量输入项同步移除。</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <h4 id="feature-6-2-3">6.2.3 节点配置（中栏）</h4>
+                                    <p>中栏配置模型运行参数，控制 AI 的推理行为和输出特性。</p>
+
+                                    <div class="table-wrapper">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 15%;">参数</th>
+                                                    <th style="width: 15%;">控件类型</th>
+                                                    <th style="width: 70%;">规则说明</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>模型选择</td>
+                                                    <td>下拉选择器</td>
+                                                    <td>自动选中当前项目配置的默认模型；展示模型名称、版本号、价格信息（输入/输出 token 单价）</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>深度思考</td>
+                                                    <td>单选按钮</td>
+                                                    <td>
+                                                        配置模型的思考模式，支持三种选项：<br>
+                                                        • <strong>开启</strong>：强制启用深度思考模式<br>
+                                                        • <strong>关闭</strong>：强制关闭深度思考模式<br>
+                                                        • <strong>自动</strong>：由模型根据输入自动决定是否启用<br>
+                                                        切换后即时生效，无需保存即可在下次运行时应用
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>温度</td>
+                                                    <td>数值输入框</td>
+                                                    <td>默认值 0.3；取值范围 0-2；必填；超出范围时阻止保存和运行，并提示错误</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Seed</td>
+                                                    <td>数值输入框</td>
+                                                    <td>控制输出的可重现性，相同 Seed 在相同输入下产生相同输出；必填；支持数值校验</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>MaxTokens</td>
+                                                    <td>数值输入框</td>
+                                                    <td>限制模型最大输出 token 数量；必填；支持数值校验</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Timeout</td>
+                                                    <td>数值输入框</td>
+                                                    <td>设置请求超时时间；单位：秒</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Extra Body</td>
+                                                    <td>JSON 文本域</td>
+                                                    <td>透传额外的请求参数到模型接口；需符合 JSON 格式，运行时会透传给模型</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <h4 id="feature-6-2-4">6.2.4 预览调试（右栏）</h4>
+                                    <p>右栏是调试运行区域，包含运行结果展示。变量引用模式配置和变量输入均位于左栏。</p>
+
+                                    <h5 id="feature-6-2-4-1">引用评测集模式</h5>
+                                    <p>在编辑提示词页面，可以选择引用已有的评测集来填充变量值：</p>
+                                    <ul class="content-list">
+                                        <li style="outline-offset: 4px; border-radius: 2px;"><strong>选择评测集</strong>：不使用简单下拉框，改为“评测集选择弹窗”。弹窗支持按评测集名称/ID/项目应用维度检索，确认后回填到右栏。</li>
+                                        <li><strong>渲染范围</strong>：评测集候选范围受“当前项目/应用 + 变量字段兼容”双重约束，仅展示可直接填充当前变量的评测集。</li>
+                                        <li><strong>选择用例</strong>：选择具体用例后，系统自动将该用例的输入变量填充到右栏变量输入区</li>
+                                        <li style="outline-offset: 4px; border-radius: 2px;"><strong>手动修改</strong>：自动填充后，仍可手动修改变量值进行调试，修改不影响原评测集数据</li>
+                                        <li><strong>持久化</strong>：保存提示词时，记录 <code>ref_mode=eval</code>、<code>eval_set_id</code>、<code>case_id</code>，下次进入时自动回填</li>
+                                    </ul>
+
+                                    <h5 id="feature-6-2-4-2">自定义变量模式</h5>
+                                    <p>不引用评测集时，使用自定义变量进行调试：</p>
+                                    <ul class="content-list">
+                                        <li><strong>自动提取变量</strong>：左栏编辑 Prompt 时，系统自动识别 <code>{{variable_name}}</code> 格式的占位符，去重后实时同步到右栏。占位符删除时，对应输入项自动移除。</li>
+                                        <li style="outline-offset: 4px; border-radius: 2px;"><strong>变量类型</strong>：支持三种类型&nbsp;<div style="outline-offset: 4px; border-radius: 2px;">—— 文本(text)显示多行输入框；<br><div>—— 图片(image)和文件(file)显示只读输入框+上传按钮</div></div></li>
+                                        <li><strong>双向联动</strong>：左栏修改占位符名称，右栏同步更新；右栏修改变量名，回写左栏所有消息中的同名占位符</li>
+                                        <li><strong>类型切换</strong>：支持 text/image/file 互切，切换后立即更换控件类型。⚠️ 从文件类切换时，会清空旧上传值以避免类型污染</li>
+                                        <li><strong>删除变量</strong>：在右栏点击变量项删除按钮，删除后同步清理左栏占位符、右栏输入值和上传文件引用</li>
+                                        <li><strong>持久化</strong>：保存提示词时，记录 <code>ref_mode=custom</code> 与变量快照（变量名、类型、当前值）。图片/文件变量保存元信息引用（文件名、URL/资源ID）</li>
+                                    </ul>
+
+                                    <h5 id="feature-6-2-4-3">调试运行</h5>
+                                    <p>使用当前变量值进行调试运行：</p>
+                                    <ul class="content-list">
+                                        <li><strong>单条运行</strong>：点击运行按钮，使用当前变量值调用模型。运行中显示加载态，完成后回填模型响应、模型输出、Trace性能指标。再次运行覆盖上次结果。</li>
+                                        <li><strong>复制结果</strong>：提供两个复制按钮 —— "复制(模型响应)"仅复制模型响应框内容；"复制(模型输出)"仅复制模型输出框内容</li>
+                                        <li><strong>批量运行</strong>：点击"批量运行"按钮跳转到评测中心，URL 参数带入 <code>prompt_id</code> 和 <code>eval_set_id</code>，评测中心自动填充筛选条件</li>
+                                    </ul>
+
+                                    <div class="highlight-box info-box">
+                                        <div class="highlight-box-title">
+                                            <i class="fa-solid fa-info-circle"></i>
+                                            注意
+                                        </div>
+                                        <p>仅运行未保存，不视为最终状态。只有点击"保存"后，调试态才会被持久化。重新进入编辑页时默认回填上次状态，若变量结构变化，同名变量优先回填，缺失变量忽略，新变量按空值初始化。</p>
+                                    </div>
+
+                                    <h4 id="feature-6-2-5">6.2.5 同步到评测集</h4>
+                                    <div class="feature-prototype-block">
+                                        <div class="feature-prototype-header">
+                                            <span class="feature-prototype-label">交互原型预览</span>
+                                            <div class="feature-prototype-tabs">
+                                                <button type="button" class="feature-prototype-tab feature-sync-tab active" onclick="switchFeatureSyncPrototype('add', this)">
+                                                    同步评测集浮层
+                                                </button>
+                                                <button type="button" class="feature-prototype-tab feature-sync-tab" onclick="switchFeatureSyncPrototype('overwrite', this)">
+                                                    覆盖评测集浮层
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="feature-prototype-container">
+                                            <iframe id="featureSyncFrame" class="feature-prototype-frame" src="../frontend/pages/frontend-slides-guide-edit.html?id=009&amp;syncModal=1&amp;syncMode=add&amp;refMode=custom" title="同步到评测集浮层交互原型"></iframe>
+                                        </div>
+                                    </div>
+
+                                    <h4>功能说明</h4>
+                                    <p>将当前运行结果通过浮层同步到评测集用例。</p>
+
+                                    <h4>交互规则</h4>
+                                    <ul class="content-list">
+                                        <li><strong>入口限制</strong>：仅编辑页提供该能力；新建页不提供"同步到评测集"入口</li>
+                                        <li><strong>显示条件</strong>：入口按钮名称为"同步到评测集"；仅在运行完成且存在输出后显示</li>
+                                        <li><strong>模式约束（强规则）</strong>：<code>ref_mode=custom</code> 仅允许“新增用例”；<code>ref_mode=eval</code> 仅允许“覆盖用例”。浮层中禁用不允许的模式，不可手动切换。</li>
+                                        <li><strong>评测集范围</strong>：custom+add 仅展示当前项目/应用下字段兼容的评测集；eval+overwrite 默认锁定当前已选评测集（如无已选则选第一个可用项），可更换用例。</li>
+                                        <li><strong>浮层字段</strong>：评测集、用例id、变量预览、期望输出（reference_output）</li>
+                                    </ul>
+
+                                    <h4>新增用例</h4>
+                                    <p>仅在 <code>ref_mode=custom</code> 下可用。在目标评测集新增一行，用当前变量值写入输入字段，模型输出写入 reference_output。</p>
+
+                                    <h4>覆盖用例</h4>
+                                    <p>仅在 <code>ref_mode=eval</code> 下可用。仅覆盖选中用例的 reference_output，不覆盖变量输入字段。</p>
+
+                                    <h4 id="feature-6-2-6">6.2.6 评测集创建与变量演进</h4>
+                                    <h4>评测集创建流程</h4>
+                                    <ul class="content-list">
+                                        <li><strong>步骤1</strong>：先选择项目/应用，作为评测集作用域。</li>
+                                        <li><strong>步骤2</strong>：选择评测集类型（提示词 / 应用）。</li>
+                                        <li><strong>步骤3</strong>：选择评测对象。提示词类型与应用类型均通过“对象选择弹窗”完成，不使用简单下拉框。</li>
+                                    </ul>
+
+                                    <h4>变量初始化与同步逻辑</h4>
+                                    <ul class="content-list">
+                                        <li><strong>初始化</strong>：基于提示词或应用创建评测集时，按目标对象变量初始化评测集变量元数据（name/type/status/source/updatedAt）。</li>
+                                        <li><strong>新增变量</strong>：目标对象新增变量时，评测集同步新增变量，状态为 <code>active</code>，并在全部用例补空值。</li>
+                                        <li><strong>删除变量</strong>：目标对象删除变量时，评测集执行软删除（<code>status=soft_deleted</code>），默认不展示但保留历史数据。</li>
+                                        <li><strong>修改变量</strong>：按“新增变量”处理（旧变量软删除 + 新变量新增），不做自动 rename 合并。</li>
+                                        <li><strong>适用范围</strong>：上述规则对提示词型评测集与应用型评测集统一生效。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <button id="feature-6-3" class="accordion-header" data-accordion-anchor="6.3,feature-6-3">
+                                <span>6.3 版本管理</span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <h4>设计理念</h4>
+                                    <p>提示词采用"当前态"设计，<strong>无显式版本号</strong>。应用管理仅把提示词作为模板来源，保存后转为应用内独立快照，避免提示词变更直接冲击线上应用。</p>
+
+                                    <h4>核心规则</h4>
+                                    <p><strong>提示词层面</strong>：提示词本身没有版本号概念，只有"当前内容"。每次编辑保存后，提示词中心的当前内容立即更新；应用侧是否采纳该变化，取决于是否执行“重新从模板拉取”。</p>
+
+                                    <p><strong>应用层面</strong>：应用配置保存时记录 <code>template_prompt_id</code>、<code>template_prompt_version</code> 与 <code>resource_prompt_snapshot</code>。后续应用内修改仅更新快照，提示词管理里的后续变更不会自动覆盖已保存应用。</p>
+
+                                    <p><strong>版本跟踪</strong>：应用版本不仅记录资源增删，还记录资源内部变更摘要（提示词内容、模型参数、超时等），用于线上问题回溯。</p>
+
+                                    <h4>典型场景</h4>
+                                    <p><strong>编辑提示词</strong>：直接修改当前内容，仅影响提示词中心“当前态”。已保存到应用内的资源快照不自动变化。</p>
+
+                                    <p><strong>重新拉取模板</strong>：应用侧如需同步模板变更，需显式执行“重新从模板拉取”，并在保存后形成新的资源内部修订记录。</p>
+
+                                    <p><strong>问题排查</strong>：当线上出现问题时，通过变更日志查看"谁在什么时候改了什么"。变更日志用于审计追溯，记录操作人、操作时间、变更内容摘要，但不存储完整的内容快照。</p>
+
+                                    <div class="highlight-box warning-box">
+                                        <div class="highlight-box-title">
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+                                            设计取舍
+                                        </div>
+                                        <p>
+                                            <strong>放弃的能力</strong>：精确回滚到某个历史版本。如果需要回滚，只能手动编辑恢复内容。<br>
+                                            <strong>换来的是</strong>：无需存储历史快照、无版本对齐问题、系统简单直接。<br>
+                                            <strong>适用场景</strong>：提示词/知识库更新频繁、回滚需求少、发布前有严格验证流程的团队。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. 交互原型 -->
+            <section class="section reveal" id="prototype">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                        <i class="fa-solid fa-desktop"></i>
+                    </div>
+                    <div class="section-title-group">
+                        <div class="section-number">Chapter 07</div>
+                        <h2 class="section-title">交互原型</h2>
+                        <p class="section-desc">可交互的界面原型预览与快速访问</p>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <p style="margin-bottom: var(--space-6);">以下原型展示了核心交互流程，支持在不同视图间切换预览：</p>
+
+                    <div class="prototype-tabs">
+                        <button class="prototype-tab active" onclick="switchPrototype('list', this)">
+                            <i class="fa-solid fa-list"></i> 提示词列表
+                        </button>
+                        <button class="prototype-tab" onclick="switchPrototype('create', this)">
+                            <i class="fa-solid fa-plus"></i> 新建提示词
+                        </button>
+                        <button class="prototype-tab" onclick="switchPrototype('edit', this)">
+                            <i class="fa-solid fa-pen-to-square"></i> 编辑提示词
+                        </button>
+                        <button class="prototype-tab" onclick="switchPrototype('syncAdd', this)">
+                            <i class="fa-solid fa-plus-circle"></i> 同步评测集浮层
+                        </button>
+                        <button class="prototype-tab" onclick="switchPrototype('syncOverwrite', this)">
+                            <i class="fa-solid fa-edit"></i> 覆盖评测集浮层
+                        </button>
+                    </div>
+
+                    <div class="prototype-container">
+                        <iframe id="prototypeFrame" class="prototype-frame" src="../frontend/pages/frontend-slides-guide.html" title="原型预览"></iframe>
+                    </div>
+
+                    <div class="highlight-box info-box" style="margin-top: var(--space-5);">
+                        <div class="highlight-box-title">
+                            <i class="fa-solid fa-hand-pointer"></i>
+                            交互提示
+                        </div>
+                        <p>原型支持完整交互，可点击筛选、搜索、创建等操作。在移动设备上会自动切换为响应式布局。</p>
+                    </div>
+
+                    <h3 id="prototype-links">原型链接</h3>
+                    <div class="prototype-links">
+                        <a href="../frontend/pages/frontend-slides-guide.html" target="_blank" class="prototype-link">
+                            <i class="fa-solid fa-list"></i>
+                            提示词列表
+                            <i class="fa-solid fa-arrow-up-right-from-square prototype-link-arrow"></i>
+                        </a>
+                        <a href="../frontend/pages/frontend-slides-guide-create.html" target="_blank" class="prototype-link">
+                            <i class="fa-solid fa-plus"></i>
+                            新建提示词
+                            <i class="fa-solid fa-arrow-up-right-from-square prototype-link-arrow"></i>
+                        </a>
+                        <a href="../frontend/pages/frontend-slides-guide-edit.html?id=009" target="_blank" class="prototype-link">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            编辑提示词
+                            <i class="fa-solid fa-arrow-up-right-from-square prototype-link-arrow"></i>
+                        </a>
+                        <a href="../frontend/pages/frontend-slides-guide-edit.html?id=009&syncModal=1&syncMode=add&refMode=custom" target="_blank" class="prototype-link">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            同步评测集浮层
+                            <i class="fa-solid fa-arrow-up-right-from-square prototype-link-arrow"></i>
+                        </a>
+                        <a href="../frontend/pages/frontend-slides-guide-edit.html?id=009&syncModal=1&syncMode=overwrite&refMode=eval" target="_blank" class="prototype-link">
+                            <i class="fa-solid fa-edit"></i>
+                            覆盖评测集浮层
+                            <i class="fa-solid fa-arrow-up-right-from-square prototype-link-arrow"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 页脚 -->
+            <footer style="text-align: center; padding: var(--space-8) 0; color: var(--gray-400); font-size: 14px; border-top: 1px solid var(--gray-200); margin-top: var(--space-8);">
+                <p>提示词管理平台 PRD · Wise Wong · 2026</p>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // ============================================
+        // 原型切换
+        // ============================================
+        function switchPrototype(type, btn) {
+            const frame = document.getElementById('prototypeFrame');
+            const urls = {
+                list: '../frontend/pages/frontend-slides-guide.html',
+                create: '../frontend/pages/frontend-slides-guide-create.html',
+                edit: '../frontend/pages/frontend-slides-guide-edit.html?id=009',
+                syncAdd: '../frontend/pages/frontend-slides-guide-edit.html?id=009&syncModal=1&syncMode=add&refMode=custom',
+                syncOverwrite: '../frontend/pages/frontend-slides-guide-edit.html?id=009&syncModal=1&syncMode=overwrite&refMode=eval'
+            };
+            frame.src = urls[type];
+            document.querySelectorAll('.prototype-tab').forEach(tab => tab.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function switchFeaturePromptPrototype(type, btn) {
+            const frame = document.getElementById('featurePromptFrame');
+            if (!frame) return;
+            const urls = {
+                create: '../frontend/pages/frontend-slides-guide-create.html',
+                edit: '../frontend/pages/frontend-slides-guide-edit.html?id=009'
+            };
+            frame.src = urls[type] || urls.create;
+            const tabContainer = btn.closest('.feature-prototype-tabs');
+            if (tabContainer) {
+                tabContainer.querySelectorAll('.feature-prototype-tab').forEach(tab => tab.classList.remove('active'));
+            }
+            btn.classList.add('active');
+        }
+
+        function switchFeatureSyncPrototype(type, btn) {
+            const frame = document.getElementById('featureSyncFrame');
+            if (!frame) return;
+            const urls = {
+                add: '../frontend/pages/frontend-slides-guide-edit.html?id=009&syncModal=1&syncMode=add&refMode=custom',
+                overwrite: '../frontend/pages/frontend-slides-guide-edit.html?id=009&syncModal=1&syncMode=overwrite&refMode=eval'
+            };
+            frame.src = urls[type] || urls.add;
+            const tabContainer = btn.closest('.feature-prototype-tabs');
+            if (tabContainer) {
+                tabContainer.querySelectorAll('.feature-sync-tab').forEach(tab => tab.classList.remove('active'));
+            }
+            btn.classList.add('active');
+        }
+
+        // ============================================
+        // 目录导航 - IntersectionObserver 方案（业界标准）
+        // ============================================
+        (function() {
+            const NAV_HEIGHT = 80;
+            const progressBar = document.getElementById('progressBar');
+            const navBar = document.getElementById('navBar');
+            const tocLinks = Array.from(document.querySelectorAll('.toc-link'));
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // 所有锚点目标（section + h3/h4/h5 带id的标题）
+            const anchorTargets = document.querySelectorAll('.section[id], .accordion-header[id], h3[id], h4[id], h5[id]');
+
+            // 当前高亮的 ID
+            let currentActiveId = null;
+
+            // 高亮指定 ID 的目录项
+            function highlightToc(id) {
+                if (currentActiveId === id) return;
+                currentActiveId = id;
+
+                // 清除所有高亮
+                tocLinks.forEach(link => link.classList.remove('active'));
+
+                // 高亮目标
+                const targetLink = tocLinks.find(link => link.getAttribute('href') === '#' + id);
+                if (targetLink) {
+                    targetLink.classList.add('active');
+                }
+
+                // 更新顶部导航栏（只高亮主章节）
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + id && !id.startsWith('feature-6-')) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            // IntersectionObserver 回调
+            const observerCallback = (entries) => {
+                // 收集所有可见的锚点，按位置排序
+                const visibleAnchors = entries
+                    .filter(entry => entry.isIntersecting)
+                    .map(entry => ({
+                        id: entry.target.id,
+                        top: entry.boundingClientRect.top
+                    }))
+                    .sort((a, b) => a.top - b.top);
+
+                // 高亮最靠近顶部的锚点
+                if (visibleAnchors.length > 0) {
+                    highlightToc(visibleAnchors[0].id);
+                }
+            };
+
+            // 创建 Observer（rootMargin 控制检测区域）
+            const observer = new IntersectionObserver(observerCallback, {
+                rootMargin: `-${NAV_HEIGHT}px 0px -70% 0px`
+            });
+
+            // 观察所有锚点
+            anchorTargets.forEach(target => observer.observe(target));
+
+            // 点击目录项：立即高亮 + 平滑滚动
+            tocLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (!href || href === '#') return;
+
+                    const targetId = decodeURIComponent(href.slice(1));
+                    const target = document.getElementById(targetId);
+                    if (!target) return;
+
+                    e.preventDefault();
+
+                    // 立即高亮
+                    highlightToc(targetId);
+
+                    // 平滑滚动
+                    const targetTop = target.getBoundingClientRect().top + window.scrollY - NAV_HEIGHT;
+                    window.scrollTo({ top: targetTop, behavior: 'smooth' });
+
+                    // 更新 URL
+                    history.pushState(null, '', href);
+
+                    // 如果是手风琴，自动展开
+                    if (target.classList.contains('accordion-header')) {
+                        const body = target.nextElementSibling;
+                        if (body && !body.classList.contains('open')) {
+                            target.classList.add('active');
+                            body.classList.add('open');
+                            body.style.maxHeight = body.scrollHeight + 500 + 'px';
+                        }
+                    }
+                });
+            });
+
+            // 进度条 + 导航栏阴影（滚动监听）
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const percent = (scrollTop / Math.max(docHeight, 1)) * 100;
+                progressBar.style.width = percent + '%';
+
+                if (scrollTop > 10) {
+                    navBar.classList.add('scrolled');
+                } else {
+                    navBar.classList.remove('scrolled');
+                }
+
+                // 滚动显现动画
+                document.querySelectorAll('.reveal').forEach(el => {
+                    if (el.getBoundingClientRect().top < window.innerHeight - 100) {
+                        el.classList.add('visible');
+                    }
+                });
+            }, { passive: true });
+        })();
+
+        // 手风琴逻辑
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const body = this.nextElementSibling;
+                if (body.style.maxHeight) {
+                    body.style.maxHeight = null;
+                    body.classList.remove('open');
+                } else {
+                    body.style.maxHeight = body.scrollHeight + 500 + 'px';
+                    body.classList.add('open');
+                }
+            });
+        });
+
+        // ============================================
+        // 双击文本直接编辑模式（支持 IndexedDB 持久化文件句柄）
+        // ============================================
+        let fileHandle = null;
+        const DB_NAME = 'prd-file-handles';
+        const STORE_NAME = 'handles';
+        const HANDLE_KEY = 'current-prd';
+
+        // IndexedDB 操作函数
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME);
+                    }
+                };
+            });
+        }
+
+        async function saveHandleToDB(handle) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.put(handle, HANDLE_KEY);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+                tx.oncomplete = () => db.close();
+            });
+        }
+
+        async function getHandleFromDB() {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.get(HANDLE_KEY);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+                tx.oncomplete = () => db.close();
+            });
+        }
+
+        // 页面加载时尝试恢复文件句柄
+        async function initFileHandle() {
+            try {
+                const savedHandle = await getHandleFromDB();
+                if (savedHandle) {
+                    // 请求权限验证
+                    const perm = await savedHandle.queryPermission({ mode: 'readwrite' });
+                    if (perm === 'granted') {
+                        fileHandle = savedHandle;
+                        console.log('已从 IndexedDB 恢复文件句柄');
+                    } else {
+                        // 尝试请求权限
+                        const requestPerm = await savedHandle.requestPermission({ mode: 'readwrite' });
+                        if (requestPerm === 'granted') {
+                            fileHandle = savedHandle;
+                            console.log('已恢复文件句柄并获取权限');
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('恢复文件句柄失败:', err);
+            }
+        }
+
+        // 页面加载时初始化
+        initFileHandle();
+
+        document.body.addEventListener('dblclick', async (e) => {
+            const el = e.target;
+            const validTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SPAN', 'TD', 'TH', 'LI', 'STRONG', 'B', 'I', 'EM', 'DIV'];
+
+            if (validTags.includes(el.tagName.toUpperCase())) {
+                if (el.isContentEditable) return;
+
+                // 排除某些不可编辑的元素
+                if (el.closest('iframe, .prototype-container, .feature-prototype-container, button, a, input, textarea, select')) return;
+
+                // 首次双击时，需要授权文件读写权限
+                if (!fileHandle) {
+                    try {
+                        const handles = await window.showOpenFilePicker({
+                            types: [{ description: '选择当前 HTML 文件以启用静默覆写', accept: { 'text/html': ['.html'] } }],
+                            multiple: false
+                        });
+                        fileHandle = handles[0];
+                        const perm = await fileHandle.requestPermission({ mode: 'readwrite' });
+                        if (perm !== 'granted') return;
+
+                        // 保存到 IndexedDB 以便下次恢复
+                        await saveHandleToDB(fileHandle);
+                    } catch (err) {
+                        console.warn("授权已取消");
+                        return;
+                    }
+                }
+
+                // 进入编辑状态
+                el.contentEditable = 'true';
+                el.focus();
+
+                const oldOutline = el.style.outline;
+                el.style.outline = '2px dashed var(--primary-500)';
+                el.style.outlineOffset = '4px';
+                el.style.borderRadius = '2px';
+
+                el.addEventListener('blur', async function onBlur() {
+                    el.contentEditable = 'false';
+                    el.removeAttribute('contenteditable');
+                    el.style.outline = oldOutline;
+
+                    el.removeEventListener('blur', onBlur);
+
+                    // 失焦后静默保存到本地
+                    await saveHtmlToLocal();
+                });
+
+                el.addEventListener('keydown', function onKey(ev) {
+                    if (ev.key === 'Escape') {
+                        el.blur();
+                        el.removeEventListener('keydown', onKey);
+                    }
+                });
+            }
+        });
+
+        async function saveHtmlToLocal() {
+            if (!fileHandle) return;
+            try {
+                const writable = await fileHandle.createWritable();
+                const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                await writable.write(htmlContent);
+                await writable.close();
+
+                showSaveToast('PRD 已于本地静默更新覆写！');
+            } catch (err) {
+                console.error("静默覆写失败:", err);
+                if (err.name === 'NotAllowedError') {
+                    showSaveToast('写入失败，可能权限过期或文件被占用');
+                }
+            }
+        }
+
+        function showSaveToast(msg) {
+            let toast = document.getElementById('save-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'save-toast';
+                toast.style.cssText = `
+                    position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+                    background: rgba(15, 23, 42, 0.9); color: white; padding: 12px 24px;
+                    border-radius: 8px; font-size: 14px; z-index: 10000;
+                    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); backdrop-filter: blur(4px);
+                    transition: opacity 0.3s; opacity: 0; pointer-events: none;
+                    display: flex; align-items: center; gap: 8px;
+                `;
+                document.body.appendChild(toast);
+            }
+            toast.innerHTML = '<i class="fa-solid fa-check-circle" style="color:var(--success-500);"></i> <span>' + msg + '</span>';
+
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+            });
+        }
+    </script>
+
+    <div id="save-toast" style="position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background: rgba(15, 23, 42, 0.9); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 10000; box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px; backdrop-filter: blur(4px); transition: opacity 0.3s; opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-check-circle" style="color:var(--success-500);"></i> <span>PRD 已于本地静默更新覆写！</span></div>
+
+
+
+</body></html>

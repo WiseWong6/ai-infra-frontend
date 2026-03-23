@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>知识库配置 - AI Infra</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg: #fafbfc;
+            --sidebar: #ffffff;
+            --line: #f1f5f9;
+            --line-strong: #e2e8f0;
+            --text: #0f172a;
+            --muted: #64748b;
+            --active: #eff6ff;
+            --active-blue: #3b82f6;
+            --blue: #3b82f6;
+            --blue-hover: #2563eb;
+            --danger: #ef4444;
+            --white: #ffffff;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            font-size: 14px;
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: var(--sidebar);
+            border-right: 1px solid var(--line-strong);
+            padding: var(--spacing-lg) 0;
+            flex-shrink: 0;
+        }
+
+        .menu-group {
+            margin-bottom: 24px;
+        }
+
+        .menu-title {
+            margin: 0 0 8px;
+            padding: 0 22px;
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .menu-item {
+            height: 44px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .menu-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .menu-item.active {
+            background: var(--active);
+            color: var(--active-blue);
+            position: relative;
+        }
+
+        .menu-item.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--active-blue);
+        }
+
+        /* Main */
+        .main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            height: 60px;
+            border-bottom: 1px solid var(--line-strong);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            background: var(--white);
+            flex-shrink: 0;
+        }
+
+        .topbar h1 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Header Card */
+        .header-card {
+            background: var(--white);
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            padding: 20px 24px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .kb-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .edit-icon {
+            color: var(--blue);
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 32px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .meta-item b {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Layout Grid */
+        .kb-layout {
+            display: flex;
+            gap: 16px;
+            flex: 1;
+            min-height: 0;
+            /* Important for inner scrolling */
+        }
+
+        /* Left Panel: File Tree */
+        .file-panel {
+            width: 320px;
+            background: var(--white);
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-search {
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            width: 14px;
+            height: 14px;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 32px;
+            padding-left: 32px;
+            border: 1px solid var(--line-strong);
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--blue);
+        }
+
+        .file-tree {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .tree-node {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 32px;
+            padding: 0 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .tree-node:hover {
+            background: var(--hover-bg);
+        }
+
+        .tree-node.active {
+            background: var(--active);
+        }
+
+        .tree-node i {
+            width: 16px;
+            height: 16px;
+            color: var(--muted);
+        }
+
+        .node-folder i {
+            color: #fbbf24;
+        }
+
+        .node-error {
+            margin-left: auto;
+            color: var(--danger);
+            width: 14px;
+            height: 14px;
+        }
+
+        .file-actions {
+            padding: 16px;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid var(--line);
+        }
+
+        /* Right Panel: Content */
+        .content-panel {
+            flex: 1;
+            background: var(--white);
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content-header {
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .chunk-list {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chunk-card {
+            border: 1px solid var(--line-strong);
+            border-radius: 6px;
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #475569;
+            background: #fdfdfd;
+        }
+
+        .chunk-card:hover {
+            border-color: var(--blue);
+            background: var(--white);
+        }
+
+        .footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Buttons */
+        .btn {
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--blue);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--blue-hover);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--active);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--line-strong);
+            color: var(--muted);
+        }
+
+        .btn-ghost:hover {
+            background: var(--hover-bg);
+            color: var(--text);
+        }
+
+        /* Checkbox */
+        .checkbox {
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--line-strong);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-item {
+            min-width: 28px;
+            height: 28px;
+            border: 1px solid var(--line-strong);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .page-item.active {
+            background: var(--blue);
+            color: #fff;
+            border-color: var(--blue);
+        }
+
+        .page-input {
+            width: 40px;
+            height: 28px;
+            border: 1px solid var(--line-strong);
+            border-radius: 4px;
+            text-align: center;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <script src="../js/sidebar.js"></script>
+
+        <main class="main">
+            <header class="topbar">
+                <h1>知识库配置</h1>
+            </header>
+
+            <div class="content">
+                <!-- Header Info Card -->
+                <div class="header-card">
+                    <div class="header-top">
+                        <div class="kb-title">
+                            zale测试专用 <i data-lucide="edit-3" class="edit-icon"></i>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary">召回测试</button>
+                            <button class="btn btn-primary">分段配置</button>
+                        </div>
+                    </div>
+                    <div class="header-meta">
+                        <span class="meta-item">描述：<b>zale测试专用</b></span>
+                        <span class="meta-item">负责人：<b>zale</b></span>
+                    </div>
+                </div>
+
+                <!-- Layout -->
+                <div class="kb-layout">
+                    <!-- Left: File Tree -->
+                    <div class="file-panel">
+                        <div class="panel-search">
+                            <div class="input-group">
+                                <i data-lucide="search"></i>
+                                <input type="text" class="search-input" placeholder="搜索文件或文件夹" />
+                            </div>
+                        </div>
+                        <div class="file-tree">
+                            <div class="tree-node node-folder">
+                                <i data-lucide="chevron-down"></i>
+                                <i data-lucide="folder"></i>
+                                <span>知识库文件夹</span>
+                            </div>
+                            <div style="padding-left: 20px;">
+                                <div class="tree-node">
+                                    <div class="checkbox"></div>
+                                    <i data-lucide="file-text"></i>
+                                    <span>提示词.md</span>
+                                </div>
+                                <div class="tree-node">
+                                    <div class="checkbox"></div>
+                                    <i data-lucide="file"></i>
+                                    <span>test.csv</span>
+                                    <i data-lucide="alert-circle" class="node-error"></i>
+                                </div>
+                                <div class="tree-node">
+                                    <div class="checkbox"></div>
+                                    <i data-lucide="file"></i>
+                                    <span>test.docx</span>
+                                    <i data-lucide="alert-circle" class="node-error"></i>
+                                </div>
+                                <div class="tree-node">
+                                    <div class="checkbox"></div>
+                                    <i data-lucide="file"></i>
+                                    <span>test.md</span>
+                                    <i data-lucide="alert-circle" class="node-error"></i>
+                                </div>
+                                <div class="tree-node">
+                                    <div class="checkbox"></div>
+                                    <i data-lucide="file"></i>
+                                    <span>test.pdf</span>
+                                    <i data-lucide="alert-circle" class="node-error"></i>
+                                </div>
+                                <div class="tree-node">
+                                    <div class="checkbox"></div>
+                                    <i data-lucide="file"></i>
+                                    <span>test.xlsx</span>
+                                    <i data-lucide="alert-circle" class="node-error"></i>
+                                </div>
+                                <div class="tree-node active">
+                                    <div class="checkbox"></div>
+                                    <i data-lucide="file"></i>
+                                    <span>test.txt</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn btn-primary">创建文件夹</button>
+                            <button class="btn btn-primary">上传文件</button>
+                            <button class="btn" style="background: #eff6ff; color: var(--blue); border: 0;">批量操作 <i
+                                    data-lucide="chevron-down"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Chunks -->
+                    <div class="content-panel">
+                        <div class="content-header">
+                            <div class="input-group" style="flex: 1;">
+                                <input type="text" class="search-input" style="padding-left: 12px;"
+                                    placeholder="搜索切片内容" />
+                            </div>
+                            <button class="btn btn-ghost" style="padding: 0 8px;"><i
+                                    data-lucide="refresh-cw"></i></button>
+                        </div>
+                        <div class="chunk-list">
+                            <div class="chunk-card">
+                                [ "# 文档内容\n北京人寿保险股份有限公司 请扫描以查询验证条款北京人寿康宝贝 V 款重大疾病保险（互联网专属）条款\n阅读 指
+                                引\n本．阅．读．指．引．有．助．于．您．理．解．本．合．同．内．容．的．解．释．以．条．款．为．准。。\n[] 您拥有的重要权益\nl 签收本合同之日起 15
+                                日内您可以要求退还扣除工本费外的所交保险费... 1.4\n' 本合同提供的保障在保险责任条款中列明... 2.4\n 您有退保的权利 ...
+                                7.1\n与您有重大利害关系的条款\n为您、被保险人及受益人的切身利益，请务必认真阅读" ]
+                            </div>
+                            <div class="chunk-card">
+                                [ " 本合同有责任免除条款，请注意 ... ...2.5\n 保险事故发生后，请及时通知我们 3.2\n 您应当按时支付保险费....... ...4.1\n
+                                退保可能会给您造成一定的损失，请慎重决策.... ...7.1\n 您有如实告知的义务 ... 8.1\n 我们对一些重要术语进行了解释，并作了显著标识，请注意 9\n
+                                本保险条款中其他加粗字体部分内容（包括但不限于附表保险责任、免除或减轻我们责任的条款），请重点关注\n保险合同的重要内容，为充分保障您的权益，请仔细阅读本保险条款\n条款目录"
+                                ]
+                            </div>
+                            <div class="chunk-card">
+                                [ "1．双方订立的合同 4.2宽限期1.1 合同构成 5．效力中止与恢复1.2 合同成立与生效 5.1 效力中止与恢复1.3 投保范围 6．现金价值权益1.4 犹豫期 6.1
+                                现金价值\n2．我们提供的保障 6.2 保单贷款2.1 基本保险金额 6.3 自动垫交2.2 未成年人身故保险金 7．合同解除限制 7.1 您解除合同的手续及2.3 保险期间
+                                风险2.4 保险责任 8．其他需要关注的事项2.5 责任免除 8.1 明确说明与如实告知2.6 其他免责条款 8.2 年龄性别错误的处理" ]
+                            </div>
+                            <div class="chunk-card">
+                                [ "3．保险金的申请 8.3本公司合同解除权的3.1 受益人 限制3.2 保险事故通知 8.4 合同终止3.3 保险金申请 8.5 未还款项3.4 保险金给付 8.6
+                                合同内容变更3.5 宣告死亡处理 8.7 联系方式变更3.6 诉讼时效 8.8 争议处理\n4.保险费的支付 9.释放4.1 保险费的支付 9.1 保单年度\n9.2
+                                保险费约定支付日 重度“转移或扩散\n9.3 周岁 9.20 ”恶性肿瘤——\n9.4 有效身份证件 重度“仍持续存在\n9.5 意外伤害 9.21 毒品" ]
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <span>共 374 条</span>
+                            <div class="pagination">
+                                <select
+                                    style="border: 1px solid var(--line-strong); height: 28px; border-radius: 4px; font-size: 13px;">
+                                    <option>10条/页</option>
+                                    <option>20条/页</option>
+                                </select>
+                                <div class="page-item"><i data-lucide="chevron-left" style="width: 14px;"></i></div>
+                                <div class="page-item active">1</div>
+                                <div class="page-item">2</div>
+                                <div class="page-item">3</div>
+                                <div class="page-item">4</div>
+                                <div class="page-item">5</div>
+                                <div class="page-item">6</div>
+                                <div class="page-item">...</div>
+                                <div class="page-item">38</div>
+                                <div class="page-item"><i data-lucide="chevron-right" style="width: 14px;"></i></div>
+                                <span style="margin: 0 4px;">前往</span>
+                                <input type="text" class="page-input" value="1" />
+                                <span style="margin-left: 4px;">页</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

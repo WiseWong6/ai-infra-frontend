@@ -1,0 +1,1816 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>应用配置</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg: #fafbfc;
+            --sidebar: #ffffff;
+            --line: #f1f5f9;
+            --line-strong: #e2e8f0;
+            --text: #0f172a;
+            --muted: #64748b;
+            --active: #eff6ff;
+            --head: #fafbfc;
+            --blue: #3b82f6;
+            --blue-dark: #2563eb;
+            --danger: #dc2626;
+            --danger-dark: #b91c1c;
+            --success: #34d399;
+            --hover-bg: #f8fafc;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* 间距系统 */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-2xl: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            font-size: 14px;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 220px;
+            background: var(--sidebar);
+            border-right: 1px solid var(--line-strong);
+            padding: var(--spacing-lg) 0;
+            flex-shrink: 0;
+        }
+
+        .menu-group {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .menu-title {
+            margin: 0 0 var(--spacing-sm);
+            padding: 0 22px;
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .menu-item {
+            height: 44px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .menu-item.active {
+            background: var(--active);
+            color: var(--blue);
+        }
+
+        .menu-item.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--blue);
+        }
+
+        .menu-item i {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 顶部导航标题区 */
+        .top-nav {
+            height: 60px;
+            padding: 0 var(--spacing-2xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border-bottom: 1px solid var(--line-strong);
+            flex-shrink: 0;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .breadcrumb a {
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--text);
+        }
+
+        .breadcrumb span {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Split-Pane 工作区 */
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .pane-left {
+            width: 320px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border-right: 1px solid var(--line-strong);
+        }
+
+        .pane-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8fafc;
+        }
+
+        /* 预览区域 */
+        .editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .editor-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-badge {
+            background: var(--active);
+            color: var(--blue);
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .editor-box {
+            background: #fff;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .editor-box textarea {
+            flex: 1;
+            width: 100%;
+            border: none;
+            resize: both;
+            min-height: 140px;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            outline: none;
+            background: transparent;
+            color: var(--muted);
+        }
+
+        /* 侧边参数设置区 */
+        .settings-section {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .settings-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #fff;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 var(--spacing-lg) 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: var(--spacing-md);
+            border-bottom: 2px solid #e1e4e8;
+            width: max-content;
+            color: var(--text);
+        }
+
+        .page-title.app-config {
+            border-bottom-color: var(--blue);
+        }
+
+        /* 详情卡片 */
+        .detail-card {
+            background: #fff;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .detail-left {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .detail-title-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        .detail-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-title i {
+            font-size: 14px;
+            color: var(--blue);
+            cursor: pointer;
+        }
+
+        .detail-id {
+            font-size: 13px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .detail-id i {
+            cursor: pointer;
+            color: var(--blue);
+        }
+
+        .detail-info-row {
+            display: flex;
+            gap: 32px;
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .detail-info-item span {
+            color: var(--muted);
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        /* 表格区域样式 */
+        .table-section {
+            background: #fff;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            padding: var(--spacing-xl);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .table-title .count {
+            font-size: 13px;
+            font-weight: normal;
+            color: var(--muted);
+        }
+
+        .table-desc {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: normal;
+        }
+
+        .table-wrap {
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: var(--head);
+            border-bottom: 1px solid var(--line);
+        }
+
+        th {
+            height: 48px;
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        td {
+            height: 56px;
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--line);
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fcfcfd;
+        }
+
+        tbody tr:nth-child(even):hover {
+            background: #f8fafc;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            border: 0;
+            height: 32px;
+            border-radius: 4px;
+            background: #3b82f6;
+            color: #fff;
+            font-size: 13px;
+            padding: 0 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: var(--text);
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+        }
+
+        /* 操作文字 */
+        .action-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .action-links a {
+            color: var(--blue);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .action-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* 翻页 */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .pagination select,
+        .pagination input {
+            border: 1px solid #e2e8f0;
+            height: 28px;
+            border-radius: 4px;
+            padding: 0 8px;
+            color: var(--text);
+        }
+
+        .page-btn {
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .page-btn.active {
+            background: var(--blue);
+            color: #fff;
+            border-color: var(--blue);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <script src="../js/sidebar.js"></script>
+
+        <main class="main">
+            <!-- 顶部面包屑 -->
+            <div class="top-nav">
+                <div class="breadcrumb">
+                    <a href="./frontend-app-management.html">应用管理</a>
+                    <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+                    <a href="#">投保助手</a>
+                    <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+                    <span>配置资源：意图分流（有产品检索）</span>
+                </div>
+                <div class="nav-actions" style="display:flex; gap:12px;">
+                    <button class="btn btn-secondary" onclick="window.history.back()">取消</button>
+                    <button class="btn" id="saveBtn" type="button">保存</button>
+                </div>
+            </div>
+
+            <!-- 分栏工作区 -->
+            <div class="workspace">
+                <!-- 左侧：参数配置区 -->
+                <div class="pane-left">
+                    <div class="settings-section">
+                        <div style="font-weight:600; font-size:16px;">配置参数</div>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <label style="font-size:13px; font-weight:500;">资源名称</label>
+                            <input id="resourceNameInput" type="text"
+                                style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none;"
+                                value="意图分流（有产品检索）" />
+                        </div>
+
+                        <div id="promptSelectorBlock" style="display:flex; flex-direction:column; gap:8px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <label style="font-size:13px; font-weight:500;">选择提示词</label>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <button id="repullTemplateBtn" type="button"
+                                        style="height:24px; padding:0 8px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; font-size:12px; cursor:pointer;">重新从模板拉取</button>
+                                    <a href="./frontend-slides-guide.html"
+                                        style="font-size:12px; color:var(--blue); text-decoration:none;"><i
+                                            class="fa-solid fa-arrow-up-right-from-square"
+                                            style="font-size:10px; margin-right:4px;"></i>去管理</a>
+                                </div>
+                            </div>
+                            <select id="promptSelect"
+                                style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none; background:#fff; appearance:none; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;">
+                                <option>意图分流（有产品检索）提示词 (v3.6.0)</option>
+                                <option>产品检索选品提示词 (v1.2.0)</option>
+                                <option>寒暄兜底提示词 (v1.0.0)</option>
+                            </select>
+                            <div style="font-size:12px; color:#64748b;">
+                                模板引用后即与提示词管理解耦存储，后续仅更新应用内快照；保存时会记录资源内部变更摘要。
+                            </div>
+                        </div>
+
+                        <div
+                            style="display:flex; flex-direction:column; gap:8px; border-top: 1px solid var(--line); padding-top: 16px;">
+                            <label style="font-size:13px; font-weight:500;">模型选择</label>
+                            <select id="modelSelect"
+                                style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none; background:#fff; appearance:none; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;">
+                                <option>Doubao-Seed-2.0-pro</option>
+                            </select>
+                            <div style="font-size:12px; color:var(--muted); line-height:1.6; margin-top:4px;">
+                                <strong>≤32000 tokens</strong><br />
+                                输入：0.0032 ， 输出：0.0160<br />
+                                <strong style="margin-top:8px; display:block;">32001-128000 tokens</strong>
+                                输入：0.0048 ， 输出：0.0240<br />
+                                <div style="margin-top:8px;">单位：元/千tokens</div>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px solid var(--line); padding-top: 16px;">
+                            <div style="font-weight:600; font-size:14px; margin-bottom: 16px; color: var(--text);">模型参数
+                            </div>
+
+                            <div style="display:flex; flex-direction:column; gap:16px;">
+                                <!-- 深度思考 -->
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <label style="font-size:13px; font-weight:500;">深度思考</label>
+                                    <div style="display:flex; gap:16px; align-items:center;">
+                                        <label
+                                            style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                                            <input type="radio" name="deepthink" checked
+                                                style="accent-color: var(--blue);" />
+                                            <span style="color:var(--text); white-space:nowrap;">关闭</span>
+                                        </label>
+                                        <label
+                                            style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                                            <input type="radio" name="deepthink" />
+                                            <span style="color:var(--text); white-space:nowrap;">开启</span>
+                                        </label>
+                                        <label
+                                            style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                                            <input type="radio" name="deepthink" />
+                                            <span style="color:var(--text); white-space:nowrap;">自动</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <!-- 温度 -->
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <label style="font-size:13px; font-weight:500;"><span
+                                            style="color:var(--danger);">*</span> 温度</label>
+                                    <div>
+                                        <input id="temperatureInput" type="number" step="0.1" value="0.2"
+                                            style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;" />
+                                        <div style="font-size:12px; color:var(--muted); margin-top:6px;">
+                                            控制输出的随机性,0为确定性输出,2为最大随机性</div>
+                                    </div>
+                                </div>
+                                <!-- Seed -->
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <label style="font-size:13px; font-weight:500;"><span
+                                            style="color:var(--danger);">*</span> Seed</label>
+                                    <div>
+                                        <input id="seedInput" type="number" value="42"
+                                            style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;" />
+                                        <div style="font-size:12px; color:var(--muted); margin-top:6px;">
+                                            随机种子,用于确保输出的可重现性</div>
+                                    </div>
+                                </div>
+                                <!-- MaxTokens -->
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <label style="font-size:13px; font-weight:500;"><span
+                                            style="color:var(--danger);">*</span> MaxTokens</label>
+                                    <div>
+                                        <input id="maxTokensInput" type="number" value="131072"
+                                            style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;" />
+                                        <div style="font-size:12px; color:var(--muted); margin-top:6px;">最大输出令牌数,取值范围:
+                                            0-131072</div>
+                                    </div>
+                                </div>
+                                <!-- Timeout -->
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <label style="font-size:13px; font-weight:500;"><span
+                                            style="color:var(--danger);">*</span> Timeout</label>
+                                    <div>
+                                        <input id="timeoutInput" type="number" value="300"
+                                            style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;" />
+                                        <div style="font-size:12px; color:var(--muted); margin-top:6px;">模型调用超时时间,默认300秒
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Extra Body -->
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <label style="font-size:13px; font-weight:500;">Extra Body</label>
+                                    <div>
+                                        <textarea id="extraBodyInput" placeholder='{"key": "value"}'
+                                            style="width:100%; height:80px; min-height:80px; padding:8px; border:1px solid #e2e8f0; border-radius:4px; resize:both; font-family:monospace; font-size:13px; color:var(--text);"></textarea>
+                                        <div style="font-size:12px; color:var(--muted); margin-top:6px;">额外的请求参数(JSON格式)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧：提示词预览区 -->
+                <div class="pane-right">
+                    <div class="editor-section">
+                        <!-- 系统提示词预览 -->
+                        <div style="flex: 1; display: flex; flex-direction: column;">
+                            <div class="editor-header">
+                                <div class="editor-title">系统提示词</div>
+                            </div>
+                            <div class="editor-box" style="background: #f8fafc;">
+                                <textarea id="systemPromptTextarea" spellcheck="false" readonly
+                                    style="cursor: default;"># 保险问句规范化与路由引擎 v3.6
+# 注意：只输出 JSON；严禁输出推理过程。
+
+# 角色
+你是保险问句规范化与路由引擎（Coref + NER + Normalize + Intent + Rewrite）。
+
+# 最高优先级硬约束（必须遵守）
+1) 严禁输出任何推理过程/自问自答/权衡文字。
+2) 只输出"严格可解析 JSON"（禁止输出自然语言 / Markdown / 解释）。
+3) 严禁编造未出现的信息；无法确定就澄清或置 null。
+4) 输出必须严格按 Output Schema（v3.6）字段与层级；双引号、无注释、无尾逗号。
+   - 输出 JSON 顶层 version 必须为 "3.6"
+   - 输出 JSON 中严禁出现 intent_meta.dialog / pending / is_reply / resolved_method（下游不兼容）
+5) action.type=lookup 仅用于"实体映射/实体补全（raw→itemname/id）"；不得把 lookup 当作"为了回答条款内容而检索"的开关。只要实体已唯一确定（已有 itemname 或 id 或 history_catalog 唯一定位成功），必须选择 action.type=route（而非 lookup）。
+6) 严禁把用户原文 raw 直接填入 itemname 冒充“已规范化”。只有在 catalogs/history_catalog 提供了标准名与ID映射证据时，才允许填写 products[].itemname / intent_meta.insurer.itemname；否则必须置 null 并按规则走 lookup 或澄清。
+7) 严禁“唯一候选仍澄清”：对任一 products[i].raw，在应用【销售状态默认过滤 + a0 硬过滤 + 歧义门禁】后，若最终可用候选集数量=1，且该候选携带 itemid 或 productid，则视为已唯一确定，action.type 必须为 route（不得再输出 action.type=clarify 的“请选择版本”文案）。同时，严禁输出“候选列表长度=1”的澄清（clarify）。
+8) 严禁“用户已选序号仍澄清”：若 current_query 为单个序号（如 "5"/"选5"/"第5个"），且能从 history 恢复到唯一 raw 分组的候选列表，并能定位到该序号对应候选：
+   - 必须直接选择该候选并 action.type=route；
+   - 除非序号越界或无法定位，才允许 action.type=clarify 要求重新选择有效序号。
+9) 候选排序与截断（用于澄清与选项恢复）：当 catalogs/history_catalog 候选携带字段“排序值”时，候选必须按“排序值”倒序排序（越大越靠前），并且只输出 Top5 候选；不足 5 条则输出全部。排序值相同或缺失时保持原始出现顺序（稳定排序）。
+10) 输出前一致性强校验（硬约束）：
+   - 若 action.type=clarify：intent_meta.products 中必须存在至少 1 个 raw 分组，且该分组在“过滤后待选候选数”>=2；
+   - 若 action.type=clarify 且仅有 1 条候选并已带 itemid/productid：该输出判定为错误，必须改为 action.type=route；
+   - 若任一 products[i] 已带 itemid 或 productid，且不存在其它未消歧的 products[j].raw：不得输出 clarify。
+   - 若一致性强校验失败（例如：clarify 但候选仅 1 条且带 ID），必须丢弃当前草稿并按【最终 action 决策优先级】+【最终裁决覆写】重算一次，禁止直接输出失败草稿。
+11) 单候选短路（最高优先级，覆盖所有澄清文案模板）：
+   - 对每个 products[i].raw，在完成候选过滤后，若可用候选数=1 且该候选带 itemid 或 productid：
+     - 必须立即回填该候选并将该 raw 标记为“已解决”；
+     - parameters.clarify 必须为 null；
+     - 严禁生成任何“请选择版本/从以下候选中选择”文案；
+   - 仅当仍存在“候选数>=2 的未解决 raw”时，才允许 action.type=clarify。
+12) 保司显式词强约束（最高优先级）：
+   - 若 products[i].raw 本身包含明确保司词（如“复星保德信”“北京人寿”或其别名），则候选名称中不包含该保司词的条目必须被剔除。
+   - 该约束适用于 lookup 回填后的二次判定；不得因“候选里有同系列其他保司”而保留跨保司候选。
+   - 经此约束后若仅剩 1 个候选且有 itemid/productid，必须 route，不得 clarify。
+
+# 任务
+基于【当前用户问题 current_query】与【最近 5 轮上下文 history（每轮包含 role: user/system 与 content）】，完成：
+1) 指代消解（Coreference Resolution）
+2) 意图识别（Intent Classification）
+3) 实体提取（Entity Extraction）
+4) 实体规范化匹配与替换（Normalization & Replacement）
+5) 查询改写（Query Rewrite）
+
+# 输入字段说明（重要）
+- userprompt 输入结构为：
+  - history: 
+  - catalogs (optional): 
+  - current_query:
+  - current_image: 
+- `history` / `catalogs` / `current_image` 都可能为 `null`、空数组、空对象，或完全缺失（不传该字段）。缺失时一律按“空”处理：
+  - history 为空：不得做指代消解补全；不得从不存在的上下文推断产品/保司/条件。
+  - current_image 为空：不得从图片推断任何信息；不得凭空补充“报错码/弹窗文案/保单信息”等。
+  - current_query 仍是唯一可靠输入来源（除非 history 中确有结构化证据）。
+- `catalogs` 是可选字段：可能为 `null`、空对象、空数组，甚至完全缺失（不传该字段）。
+  - 当 `catalogs` 缺失/为空时：视为“无 catalogs 候选”，不得编造任何候选列表或标准名映射。
+  - 结构化澄清（输出候选 products 列表）只能基于你在输入中真实看到的 catalogs/history_catalog 候选；看不到就不要输出候选。
+
+# 1) 指代消解（Coreference Resolution）
+- 识别"这/那个/它/上面提到的/该产品/这家保司"等指代，尽可能在上下文中唯一定位主体（保司/产品/险种/人群/保单/投保步骤）。
+- 上下文焦点（active_focus）判定：当 current_query 出现泛指/续问（如"还有哪些/保障责任/怎么赔/能不能报/区别/投保规则/等待期/免赔额/理赔材料"等）且未显式给出产品全名时，
+  必须优先从 history 中定位"最近一次被用户确认/被用户追问的产品对象"，作为本轮默认指代对象：
+  a) 若 history 中最近一次用户提到 "产品 N / 计划 N / 方案 N / 版本 N / 第 N 个"：
+     - 必须在同一轮或最近一轮 assistant 输出中找到对应 N 的候选条目并唯一定位；
+     - 将该条目的"产品名称"作为 products[].raw（用于 intent_meta.products；必要时连同计划/方案一起写入）。
+  b) 若 history 中存在明确产品名（含括号/期限/计划/版本等），且最近 2 轮围绕该产品持续追问：
+     - 直接将该产品名作为 products[].raw（用于 intent_meta.products）。
+  c) 若 history 同时存在多个可能焦点且无法唯一定位：
+     - 才触发 action.type=clarify（并提示用户选"产品序号/计划序号"）。
+
+## 1.1 澄清回合的“选择答案恢复”（v3.6，无 intent_meta.dialog；仅依赖 history_catalog）
+- 触发前提（满足其一即可）：
+  a) history 中最近一次结构化 JSON 的 action.type=clarify，且其 action.parameters.intent_meta.products 非空（其中包含候选产品条目，且候选条目需携带 itemid/productid 之一）。
+  b) history 中最近一次 assistant/system 内容里出现“选具体版本/从以下候选中选择”等澄清提示，且其附近存在可解析的 JSON 片段，包含 intent_meta.products（注意：可能没有 action 外壳，可能只有 {"intent_meta": {...}}），并且 products 非空且候选条目携带 itemid/productid 之一。
+  c) history 中出现“候选产品id/检索到 N 个产品/产品ID:xxxxx”等候选列表信息，且你能基于 history_catalog 提取到 >=2 个候选条目（带 itemid/productid），并能按 products[].raw 分组。
+- 将上一轮候选 products 按 products[].raw 分组；每组内部按“候选排序与截断”规则得到最终列表后编号 1..N（即：若存在排序值则先按排序值倒序，再截断 Top5）。
+- 判定 current_query 为“澄清回复”的模式（去除图片占位如 "current_image" 后再判断）：
+  a) 仅数字/序号： "1" / "2" / "3" / "第1个" / "选2"
+  b) 多产品选择（推荐）： "金医保选2，蓝医保选1" / "金医保=2 蓝医保=1"
+  c) 多产品选择（顺序元组）： "2,1" 或 "2 1"（按上一轮对比对象出现顺序映射；无法取到出现顺序时按 raw 分组出现顺序映射）
+  d) 候选全名：与某个候选 products[].itemname 完全一致且唯一
+- 恢复规则：
+  1) 若上一轮只有 1 个 raw 分组：
+     - 用户回复单个序号 N：直接选择该组第 N 个候选（基于已排序且已截断的列表），补全 itemid/productid，action.type=route（不得再 lookup/clarify）
+     - 若 N 超出范围或无法找到第 N 个候选：必须 action.type=clarify，并要求用户重新选择有效序号
+  2) 若上一轮存在 >=2 个 raw 分组：
+     - 用户回复 "金医保选2，蓝医保选1"：分别在对应 raw 分组下选第 N 个候选（基于各分组已排序且已截断的列表）；两者都成功则 action.type=route
+     - 用户回复 "2,1"：按映射顺序分别选第 1/2 个 raw 分组（基于各分组已排序且已截断的列表）；两者都成功则 action.type=route
+     - 用户仅回复单个数字（如 "1"）：无法判断是哪个 raw 分组，必须 action.type=clarify 并要求用户分别为每个 raw 选择序号
+  3) 用户回复候选全名：若全局唯一命中某个候选，则视为已选择；若同名多条则必须澄清
+- 成功恢复后：
+  - parameters.route 必须继承上一轮澄清前的意图；若 history 中无法取到“澄清前意图”，则必须基于“上一轮澄清前的用户原问题”（通常是 history 中紧邻该澄清之前、且不是纯序号/数字的那条 user 消息；或 intent_meta.search_conditions 中 key="详细条件" 的原问题）重新做意图识别并填入 parameters.route
+  - products 数组必须输出已选中的“唯一条目”（带 itemid/productid），不得继续输出整组候选列表
+  - parameters.clarify 必须为 null
+
+# 2) 意图识别（Intent Classification）
+你必须在以下 4 个一级意图中选择 1~4 个（按置信度排序）并填入 parameters.route 数组（最多 4 个）：
+A. 投保报错咨询
+识别投保流程中的阻断性报错。支持解析含有错误代码（A01/B02等）或弹窗的截图，提取产品名称与核心报错信息，并进行图文整合与背景降噪。咨询通常包含报错原因与报错码（如"XX产品风控B05""XX产品投保A10拦截怎么处理"）。
+特别规则（投保报错 v2.6）：
+- 当 parameters.route[0]="投保报错咨询" 时：action.type 必须为 route；不得触发 clarify（避免让用户在同一系列/保司级知识库中“选具体版本”的无效澄清）。
+- 同样不得为了补全产品/保司而输出 action.type=lookup：报错知识库可能按“系列/代际/保司级”维护，强行唯一化会误导。
+- 仍需做指代消解：优先从 history 中定位最近产品；若无法唯一化到具体版本，可降级为“系列/代际”级别 raw（例如“大护甲7号”）或保司级别 insurer。
+- 拒保原因追问优先归类（强制）：
+  - 当用户表达“投保被拒/被拦截/无法投保/投保失败/不通过/风控拦截”，且在追问“为什么/原因/怎么回事/怎么办”，即使未给出错误码，也必须优先归入 `投保报错咨询`（route 首位必须是该意图）。
+  - 当同句出现“健康告知符合/职业符合/常驻地区符合/都符合条件”等“本应可投却被拒”的描述时，必须归入 `投保报错咨询`，不得落入 `人工/兜底`。
+- rewritten_query 采用“条件式改写”：
+  - 若已能唯一定位到具体产品（products[].itemname 非空，且 products[].productid 或 products[].itemid 任一非空）：rewritten_query 必须使用 itemname，并可附加 "(产品ID:xxxxxx)" 便于链路追踪。
+  - 若无法唯一定位到具体产品（仅系列/代际/保司级）：不得做“实体替换式改写”（不强行附加产品ID/不强行用 itemname 替换 raw）；可仅做最小的报错要素归一（不改变实体指代层级）。
+- 必须优先提取报错要素到 intent_meta.search_conditions（用 key="详细条件" 承载多条）：错误码/拦截码/弹窗关键句/发生环节（提交/支付/核保/风控）/平台端（如可识别）。
+
+B. 产品咨询/对比
+响应针对保险产品详情、产品条款、保障范围及投保规则的知识性问答。涵盖产品状态（是否上线/在售）、名词释义（如等待期/免赔额/责任免除）、保障权益（赔付比例/范围）、投保门槛（健康告知/职业分类/核保结论）以及多产品横向对比与权益查询（如现金价值/版本差异）。
+特别说明（核保规则类归属）：
+- “条款/规则/流程维度”的核保咨询归入本类（而非人工兜底），包括：健康告知/智核/人核/预核保的规则与流程、智核结论类型、人核时效、函件/补充资料有效期、BMI规则、职业规则、入口指引、进度查询方式、结论是否写入保单/是否上传中保信等。
+- 预核保能力问答（强制归类）：
+  - 当用户在问“是否支持/可不可以/能不能/有没有预核保”（如“这里可以预核保产品吗”），本质是能力/规则问答，必须归入 `产品咨询/对比`，不得归入 `商品检索` 或 `人工/兜底`。
+  - 该类问句即使未指定具体产品，也不得因为“无产品实体”触发澄清；应直接 route 到 `产品咨询/对比`。
+- 职业代码/职业分类映射问答（强制归类）：
+  - 当问题核心是“职业代码/职业类别/职业分类/职业等级怎么选、怎么填、选哪一个”（如“人力资源职业代码选哪一个”），必须归入 `产品咨询/对比`，不得归入 `商品检索`。
+  - 该类问句若未唯一定位到具体产品（products[].itemid/productid 均为空）：
+    - 必须 `action.type=clarify`；
+    - `parameters.route=null`；
+    - `intent_meta.products=[]`；
+    - `parameters.clarify` 仅询问“请补充具体产品名称/版本”，不得改写为选品筛选问题。
+  - 该类问句若已唯一定位到具体产品（products[].itemid/productid 任一非空）：
+    - 必须 `action.type=route`；
+    - `parameters.route=["产品咨询/对比"]`。
+
+C. 产品检索(选品/"有哪些")（route 值：商品检索）
+- 包括「处理具体产品查找、泛险种筛选、特定人群（老/幼/病）及特殊场景下的选品咨询。核心特征为支持模糊检索与多轮需求澄清，能识别并解析用户提问中的产品别名/简称（如"大护甲"、"金医保"）、存在性探寻（如"有没有..."）、场景化约束标签（如"60岁"、"高血压"）及替代/比较意图（如"还有别的吗"、"哪个好"），基于用户画像与历史交互推荐最匹配的保险方案」
+- 排除项（预核保能力问答）：
+  - “是否支持预核保/可否预核保/能否预核保/这里能不能预核保”不属于选品检索，不得路由到 `商品检索`。
+- 排除项（职业代码类规则问答）：
+  - “职业代码/职业类别/职业分类/职业等级怎么选、怎么填、选哪一个”属于规则问答，不属于选品检索，不得路由到 `商品检索`。
+
+D. 人工/兜底
+- 统一兜底处理寒暄与人设互动、明确转人工请求、以及暂不支持的业务咨询（非A、B、C意图）。
+- 仅包括“个体核保结论/能不能买”的核保表述（需要结合个人健康/体况/职业/检查指标给出承保可能性判断），例如：
+  - 「我/孩子/父母有XX疾病能不能通过核保/能不能买XX保险」
+  - 「我BMI=32/职业5类能不能投保/会不会拒保或加费或除外」
+  - 「核保结论是什么/核保结果如何/会被除外吗」（且明确指向某个具体个体情况）
+- 排除项（避免误分流）：
+  - 若问题核心是“已提交投保但被拒/被拦截，追问拒保原因或处理办法”（包括“我明明健康告知、职业、常驻地区都符合却被拒”），不得归入本类，必须归入 `投保报错咨询`。
+  - 若问题核心是“是否支持预核保/能否预核保”的能力确认，不得归入本类，必须归入 `产品咨询/对比`。
+- 包括「业务操作意图，如：系统使用/账户注册注/代理人资质与权限/资质审核/税务与发票/团队激励/操作流程/聚力计划/运营活动等等」
+- 意图冲突优先级（强制）：
+  - 若同一问句同时命中 A 与 D，且包含“被拒/拦截/失败 + 原因追问”特征，则 `投保报错咨询` 必须排在 route 第 1 位。
+  - 若同一问句同时命中 B 与 D，且包含“预核保 + 支持/可以/能否/是否”等能力确认特征，则 `产品咨询/对比` 必须排在 route 第 1 位。
+  - 若同一问句同时命中 B 与 C，且核心是“职业代码/职业类别/职业分类/职业等级”如何选择/填写，则 `产品咨询/对比` 必须排在 route 第 1 位。
+  - 若用户明确请求“帮我发起/代操作/立即做预核保”（动作请求），则归入 `人工/兜底`。
+- 当 parameters.route[0]="人工/兜底" 时：action.type 必须为 route；不得触发 clarify（避免让用户在同一系列/保司级知识库中“选具体版本”的无效澄清）；不得为了补全产品/保司而输出 action.type=lookup（避免后续无效澄清）。
+
+# 3) 实体提取（Entity Extraction）
+从 current_query + history 中抽取实体槽位，至少包含：
+- insurer（保司，输出到 intent_meta.insurer）
+- products（产品提及，允许多个；每个包含 raw 和 conditions，可输出到 intent_meta.products）
+- scenario（数组：投保/核保/理赔/续保/退保/保全/发票/双录/系统异常等，内部用）
+
+## 3.1 简称/别名展开（仅用于匹配，不得改写 raw）
+- 为提升命中率，在做 catalogs 匹配前，你可以为每个 products[i].raw 生成 expanded_raw（仅用于候选筛选/匹配；不得写回 JSON 字段）：
+  - "复保" / "复保德信" => "复星保德信"
+  - 若 raw 形如 "北京大黄蜂..."：允许将保司候选优先指向 "北京人寿"（仅用于候选排序；不得强行写入产品 itemname/id）
+  - 产品尾词同义归一（仅匹配态）：`重疾`≈`重疾险`，`少儿重疾`≈`少儿重疾险`，`医疗`≈`医疗险`
+- 对保司字段同样做别名展开（仅用于匹配，不得直接改写输出原文）：intent_meta.insurer.raw / products[i].insurer.raw 若为 "复保" / "复保德信"，在匹配时按 "复星保德信" 参与保司硬约束。
+- 保司显式提取（强制）：
+  - 若 products[i].raw 中可直接识别保司词（含别名），必须回填 products[i].insurer.raw（至少 raw 非空）；不得在第2轮/lookup 回填后丢失该保司约束。
+- expanded_raw 只用于“匹配与候选过滤”；输出时 products[i].raw 必须保持用户原文不变。
+
+字段分配规则（重要）：
+- 以下字段必须映射到 intent_meta.products（结构化产品列表）：
+  · 产品名称 → products[].raw / products[].itemname
+  · 商品id → products[].itemid
+  · 产品id → products[].productid
+  · 保司（产品级别） → products[].insurer（当保司与特定产品强绑定时）
+- 以下字段必须映射到 intent_meta.search_conditions（key/val 形式，用户输入的搜索/筛选条件）：
+  · search_conditions 的 key 必须来自附录 A；无法归类时用"详细条件"
+  · 人群类型（如"3岁宝宝"、"60岁老人"、"高血压"）→ key="人群类型"，val=提取值
+  · 险种类型（如"重疾险"、"百万医疗"、"意外险"）→ key="险种类型"，val=提取值
+  · 其他筛选条件（如价格区间、保额、缴费期、保障期限等）→ key=字段名，val=提取值
+- 以下字段必须映射到 products[].conditions（key/val 形式，具体产品的属性标注）：
+  · products[].conditions 的 key 必须来自附录 A；无法归类时用"详细条件"
+  · 产品名称 → key="产品名称"，val=标准名或原名
+  · 商品名称 → key="商品名称"，val=原名或标准名
+  · 商品id → key="商品id"，val=对应 id
+  · 产品id → key="产品id"，val=对应 id
+  · 保司名称 → key="保司名称"，val=对应值
+- 场景 → intent_meta.scenario（来自 entities.scenario）
+- insurer（全局）仍用于内部匹配与规范化，若可唯一确定则输出 intent_meta.insurer
+
+说明：
+- search_conditions：用户输入的**搜索/筛选条件**（如人群类型、险种类型、价格区间等）
+- products[].conditions：具体产品的**属性标注**（如产品id、产品名称、保司名称等）
+- products 包含 conditions，用于结构化产品列表与检索补充字段。
+- products 同时作为内部消歧结构使用。
+
+# 4) 实体规范化匹配与替换（Normalization & Replacement）
+## 4.1 候选生成范围
+- 优先在 catalogs.products / catalogs.insurers 中匹配；若缺失或为空，或查无匹配时，products[].itemname/itemid/productid 置 null 并保留 raw（按 KB LOOKUP 规则设置 action.type=lookup）。
+
+## 4.1.1 history_catalog
+- 若 catalogs 缺失/为空，或 catalogs 未覆盖当前实体：你必须从 history 的 system/assistant 内容中提取可用的"候选数据"（视为 history_catalog），用于实体唯一化。
+- 可识别的 ID 模式包括（任一命中即可）：
+  1) "产品ID:123456"
+  2) "product_id=123456"
+  3) "｜123456｜" 或 "|123456|"
+  4) 结构化 JSON 中的 intent_meta.products[i].itemid / intent_meta.products[i].productid
+  6) 结构化 JSON 中的 intent_meta.conditions（key=产品id/商品id/产品名称/保司名称）
+- 若通过 history_catalog 能唯一定位到产品/保司：
+  -> 允许直接填 products[].itemname 与 products[].itemid/productid
+  -> 若定位到保司，填 intent_meta.insurer.itemname（raw 保持 null，除非用户原文明确提到）
+  -> action.type 不得为 lookup
+
+## 4.1.2 销售状态默认过滤（降低停售干扰）
+- catalogs/history_catalog 的产品候选可能包含"销售中"与"停售"。你必须默认过滤掉停售候选（仅用在售候选做匹配/歧义判定/澄清候选输出），除非用户明确在问停售产品。
+- 定义 allow_inactive_products（允许使用停售候选）为 true 的任一条件：
+  a) current_query 明确出现停售意图：包含关键词（停售/下架/停卖/不在售/老版/旧版/历史/以前/停产 等）；
+  b) 对某个 products[i].raw：按名称/数字代际/关键词规则匹配后，若"在售候选集命中为空"但"包含停售候选的全集命中不为空"，则允许使用停售候选（例如用户点名了一个确实已停售的代际/版本）。
+- 过滤策略（对每个 products[i].raw 独立执行）：
+  1) 先得到 raw 的命中候选全集 matched_all；
+  2) 若 allow_inactive_products=true：matched=matched_all；
+  3) 否则：matched=matched_all 中 销售状态=销售中 的子集；若该子集为空则 matched=matched_all（避免完全无候选导致不必要的澄清）。
+- "销售状态"来源：优先读候选中的字段"销售状态"；若只有"产品销售状态"也视为同义。
+
+## 4.1.3 候选排序与截断（v3.6：排序值 Top5）
+- 本节规则仅影响“澄清候选输出顺序/数量”与“澄清回复序号恢复”的编号顺序，不改变 matched_all/matched 的生成与歧义判定。
+- 若 catalogs/history_catalog 候选包含字段“排序值”（数值）：
+  - 候选必须按“排序值”倒序排序（越大越靠前）。
+  - 仅输出 Top5；不足 5 条输出全部。
+  - 若排序值相同/缺失：保持原始出现顺序（稳定排序）。
+- 若全部候选都缺失“排序值”：按 catalogs/history_catalog 原始出现顺序，仍仅输出 Top5。
+
+## 4.2 匹配规则（按优先级）
+对每个 products[i].raw、insurer.raw 分别执行：
+a0) 产品名硬过滤（先做；用于修复“金医保”误命中“蓝医保”等跨词命中）：
+   - 先对 raw 与候选名称做同样的归一化（去空格/常见符号、全角半角、大小写）。
+   - 生成 raw_variants（仅用于匹配；不得写回 JSON 字段）：
+     - raw_norm（归一化 raw）
+     - expanded_raw_norm（对 raw 做简称展开后的归一化结果；见 3.1）
+     - series_token_norm：若 raw 或 expanded_raw 中包含系列词（如 "大黄蜂"、"大黄蜂16号"），提取该连续片段作为系列 token（优先带数字的版本；否则仅取 "大黄蜂"）
+   - 保司硬约束（防止“同系列同代际，但不同保司”的误混淆）：
+     - insurer_token_norm 的确定顺序（必须按顺序）：
+       1) products[i].insurer.raw（若非空）；
+       2) intent_meta.insurer.raw（若非空且本轮仅单一产品）；
+       3) 从 products[i].raw 直接抽取到的保司词（含别名展开后 token，例如 "复保" => "复星保德信"）。
+     - 只要 insurer_token_norm 非空：
+       - 在 matched_all 生成后，若存在候选名称包含 insurer_token_norm 的子集 matched_by_insurer：
+         - 必须将 matched_all 收敛为 matched_by_insurer（直接剔除不包含该保司 token 的候选）。
+       - 若 matched_by_insurer 为空：仅在“所有候选名称都不含任何保司词”时才可放弃该过滤；否则必须判定为冲突并优先 clarify（不得跨保司自动混选）。
+   - 代际/编号强约束（防止“把 1号/2号/16号 误匹配成不带号的同系列产品”）：
+     - 若 raw_norm 或 series_token_norm 中包含 "X号/数字+号/中文数字+号"（如 "1号"、"一号"、"16号"、"十六号"）：
+       - 候选名称必须包含等价的编号 token 才允许进入 matched_all（"1号" 与 "一号" 视为等价；"2号" 与 "二号" 等价，仅用于匹配）。
+       - 若所有候选都不满足该编号约束：不得进入后续模糊匹配去“猜另一代际/无编号版本”；必须 action.type=clarify（让用户确认具体代际/版本或是否允许换成其它代际）。
+   - 若存在 series_token_norm：候选名称必须包含 series_token_norm 才允许进入 matched_all（避免“复保”这种简称导致硬过滤把正确候选全过滤掉）。
+   - 否则若 raw_norm 长度>=2：候选名称必须包含 raw_norm 或 expanded_raw_norm 才允许进入 matched_all。
+   - 仅当 matched_all 为空时，才允许进入后续模糊匹配（d/e），且此时必须更倾向 action.type=lookup 或 action.type=clarify（不得直接 route 选一个）。
+a) 精确匹配：忽略空格与常见符号后完全一致
+b) 强包含匹配：raw 与候选互为连续子串（更长、更具体优先）
+c) 关键词/数字特征匹配：数字/代际（X号/2024版）权重大；关键词（百万医疗/长期/免健告/升级版/父母/少儿/中高端/0免赔/防癌/失能收入损失等）用于缩小候选
+d) 缩写/俗称匹配：以 catalogs 中出现的公司名为准（如 人保/平安/国寿 等）
+e) 错别字匹配：如catalogs有"金医保xxx"，用户可能输入为"jin医保"或"仅医保"等，须进行错别字/拼音模糊匹配
+
+## 4.3 "系列号歧义"强制规则（修复：金医保2号多候选却不澄清）
+当 raw 命中"系列号/代际"形态（例如：X号 / 2号 / 15号 / 12号）时：
+- 若 catalogs 中存在 >=2 个候选都满足"系列号 token"匹配（例如都包含"金医保2号"），且 current_query 未提供足够限定词将候选唯一化：
+  -> 必须判定为歧义，触发 action.type=clarify（即使你主观觉得某个更常见，也不允许自动选）。
+- "足够限定词"指能让候选集缩小到 1 的信息，例如：
+  - 百万医疗 vs 长期百万医疗
+  - 是否含"失能收入损失保险"
+  - 免健告/升级版/家庭单
+  - 少儿/父母/防癌/中高端/0免赔 等
+- 若 catalogs 中出现"同名不同ID"（itemname 相同但产品ID不同），也视为歧义：必须 action.type=clarify。
+
+## 4.4 歧义判定（通用阈值）
+对每个实体（每个 product mention / insurer）内部评估匹配置信度（0~1）。
+若满足任一条件，视为"无法唯一确定"：
+- 前 2 个候选分差 < 0.08
+- 或前 2 个候选都 >= 0.75
+- 或按 4.3 规则判定为"系列号/同名多ID歧义"
+=> 触发 action.type=clarify（除非命中 KB LOOKUP 可用 raw 的场景，见 KB LOOKUP 规则）
+
+## 4.4.1 唯一候选自动确认（强制）
+- 若对某个 products[i].raw：在应用“销售状态默认过滤 + a0 硬过滤 + 4.3/4.4 歧义规则”后，候选集 matched 的数量=1，且该候选的 itemid 或 productid 非空：
+  - 必须直接选择该候选作为 products[i] 的规范化结果（填 itemname/itemid/productid），并将 action.type 设为 route（不得再 clarify）。
+- 示例（必须按此执行）：
+  - 用户问："复保大黄蜂16号等待期发生轻症/中症怎么办"
+  - 过滤后仅剩："复星保德信大黄蜂16号少儿重疾险(旗舰版)"（itemid/productid 非空）
+  - 结论：必须 route；parameters.clarify=null；不得输出“请从以下候选中选择具体版本”。
+- 示例（必须按此执行）：
+  - 用户问："复星保德信大黄蜂16号少儿重疾，可以提前预核保吗"
+  - lookup 结果可能同时出现："复星保德信大黄蜂16号..." 与 "北京人寿大黄蜂16号..."
+  - 由于 raw 含明确保司词“复星保德信”，必须先执行保司强过滤，剔除“北京人寿”候选；
+  - 过滤后仅剩 1 条（itemid=178416/productid=345111）时，必须 route，严禁 clarify。
+
+## 4.5 由产品反推保司（允许）
+- 若某个产品已唯一匹配到 catalogs.products 或 history_catalog 且其保司字段可用：
+  - 优先填入 products[i].insurer.itemname（raw 保持 null，除非用户原文明确提到）
+  - 若该保司也是全局唯一保司（如用户只提到一个产品），可同时填入 intent_meta.insurer.itemname
+
+## 4.6 禁止 raw 冒充 itemname（修复：catalogs 为空时乱填 itemname）
+- 当 catalogs 缺失/为空 且未从 history_catalog 提取到 itemname/id 时：
+  - products[].itemname 必须为 null（禁止用 raw 冒充 itemname）
+  - intent_meta.insurer.itemname 必须为 null（禁止用 raw 冒充 itemname）
+
+# 5) 选品/"有哪些"类问题的特殊处理
+- 前置排除：若问句核心是“职业代码/职业类别/职业分类/职业等级怎么选/怎么填/选哪一个”，即使出现职业或人群词，也不得按 C 处理，必须转入 B 的“职业代码/职业分类映射问答”规则。
+- 当 current_query 符合以下任一模式，判定为意图 C「产品检索(选品/"有哪些")」且不得因为"未指定具体产品/保司"而触发 action.type=clarify：
+  a) "有哪些/推荐/有没有/能买什么/能保什么/适合什么" + 险种（如 意外险/医疗险/重疾险）
+  b) 带约束条件（如 职业4-5类/年龄/地区/健康情况/预算/免健告/0免赔 等）但不指定具体产品
+- 此类问题的处理规则：
+  - action.type=route；
+  - parameters.route=["商品检索"]；
+  - parameters.intent_meta.search_conditions 填充搜索/筛选条件（key/val）；
+  - 默认补充销售状态过滤：若用户未明确咨询停售产品，则 search_conditions 追加 {key="销售状态", val="销售中"}；若用户明确咨询停售产品，则追加 {key="销售状态", val="停售"}；
+  - parameters.intent_meta.products 为空数组（无具体产品时）；
+  - parameters.intent_meta.rewritten_query 改写为"在【约束条件】下，筛选/推荐可投保的【险种】产品有哪些？"
+
+# 6) 查询改写（Query Rewrite）
+- 若不需要澄清：输出 parameters.intent_meta.rewritten_query（可独立理解、可用于检索/执行的最终问句），若已匹配到 itemname 产品/保司，rewritten_query 中必须使用 itemname；可在产品后附加 "(产品ID:xxxxxx)" 便于链路追踪。
+- 若需要澄清：不要编造最终对象；只做最小澄清（放入 parameters.clarify）。
+- 例外（投保报错咨询 与 人工/兜底）：当 parameters.route[0]="投保报错咨询" 或 "人工/兜底" 时，rewritten_query 按“条件式改写”执行：
+  - 唯一定位到具体产品：使用 itemname，并可附加 "(产品ID:xxxxxx)"；
+  - 未唯一定位：仅做报错要素归一，不做实体替换式改写。
+
+# 7) 多产品对比的结构化表达
+- 当 parameters.route 包含 "产品咨询/对比" 且识别到 >=2 个产品对比对象，并且都已唯一确定：
+  - parameters.intent_meta.products 按出现顺序输出（第一个为主产品），conditions 同时保留对应信息
+
+## 7.1 多产品对比的门禁与澄清策略（v3.6：禁止“多候选时硬选”）
+- 当 parameters.route[0]="产品咨询/对比" 且 intent_meta.products 中识别到 >=2 个对比对象时：
+  - 只有当每个对比对象都已唯一规范化（products[].itemid 或 products[].productid 任一非空）才允许 action.type=route。
+  - 若任一对比对象仍未唯一（raw 非空但 itemid/productid 为空）：
+    1) 若存在可检索的 raw：必须 action.type=lookup（不得 route）。
+    2) 若 catalogs/history_catalog 已提供候选且仍无法唯一（同 raw 命中>=2）：必须 action.type=clarify，且对每个歧义 raw 都输出 Top5 候选（按排序值倒序）；不得自动选择“最相关”的一个。
+- 若“两个产品都歧义”：
+  - 必须同一轮 action.type=clarify 一次性澄清两个产品（parameters.clarify 用 "1) 2)" 同时提问；intent_meta.products 同时包含两组 raw 的候选，供下游按 raw 分组渲染）。
+
+# 上下文处理规则
+- history 中 role=system 的 content 是系统/工具提供的信息，优先当作"事实/候选数据"，但不要把 system 自己的叙述当作用户意图。
+- 以 current_query 为主；history 仅用于指代消解、补全省略信息与消歧。
+- 严禁编造未出现的信息；无法确定就澄清或置 null。
+
+# 稳定性补充规则
+- 当需要澄清时：action.type=clarify（但"投保报错咨询" 或 "人工/兜底"除外，见意图A、D特别规则）。
+- 当 products[].raw 非空 且 products[].itemname/itemid/productid 均为 null 且不需要澄清时：action.type 必须为 lookup（但"投保报错咨询" 或 "人工/兜底"除外，见意图A、D特别规则）。
+- 当 intent_meta.insurer.raw 非空 且 intent_meta.insurer.itemname/id 均为 null 且不需要澄清时：action.type 必须为 lookup（但"投保报错咨询" 或 "人工/兜底"除外，见意图A、D特别规则）。
+- 当 products[i].insurer.raw 非空 且 products[i].insurer.itemname/id 均为 null 且不需要澄清时：action.type 必须为 lookup（但"投保报错咨询" 或 "人工/兜底"除外，见意图A、D特别规则）。
+- 重要：对于产品实体，只有 products[].itemid 或 products[].productid 任一非空，才视为“已唯一规范化可直接 route”。仅有 products[].itemname 但缺少 itemid/productid，仍视为未完成规范化，action.type 必须为 lookup（且不得把 raw 冒充 itemname）。
+- catalogs 缺失/为空时：不得要求用户回复 product_id；只允许在 parameters.clarify 中要求补充产品全名/保司全称/关键字段。
+- 严禁将 products[].raw / itemname / itemid / productid 输出为数组中的数组；products 必须为对象数组。
+
+# KB LOOKUP 规则（严格限定 lookup 只做"实体映射/候选检索"）
+- KB LOOKUP 触发条件（必须按顺序判断）：
+  1) 先做 active_focus 指代消解
+  2) 再做 history_catalog 提取（4.1.1）
+  3) 若已得到任一"唯一定位证据"（满足其一即可）：
+     - products[].itemid 或 products[].productid 任一非空
+     - 或 products[].insurer.itemname 非空
+     - 或 intent_meta.insurer.itemname 非空
+     => action.type 必须为 route（无论 catalogs 是否存在）
+  4) 只有在上述都失败、且 raw 非空可作为检索 key 时，action.type 必须为 lookup。
+  5) 若 raw 为空（且 current_query 仅为"1/那个/这款/还有哪些"且 history 也无法指代），才进入 action.type=clarify。
+
+- 当 catalogs 缺失/为空，或 catalogs 中对 product/insurer 查无匹配时：
+  - 若 raw 非空（产品别名/简称/系列号/保司简称/选品条件），进入 action.type=lookup（products[].itemname/itemid/productid 保持 null）。
+  - 若 raw 为空，才触发 action.type=clarify（只问一个最关键缺口）。
+
+- "不可执行"不等于"必须问用户"：若存在可用于检索的 raw（哪怕是别名/简称/系列号/选品约束），优先 action.type=lookup；只有 raw 缺失或 current_query 仅为"1/那个/这款"且 history 无法指代时，才 action.type=clarify。
+
+【最终 action 决策优先级（强制短路）】
+1) 若 parameters.route[0]="投保报错咨询" 或 "人工/兜底"：action.type 必须为 route（维持现有特别规则）。
+1.1) 若命中 B 的“职业代码/职业分类映射问答”：
+   - 当 products 未唯一化（所有 products[].itemid/productid 为空）：action.type 必须为 clarify，parameters.route 必须为 null，intent_meta.products 必须为 []；
+   - 当任一产品已唯一化（任一 products[].itemid/productid 非空）：action.type 必须为 route，parameters.route 必须以 ["产品咨询/对比"] 开头。
+2) 对每个 products[i].raw 完成候选匹配后，先执行“唯一候选自动确认”（4.4.1）：凡 matched 数量=1 且候选含 itemid/productid，必须回填该 products[i] 的 itemname/itemid/productid。
+3) 若本轮不存在“候选数>=2 的未解决 raw”（即：要么都已唯一化，要么其余 raw 仅能形成 lookup 而非候选选择）：
+   - 单候选（含 itemid/productid）的 raw 一律视为已解决，不得再触发 clarify；
+   - 若所有已识别产品提及都已唯一化（每个提及都具备 itemid 或 productid，且不存在未解决歧义 raw）：
+     - action.type 必须为 route；
+     - parameters.clarify 必须为 null；
+     - 严禁输出“请选择版本/从以下候选中选择”类澄清文案。
+4) 仅当存在至少一个 raw 在过滤后仍有 >=2 个候选且无法唯一化时，才允许 action.type=clarify（输出结构化候选供用户选择）。
+5) 若不满足第4条、但仍有未唯一化实体且 raw 非空：action.type=lookup（不得误用 clarify）。
+6) 仅当 raw 缺失且 history 也无法指代时，才允许纯自然语言澄清。
+
+【最终裁决覆写（最后一步，最高优先级）】
+- 在输出最终 JSON 前，必须执行终态复核：
+  1) unresolved_disambiguation_raws：过滤后候选数 >=2 且仍未唯一化的 raw；
+  2) resolved_with_id：已携带 itemid 或 productid 的 products 条目。
+- 覆写规则（强制）：
+  - 若 unresolved_disambiguation_raws 为空，且 resolved_with_id 非空：
+    -> action.type 强制设为 route；
+    -> parameters.clarify 强制设为 null；
+    -> intent_meta.products 仅保留已唯一化条目（不得输出候选列表形态）。
+  - 若 action.type=clarify 但任一待澄清 raw 的候选数 <2：
+    -> 该输出判定为错误，必须改为 route 或 lookup，不得输出 clarify。
+
+────────────────────────────────────────────────────────
+输出规范（仅 JSON）
+────────────────────────────────────────────────────────
+
+- current_query 必须原样输出为顶层字段（不放在 lookup 中）。
+
+【澄清触发条件（必须先通过前置门禁，再满足触发条件）】
+- 仅适用于非"投保报错咨询"与非"人工/兜底"场景；若 parameters.route[0]="投保报错咨询" 或 "人工/兜底"，即使满足下列条件也不得澄清，必须 action.type=route。
+- 前置门禁：只有当存在“至少一个 products[i].raw 在过滤后候选数 >=2 且仍无法唯一化”时，才允许触发 action.type=clarify。若所有 products[i].raw 均已唯一化（已有 itemid/productid），必须 route，禁止 clarify。
+- 前置门禁补充：若某个 raw 在过滤后仅剩 1 个候选且带 itemid/productid，该 raw 必须直接唯一化并退出澄清流程；即使其余信息不完整，也只能 route 或 lookup，不得因该 raw 触发 clarify。
+- 前置门禁补充（保司一致性）：若 raw 含明确保司词，则澄清候选中每条候选都必须与该保司一致；不得把不同保司候选混入同一 raw 的澄清列表。
+- product 或 insurer 无法唯一确定（前2候选分差 <0.08 或都 >=0.75；或 4.3 同名多ID/系列号歧义）
+- 指代对象无法在 history 中唯一定位
+- 关键信息缺失且【无法从 history 唯一定位】且【无法形成有效检索 raw】导致不可执行
+
+补充（避免“无候选却澄清”的幻觉）：
+- 若 catalogs 缺失/为空，且 history_catalog 也无法提取到 >=2 个候选：不得输出“选产品澄清”的候选列表；应优先 action.type=lookup（raw 非空）或走“纯自然语言澄清”（raw 为空时只问一个最关键缺口）。
+
+【澄清输出要求】
+- parameters.clarify 必须为中文自然语言澄清字符串（一个 string）。
+- parameters.clarify 禁止包含 `{` `}` 或 JSON 片段；禁止用成对大括号包裹澄清文案。
+- 当同一轮需要澄清多个缺口（例如：多产品对比中，A 产品需要用户“选具体款”，B 产品需要用户“补充信息”），允许在同一个 clarify 字符串中包含多个子问题（建议用“1) 2)”枚举），以确保下游可一次性补齐。
+- 优先澄清 product；其次 insurer。
+- action.type=clarify 时，intent_meta.products 必须是候选组形态：每个待澄清 raw 至少 2 个候选条目（同 raw 分组）；若仅 1 条候选（即使有“请选择版本”文案）也视为非法澄清，必须改为 route。
+- 澄清分两类（用 intent_meta.products 做分流）：
+  A) 选产品澄清：当 catalogs/history_catalog 存在 >=2 个产品候选且需要用户选择时：
+     - action.type=clarify
+     - intent_meta.products 必须输出 Top5 个候选（结构化，供前端渲染；按排序值倒序；稳定排序；不足5条输出全部），每个候选至少填：raw（该歧义提及的原词，用于分组）、itemname、itemid（商品id）、productid（产品id）
+     - 若某个 raw 在过滤后仅剩 1 个候选（且含 itemid/productid），该 raw 不得进入澄清候选列表；必须直接唯一化并 route（或仅对其它仍歧义 raw 发起澄清）。
+     - 每个候选必须在 products[].conditions 中补充：{key="销售状态", val="销售中/停售"}；并尽量补充 {key="商品名称", val=候选名}、{key="商品id", val=...}、{key="产品id", val=...}
+     - parameters.clarify 必须只输出一句话、且不得在 clarify 中逐条列出候选产品名称（避免与 intent_meta.products 的候选列表重复）。
+       - 推荐模板：请从以下【{raw}】在售产品候选中选择具体版本
+  A2) 混合澄清（对比/多产品提及常见）：当同时存在“需要选具体款”的产品与“缺少候选/信息不全”的产品时：
+     - action.type=clarify
+     - intent_meta.products 同时包含两类条目：
+       1) 对“需要选具体款”的每个 product mention：输出其候选列表（同 A，且每条候选的 raw 必须相同，便于前端按 raw 分组渲染选项）
+       2) 对“缺少候选/信息不全”的每个 product mention：输出 1 条占位条目（raw=该提及原词；itemname/itemid/productid 均为 null；conditions 可为空或用 {key="详细条件", val="需要补充具体版本/全名/截图关键字段"}）
+     - parameters.clarify 必须同时提出：对候选组“请选择具体版本” + 对占位组“请补充具体版本/提供全名或截图关键字段”；允许用“1) 2)”但不得在 clarify 中列出候选产品名称。
+  B) 纯自然语言澄清：当 catalogs 无可用候选或关键信息缺失导致不可执行时：
+     - intent_meta.products 必须为空数组
+     - intent_meta.insurer.raw/itemname 为 null
+     - parameters.clarify 只问一个最关键缺口（例如"请提供产品全名或保司全称/截图关键字段"）
+
+【非澄清输出要求】
+- 只输出一个 JSON 对象，必须严格可解析：双引号、无注释、无尾逗号。
+- 字段必须按 Output Schema（v3.6）输出；所有字段必须存在（没值用 null / 空数组）。
+
+# Output Schema (v3.6)
+{
+  "version": "3.6",
+  "current_query": "",
+  "action": {
+    "type": "clarify",
+    "parameters": {
+      "clarify": "",
+      "route": null,
+      "intent_meta": {
+        "rewritten_query": "",
+        "insurer": {
+          "raw": null,
+          "itemname": null
+        },
+        "scenario": [],
+        "search_conditions": [
+          {
+            "key": null,
+            "val": null
+          }
+        ],
+        "products": [
+          {
+            "raw": null,
+            "itemname": null,
+            "itemid": null,
+            "productid": null,
+            "insurer": {
+              "raw": null,
+              "itemname": null
+            },
+            "conditions": [
+              {
+                "key": null,
+                "val": null
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
+# 附录 A：condition的key 字段清单
+人群类型
+险种类型
+销售状态
+产品亮点
+产品标签
+回访
+回执
+双录
+产品对接方式
+保险期间类型
+是否定制产品
+投保类型
+是否个养产品
+电子保单样本
+产品IP
+产品销售状态
+交费年限
+交费金额限制
+保障时间
+养老年金领取时间
+养老年金领取频率
+投保年龄
+投保证件类型与使用年龄说明
+与投保人关系
+自互保件是否可投保
+投保地址
+犹豫期
+可选投保责任
+健康告知
+预核保
+智核
+投保人智核
+被保人智核
+智核特殊规则
+人核
+人核函件处理方式
+保司侧处理指引
+人核对象
+人核资料预审
+人核函件及结论有效期
+收入情况要求
+BMI要求
+双录类型
+详细条件
+软件名称
+账号说明
+操作指南文件
+首期支付方式
+首期支付时效
+首期支付限额
+回访方式
+入口开放时间
+回访指引
+回执方式
+回执指引
+生效前退保
+生效后退保
+犹豫期内退保
+犹豫期外退保
+修改投保人身份信息
+修改投保人基本信息
+修改被保人身份信息
+修改被保人基本信息
+变更身故受益人
+修改续期银行卡
+申请纸质发票
+申请电子发票
+申请纸质保单
+申请保单复效
+保单贷款
+保单还款
+保障场景与责任
+报错编码
+报错编号
+</textarea>
+                            </div>
+                        </div>
+
+                        <!-- 用户提示词预览 -->
+                        <div style="flex: 1; display: flex; flex-direction: column;">
+                            <div class="editor-header">
+                                <div class="editor-title">用户提示词</div>
+                            </div>
+                            <div class="editor-box" style="background: #f8fafc;">
+                                <textarea id="userPromptTextarea" spellcheck="false" readonly style="cursor: default;">history:
+{{history}}
+
+catalogs (optional):
+{{catalogs}}
+
+current_query:
+{{current_query}}
+
+current_image:
+{{current_image}}
+</textarea>
+                            </div>
+                        </div>
+                        <div id="assistantPromptBlock" style="flex: 1; display: none; flex-direction: column;">
+                            <div class="editor-header">
+                                <div class="editor-title">Assistant 提示词</div>
+                            </div>
+                            <div class="editor-box" style="background: #f8fafc;">
+                                <textarea id="assistantPromptTextarea" spellcheck="false" readonly
+                                    style="cursor: default;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        if (window.lucide?.createIcons) {
+            window.lucide.createIcons();
+        }
+
+        const PROMPT_STORAGE_KEY = "prompt_rows_demo";
+        const PROMPT_MANAGER_ONLINE_KEY = "prompt_manager_online_demo";
+        const APP_RESOURCE_BINDING_KEY = "app_resource_bindings_demo_v1";
+        const APP_RESOURCE_REVISION_KEY = "app_resource_revision_log_demo_v1";
+        const urlParams = new URLSearchParams(window.location.search);
+        const appId = (urlParams.get("appId") || "3").trim();
+        const resourceId = (urlParams.get("resourceId") || "86").trim();
+        let promptManagerOnline = true;
+        let promptOptionsCache = [];
+        let currentBindingMeta = { templatePromptId: "", templatePromptVersion: "" };
+
+        const appNameMap = {
+            "3": "投保助手",
+            "5": "条款解析",
+            "6": "AI健告咨询审核",
+            "8": "AI人核审核",
+            "9": "AI商品检索",
+            "17": "AI健告咨询审核",
+            "18": "AI人核审核",
+            "21": "保险合同提取指定字段"
+        };
+        const resourceNameMap = {
+            "103": "产品检索",
+            "86": "意图分流（有产品检索）",
+            "54": "投保报错",
+            "52": "寒暄兜底",
+            "50": "条款咨询",
+            "46": "意图分流（无产品检索）"
+        };
+
+        const appName = appNameMap[appId] || `应用${appId}`;
+        const fallbackResourceName = resourceNameMap[resourceId] || "意图分流（有产品检索）";
+
+        const breadcrumbLinks = document.querySelectorAll(".breadcrumb a");
+        if (breadcrumbLinks[1]) {
+            breadcrumbLinks[1].textContent = appName;
+            breadcrumbLinks[1].setAttribute("href", `./frontend-app-config.html?appId=${encodeURIComponent(appId)}`);
+        }
+
+        const breadcrumbResource = document.querySelector(".breadcrumb span");
+        const resourceNameInput = document.getElementById("resourceNameInput");
+        if (resourceNameInput && !resourceNameInput.value.trim()) {
+            resourceNameInput.value = fallbackResourceName;
+        }
+        if (breadcrumbResource) {
+            const currentName = (resourceNameInput?.value || fallbackResourceName).trim();
+            breadcrumbResource.textContent = `配置资源：${currentName}`;
+        }
+
+        function ensureToast() {
+            let toast = document.getElementById("toast");
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+            toast.style.cssText = "position:fixed;left:50%;top:28px;transform:translateX(-50%) translateY(-8px);background:rgba(15,23,42,.95);color:#fff;font-size:14px;padding:12px 20px;border-radius:8px;opacity:0;pointer-events:none;transition:all .25s cubic-bezier(.4,0,.2,1);box-shadow:0 12px 40px rgba(0,0,0,.2);backdrop-filter:blur(4px);z-index:99999;";
+            if (!document.getElementById("toast-style")) {
+                const style = document.createElement("style");
+                style.id = "toast-style";
+                style.textContent = "#toast.show{opacity:1;transform:translateX(-50%) translateY(0)!important}";
+                document.head.appendChild(style);
+            }
+            return toast;
+        }
+
+        const toast = ensureToast();
+        function showToast(text) {
+            toast.textContent = text;
+            toast.style.opacity = "1";
+            toast.style.transform = "translateX(-50%) translateY(0)";
+            toast.classList.add("show");
+            clearTimeout(showToast.timer);
+            showToast.timer = setTimeout(() => {
+                toast.classList.remove("show");
+                toast.style.opacity = "0";
+                toast.style.transform = "translateX(-50%) translateY(-8px)";
+            }, 2200);
+        }
+        window.__configShowToast = showToast;
+
+        const promptSelectorBlock = document.getElementById("promptSelectorBlock");
+        const promptSelect = document.getElementById("promptSelect");
+        const repullTemplateBtn = document.getElementById("repullTemplateBtn");
+        const modelSelect = document.getElementById("modelSelect");
+        const temperatureInput = document.getElementById("temperatureInput");
+        const seedInput = document.getElementById("seedInput");
+        const maxTokensInput = document.getElementById("maxTokensInput");
+        const timeoutInput = document.getElementById("timeoutInput");
+        const extraBodyInput = document.getElementById("extraBodyInput");
+        const systemPromptTextarea = document.getElementById("systemPromptTextarea");
+        const userPromptTextarea = document.getElementById("userPromptTextarea");
+        const assistantPromptBlock = document.getElementById("assistantPromptBlock");
+        const assistantPromptTextarea = document.getElementById("assistantPromptTextarea");
+
+        function roleKey(role) {
+            const text = String(role || "").toLowerCase();
+            if (text.includes("assistant")) return "assistant";
+            if (text.includes("system")) return "system";
+            if (text.includes("user")) return "user";
+            return "";
+        }
+
+        function setSelectValue(selectEl, value) {
+            if (!selectEl || !value) return;
+            const val = String(value).trim();
+            if (!val) return;
+            const existing = Array.from(selectEl.options).find((opt) => opt.value === val || opt.textContent.trim() === val);
+            if (!existing) {
+                const option = document.createElement("option");
+                option.value = val;
+                option.textContent = val;
+                selectEl.appendChild(option);
+            }
+            selectEl.value = val;
+        }
+
+        function currentResourceKey() {
+            return `${appId}:${resourceId || "86"}`;
+        }
+
+        function loadJSON(key, fallback) {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(key) || "");
+                return parsed && typeof parsed === "object" ? parsed : fallback;
+            } catch {
+                return fallback;
+            }
+        }
+
+        function saveJSON(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+
+        function collectCurrentSnapshot() {
+            return {
+                model: modelSelect?.value || "",
+                temp: temperatureInput?.value || "",
+                seed: seedInput?.value || "",
+                maxTokens: maxTokensInput?.value || "",
+                timeout: timeoutInput?.value || "",
+                extraBody: extraBodyInput?.value || "",
+                messages: [
+                    { role: "System Prompt", content: systemPromptTextarea?.value || "" },
+                    { role: "User Prompt", content: userPromptTextarea?.value || "" },
+                    { role: "Assistant Prompt", content: assistantPromptTextarea?.value || "" }
+                ]
+            };
+        }
+
+        function getRevisionSummary(beforeSnap, afterSnap) {
+            const changes = [];
+            if ((beforeSnap?.model || "") !== (afterSnap?.model || "")) changes.push("模型");
+            if ((beforeSnap?.temp || "") !== (afterSnap?.temp || "")) changes.push("温度");
+            if ((beforeSnap?.seed || "") !== (afterSnap?.seed || "")) changes.push("Seed");
+            if ((beforeSnap?.maxTokens || "") !== (afterSnap?.maxTokens || "")) changes.push("MaxTokens");
+            if ((beforeSnap?.timeout || "") !== (afterSnap?.timeout || "")) changes.push("Timeout");
+            if ((beforeSnap?.extraBody || "") !== (afterSnap?.extraBody || "")) changes.push("ExtraBody");
+            const beforeMsgs = JSON.stringify(beforeSnap?.messages || []);
+            const afterMsgs = JSON.stringify(afterSnap?.messages || []);
+            if (beforeMsgs !== afterMsgs) changes.push("提示词内容");
+            return changes.length ? `资源内部变更：${changes.join("、")}` : "资源内部无变更（仅保存）";
+        }
+
+        function persistResourceBinding(reason = "手动保存") {
+            const bindings = loadJSON(APP_RESOURCE_BINDING_KEY, {});
+            const revisions = loadJSON(APP_RESOURCE_REVISION_KEY, {});
+            const key = currentResourceKey();
+            const before = bindings[key]?.resourcePromptSnapshot || null;
+            const snapshot = collectCurrentSnapshot();
+            const summary = getRevisionSummary(before, snapshot);
+            const timestamp = new Date().toISOString();
+            bindings[key] = {
+                appId,
+                resourceId,
+                templatePromptId: currentBindingMeta.templatePromptId || "",
+                templatePromptVersion: currentBindingMeta.templatePromptVersion || "",
+                reason,
+                updatedAt: timestamp,
+                resourcePromptSnapshot: snapshot
+            };
+            revisions[key] = Array.isArray(revisions[key]) ? revisions[key] : [];
+            revisions[key].push({
+                at: timestamp,
+                reason,
+                summary
+            });
+            saveJSON(APP_RESOURCE_BINDING_KEY, bindings);
+            saveJSON(APP_RESOURCE_REVISION_KEY, revisions);
+            showToast(`配置保存成功（${summary}）`);
+        }
+
+        function restoreResourceBinding() {
+            const bindings = loadJSON(APP_RESOURCE_BINDING_KEY, {});
+            const binding = bindings[currentResourceKey()];
+            if (!binding || !binding.resourcePromptSnapshot) return;
+            const snap = binding.resourcePromptSnapshot;
+            setSelectValue(modelSelect, snap.model);
+            if (temperatureInput && snap.temp != null) temperatureInput.value = String(snap.temp);
+            if (seedInput && snap.seed != null) seedInput.value = String(snap.seed);
+            if (maxTokensInput && snap.maxTokens != null) maxTokensInput.value = String(snap.maxTokens);
+            if (timeoutInput && snap.timeout != null) timeoutInput.value = String(snap.timeout);
+            if (extraBodyInput && snap.extraBody != null) extraBodyInput.value = String(snap.extraBody);
+            const msgMap = new Map((snap.messages || []).map((item) => [roleKey(item.role), item.content || ""]));
+            if (systemPromptTextarea) systemPromptTextarea.value = String(msgMap.get("system") || "");
+            if (userPromptTextarea) userPromptTextarea.value = String(msgMap.get("user") || "");
+            if (assistantPromptTextarea) assistantPromptTextarea.value = String(msgMap.get("assistant") || "");
+            currentBindingMeta = {
+                templatePromptId: binding.templatePromptId || "",
+                templatePromptVersion: binding.templatePromptVersion || ""
+            };
+            if (assistantPromptBlock) {
+                assistantPromptBlock.style.display = assistantPromptTextarea?.value ? "flex" : "none";
+            }
+        }
+
+        function toggleReadonlyByPrompt(isReadonly) {
+            const setFieldStyle = (el, locked) => {
+                if (!el) return;
+                if (!el.dataset.originStyle) {
+                    el.dataset.originStyle = JSON.stringify({
+                        background: el.style.background || "",
+                        color: el.style.color || "",
+                        borderColor: el.style.borderColor || "",
+                        cursor: el.style.cursor || ""
+                    });
+                }
+                if (locked) {
+                    el.style.background = "#f8fafc";
+                    el.style.color = "#64748b";
+                    el.style.borderColor = "#cbd5e1";
+                    el.style.cursor = "not-allowed";
+                } else {
+                    const origin = JSON.parse(el.dataset.originStyle || "{}");
+                    el.style.background = origin.background || "";
+                    el.style.color = origin.color || "";
+                    el.style.borderColor = origin.borderColor || "";
+                    el.style.cursor = origin.cursor || "";
+                }
+            };
+
+            if (modelSelect) modelSelect.disabled = isReadonly;
+            [temperatureInput, seedInput, maxTokensInput, timeoutInput].forEach((input) => {
+                if (input) input.readOnly = isReadonly;
+            });
+            if (extraBodyInput) extraBodyInput.readOnly = isReadonly;
+            document.querySelectorAll("input[name='deepthink']").forEach((radio) => {
+                radio.disabled = isReadonly;
+                const label = radio.closest("label");
+                if (label) label.style.opacity = isReadonly ? "0.6" : "1";
+            });
+            [modelSelect, temperatureInput, seedInput, maxTokensInput, timeoutInput, extraBodyInput].forEach((field) => {
+                setFieldStyle(field, isReadonly);
+            });
+            [systemPromptTextarea, userPromptTextarea].forEach((area) => {
+                if (!area) return;
+                area.readOnly = isReadonly;
+                area.style.cursor = isReadonly ? "default" : "text";
+                area.style.background = isReadonly ? "#f8fafc" : "#ffffff";
+                area.style.color = isReadonly ? "#334155" : "#0f172a";
+            });
+            if (assistantPromptTextarea) {
+                assistantPromptTextarea.readOnly = true;
+                assistantPromptTextarea.style.cursor = "default";
+                assistantPromptTextarea.style.background = "#f8fafc";
+                assistantPromptTextarea.style.color = "#334155";
+            }
+        }
+
+        function buildFallbackPrompt() {
+            return {
+                id: `resource-${resourceId}`,
+                name: (resourceNameInput?.value || fallbackResourceName).trim() || fallbackResourceName,
+                model: modelSelect?.value || "Doubao-Seed-2.0-pro",
+                temp: temperatureInput?.value || "0.2",
+                seed: seedInput?.value || "42",
+                maxTokens: maxTokensInput?.value || "131072",
+                timeout: timeoutInput?.value || "300",
+                extraBody: extraBodyInput?.value || "",
+                messages: [
+                    { role: "System Prompt", content: systemPromptTextarea?.value || "" },
+                    { role: "User Prompt", content: userPromptTextarea?.value || "" }
+                ]
+            };
+        }
+
+        function loadPromptRows() {
+            try {
+                const raw = localStorage.getItem(PROMPT_STORAGE_KEY);
+                const parsed = JSON.parse(raw || "[]");
+                return Array.isArray(parsed) ? parsed.filter((item) => item && typeof item === "object") : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function collectRoleContent(row, key) {
+            const messages = Array.isArray(row?.messages) ? row.messages : [];
+            return messages
+                .filter((msg) => roleKey(msg?.role) === key)
+                .map((msg) => String(msg?.content || "").trim())
+                .filter(Boolean)
+                .join("\n\n");
+        }
+
+        function applyPromptRow(row, options = {}) {
+            if (!row || typeof row !== "object") return;
+
+            const selectedName = String(row.name || row.title || "").trim();
+            if (resourceNameInput && selectedName) {
+                resourceNameInput.value = selectedName;
+                if (breadcrumbResource) {
+                    breadcrumbResource.textContent = `配置资源：${selectedName}`;
+                }
+            }
+
+            setSelectValue(modelSelect, row.model || row.modelName);
+            if (temperatureInput && (row.temp != null || row.temperature != null)) {
+                temperatureInput.value = String(row.temp ?? row.temperature);
+            }
+            if (seedInput && row.seed != null) {
+                seedInput.value = String(row.seed);
+            }
+            if (maxTokensInput && row.maxTokens != null) {
+                maxTokensInput.value = String(row.maxTokens);
+            }
+            if (timeoutInput && row.timeout != null) {
+                timeoutInput.value = String(row.timeout);
+            }
+            if (extraBodyInput && row.extraBody != null) {
+                extraBodyInput.value = String(row.extraBody);
+            }
+
+            const systemText = collectRoleContent(row, "system");
+            const userText = collectRoleContent(row, "user");
+            const assistantText = collectRoleContent(row, "assistant");
+
+            if (systemPromptTextarea && systemText) systemPromptTextarea.value = systemText;
+            if (userPromptTextarea && userText) userPromptTextarea.value = userText;
+            if (assistantPromptTextarea) assistantPromptTextarea.value = assistantText || "";
+            if (assistantPromptBlock) assistantPromptBlock.style.display = assistantText ? "flex" : "none";
+
+            if (options.fromTemplate) {
+                currentBindingMeta = {
+                    templatePromptId: String(row.id || ""),
+                    templatePromptVersion: String(row.version || row.updated || "")
+                };
+            }
+        }
+
+        function initPromptSelector() {
+            const fallbackPrompt = buildFallbackPrompt();
+            const rows = loadPromptRows();
+            const merged = [fallbackPrompt, ...rows].filter(Boolean);
+            const deduped = [];
+            const seen = new Set();
+            merged.forEach((row, index) => {
+                const key = String(row.id || row.name || index).trim();
+                if (seen.has(key)) return;
+                seen.add(key);
+                deduped.push(row);
+            });
+            promptOptionsCache = deduped;
+
+            if (!promptSelect) return;
+            promptSelect.innerHTML = "";
+            deduped.forEach((row, index) => {
+                const option = document.createElement("option");
+                const rowId = String(row.id || `idx-${index}`);
+                option.value = rowId;
+                option.textContent = `${row.name || `提示词-${rowId}`}${row.version ? ` (${row.version})` : ""}`;
+                option.dataset.rowIndex = String(index);
+                promptSelect.appendChild(option);
+            });
+
+            let selectedIndex = deduped.findIndex((row) => String(row?.id || "").trim() === String(currentBindingMeta.templatePromptId || ""));
+            if (selectedIndex < 0) {
+                const preferredName = (resourceNameInput?.value || fallbackResourceName).trim();
+                selectedIndex = deduped.findIndex((row) => String(row?.name || "").trim() === preferredName);
+            }
+            if (selectedIndex < 0) selectedIndex = 0;
+            promptSelect.selectedIndex = selectedIndex;
+            applyPromptRow(deduped[selectedIndex], { fromTemplate: true });
+
+            promptSelect.onchange = () => {
+                const idx = Number(promptSelect.options[promptSelect.selectedIndex]?.dataset.rowIndex || 0);
+                applyPromptRow(deduped[idx], { fromTemplate: true });
+            };
+        }
+
+        function parsePromptManagerOnline(rawValue) {
+            return !["0", "false", "off"].includes(String(rawValue || "").toLowerCase());
+        }
+
+        function applyPromptManagerMode(isOnline) {
+            promptManagerOnline = !!isOnline;
+            if (promptSelectorBlock) {
+                promptSelectorBlock.style.display = promptManagerOnline ? "flex" : "none";
+            }
+            if (promptManagerOnline) {
+                toggleReadonlyByPrompt(true);
+                initPromptSelector();
+            } else {
+                toggleReadonlyByPrompt(false);
+            }
+            restoreResourceBinding();
+        }
+
+        function initPromptManagerToggle() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const statusParam = urlParams.get('status');
+            const initialOnline = statusParam ? statusParam === 'online' : true;
+            applyPromptManagerMode(initialOnline);
+        }
+
+        function initPromptZoom() {
+            if (document.getElementById("promptZoomOverlay")) return;
+            const overlay = document.createElement("div");
+            overlay.id = "promptZoomOverlay";
+            overlay.style.cssText = "position:fixed;inset:0;background:rgba(2,6,23,.55);display:none;align-items:center;justify-content:center;padding:24px;z-index:99998;";
+            overlay.innerHTML = `
+                <div style="width:min(1200px,96vw);height:min(88vh,920px);background:#fff;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.25);">
+                    <div style="height:52px;padding:0 16px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+                        <div id="promptZoomTitle" style="font-weight:600;color:#0f172a;">提示词放大查看</div>
+                        <button id="promptZoomClose" type="button" style="border:0;background:transparent;color:#64748b;cursor:pointer;font-size:18px;">×</button>
+                    </div>
+                    <textarea id="promptZoomTextarea" readonly style="flex:1;border:0;outline:none;resize:none;padding:16px;font-size:14px;line-height:1.6;color:#334155;"></textarea>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            const zoomTitle = document.getElementById("promptZoomTitle");
+            const zoomTextarea = document.getElementById("promptZoomTextarea");
+            const close = () => { overlay.style.display = "none"; };
+            document.getElementById("promptZoomClose").addEventListener("click", close);
+            overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+            document.addEventListener("keydown", (e) => { if (e.key === "Escape" && overlay.style.display === "flex") close(); });
+
+            document.querySelectorAll(".editor-section .editor-box textarea").forEach((area) => {
+                area.addEventListener("dblclick", () => {
+                    const title = area.closest("div[style*='flex-direction: column']")?.querySelector(".editor-title")?.textContent?.trim() || "提示词放大查看";
+                    if (zoomTitle) zoomTitle.textContent = title;
+                    if (zoomTextarea) zoomTextarea.value = area.value;
+                    overlay.style.display = "flex";
+                });
+            });
+        }
+
+        initPromptManagerToggle();
+        restoreResourceBinding();
+        initPromptZoom();
+
+        if (repullTemplateBtn) {
+            repullTemplateBtn.addEventListener("click", () => {
+                if (!promptManagerOnline) {
+                    showToast("当前为未上线模式，模板拉取不可用");
+                    return;
+                }
+                const idx = Number(promptSelect?.options[promptSelect.selectedIndex]?.dataset.rowIndex || 0);
+                const row = promptOptionsCache[idx];
+                if (!row) {
+                    showToast("未找到可拉取的模板");
+                    return;
+                }
+                applyPromptRow(row, { fromTemplate: true });
+                persistResourceBinding("重新从模板拉取");
+            });
+        }
+
+        const saveBtn = document.getElementById("saveBtn");
+        if (saveBtn) {
+            saveBtn.addEventListener("click", () => {
+                persistResourceBinding("手动保存");
+            });
+        }
+    </script>
+    <script>
+        // 强制保持提示词可编辑：加载模板后依然允许在应用管理内继续修改
+        (function() {
+            const editableIds = ["systemPromptTextarea", "userPromptTextarea", "assistantPromptTextarea"];
+            function unlockPromptEditors() {
+                editableIds.forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.readOnly = false;
+                    el.removeAttribute("readonly");
+                    el.style.cursor = "text";
+                    el.style.background = "#ffffff";
+                    el.style.color = "#0f172a";
+                });
+            }
+
+            document.addEventListener("DOMContentLoaded", unlockPromptEditors);
+            window.addEventListener("load", unlockPromptEditors);
+            document.addEventListener("change", (e) => {
+                if (e.target && e.target.id === "promptSelect") {
+                    setTimeout(unlockPromptEditors, 0);
+                    setTimeout(unlockPromptEditors, 50);
+                }
+            });
+            document.addEventListener("click", (e) => {
+                const target = e.target;
+                if (!(target instanceof HTMLElement)) return;
+                if (target.id === "repullTemplateBtn" || target.closest("#repullTemplateBtn")) {
+                    setTimeout(unlockPromptEditors, 0);
+                    setTimeout(unlockPromptEditors, 50);
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

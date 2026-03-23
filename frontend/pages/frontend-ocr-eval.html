@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>OCR 评测工作台 - AI Infra</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- PDF.js & Marked.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#135bec",
+                        "background-main": "#f1f5f9",
+                        "surface": "#ffffff",
+                        "border-light": "#e2e8f0",
+                        "text-main": "#1e293b",
+                        "text-muted": "#64748b",
+                    },
+                    fontFamily: {
+                        sans: ["Noto Sans SC", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"],
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-background-main text-text-main font-sans; }
+        }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .file-item-active { @apply bg-blue-50 border-r-2 border-primary; }
+        .animate-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Panel Resizer styles */
+        .resizer {
+            width: 8px;
+            cursor: col-resize;
+            background-color: transparent;
+            z-index: 40;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+            margin: 0 -4px;
+        }
+        .resizer:hover, .resizer.dragging {
+            background-color: rgba(19, 91, 236, 0.1);
+        }
+        .resizer::after {
+            content: '';
+            width: 2px;
+            height: 24px;
+            border-radius: 2px;
+            background-color: #cbd5e1;
+            transition: background-color 0.2s;
+        }
+        .resizer:hover::after, .resizer.dragging::after {
+            background-color: #135bec;
+            height: 48px;
+        }
+        
+        .is-resizing { user-select: none; cursor: col-resize; }
+
+        /* Custom Styles for PDF and Markdown Rendering */
+        .textLayer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; opacity: 1; line-height: 1.0; }
+        .textLayer > span { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; }
+        .textLayer ::selection { background: rgba(59, 130, 246, 0.3); color: transparent; }
+        
+        mark.query-highlight { background-color: rgba(250, 204, 21, 0.6); border-radius: 2px; color: inherit; padding: 0; }
+        
+        .pdf-container { position: relative; display: inline-block; transform-origin: top left; }
+        .pdf-page-canvas { display: block; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border-radius: 2px; }
+
+        #htmlContent table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.75rem; text-align: left; }
+        #htmlContent th, #htmlContent td { border: 1px solid #e2e8f0; padding: 0.5rem; }
+        #htmlContent th { background-color: #f8fafc; font-weight: bold; }
+        #htmlContent h1, #htmlContent h2, #htmlContent h3 { font-weight: bold; color: #0f172a; margin-top: 1rem; margin-bottom: 0.5rem; }
+        #htmlContent h1 { font-size: 1.25rem; border-bottom: 2px solid #0f172a; padding-bottom: 0.25rem; }
+        #htmlContent h2 { font-size: 1.125rem; }
+        #htmlContent p { margin-bottom: 0.5rem; line-height: 1.6; }
+    </style>
+</head>
+
+<body class="bg-background-main text-text-main font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <script src="../js/sidebar.js"></script>
+        <main class="flex-1 flex flex-col min-w-0 bg-background-main">
+            <header
+                class="flex items-center justify-between border-b border-border-light bg-white px-6 py-2.5 shrink-0 z-30 shadow-sm">
+                <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-3">
+                        <div class="size-8 text-white flex items-center justify-center bg-primary rounded-lg">
+                            <span class="material-symbols-outlined text-[20px]">analytics</span>
+                        </div>
+                        <h1 class="text-base font-bold tracking-tight whitespace-nowrap">OCR 评测工作台</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="flex-1 flex overflow-hidden">
+                <aside class="w-72 border-r border-border-light bg-white flex flex-col shrink-0">
+                    <div class="p-4 border-b border-border-light space-y-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <h2
+                                class="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]">list_alt</span> 文件列表
+                            </h2>
+                        </div>
+                        <div class="relative group">
+                            <input type="file" id="fileInput" multiple
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                onchange="handleFileSelect(event)">
+                            <div
+                                class="flex flex-col items-center justify-center gap-2 py-6 border-2 border-dashed border-slate-200 rounded-xl group-hover:border-primary/50 group-hover:bg-blue-50/30 transition-all pointer-events-none">
+                                <div
+                                    class="size-10 bg-primary/10 text-primary flex items-center justify-center rounded-full">
+                                    <span class="material-symbols-outlined text-[24px]">cloud_upload</span>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-[11px] font-bold text-text-main">点击或拖拽上传</p>
+                                    <p class="text-[9px] text-text-muted mt-0.5">支持 PDF, JPG, PNG</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto">
+                        <div class="flex flex-col" id="taskListContainer"></div>
+                    </div>
+
+                    <div class="p-3 border-t border-border-light bg-slate-50">
+                        <div
+                            class="flex justify-between text-[10px] font-bold text-text-muted mb-2 uppercase tracking-tight">
+                            <span>任务进度</span>
+                            <span id="progressText">0/0 已完成</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden shadow-inner flex">
+                            <div id="progressBar" class="w-[0%] h-full bg-primary transition-all duration-500"></div>
+                        </div>
+                    </div>
+                </aside>
+
+                <main id="mainPanelsContainer" class="flex-1 flex overflow-hidden bg-background-main p-4 relative">
+                    <!-- Panel 1: PDF Viewer -->
+                    <section id="panel-pdf"
+                        class="flex flex-col bg-white border border-border-light shadow-sm overflow-hidden"
+                        style="width: 33.333%; min-width: 200px;">
+                        <div
+                            class="flex items-center justify-between px-4 py-3 border-b border-border-light shrink-0 h-[52px]">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-text-muted text-[18px]">visibility</span>
+                                <h3 class="font-bold text-xs uppercase tracking-wider">文件预览</h3>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <!-- Page Navigation -->
+                                <div class="flex items-center gap-1">
+                                    <button id="btnPrevPage"
+                                        class="p-1 disabled:opacity-30 hover:bg-slate-100 rounded text-slate-400 transition-colors"
+                                        onclick="changePage(-1)">
+                                        <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+                                    </button>
+                                    <span id="pageIndicator"
+                                        class="text-[9px] font-bold text-text-muted min-w-[36px] text-center">-- /
+                                        --</span>
+                                    <button id="btnNextPage"
+                                        class="p-1 disabled:opacity-30 hover:bg-slate-100 rounded text-slate-400 transition-colors"
+                                        onclick="changePage(1)">
+                                        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                                    </button>
+                                </div>
+                                <div class="w-px h-3 bg-slate-200"></div>
+                                <!-- Zoom Controls -->
+                                <div class="flex items-center gap-0.5">
+                                    <button id="btnZoomOut" class="p-1 rounded hover:bg-slate-100 text-text-muted"
+                                        onclick="changeZoom(-0.1)">
+                                        <span class="material-symbols-outlined text-[16px]">zoom_out</span>
+                                    </button>
+                                    <span id="zoomLevelText"
+                                        class="text-[10px] font-mono text-text-muted px-1 w-12 text-center">自动</span>
+                                    <button id="btnZoomIn" class="p-1 rounded hover:bg-slate-100 text-text-muted"
+                                        onclick="changeZoom(0.1)">
+                                        <span class="material-symbols-outlined text-[16px]">zoom_in</span>
+                                    </button>
+                                    <button id="btnZoomFit" class="p-1 rounded hover:bg-slate-100 text-text-muted ml-1"
+                                        onclick="fitZoom()" title="适应宽度">
+                                        <span class="material-symbols-outlined text-[16px]">aspect_ratio</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="pdfScrollContainer"
+                            class="flex-1 overflow-auto bg-slate-50 flex items-start justify-center p-6 relative">
+                            <div id="pdfWrapper" class="pdf-container"></div>
+                        </div>
+                    </section>
+
+                    <div class="resizer" id="resizer-1"></div>
+
+                    <!-- Panel 2: Raw Text -->
+                    <section id="panel-raw"
+                        class="flex flex-col bg-white border border-border-light shadow-sm overflow-hidden"
+                        style="width: 33.333%; min-width: 200px;">
+                        <div
+                            class="flex items-center justify-between px-4 py-3 border-b border-border-light shrink-0 h-[52px]">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-[18px]">code</span>
+                                <h3 class="font-bold text-xs uppercase tracking-wider">原始数据</h3>
+                            </div>
+                        </div>
+                        <div id="rawScrollContainer"
+                            class="flex-1 overflow-auto font-mono text-[11px] p-5 leading-relaxed bg-[#fafafa]">
+                            <pre id="rawContent" class="text-slate-700 whitespace-pre-wrap break-all"></pre>
+                        </div>
+                        <div
+                            class="px-4 py-2 border-t border-border-light bg-slate-50 flex justify-between text-[9px] text-text-muted font-mono uppercase tracking-wider">
+                            <span>UTF-8</span>
+                            <span>模型输出格式</span>
+                        </div>
+                    </section>
+
+                    <div class="resizer" id="resizer-2"></div>
+
+                    <!-- Panel 3: HTML Render -->
+                    <section id="panel-render"
+                        class="flex flex-col bg-white border border-border-light shadow-sm overflow-hidden"
+                        style="width: 33.333%; min-width: 200px;">
+                        <div
+                            class="flex items-center justify-between px-4 py-3 border-b border-border-light shrink-0 h-[52px]">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-orange-500 text-[18px]">auto_awesome</span>
+                                <h3 class="font-bold text-xs uppercase tracking-wider">还原样式</h3>
+                            </div>
+                        </div>
+                        <div id="renderScrollContainer" class="flex-1 overflow-auto p-5 bg-slate-50/50">
+                            <div id="htmlContent"
+                                class="bg-white border border-border-light shadow-sm rounded-lg p-6 min-h-full">
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        </main>
+    </div>
+
+    <!-- Upload/Config Modal -->
+    <div id="configModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="hideUploadModal()"></div>
+        <div class="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in duration-200">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="size-10 bg-primary/10 text-primary flex items-center justify-center rounded-xl">
+                        <span class="material-symbols-outlined">settings_suggest</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm">配置解析任务</h3>
+                        <p class="text-[11px] text-text-muted" id="fileCountText">已选择 0 个文件</p>
+                    </div>
+                </div>
+                <button onclick="hideUploadModal()"
+                    class="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                <div class="space-y-3">
+                    <label class="text-[11px] font-bold text-text-muted uppercase tracking-wider">全局模型选择 (多选)</label>
+                    <div class="grid grid-cols-3 gap-3" id="modelSelection">
+                        <label
+                            class="relative flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:border-primary/50 transition-all bg-white shadow-sm border-slate-200 has-[:checked]:border-primary has-[:checked]:bg-blue-50/50">
+                            <input type="checkbox" checked onchange="updateSummary()"
+                                class="rounded border-slate-300 text-primary focus:ring-primary">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold">DeepSeek-OCR2</span>
+                                <span class="text-[10px] text-text-muted">通用解析 · 高精度</span>
+                            </div>
+                        </label>
+                        <label
+                            class="relative flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:border-primary/50 transition-all bg-white shadow-sm border-slate-200 has-[:checked]:border-primary has-[:checked]:bg-blue-50/50">
+                            <input type="checkbox" onchange="updateSummary()"
+                                class="rounded border-slate-300 text-primary focus:ring-primary">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold">Paddle-OCR</span>
+                                <span class="text-[10px] text-text-muted">百度自研 · 速度快</span>
+                            </div>
+                        </label>
+                        <label
+                            class="relative flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:border-primary/50 transition-all bg-white shadow-sm border-slate-200 has-[:checked]:border-primary has-[:checked]:bg-blue-50/50">
+                            <input type="checkbox" onchange="updateSummary()"
+                                class="rounded border-slate-300 text-primary focus:ring-primary">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold">GLM-OCR</span>
+                                <span class="text-[10px] text-text-muted">智谱大模型 · 语义还原</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-[11px] font-bold text-text-muted uppercase tracking-wider">解析范围配置</label>
+                        <button class="text-[10px] text-primary font-bold hover:underline"
+                            onclick="syncAllPageConfigs()">同步到全部</button>
+                    </div>
+                    <div class="space-y-2" id="modalFileList"></div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <div class="text-[11px] text-text-muted" id="taskSummaryText">
+                    预计生成 <span class="font-bold text-slate-800">0 个任务</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="hideUploadModal()"
+                        class="px-4 py-2 text-xs font-bold text-text-muted hover:bg-slate-100 rounded-lg transition-colors">取消</button>
+                    <button onclick="createTasks()"
+                        class="px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-bold text-xs shadow-md shadow-blue-200 active:scale-95 transition-all">确认开始解析</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GLOBAL STATE
+        const AppState = {
+            tasks: [],
+            activeTaskId: null,
+            pdfDoc: null,
+            activePage: 1,
+            scale: 'auto',
+            highlightText: '',
+            tempFiles: []
+        };
+
+        const DOM = {
+            taskList: document.getElementById('taskListContainer'),
+            pdfWrapper: document.getElementById('pdfWrapper'),
+            pdfScrollContainer: document.getElementById('pdfScrollContainer'),
+            rawScrollContainer: document.getElementById('rawScrollContainer'),
+            renderScrollContainer: document.getElementById('renderScrollContainer'),
+            zoomLevel: document.getElementById('zoomLevelText'),
+            pageIndicator: document.getElementById('pageIndicator'),
+            btnPrev: document.getElementById('btnPrevPage'),
+            btnNext: document.getElementById('btnNextPage'),
+            rawContent: document.getElementById('rawContent'),
+            htmlContent: document.getElementById('htmlContent'),
+            progressText: document.getElementById('progressText'),
+            progressBar: document.getElementById('progressBar'),
+            mainPanels: document.getElementById('mainPanelsContainer')
+        };
+
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({ breaks: true, gfm: true });
+        }
+
+        // ======================= Resizer Logic =======================
+        function initResizers() {
+            const resizer1 = document.getElementById('resizer-1');
+            const resizer2 = document.getElementById('resizer-2');
+            const panelPdf = document.getElementById('panel-pdf');
+            const panelRaw = document.getElementById('panel-raw');
+            const panelRender = document.getElementById('panel-render');
+
+            let currentResizer = null;
+
+            const onMouseDown = (e) => {
+                currentResizer = e.currentTarget;
+                currentResizer.classList.add('dragging');
+                document.body.classList.add('is-resizing');
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseup', onMouseUp);
+            };
+
+            const onMouseMove = (e) => {
+                if (!currentResizer) return;
+
+                const containerRect = DOM.mainPanels.getBoundingClientRect();
+                const totalWidth = containerRect.width;
+
+                if (currentResizer === resizer1) {
+                    const x = e.clientX - containerRect.left;
+                    const p1Width = (x / totalWidth) * 100;
+                    // Keep panels at least 15% width
+                    if (p1Width > 15 && (100 - p1Width - (panelRender.offsetWidth / totalWidth * 100)) > 15) {
+                        panelPdf.style.width = p1Width + '%';
+                        const remaining = 100 - p1Width - (panelRender.offsetWidth / totalWidth * 100);
+                        panelRaw.style.width = remaining + '%';
+                    }
+                } else if (currentResizer === resizer2) {
+                    const x = e.clientX - containerRect.left;
+                    const p1p2Width = (x / totalWidth) * 100;
+                    const p3Width = 100 - p1p2Width;
+
+                    if (p3Width > 15 && (p1p2Width - (panelPdf.offsetWidth / totalWidth * 100)) > 15) {
+                        panelRender.style.width = p3Width + '%';
+                        const remaining = p1p2Width - (panelPdf.offsetWidth / totalWidth * 100);
+                        panelRaw.style.width = remaining + '%';
+                    }
+                }
+
+                // If PDF is in auto-zoom, it needs to recompute
+                if (AppState.scale === 'auto') {
+                    renderCurrentPage();
+                }
+            };
+
+            const onMouseUp = () => {
+                if (currentResizer) {
+                    currentResizer.classList.remove('dragging');
+                }
+                currentResizer = null;
+                document.body.classList.remove('is-resizing');
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+            };
+
+            resizer1.addEventListener('mousedown', onMouseDown);
+            resizer2.addEventListener('mousedown', onMouseDown);
+        }
+
+        // ======================= Scroll & Page Sync Logic =======================
+        // Adapted from user's own pattern: https://github.com/WiseWong6/pdf_format_viewer
+        const OVERSCROLL_THRESHOLD = 80;
+        let isSyncingScroll = false;
+        let overscrollAccumulator = 0;
+        let overscrollTimeout = null;
+
+        function initScrollPagination() {
+            // --- Overscroll-based page flip (resistance effect) ---
+            // When a panel is scrolled to the very top/bottom and user keeps scrolling,
+            // accumulate the delta. Once it passes OVERSCROLL_THRESHOLD, flip the page.
+            function handleOverscrollWheel(e, scrollContainer) {
+                if (isSyncingScroll) return;
+                if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; // ignore horizontal
+
+                const task = AppState.tasks.find(t => t.id === AppState.activeTaskId);
+                if (!task) return;
+
+                const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+                const isAtTop = scrollTop <= 1;
+                const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 2;
+
+                let triggered = false;
+
+                if (isAtTop && e.deltaY < 0 && AppState.activePage > 1) {
+                    // Scrolling up at the top → go to previous page
+                    triggered = true;
+                    overscrollAccumulator += Math.abs(e.deltaY);
+                } else if (isAtBottom && e.deltaY > 0 && AppState.activePage < task.totalPages) {
+                    // Scrolling down at the bottom → go to next page
+                    triggered = true;
+                    overscrollAccumulator += Math.abs(e.deltaY);
+                } else {
+                    // User is scrolling within content, reset
+                    overscrollAccumulator = 0;
+                }
+
+                if (triggered) {
+                    // Reset accumulator after 500ms of no scrolling (user paused)
+                    clearTimeout(overscrollTimeout);
+                    overscrollTimeout = setTimeout(() => {
+                        overscrollAccumulator = 0;
+                    }, 500);
+
+                    if (overscrollAccumulator > OVERSCROLL_THRESHOLD) {
+                        if (isAtTop && e.deltaY < 0) {
+                            changePage(-1);
+                        } else if (isAtBottom && e.deltaY > 0) {
+                            changePage(1);
+                        }
+                        overscrollAccumulator = 0;
+                    }
+                }
+            }
+
+            // Attach wheel listeners to the raw and render panels for overscroll page flip
+            DOM.rawScrollContainer.addEventListener('wheel', (e) => {
+                handleOverscrollWheel(e, DOM.rawScrollContainer);
+            }, { passive: true });
+
+            DOM.renderScrollContainer.addEventListener('wheel', (e) => {
+                handleOverscrollWheel(e, DOM.renderScrollContainer);
+            }, { passive: true });
+
+            // --- Scroll-based page detection for ALL panels (updates indicator only) ---
+            [DOM.pdfScrollContainer, DOM.rawScrollContainer, DOM.renderScrollContainer].forEach(container => {
+                let detectTimer = null;
+                container.addEventListener('scroll', () => {
+                    if (isSyncingScroll) return;
+                    clearTimeout(detectTimer);
+                    detectTimer = setTimeout(() => {
+                        const detected = detectActivePage(container);
+                        if (detected && detected !== AppState.activePage) {
+                            AppState.activePage = detected;
+                            updatePageIndicator();
+                        }
+                    }, 100);
+                });
+            });
+        }
+
+        // Helper: find which page is most visible in a scroll container
+        function detectActivePage(scrollContainer) {
+            const pages = scrollContainer.querySelectorAll('[data-page-num]');
+            if (!pages.length) return null;
+
+            const containerRect = scrollContainer.getBoundingClientRect();
+            let bestPageNum = null;
+            let maxVisible = -1;
+
+            pages.forEach(page => {
+                const rect = page.getBoundingClientRect();
+                const top = Math.max(rect.top, containerRect.top);
+                const bottom = Math.min(rect.bottom, containerRect.bottom);
+                const visible = Math.max(0, bottom - top);
+                if (visible > maxVisible) {
+                    maxVisible = visible;
+                    bestPageNum = parseInt(page.dataset.pageNum);
+                }
+            });
+            return bestPageNum;
+        }
+
+        // Helper: scroll a container so that the element with data-page-num=N is at top
+        function scrollContainerToPage(scrollContainer, pageNum) {
+            const page = scrollContainer.querySelector(`[data-page-num="${pageNum}"]`);
+            if (!page) return;
+            // Walk up offsetParent chain to compute total offset relative to scroll container
+            let offset = 0;
+            let el = page;
+            while (el && el !== scrollContainer) {
+                offset += el.offsetTop;
+                el = el.offsetParent;
+            }
+            scrollContainer.scrollTo({ top: offset, behavior: 'smooth' });
+        }
+
+        function updatePageIndicator() {
+            const task = AppState.tasks.find(t => t.id === AppState.activeTaskId);
+            if (task) {
+                DOM.pageIndicator.innerText = `第 ${AppState.activePage} / ${task.totalPages} 页`;
+                DOM.btnPrev.disabled = AppState.activePage <= 1;
+                DOM.btnNext.disabled = AppState.activePage >= task.totalPages;
+            }
+        }
+
+        // ======================= Business Logic =======================
+
+        function renderTaskList() {
+            DOM.taskList.innerHTML = "";
+            let completed = 0;
+            AppState.tasks.forEach(t => {
+                if (t.status === '完成') completed++;
+                const isActive = t.id === AppState.activeTaskId;
+                const statusColor = t.status === '完成' ? 'bg-emerald-100 text-emerald-700' : (t.status === '解析中' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500');
+                const html = `
+                    <div class="${isActive ? 'file-item-active' : ''} p-3 border-b border-slate-50 cursor-pointer group hover:bg-slate-50 transition-colors" onclick="selectTask('${t.id}')">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-text-main truncate pr-2">${t.fileName}</span>
+                            <span class="text-[10px] ${statusColor} px-1.5 py-0.5 rounded font-medium">${t.status}</span>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <div class="flex items-center gap-1 text-[10px] text-slate-600 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded w-fit">
+                                <span class="material-symbols-outlined text-[12px]">smart_toy</span>
+                                <span class="font-medium inline-block">${t.model}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] text-text-muted">
+                                <span>${t.size}</span>
+                                ${t.status === '完成' ? `<span>${t.totalPages} 页</span>` :
+                        (t.status === '解析中' ? `<div class="w-16 h-1 bg-slate-200 rounded-full overflow-hidden"><div class="w-2/3 h-full bg-amber-500"></div></div>` : '')}
+                            </div>
+                        </div>
+                    </div>`;
+                DOM.taskList.insertAdjacentHTML('beforeend', html);
+            });
+            const total = AppState.tasks.length;
+            DOM.progressText.innerText = total > 0 ? `${completed}/${total} 已完成` : '0/0';
+            DOM.progressBar.style.width = total > 0 ? `${(completed / total) * 100}%` : '0%';
+        }
+
+        async function selectTask(taskId) {
+            AppState.activeTaskId = taskId;
+            renderTaskList();
+            const task = AppState.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            // Load PDF if not already loaded or different URL
+            if (!AppState.pdfDoc || AppState.pdfDoc.url !== task.url) {
+                DOM.pdfWrapper.innerHTML = '<div class="flex items-center justify-center p-10"><span class="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span></div>';
+                try {
+                    const loadingTask = pdfjsLib.getDocument(task.url);
+                    AppState.pdfDoc = await loadingTask.promise;
+                    AppState.pdfDoc.url = task.url;
+                    task.totalPages = AppState.pdfDoc.numPages;
+
+                    // Generate mock data for all pages if empty
+                    if (task.pagesData.length === 0) {
+                        for (let i = 1; i <= task.totalPages; i++) {
+                            const markdownStr = `### 第 ${i} 页解析结果\n\n文件: **${task.fileName}**\n\n- 使用引擎: \`${task.model}\`\n\n> 这是一个自动生成的结构化格式和文本...\n\n| 项目 | 数值 |\n|---|---|\n| 测试数据A | ¥ ${Math.floor(Math.random() * 1000)} |\n| 数据记录B | 2024-Q${Math.floor(Math.random() * 4) + 1} |`;
+                            task.pagesData.push({ pageNum: i, raw: markdownStr });
+                        }
+                    }
+                    renderTaskList();
+                } catch (e) {
+                    DOM.pdfWrapper.innerHTML = `<div class="p-10 text-red-500">PDF 加载失败: ${e.message}</div>`;
+                    return;
+                }
+            }
+
+            // Determine which pages to render based on selection
+            let pagesToRender = [];
+            if (task.range === 'all') {
+                for (let i = 1; i <= task.totalPages; i++) pagesToRender.push(i);
+            } else if (task.range === 'custom' && task.customPages) {
+                const parts = task.customPages.split(',');
+                parts.forEach(p => {
+                    if (p.includes('-')) {
+                        const [start, end] = p.split('-').map(n => parseInt(n.trim()));
+                        for (let i = start; i <= end; i++) if (i > 0 && i <= task.totalPages) pagesToRender.push(i);
+                    } else {
+                        const n = parseInt(p.trim());
+                        if (n > 0 && n <= task.totalPages) pagesToRender.push(n);
+                    }
+                });
+                if (pagesToRender.length === 0) pagesToRender = [1];
+            } else {
+                pagesToRender = [1];
+            }
+
+            AppState.activePage = pagesToRender[0] || 1;
+            renderAllTaskContent(pagesToRender);
+        }
+
+        let isRendering = false;
+        async function renderAllTaskContent(pageNums) {
+            if (!AppState.pdfDoc || isRendering) return;
+            isRendering = true;
+            isSyncingScroll = true; // block sync during render
+
+            const task = AppState.tasks.find(t => t.id === AppState.activeTaskId);
+
+            // Reset scroll positions
+            DOM.pdfScrollContainer.scrollTop = 0;
+            DOM.rawScrollContainer.scrollTop = 0;
+            DOM.renderScrollContainer.scrollTop = 0;
+
+            DOM.pdfWrapper.innerHTML = '';
+
+            // Render PDF Pages
+            for (const pageNum of pageNums) {
+                try {
+                    const page = await AppState.pdfDoc.getPage(pageNum);
+                    let displayScale = AppState.scale === 'auto' ? 1.0 : AppState.scale;
+                    let viewport = page.getViewport({ scale: displayScale });
+
+                    if (AppState.scale === 'auto') {
+                        const availableWidth = DOM.pdfScrollContainer.clientWidth - 64;
+                        displayScale = availableWidth / viewport.width;
+                        displayScale = Math.min(Math.max(displayScale, 0.4), 2.5);
+                        viewport = page.getViewport({ scale: displayScale });
+                        DOM.zoomLevel.innerText = '自动';
+                    } else {
+                        DOM.zoomLevel.innerText = Math.round(AppState.scale * 100) + '%';
+                    }
+
+                    const pageContainer = document.createElement('div');
+                    pageContainer.className = 'pdf-page-container mb-8 relative flex flex-col items-center';
+                    pageContainer.dataset.pageNum = pageNum;
+
+                    const canvas = document.createElement('canvas');
+                    canvas.className = 'pdf-page-canvas bg-white shadow-lg mb-2';
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    const textLayerDiv = document.createElement('div');
+                    textLayerDiv.className = 'textLayer';
+                    textLayerDiv.style.width = viewport.width + 'px';
+                    textLayerDiv.style.height = viewport.height + 'px';
+
+                    const label = document.createElement('div');
+                    label.className = 'text-[9px] font-bold text-text-muted mb-2 uppercase tracking-widest';
+                    label.innerText = `PAGE ${pageNum}`;
+
+                    pageContainer.appendChild(label);
+                    pageContainer.appendChild(canvas);
+                    pageContainer.appendChild(textLayerDiv);
+                    DOM.pdfWrapper.appendChild(pageContainer);
+
+                    const context = canvas.getContext('2d');
+                    await page.render({ canvasContext: context, viewport }).promise;
+
+                    const textContent = await page.getTextContent();
+                    await pdfjsLib.renderTextLayer({ textContentSource: textContent, container: textLayerDiv, viewport: viewport, textDivs: [] }).promise;
+                } catch (err) {
+                    console.error(`Error rendering page ${pageNum}:`, err);
+                }
+            }
+
+            // Update Page Indicator
+            updatePageIndicator();
+
+            // Render Text Content (Raw & Rendered)
+            DOM.rawContent.innerHTML = '';
+            DOM.htmlContent.innerHTML = '';
+
+            pageNums.forEach((pageNum, idx) => {
+                const pageData = task.pagesData.find(p => p.pageNum === pageNum);
+                if (pageData) {
+                    // Raw Page
+                    const rawPageDiv = document.createElement('div');
+                    rawPageDiv.className = 'raw-page-container mb-8';
+                    rawPageDiv.dataset.pageNum = pageNum;
+                    if (idx > 0) {
+                        rawPageDiv.innerHTML = `<div class="py-4 text-slate-400 border-t border-dashed border-slate-200 text-center text-[10px] select-none">--- PAGE ${pageNum} ---</div>`;
+                    }
+                    const rawPre = document.createElement('pre');
+                    rawPre.className = 'whitespace-pre-wrap break-all';
+                    rawPre.innerHTML = escapeHtml(pageData.raw);
+                    rawPageDiv.appendChild(rawPre);
+                    DOM.rawContent.appendChild(rawPageDiv);
+
+                    // Rendered Page
+                    const renderPageDiv = document.createElement('div');
+                    renderPageDiv.className = 'render-page-container mb-8';
+                    renderPageDiv.dataset.pageNum = pageNum;
+                    if (idx > 0) {
+                        renderPageDiv.innerHTML = `<div class="my-10 border-t-2 border-dashed border-slate-200 pt-6 relative">
+                            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[10px] font-bold text-slate-300 tracking-widest uppercase">Page ${pageNum}</span>
+                        </div>`;
+                    }
+                    const renderContent = document.createElement('div');
+                    renderContent.innerHTML = marked.parse(pageData.raw);
+                    renderPageDiv.appendChild(renderContent);
+                    DOM.htmlContent.appendChild(renderPageDiv);
+                }
+            });
+
+            applyHighlightsToPdf();
+            applyHighlightsToPanes();
+
+            isRendering = false;
+            // Unlock scroll sync after a short delay so initial scroll reset doesn't trigger sync
+            setTimeout(() => { isSyncingScroll = false; }, 300);
+        }
+
+        // changePage: called by arrows, keyboard, and overscroll
+        // Scrolls ALL 3 panels to the target page
+        function changePage(delta) {
+            const task = AppState.tasks.find(t => t.id === AppState.activeTaskId);
+            if (!task) return;
+            const newPage = AppState.activePage + delta;
+            if (newPage >= 1 && newPage <= task.totalPages) {
+                AppState.activePage = newPage;
+                updatePageIndicator();
+
+                isSyncingScroll = true;
+                scrollContainerToPage(DOM.pdfScrollContainer, newPage);
+                scrollContainerToPage(DOM.rawScrollContainer, newPage);
+                scrollContainerToPage(DOM.renderScrollContainer, newPage);
+
+                setTimeout(() => {
+                    isSyncingScroll = false;
+                }, 600);
+            }
+        }
+
+        function changeZoom(delta) {
+            let current = AppState.scale === 'auto' ? 1.0 : AppState.scale;
+            current = Math.min(Math.max(0.4, current + delta), 2.5);
+            AppState.scale = current;
+            const task = AppState.tasks.find(t => t.id === AppState.activeTaskId);
+            if (task) {
+                // Re-render based on current range
+                selectTask(task.id);
+            }
+        }
+
+        function fitZoom() {
+            AppState.scale = 'auto';
+            const task = AppState.tasks.find(t => t.id === AppState.activeTaskId);
+            if (task) selectTask(task.id);
+        }
+
+        document.addEventListener('mouseup', () => {
+            setTimeout(() => {
+                const selection = window.getSelection();
+                if (!selection || selection.rangeCount === 0) return;
+                const text = selection.toString().trim();
+                if (text.length >= 2 && text !== AppState.highlightText) {
+                    AppState.highlightText = text;
+                    applyHighlightsToPdf();
+                    applyHighlightsToPanes();
+                } else if (text.length === 0 && AppState.highlightText.length > 0) {
+                    AppState.highlightText = '';
+                    applyHighlightsToPdf();
+                    applyHighlightsToPanes();
+                }
+            }, 50);
+        });
+
+        function applyHighlightsToPdf() {
+            document.querySelectorAll('.textLayer').forEach(textLayer => {
+                const term = AppState.highlightText.toLowerCase();
+                textLayer.querySelectorAll('span').forEach(span => {
+                    if (!span.dataset.originalHtml) {
+                        span.dataset.originalHtml = span.innerHTML;
+                        span.dataset.originalText = span.textContent;
+                    }
+                    const originalText = span.dataset.originalText;
+                    if (term && originalText.toLowerCase().includes(term)) {
+                        const escaped = AppState.highlightText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const regex = new RegExp(`(${escaped})`, 'gi');
+                        span.innerHTML = originalText.replace(regex, '<mark class="query-highlight">$1</mark>');
+                    } else { span.innerHTML = span.dataset.originalHtml; }
+                });
+            });
+        }
+
+        function applyHighlightsToPanes() {
+            const term = AppState.highlightText;
+            const task = AppState.tasks.find(t => t.id === AppState.activeTaskId);
+            if (!task) return;
+
+            // Get current displayed page numbers
+            let pageNums = [];
+            if (task.range === 'all') {
+                for (let i = 1; i <= task.totalPages; i++) pageNums.push(i);
+            } else if (task.range === 'custom' && task.customPages) {
+                const parts = task.customPages.split(',');
+                parts.forEach(p => {
+                    if (p.includes('-')) {
+                        const [start, end] = p.split('-').map(n => parseInt(n.trim()));
+                        for (let i = start; i <= end; i++) if (i > 0 && i <= task.totalPages) pageNums.push(i);
+                    } else {
+                        const n = parseInt(p.trim());
+                        if (n > 0 && n <= task.totalPages) pageNums.push(n);
+                    }
+                });
+            } else { pageNums = [1]; }
+
+            let combinedRaw = "";
+            let combinedHtml = "";
+            pageNums.forEach((pageNum, idx) => {
+                const pageData = task.pagesData.find(p => p.pageNum === pageNum);
+                if (pageData) {
+                    if (idx > 0) {
+                        combinedRaw += "\n\n" + "-".repeat(40) + ` PAGE ${pageNum} ` + "-".repeat(40) + "\n\n";
+                        combinedHtml += `<div class="my-10 border-t-2 border-dashed border-slate-200 pt-6 relative">
+                            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-[10px] font-bold text-slate-300 tracking-widest uppercase">Page ${pageNum}</span>
+                        </div>`;
+                    }
+                    combinedRaw += pageData.raw;
+                    combinedHtml += marked.parse(pageData.raw);
+                }
+            });
+
+            if (!term) {
+                DOM.rawContent.innerHTML = escapeHtml(combinedRaw);
+                DOM.htmlContent.innerHTML = combinedHtml;
+                return;
+            }
+
+            const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escaped})`, 'gi');
+
+            // Highlight Raw content
+            DOM.rawContent.innerHTML = escapeHtml(combinedRaw).replace(regex, '<mark class="query-highlight">$1</mark>');
+
+            // Highlight Rendered content
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(combinedHtml, 'text/html');
+            function highlightNode(node) {
+                if (node.nodeType === 3) {
+                    if (node.nodeValue.toLowerCase().includes(term.toLowerCase())) {
+                        const span = document.createElement('span');
+                        span.innerHTML = escapeHtml(node.nodeValue).replace(regex, '<mark class="query-highlight">$1</mark>');
+                        node.parentNode.replaceChild(span, node);
+                    }
+                } else if (node.nodeType === 1 && node.nodeName !== 'MARK' && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE') {
+                    Array.from(node.childNodes).forEach(highlightNode);
+                }
+            }
+            Array.from(doc.body.childNodes).forEach(highlightNode);
+            DOM.htmlContent.innerHTML = doc.body.innerHTML;
+        }
+
+        function escapeHtml(unsafe) { return (unsafe || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                AppState.tempFiles = Array.from(files);
+                const fileListContainer = document.getElementById('modalFileList');
+                fileListContainer.innerHTML = '';
+                AppState.tempFiles.forEach((file, index) => {
+                    const isPdf = file.name.toLowerCase().endsWith('.pdf');
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-lg group animate-in';
+                    row.style.animationDelay = `${index * 50}ms`;
+                    row.dataset.filename = file.name;
+                    row.innerHTML = `
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="material-symbols-outlined ${isPdf ? 'text-red-500' : 'text-blue-500'} text-[20px]">${isPdf ? 'picture_as_pdf' : 'image'}</span>
+                            <div class="flex flex-col min-w-0">
+                                <span class="text-xs font-bold truncate">${file.name}</span>
+                                <span class="text-[10px] text-text-muted">${isPdf ? 'PDF 文档' : '图像文件'}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            ${isPdf ? `<div class="flex items-center gap-2">
+                                    <select class="text-[11px] border-slate-200 rounded-md py-1 pl-2 pr-8 focus:ring-primary outline-none" onchange="toggleCustomInput(this)">
+                                        <option value="all">全部解析</option>
+                                        <option value="custom">指定范围</option>
+                                    </select>
+                                    <input type="text" placeholder="1-3,5" class="hidden w-20 text-[11px] border-slate-200 rounded-md py-1 px-2 focus:ring-primary outline-none">
+                                </div>` : `<div class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">自动解析</div>`}
+                            <button onclick="removeTempFile(this, '${file.name}')" class="text-slate-300 hover:text-red-500 transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </div>`;
+                    fileListContainer.appendChild(row);
+                });
+                updateSummary();
+                showUploadModal();
+            }
+        }
+        function removeTempFile(btn, name) { AppState.tempFiles = AppState.tempFiles.filter(f => f.name !== name); btn.closest('div.group').remove(); updateSummary(); }
+        function toggleCustomInput(select) { const input = select.nextElementSibling; if (input && input.tagName === 'INPUT') input.classList.toggle('hidden', select.value !== 'custom'); }
+        function syncAllPageConfigs() {
+            const selects = document.querySelectorAll('#modalFileList select');
+            if (selects.length === 0) return;
+            const firstSelect = selects[0];
+            const firstVal = firstSelect.value;
+            const firstInput = firstSelect.nextElementSibling;
+            const customVal = firstInput ? firstInput.value : '';
+            for (let i = 1; i < selects.length; i++) {
+                selects[i].value = firstVal;
+                const input = selects[i].nextElementSibling;
+                if (input && input.tagName === 'INPUT') {
+                    if (firstVal === 'custom') { input.classList.remove('hidden'); input.value = customVal; } else { input.classList.add('hidden'); }
+                }
+            }
+        }
+        function showUploadModal() { document.getElementById('configModal').classList.remove('hidden'); }
+        function hideUploadModal() { document.getElementById('configModal').classList.add('hidden'); document.getElementById('fileInput').value = ''; }
+        function updateSummary() {
+            const fileCount = AppState.tempFiles.length;
+            const modelCount = document.querySelectorAll('#modelSelection input:checked').length;
+            const totalTasks = fileCount * modelCount;
+            document.getElementById('fileCountText').innerText = `已选择 ${fileCount} 个文件`;
+            document.getElementById('taskSummaryText').innerHTML = `预计生成 <span class="font-bold text-slate-800">${totalTasks} 个任务</span> (${fileCount} 文件 × ${modelCount} 模型)`;
+            if (fileCount === 0) hideUploadModal();
+        }
+        function createTasks() {
+            const modelCheckboxes = document.querySelectorAll('#modelSelection input:checked');
+            const models = Array.from(modelCheckboxes).map(cb => cb.nextElementSibling.querySelector('span').innerText);
+            if (models.length === 0) { alert('至少选择一个模型'); return; }
+
+            // Capture range config for each file
+            const fileRows = document.querySelectorAll('#modalFileList > div.group');
+            const fileConfigs = {};
+            fileRows.forEach(row => {
+                const name = row.dataset.filename;
+                const select = row.querySelector('select');
+                const input = row.querySelector('input');
+                fileConfigs[name] = {
+                    range: select ? select.value : 'all',
+                    custom: input ? input.value : ''
+                };
+            });
+
+            AppState.tempFiles.forEach(file => {
+                const url = URL.createObjectURL(file);
+                const config = fileConfigs[file.name] || { range: 'all', custom: '' };
+
+                models.forEach(mod => {
+                    const task = {
+                        id: Math.random().toString(36).substring(2, 9),
+                        fileName: file.name,
+                        model: mod,
+                        status: '完成',
+                        size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
+                        url: url,
+                        range: config.range,
+                        customPages: config.custom,
+                        totalPages: 1,
+                        pagesData: []
+                    };
+                    AppState.tasks.unshift(task);
+                });
+            });
+            hideUploadModal();
+            renderTaskList();
+            if (AppState.tasks.length > 0) selectTask(AppState.tasks[0].id);
+        }
+
+        // Initialize once DOM is ready
+        window.addEventListener('DOMContentLoaded', () => {
+            initResizers();
+            initScrollPagination();
+
+            // Keyboard navigation
+            window.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                if (e.key === 'ArrowLeft') {
+                    changePage(-1);
+                } else if (e.key === 'ArrowRight') {
+                    changePage(1);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

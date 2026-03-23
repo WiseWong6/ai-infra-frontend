@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/wisewong/Desktop/手回/10-提示词/logs/.c24d4c4ab397e4f9f31bece316237700d0b4ca3a-audit.json",
+    "files": [
+        {
+            "date": 1772013046704,
+            "name": "/Users/wisewong/Desktop/手回/10-提示词/logs/mcp-puppeteer-2026-02-25.log",
+            "hash": "fc32c68c80a5c4b3ad1b9abb447f7551ccebdedbf72803f63eacacba1d68e244"
+        },
+        {
+            "date": 1772093145346,
+            "name": "/Users/wisewong/Desktop/手回/10-提示词/logs/mcp-puppeteer-2026-02-26.log",
+            "hash": "5469c4bf1ee361f0fcda3fc814f3a466ab5411cd8495b01cfb0142ccd3b252f7"
+        }
+    ],
+    "hashType": "sha256"
+}

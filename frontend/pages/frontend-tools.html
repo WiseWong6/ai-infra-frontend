@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工具管理</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --sidebar: #ffffff;
+      --line: #f1f5f9;
+      --line-strong: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --active: #eff6ff;
+      --head: #fafbfc;
+      --blue: #3b82f6;
+      --blue-dark: #2563eb;
+      --danger: #dc2626;
+      --danger-dark: #b91c1c;
+      --success: #34d399;
+      --success-dark: #10b981;
+      --warning: #f59e0b;
+      --warning-dark: #d97706;
+      --hover-bg: #f8fafc;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 20px;
+      --spacing-2xl: 24px;
+      --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+    }
+
+    html.modal-open, body.modal-open {
+      overflow: hidden;
+      height: 100%;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .fa-icon {
+      font-size: 14px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line-strong);
+      padding: var(--spacing-lg) 0;
+      flex-shrink: 0;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    .content {
+      flex: 1;
+      padding: var(--spacing-2xl);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 var(--spacing-lg) 0;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .form-item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .form-item label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 1px solid var(--line);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    .btn {
+      border: 0;
+      height: 36px;
+      border-radius: 6px;
+      background: #3b82f6;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 0 var(--spacing-xl);
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 2px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn:hover {
+      background: #2563eb;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid #e2e8f0;
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      color: var(--text);
+    }
+
+    .btn-success {
+      background: var(--success);
+      box-shadow: 0 1px 2px rgba(52, 211, 153, 0.15);
+    }
+
+    .btn-success:hover {
+      background: var(--success-dark);
+      box-shadow: 0 4px 12px rgba(52, 211, 153, 0.25);
+    }
+
+    .btn-danger {
+      background: #dc2626;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+    }
+
+    .input-box {
+      height: 36px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      font-size: 14px;
+      transition: all 0.2s var(--ease-out);
+      padding: 0 var(--spacing-md);
+      width: 100%;
+    }
+
+    .input-box:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .input-box::placeholder {
+      color: #94a3b8;
+    }
+
+    select.input-box {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 36px;
+      color: #94a3b8;
+    }
+
+    select.input-box:focus, select.input-box:valid {
+      color: var(--text);
+    }
+
+    .table-header-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .table-header-title .count {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: normal;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: var(--head);
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      height: 48px;
+      padding: 12px 20px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    td {
+      height: 56px;
+      padding: 12px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fcfcfd;
+    }
+
+    tbody tr:nth-child(even):hover {
+      background: #f8fafc;
+    }
+
+    .actions {
+      display: inline-flex;
+      gap: 16px;
+    }
+
+    .actions a {
+      color: #3b82f6;
+      font-size: 13px;
+      text-decoration: none;
+      transition: color 0.15s ease;
+      cursor: pointer;
+    }
+
+    .actions a:hover {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+
+    .actions a.danger-text {
+      color: #dc2626;
+    }
+
+    .actions a.danger-text:hover {
+      color: #b91c1c;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Drawer 样式 */
+    .drawer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s var(--ease-out);
+    }
+
+    .drawer-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 600px;
+      max-width: 90vw;
+      height: 100vh;
+      background: #fff;
+      z-index: 1000;
+      transform: translateX(100%);
+      transition: transform 0.3s var(--ease-out);
+      display: flex;
+      flex-direction: column;
+      box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .drawer.active {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      height: 60px;
+      padding: 0 var(--spacing-xl);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line-strong);
+      flex-shrink: 0;
+    }
+
+    .drawer-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .drawer-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 6px;
+      color: var(--muted);
+      transition: all 0.15s ease;
+    }
+
+    .drawer-close:hover {
+      background: var(--hover-bg);
+      color: var(--text);
+    }
+
+    .drawer-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--line-strong);
+      padding: 0 var(--spacing-xl);
+    }
+
+    .drawer-tab {
+      height: 44px;
+      padding: 0 var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .drawer-tab:hover {
+      color: var(--text);
+    }
+
+    .drawer-tab.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+    }
+
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-xl);
+    }
+
+    .drawer-section {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .drawer-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .drawer-field {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .drawer-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .drawer-field .required {
+      color: var(--danger);
+      margin-left: 2px;
+    }
+
+    .drawer-field input,
+    .drawer-field textarea,
+    .drawer-field select {
+      width: 100%;
+    }
+
+    .drawer-field textarea {
+      min-height: 100px;
+      padding: var(--spacing-md);
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      font-size: 14px;
+      resize: vertical;
+    }
+
+    .drawer-field textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .drawer-field .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: var(--spacing-xs);
+    }
+
+    .drawer-field .hint code {
+      background: var(--line);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: var(--spacing-lg);
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .radio-label input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .drawer-footer {
+      height: 60px;
+      padding: 0 var(--spacing-xl);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--spacing-md);
+      border-top: 1px solid var(--line-strong);
+      flex-shrink: 0;
+    }
+
+    /* Test Panel */
+    .test-panel {
+      display: none;
+    }
+
+    .test-panel.active {
+      display: block;
+    }
+
+    .test-result {
+      margin-top: var(--spacing-lg);
+      padding: var(--spacing-lg);
+      background: var(--bg);
+      border-radius: 6px;
+      display: none;
+    }
+
+    .test-result.active {
+      display: block;
+    }
+
+    .test-result-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .test-result-status {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .test-result-status.success {
+      color: var(--success-dark);
+    }
+
+    .test-result-status.error {
+      color: var(--danger);
+    }
+
+    .test-result-time {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .test-result-body {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: var(--spacing-md);
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    /* Delete Confirm Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 8px;
+      padding: var(--spacing-xl);
+      width: 400px;
+      max-width: 90vw;
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .modal-content {
+      color: var(--muted);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing-md);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--spacing-2xl) * 2;
+      color: var(--muted);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: var(--spacing-lg);
+      color: var(--line-strong);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+
+    <main class="main">
+      <section class="content">
+        <!-- 搜索区卡片 -->
+        <div class="card">
+          <h2 class="card-title">工具管理</h2>
+
+          <div class="filter-grid">
+            <div class="form-item">
+              <label>工具名称</label>
+              <input type="text" id="searchName" class="input-box" placeholder="请输入工具名称" />
+            </div>
+            <div class="form-item">
+              <label>状态</label>
+              <select id="searchStatus" class="input-box">
+                <option value="">全部</option>
+                <option value="enabled">启用</option>
+                <option value="disabled">停用</option>
+              </select>
+            </div>
+            <div class="form-item">
+              <!-- 占位 -->
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button type="button" class="btn btn-secondary" onclick="resetFilter()">重置</button>
+            <button type="button" class="btn" onclick="applyFilter()">查询</button>
+            <button type="button" class="btn btn-success" onclick="openDrawer('create')">+ 新建工具</button>
+          </div>
+        </div>
+
+        <!-- 列表区卡片 -->
+        <div class="table-header-title">
+          搜索结果 <span class="count" id="resultCount">(总条数：0)</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>工具名称</th>
+                <th>描述</th>
+                <th>API 地址</th>
+                <th>方法</th>
+                <th>状态</th>
+                <th>创建时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="toolsTableBody">
+              <!-- 动态渲染 -->
+            </tbody>
+          </table>
+          <div id="emptyState" class="empty-state" style="display: none;">
+            <i data-lucide="wrench"></i>
+            <p>暂无工具数据</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Drawer -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <span class="drawer-title" id="drawerTitle">新建工具</span>
+      <div class="drawer-close" onclick="closeDrawer()">
+        <i data-lucide="x"></i>
+      </div>
+    </div>
+    <div class="drawer-tabs" id="drawerTabs" style="display: none;">
+      <div class="drawer-tab active" data-tab="edit" onclick="switchTab('edit')">编辑</div>
+      <div class="drawer-tab" data-tab="test" onclick="switchTab('test')">测试</div>
+    </div>
+    <div class="drawer-body">
+      <!-- 编辑模式 -->
+      <div id="editPanel">
+        <div class="drawer-section">
+          <div class="drawer-section-title">基本信息</div>
+          <div class="drawer-field">
+            <label>工具名称 <span class="required">*</span></label>
+            <input type="text" id="toolName" class="input-box" placeholder="如: get_weather" />
+            <div class="hint">英文小写字母、下划线开头，如 <code>get_user_info</code></div>
+          </div>
+          <div class="drawer-field">
+            <label>工具描述 <span class="required">*</span></label>
+            <textarea id="toolDescription" class="input-box" placeholder="描述此工具的用途，让大模型知道何时应该调用此工具"></textarea>
+          </div>
+        </div>
+
+        <div class="drawer-section">
+          <div class="drawer-section-title">参数 Schema</div>
+          <div class="drawer-field">
+            <label>JSON Schema <span class="required">*</span></label>
+            <textarea id="toolSchema" class="input-box" style="min-height: 150px; font-family: monospace;" placeholder='{
+  "type": "object",
+  "properties": {
+    "city": {
+      "type": "string",
+      "description": "城市名称"
+    }
+  },
+  "required": ["city"]
+}'></textarea>
+            <div class="hint">使用 JSON Schema 格式定义工具参数</div>
+          </div>
+        </div>
+
+        <div class="drawer-section">
+          <div class="drawer-section-title">API 配置</div>
+          <div class="drawer-field">
+            <label>API 地址 <span class="required">*</span></label>
+            <input type="text" id="toolApiUrl" class="input-box" placeholder="https://api.example.com/v1/tools" />
+          </div>
+          <div class="drawer-field">
+            <label>HTTP 方法 <span class="required">*</span></label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="toolMethod" value="GET" checked /> GET
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="toolMethod" value="POST" /> POST
+              </label>
+            </div>
+          </div>
+          <div class="drawer-field">
+            <label>认证方式</label>
+            <select id="toolAuth" class="input-box">
+              <option value="none">无</option>
+              <option value="api_key">API Key</option>
+              <option value="bearer">Bearer Token</option>
+            </select>
+          </div>
+          <div class="drawer-field">
+            <label>超时时间（秒）</label>
+            <input type="number" id="toolTimeout" class="input-box" value="30" min="1" max="300" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 测试模式 -->
+      <div id="testPanel" class="test-panel">
+        <div class="drawer-field">
+          <label>测试参数（JSON）</label>
+          <textarea id="testParams" class="input-box" style="min-height: 120px; font-family: monospace;" placeholder='{
+  "city": "北京"
+}'></textarea>
+          <div class="hint">输入要传递给工具的参数</div>
+        </div>
+        <button type="button" class="btn" onclick="runTest()" style="width: 100%;">执行测试</button>
+
+        <div class="test-result" id="testResult">
+          <div class="test-result-header">
+            <span class="test-result-status" id="testStatus"></span>
+            <span class="test-result-time" id="testTime"></span>
+          </div>
+          <div class="test-result-body" id="testBody"></div>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-footer" id="editFooter">
+      <button type="button" class="btn btn-secondary" onclick="closeDrawer()">取消</button>
+      <button type="button" class="btn" onclick="saveTool()">保存</button>
+    </div>
+    <div class="drawer-footer" id="testFooter" style="display: none;">
+      <button type="button" class="btn btn-secondary" onclick="switchTab('edit')">返回编辑</button>
+    </div>
+  </div>
+
+  <!-- 删除确认弹窗 -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <div class="modal-title">确认删除</div>
+      <div class="modal-content">确定要删除工具「<span id="deleteToolName"></span>」吗？此操作不可恢复。</div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDelete()">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 工具数据存储
+    const STORAGE_KEY = 'tools_list';
+    let toolsData = [];
+    let currentEditId = null;
+    let deleteTargetId = null;
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+      renderTable();
+      lucide.createIcons();
+    });
+
+    // 加载数据
+    function loadData() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        toolsData = JSON.parse(stored);
+      } else {
+        // 初始化模拟数据
+        toolsData = [
+          {
+            id: 1,
+            name: 'get_user_info',
+            description: '获取用户基本信息，用于查询用户姓名、手机号、邮箱等',
+            schema: '{"type":"object","properties":{"user_id":{"type":"string","description":"用户ID"}},"required":["user_id"]}',
+            apiUrl: 'https://api.example.com/users/{user_id}',
+            method: 'GET',
+            auth: 'bearer',
+            timeout: 30,
+            status: 'enabled',
+            createdAt: '2026-03-01 10:00:00'
+          },
+          {
+            id: 2,
+            name: 'send_notification',
+            description: '发送系统通知消息，支持短信和邮件',
+            schema: '{"type":"object","properties":{"user_id":{"type":"string","description":"接收用户ID"},"message":{"type":"string","description":"通知内容"},"type":{"type":"string","description":"通知类型：sms/email","enum":["sms","email"]}}},"required":["user_id","message"]}',
+            apiUrl: 'https://api.example.com/notifications/send',
+            method: 'POST',
+            auth: 'api_key',
+            timeout: 30,
+            status: 'enabled',
+            createdAt: '2026-03-05 14:30:00'
+          },
+          {
+            id: 3,
+            name: 'query_product_stock',
+            description: '查询商品库存信息',
+            schema: '{"type":"object","properties":{"product_id":{"type":"string","description":"商品ID"}},"required":["product_id"]}',
+            apiUrl: 'https://api.example.com/products/{product_id}/stock',
+            method: 'GET',
+            auth: 'none',
+            timeout: 15,
+            status: 'disabled',
+            createdAt: '2026-03-10 09:15:00'
+          }
+        ];
+        saveData();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toolsData));
+    }
+
+    // 渲染表格
+    function renderTable() {
+      const tbody = document.getElementById('toolsTableBody');
+      const emptyState = document.getElementById('emptyState');
+      const countEl = document.getElementById('resultCount');
+
+      // 获取筛选条件
+      const searchName = document.getElementById('searchName').value.toLowerCase();
+      const searchStatus = document.getElementById('searchStatus').value;
+
+      // 筛选
+      let filtered = toolsData.filter(tool => {
+        if (searchName && !tool.name.toLowerCase().includes(searchName) && !tool.description.toLowerCase().includes(searchName)) {
+          return false;
+        }
+        if (searchStatus && tool.status !== searchStatus) {
+          return false;
+        }
+        return true;
+      });
+
+      countEl.textContent = `(总条数：${filtered.length})`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      tbody.innerHTML = filtered.map(tool => `
+        <tr>
+          <td>${tool.id}</td>
+          <td><strong>${tool.name}</strong></td>
+          <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${tool.description}</td>
+          <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis;">${tool.apiUrl}</td>
+          <td><span class="badge ${tool.method === 'GET' ? 'badge-success' : 'badge-danger'}">${tool.method}</span></td>
+          <td><span class="badge ${tool.status === 'enabled' ? 'badge-success' : 'badge-danger'}">${tool.status === 'enabled' ? '启用' : '停用'}</span></td>
+          <td>${tool.createdAt}</td>
+          <td>
+            <div class="actions">
+              <a onclick="openDrawer('edit', ${tool.id})">编辑</a>
+              <a onclick="openDrawer('test', ${tool.id})">测试</a>
+              <a class="danger-text" onclick="openDeleteModal(${tool.id})">删除</a>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    // 筛选功能
+    function applyFilter() {
+      renderTable();
+    }
+
+    function resetFilter() {
+      document.getElementById('searchName').value = '';
+      document.getElementById('searchStatus').value = '';
+      renderTable();
+    }
+
+    // Drawer 操作
+    function openDrawer(mode, toolId = null) {
+      document.getElementById('drawerOverlay').classList.add('active');
+      document.getElementById('drawer').classList.add('active');
+      document.body.classList.add('modal-open');
+
+      if (mode === 'create') {
+        document.getElementById('drawerTitle').textContent = '新建工具';
+        document.getElementById('drawerTabs').style.display = 'none';
+        document.getElementById('editPanel').style.display = 'block';
+        document.getElementById('testPanel').classList.remove('active');
+        document.getElementById('editFooter').style.display = 'flex';
+        document.getElementById('testFooter').style.display = 'none';
+        currentEditId = null;
+        clearForm();
+      } else if (mode === 'edit') {
+        document.getElementById('drawerTitle').textContent = '编辑工具';
+        document.getElementById('drawerTabs').style.display = 'none';
+        document.getElementById('editPanel').style.display = 'block';
+        document.getElementById('testPanel').classList.remove('active');
+        document.getElementById('editFooter').style.display = 'flex';
+        document.getElementById('testFooter').style.display = 'none';
+        currentEditId = toolId;
+        loadToolData(toolId);
+      } else if (mode === 'test') {
+        document.getElementById('drawerTitle').textContent = '测试工具';
+        document.getElementById('drawerTabs').style.display = 'flex';
+        currentEditId = toolId;
+        loadToolData(toolId);
+        switchTab('test');
+      }
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawerOverlay').classList.remove('active');
+      document.getElementById('drawer').classList.remove('active');
+      document.body.classList.remove('modal-open');
+      currentEditId = null;
+    }
+
+    function clearForm() {
+      document.getElementById('toolName').value = '';
+      document.getElementById('toolDescription').value = '';
+      document.getElementById('toolSchema').value = '';
+      document.getElementById('toolApiUrl').value = '';
+      document.querySelector('input[name="toolMethod"][value="GET"]').checked = true;
+      document.getElementById('toolAuth').value = 'none';
+      document.getElementById('toolTimeout').value = '30';
+      document.getElementById('testParams').value = '';
+      document.getElementById('testResult').classList.remove('active');
+    }
+
+    function loadToolData(toolId) {
+      const tool = toolsData.find(t => t.id === toolId);
+      if (!tool) return;
+
+      document.getElementById('toolName').value = tool.name || '';
+      document.getElementById('toolDescription').value = tool.description || '';
+      document.getElementById('toolSchema').value = tool.schema || '';
+      document.getElementById('toolApiUrl').value = tool.apiUrl || '';
+      document.querySelector(`input[name="toolMethod"][value="${tool.method || 'GET'}"]`).checked = true;
+      document.getElementById('toolAuth').value = tool.auth || 'none';
+      document.getElementById('toolTimeout').value = tool.timeout || 30;
+
+      // 测试面板参数
+      document.getElementById('testParams').value = '{\n  \n}';
+      document.getElementById('testResult').classList.remove('active');
+    }
+
+    // Tab 切换
+    function switchTab(tab) {
+      const tabs = document.querySelectorAll('.drawer-tab');
+      tabs.forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+      });
+
+      const editPanel = document.getElementById('editPanel');
+      const testPanel = document.getElementById('testPanel');
+      const editFooter = document.getElementById('editFooter');
+      const testFooter = document.getElementById('testFooter');
+
+      if (tab === 'edit') {
+        editPanel.style.display = 'block';
+        testPanel.classList.remove('active');
+        editFooter.style.display = 'flex';
+        testFooter.style.display = 'none';
+        document.getElementById('drawerTitle').textContent = '编辑工具';
+      } else {
+        editPanel.style.display = 'none';
+        testPanel.classList.add('active');
+        editFooter.style.display = 'none';
+        testFooter.style.display = 'flex';
+        document.getElementById('drawerTitle').textContent = '测试工具';
+      }
+    }
+
+    // 保存工具
+    function saveTool() {
+      const name = document.getElementById('toolName').value.trim();
+      const description = document.getElementById('toolDescription').value.trim();
+      const schema = document.getElementById('toolSchema').value.trim();
+      const apiUrl = document.getElementById('toolApiUrl').value.trim();
+      const method = document.querySelector('input[name="toolMethod"]:checked').value;
+      const auth = document.getElementById('toolAuth').value;
+      const timeout = parseInt(document.getElementById('toolTimeout').value) || 30;
+
+      // 验证
+      if (!name) {
+        alert('请输入工具名称');
+        return;
+      }
+      if (!/^[a-z_][a-z0-9_]*$/.test(name)) {
+        alert('工具名称只能使用英文小写字母、下划线，且以下划线或字母开头');
+        return;
+      }
+      if (!description) {
+        alert('请输入工具描述');
+        return;
+      }
+      if (!schema) {
+        alert('请输入参数 Schema');
+        return;
+      }
+      try {
+        JSON.parse(schema);
+      } catch (e) {
+        alert('Schema 格式不是有效的 JSON');
+        return;
+      }
+      if (!apiUrl) {
+        alert('请输入 API 地址');
+        return;
+      }
+
+      if (currentEditId) {
+        // 编辑
+        const index = toolsData.findIndex(t => t.id === currentEditId);
+        if (index !== -1) {
+          toolsData[index] = {
+            ...toolsData[index],
+            name,
+            description,
+            schema,
+            apiUrl,
+            method,
+            auth,
+            timeout
+          };
+        }
+      } else {
+        // 新建
+        const newId = Math.max(0, ...toolsData.map(t => t.id)) + 1;
+        toolsData.push({
+          id: newId,
+          name,
+          description,
+          schema,
+          apiUrl,
+          method,
+          auth,
+          timeout,
+          status: 'enabled',
+          createdAt: new Date().toLocaleString('zh-CN')
+        });
+      }
+
+      saveData();
+      renderTable();
+      closeDrawer();
+    }
+
+    // 测试工具
+    function runTest() {
+      const tool = toolsData.find(t => t.id === currentEditId);
+      if (!tool) return;
+
+      const params = document.getElementById('testParams').value.trim();
+      let parsedParams = {};
+      try {
+        if (params) {
+          parsedParams = JSON.parse(params);
+        }
+      } catch (e) {
+        alert('测试参数不是有效的 JSON');
+        return;
+      }
+
+      // 模拟 API 调用
+      const resultEl = document.getElementById('testResult');
+      const statusEl = document.getElementById('testStatus');
+      const timeEl = document.getElementById('testTime');
+      const bodyEl = document.getElementById('testBody');
+
+      resultEl.classList.add('active');
+      statusEl.textContent = '调用中...';
+      statusEl.className = 'test-result-status';
+      timeEl.textContent = '';
+      bodyEl.textContent = '';
+
+      // 模拟异步调用
+      setTimeout(() => {
+        const startTime = Date.now();
+        const mockResponse = {
+          success: true,
+          data: {
+            message: '模拟响应数据',
+            tool: tool.name,
+            params: parsedParams,
+            received_at: new Date().toISOString()
+          }
+        };
+        const duration = Date.now() - startTime + Math.random() * 200;
+
+        statusEl.textContent = '成功';
+        statusEl.className = 'test-result-status success';
+        timeEl.textContent = `耗时 ${Math.round(duration)}ms`;
+        bodyEl.textContent = JSON.stringify(mockResponse, null, 2);
+      }, 500);
+    }
+
+    // 删除操作
+    function openDeleteModal(toolId) {
+      const tool = toolsData.find(t => t.id === toolId);
+      if (!tool) return;
+
+      deleteTargetId = toolId;
+      document.getElementById('deleteToolName').textContent = tool.name;
+      document.getElementById('deleteModal').classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.remove('active');
+      document.body.classList.remove('modal-open');
+      deleteTargetId = null;
+    }
+
+    function confirmDelete() {
+      if (deleteTargetId) {
+        toolsData = toolsData.filter(t => t.id !== deleteTargetId);
+        saveData();
+        renderTable();
+        closeDeleteModal();
+      }
+    }
+
+    // ESC 关闭
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (document.getElementById('deleteModal').classList.contains('active')) {
+          closeDeleteModal();
+        } else if (document.getElementById('drawer').classList.contains('active')) {
+          closeDrawer();
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

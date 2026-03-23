@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRD - 模型节点表格功能增强</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-50: #eff6ff; --primary-100: #dbeafe; --primary-500: #3b82f6; --primary-600: #2563eb; --primary-700: #1d4ed8;
+            --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-400: #94a3b8;
+            --gray-500: #64748b; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a;
+            --success-50: #f0fdf4; --success-100: #dcfce7; --success-500: #22c55e; --success-600: #16a34a;
+            --warning-50: #fffbeb; --warning-100: #fef3c7; --warning-500: #f59e0b; --warning-600: #d97706;
+            --danger-50: #fef2f2; --danger-100: #fee2e2; --danger-500: #ef4444; --danger-600: #dc2626;
+            --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem;
+            --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+            --font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+            --duration-fast: 150ms; --duration-normal: 250ms;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+        body { font-family: var(--font-sans); font-size: 14px; line-height: 1.7; color: var(--gray-700); background: var(--gray-50); -webkit-font-smoothing: antialiased; }
+
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--primary-500), var(--primary-600)); z-index: 1001; transition: width 0.1s linear; }
+        .nav-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--gray-200); z-index: 1000; transition: all var(--duration-normal) var(--ease-out); }
+        .nav-bar.scrolled { box-shadow: var(--shadow-md); }
+        .nav-inner { max-width: none; margin: 0; padding: 0 var(--space-4); height: 100%; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { display: flex; align-items: center; gap: var(--space-3); font-size: 16px; font-weight: 700; color: var(--gray-900); text-decoration: none; }
+        .nav-logo i { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
+
+        .main-wrapper { max-width: none; width: 100%; margin: 0; padding: 76px var(--space-4) var(--space-12) var(--space-3); display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--space-6); }
+        .sidebar { position: sticky; top: 76px; height: calc(100vh - 96px); overflow-y: auto; padding-right: var(--space-3); }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
+        .toc-title { font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-3); padding-left: var(--space-3); }
+        .toc-list { list-style: none; }
+        .toc-link { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); color: var(--gray-600); text-decoration: none; font-size: 13px; font-weight: 500; border-radius: var(--radius-md); transition: all var(--duration-fast); border-left: 2px solid transparent; margin-bottom: 2px; }
+        .toc-link:hover { color: var(--gray-900); background: var(--gray-100); }
+        .toc-link.active { color: var(--primary-600); background: var(--primary-50); border-left-color: var(--primary-500); }
+        .toc-link i { width: 16px; text-align: center; font-size: 12px; }
+        .toc-divider { height: 1px; background: var(--gray-200); margin: var(--space-3) var(--space-3); }
+
+        .main-content { min-width: 0; width: 100%; }
+
+        .doc-header { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-xl); padding: var(--space-8); margin-bottom: var(--space-6); }
+        .doc-header::before { content: ''; display: block; height: 4px; background: linear-gradient(90deg, var(--primary-500), var(--primary-600)); margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-8)) var(--space-6); border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+        .doc-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
+        .doc-meta-item { display: flex; flex-direction: column; gap: 4px; }
+        .doc-meta-label { font-size: 12px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.05em; }
+        .doc-meta-value { font-size: 14px; font-weight: 500; color: var(--gray-800); }
+        .doc-title { font-size: 28px; font-weight: 700; color: var(--gray-900); margin-bottom: var(--space-3); }
+        .doc-desc { font-size: 15px; color: var(--gray-600); line-height: 1.7; }
+
+        .section { margin-bottom: var(--space-8); scroll-margin-top: 100px; }
+        .section-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); padding-bottom: var(--space-4); border-bottom: 2px solid var(--gray-200); }
+        .section-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+        .section-title { font-size: 20px; font-weight: 700; color: var(--gray-900); }
+
+        .card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: var(--space-5); margin-bottom: var(--space-4); }
+        .card-title { font-size: 14px; font-weight: 700; color: var(--gray-800); margin-bottom: var(--space-3); display: flex; align-items: center; gap: var(--space-2); }
+
+        .info-box { background: var(--gray-50); border-left: 3px solid var(--gray-400); padding: var(--space-4); border-radius: 0 var(--radius-md) var(--radius-md) 0; margin: var(--space-4) 0; }
+        .info-box.blue { background: var(--primary-50); border-left-color: var(--primary-500); }
+        .info-box.green { background: var(--success-50); border-left-color: var(--success-500); }
+        .info-box p { margin: 0; color: var(--gray-700); }
+
+        .feature-block { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-xl); margin-bottom: var(--space-6); overflow: hidden; scroll-margin-top: 100px; }
+        .feature-header { background: linear-gradient(135deg, var(--gray-50), white); padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+        .feature-title-group { display: flex; align-items: center; gap: var(--space-3); flex: 1; }
+        .feature-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; font-size: 15px; }
+        .feature-title { font-size: 16px; font-weight: 700; color: var(--gray-900); }
+        .feature-id { font-size: 12px; color: var(--gray-400); font-weight: 500; margin-left: var(--space-2); font-family: var(--font-mono); }
+        .feature-content { padding: var(--space-6); }
+
+        .feature-section-title { font-size: 13px; font-weight: 700; color: var(--gray-700); text-transform: uppercase; letter-spacing: 0.05em; margin: var(--space-6) 0 var(--space-4); display: flex; align-items: center; gap: var(--space-2); }
+        .feature-section-title:first-child { margin-top: 0; }
+        .feature-section-title i { color: var(--primary-500); font-size: 11px; }
+
+        .overview-box { background: var(--primary-50); border: 1px solid var(--primary-100); border-radius: var(--radius-lg); padding: var(--space-5); position: relative; }
+        .overview-box::before { content: ''; position: absolute; left: 0; top: var(--space-5); bottom: var(--space-5); width: 3px; background: var(--primary-500); border-radius: 0 2px 2px 0; }
+        .overview-box p { margin: 0; color: var(--gray-700); line-height: 1.8; }
+
+        .detail-grid { display: grid; grid-template-columns: 100px 1fr; gap: 1px; background: var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; margin: var(--space-4) 0; }
+        .detail-label { background: var(--gray-50); padding: var(--space-3) var(--space-4); font-size: 13px; font-weight: 600; color: var(--gray-600); display: flex; align-items: center; }
+        .detail-value { background: white; padding: var(--space-3) var(--space-4); font-size: 14px; color: var(--gray-700); }
+
+        .prototype-embed { background: var(--gray-100); border-radius: var(--radius-lg); padding: var(--space-4); margin: var(--space-4) calc(-1 * var(--space-4)); }
+        .prototype-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 10; }
+        .prototype-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: var(--radius-md); background: white; box-shadow: var(--shadow-sm); }
+
+        .accordion { border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; }
+        .accordion-header { width: 100%; padding: var(--space-4) var(--space-5); background: white; border: none; text-align: left; font-size: 14px; font-weight: 600; color: var(--gray-700); cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all var(--duration-fast); }
+        .accordion-header:hover { background: var(--gray-50); }
+        .accordion-header i { color: var(--gray-400); transition: transform var(--duration-fast); }
+        .accordion-header.active i { transform: rotate(180deg); }
+        .accordion-body { max-height: 0; overflow: hidden; transition: max-height var(--duration-normal) var(--ease-out); }
+        .accordion-body.open { max-height: 4000px; }
+        .accordion-content { padding: 0 var(--space-5) var(--space-5); }
+
+        .table-wrapper { overflow-x: auto; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); background: white; margin: var(--space-4) 0; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { background: var(--gray-50); padding: var(--space-3) var(--space-4); text-align: left; font-weight: 600; color: var(--gray-600); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+        .data-table td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--gray-100); color: var(--gray-700); vertical-align: top; }
+        .data-table tbody tr:last-child td { border-bottom: none; }
+        .data-table tbody tr:hover td { background: var(--gray-50); }
+        .data-table code { background: var(--gray-100); padding: 2px 6px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 12px; color: var(--gray-700); }
+
+        .tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+        .tag-p0 { background: var(--danger-100); color: var(--danger-700); }
+        .tag-p1 { background: var(--warning-100); color: var(--warning-700); }
+        .tag-p2 { background: var(--primary-100); color: var(--primary-700); }
+
+        .comparison-table { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin: var(--space-4) 0; }
+        .comparison-col { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden; }
+        .comparison-header { padding: var(--space-3) var(--space-4); font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: var(--space-2); }
+        .comparison-header.before { background: var(--gray-100); color: var(--gray-600); }
+        .comparison-header.after { background: var(--primary-50); color: var(--primary-600); }
+        .comparison-content { padding: var(--space-4); }
+
+        .footer-section { background: linear-gradient(135deg, var(--gray-900), var(--gray-800)); border-radius: var(--radius-xl); padding: var(--space-8); margin-top: var(--space-8); color: white; }
+        .footer-title { font-size: 16px; font-weight: 600; margin-bottom: var(--space-5); display: flex; align-items: center; gap: var(--space-2); }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)), gap: var(--space-4); }
+        .footer-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-lg); padding: var(--space-4); }
+        .footer-card-title { font-size: 11px; font-weight: 600; color: var(--gray-400); margin-bottom: var(--space-2); text-transform: uppercase; letter-spacing: 0.05em; }
+        .footer-link { color: var(--primary-400); text-decoration: none; font-size: 13px; }
+        .footer-link:hover { color: var(--primary-300); }
+
+        h4 { font-size: 15px; font-weight: 600; color: var(--gray-800); margin: var(--space-5) 0 var(--space-3); }
+        p { margin-bottom: var(--space-3); }
+        ul, ol { margin: var(--space-3) 0; padding-left: var(--space-5); }
+        li { margin-bottom: var(--space-2); }
+
+        @media (max-width: 1024px) { .main-wrapper { grid-template-columns: 1fr; padding-left: var(--space-4); } .sidebar { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <nav class="nav-bar" id="navBar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo"><i class="fas fa-file-lines"></i><span>PRD 文档</span></a>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <aside class="sidebar">
+            <div class="toc-title">文档导览</div>
+            <ul class="toc-list">
+                <li><a href="#meta" class="toc-link active"><i class="fas fa-circle-info"></i>基本信息</a></li>
+                <li><a href="#background" class="toc-link"><i class="fas fa-history"></i>项目背景</a></li>
+                <div class="toc-divider"></div>
+                <li><a href="#prototype" class="toc-link"><i class="fas fa-desktop"></i>原型预览</a></li>
+                <div class="toc-divider"></div>
+                <div class="toc-title">功能清单</div>
+                <li><a href="#feat-prompt-columns" class="toc-link"><i class="fas fa-cube"></i>F1: 提示词列展示</a></li>
+                <li><a href="#feat-model-switch" class="toc-link"><i class="fas fa-cube"></i>F2: 模型内联切换</a></li>
+                <li><a href="#feat-ui-optimize" class="toc-link"><i class="fas fa-cube"></i>F3: UI交互优化</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <!-- 基本信息 -->
+            <section class="section" id="meta">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-circle-info"></i></div>
+                    <div>
+                        <div class="section-title">基本信息</div>
+                    </div>
+                </div>
+
+                <div class="doc-meta-grid">
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">需求名称</div>
+                        <div class="doc-meta-value">模型节点表格功能增强</div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">产品线</div>
+                        <div class="doc-meta-value">AI Infra 平台</div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">系统</div>
+                        <div class="doc-meta-value">应用配置管理</div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">负责人</div>
+                        <div class="doc-meta-value">wisewong</div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">优先级</div>
+                        <div class="doc-meta-value"><span class="tag tag-p1">P1</span></div>
+                    </div>
+                    <div class="doc-meta-item">
+                        <div class="doc-meta-label">创建日期</div>
+                        <div class="doc-meta-value">2026-03-16</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-file-lines"></i>功能简述</div>
+                    <p>在应用配置页面的模型节点表格中新增提示词预览列，支持模型内联切换，优化操作按钮布局和交互体验。</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-clock-rotate-left"></i>更新记录</div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>版本</th>
+                                    <th>日期</th>
+                                    <th>修改人</th>
+                                    <th>修改内容</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>v1.0</td>
+                                    <td>2026-03-16</td>
+                                    <td>wisewong</td>
+                                    <td>初始版本</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 项目背景 -->
+            <section class="section" id="background">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-history"></i></div>
+                    <div>
+                        <div class="section-title">项目背景</div>
+                    </div>
+                </div>
+
+                <div class="overview-box">
+                    <p><strong>现状问题：</strong></p>
+                    <ul style="margin-top: 8px;">
+                        <li>模型节点表格无法直观查看各节点的提示词内容，需进入编辑页面才能查看</li>
+                        <li>切换模型需要先选中节点，再点击批量切换按钮，操作路径较长</li>
+                        <li>"资源节点"命名不够准确，实际为资源配置</li>
+                        <li>操作按钮布局不够紧凑，影响整体表格可读性</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-bullseye"></i>目标</div>
+                    <ul>
+                        <li>提升提示词查看效率，减少页面跳转</li>
+                        <li>简化模型切换操作，支持单节点快速切换</li>
+                        <li>统一命名规范，提升系统可理解性</li>
+                        <li>优化UI布局，提升整体视觉体验</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 原型预览 -->
+            <section class="section" id="prototype">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-desktop"></i></div>
+                    <div>
+                        <div class="section-title">原型预览</div>
+                    </div>
+                </div>
+
+                <div class="prototype-embed">
+                    <div class="prototype-wrapper">
+                        <iframe class="prototype-frame" src="../frontend/pages/frontend-app-config.html?appId=3&inlineEdit=1"></iframe>
+                    </div>
+                </div>
+            </section>
+
+            <!-- F1: 提示词列展示 -->
+            <div class="feature-block" id="feat-prompt-columns">
+                <div class="feature-header">
+                    <div class="feature-title-group">
+                        <div class="feature-icon"><i class="fas fa-table-columns"></i></div>
+                        <div>
+                            <div class="feature-title">F1: 提示词列展示</div>
+                            <div class="feature-id">FEAT-001</div>
+                        </div>
+                    </div>
+                    <span class="tag tag-p1">P1</span>
+                </div>
+                <div class="feature-content">
+                    <div class="feature-section-title"><i class="fas fa-align-left"></i>功能概述</div>
+                    <div class="overview-box">
+                        <p>在模型节点表格中新增"系统提示词"和"用户提示词"两列，展示各节点的提示词内容预览，支持鼠标悬停查看完整内容。</p>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-list-check"></i>需求明细</div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>字段</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>系统提示词</code></td>
+                                    <td>展示 resourcePromptSnapshot.messages 中 role 为 system 的消息内容，截取前50字符，超出显示"..."</td>
+                                </tr>
+                                <tr>
+                                    <td><code>用户提示词</code></td>
+                                    <td>展示 resourcePromptSnapshot.messages 中 role 为 user 的消息内容，截取前50字符，超出显示"..."</td>
+                                </tr>
+                                <tr>
+                                    <td><code>列宽</code></td>
+                                    <td>固定 150px</td>
+                                </tr>
+                                <tr>
+                                    <td><code>悬停提示</code></td>
+                                    <td>鼠标悬停时通过 title 属性显示完整提示词内容</td>
+                                </tr>
+                                <tr>
+                                    <td><code>空值处理</code></td>
+                                    <td>无提示词时显示"-"</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-table"></i>表格列调整</div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>列名</th>
+                                    <th>宽度</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>复选框</td>
+                                    <td>40px</td>
+                                    <td>全选/单选</td>
+                                </tr>
+                                <tr>
+                                    <td>ID</td>
+                                    <td>80px</td>
+                                    <td>资源ID</td>
+                                </tr>
+                                <tr>
+                                    <td>名称</td>
+                                    <td>自适应</td>
+                                    <td>资源名称</td>
+                                </tr>
+                                <tr style="background: var(--primary-50);">
+                                    <td><strong>系统提示词</strong></td>
+                                    <td><strong>150px</strong></td>
+                                    <td><strong>新增 - 提示词预览</strong></td>
+                                </tr>
+                                <tr style="background: var(--primary-50);">
+                                    <td><strong>用户提示词</strong></td>
+                                    <td><strong>150px</strong></td>
+                                    <td><strong>新增 - 提示词预览</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>当前模型</td>
+                                    <td>140px</td>
+                                    <td>支持点击切换</td>
+                                </tr>
+                                <tr>
+                                    <td>最近更新角色</td>
+                                    <td>自适应</td>
+                                    <td>更新人</td>
+                                </tr>
+                                <tr>
+                                    <td>最近更新时间</td>
+                                    <td>140px</td>
+                                    <td>更新时间</td>
+                                </tr>
+                                <tr>
+                                    <td>操作</td>
+                                    <td>100px</td>
+                                    <td>编辑/删除</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- F2: 模型内联切换 -->
+            <div class="feature-block" id="feat-model-switch">
+                <div class="feature-header">
+                    <div class="feature-title-group">
+                        <div class="feature-icon"><i class="fas fa-repeat"></i></div>
+                        <div>
+                            <div class="feature-title">F2: 模型内联切换</div>
+                            <div class="feature-id">FEAT-002</div>
+                        </div>
+                    </div>
+                    <span class="tag tag-p1">P1</span>
+                </div>
+                <div class="feature-content">
+                    <div class="feature-section-title"><i class="fas fa-align-left"></i>功能概述</div>
+                    <div class="overview-box">
+                        <p>将"当前模型"列从纯文本展示改为可点击的下拉选择器，支持直接在表格行内切换模型，无需进入编辑页面。</p>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-list-check"></i>交互逻辑</div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>交互</th>
+                                    <th>行为</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>点击模型名称</code></td>
+                                    <td>展开下拉选择框，显示可用模型列表</td>
+                                </tr>
+                                <tr>
+                                    <td><code>再次点击模型名称</code></td>
+                                    <td>收起下拉选择框（toggle 行为）</td>
+                                </tr>
+                                <tr>
+                                    <td><code>点击下拉框外部</code></td>
+                                    <td>收起下拉选择框</td>
+                                </tr>
+                                <tr>
+                                    <td><code>选择新模型</code></td>
+                                    <td>立即保存变更，显示 Toast 提示，刷新表格数据</td>
+                                </tr>
+                                <tr>
+                                    <td><code>选择相同模型</code></td>
+                                    <td>仅收起下拉框，不触发保存</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-palette"></i>视觉样式</div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>元素</th>
+                                    <th>样式</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>模型名称</td>
+                                    <td>蓝色文字 (#3b82f6)，浅蓝色背景 (rgba(59,130,246,0.08))，圆角 4px</td>
+                                </tr>
+                                <tr>
+                                    <td>悬停效果</td>
+                                    <td>背景色加深 (rgba(59,130,246,0.15))</td>
+                                </tr>
+                                <tr>
+                                    <td>下拉框背景</td>
+                                    <td>白色 (#fff)</td>
+                                </tr>
+                                <tr>
+                                    <td>下拉框边框</td>
+                                    <td>灰色边框，8px 圆角，阴影效果</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-database"></i>数据流</div>
+                    <div class="detail-grid">
+                        <div class="detail-label">读取</div>
+                        <div class="detail-value">从 <code>localStorage[app_resource_bindings_demo_v1]</code> 读取 <code>resourcePromptSnapshot.model</code></div>
+                        <div class="detail-label">保存</div>
+                        <div class="detail-value">调用 <code>setResourceModel(resourceId, newModel, '内联切换模型')</code> 更新数据</div>
+                        <div class="detail-label">历史</div>
+                        <div class="detail-value">自动记录版本历史到 <code>app_resource_revisions_demo_v1</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- F3: UI交互优化 -->
+            <div class="feature-block" id="feat-ui-optimize">
+                <div class="feature-header">
+                    <div class="feature-title-group">
+                        <div class="feature-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                        <div>
+                            <div class="feature-title">F3: UI交互优化</div>
+                            <div class="feature-id">FEAT-003</div>
+                        </div>
+                    </div>
+                    <span class="tag tag-p2">P2</span>
+                </div>
+                <div class="feature-content">
+                    <div class="feature-section-title"><i class="fas fa-align-left"></i>功能概述</div>
+                    <div class="overview-box">
+                        <p>包含多项UI细节优化：命名规范化、操作按钮布局优化、下拉框样式调整。</p>
+                    </div>
+
+                    <div class="feature-section-title"><i class="fas fa-list-check"></i>优化项明细</div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>优化项</th>
+                                    <th>修改前</th>
+                                    <th>修改后</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>区块命名</td>
+                                    <td>资源节点</td>
+                                    <td>资源配置</td>
+                                </tr>
+                                <tr>
+                                    <td>操作列宽度</td>
+                                    <td>80px</td>
+                                    <td>100px</td>
+                                </tr>
+                                <tr>
+                                    <td>操作按钮布局</td>
+                                    <td>可能换行</td>
+                                    <td>强制水平排列（flex-wrap: nowrap）</td>
+                                </tr>
+                                <tr>
+                                    <td>下拉框背景色</td>
+                                    <td>var(--card)</td>
+                                    <td>#fff (白色)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // 进度条
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        // 导航栏阴影
+        window.addEventListener('scroll', () => {
+            const navBar = document.getElementById('navBar');
+            if (window.scrollY > 10) {
+                navBar.classList.add('scrolled');
+            } else {
+                navBar.classList.remove('scrolled');
+            }
+        });
+
+        // 目录高亮
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const sections = document.querySelectorAll('.section, .feature-block');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 120) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1202 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>提示词管理 - 列表</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --sidebar: #ffffff;
+      --line: #f1f5f9;
+      --line-strong: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --active: #eff6ff;
+      --head: #fafbfc;
+      --blue: #3b82f6;
+      --blue-dark: #2563eb;
+      --danger: #dc2626;
+      --danger-dark: #b91c1c;
+      --hover-bg: #f8fafc;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+      /* 间距系统 */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 20px;
+      --spacing-2xl: 24px;
+
+      /* 过渡曲线 */
+      --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .fa-icon {
+      font-size: 14px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* 侧边栏样式 */
+    .sidebar {
+      width: 220px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line-strong);
+      padding: var(--spacing-lg) 0;
+      flex-shrink: 0;
+    }
+
+    .menu-group {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .menu-title {
+      margin: 0 0 var(--spacing-sm);
+      padding: 0 22px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .menu-item {
+      height: 44px;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-radius: 0;
+      position: relative;
+    }
+
+    .menu-item:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .menu-item.active {
+      background: var(--active);
+      color: var(--blue);
+    }
+
+    .menu-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--blue);
+    }
+
+    .menu-item i {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    /* 顶部栏样式 */
+    .topbar {
+      height: 60px;
+      border-bottom: 1px solid var(--line-strong);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      background: #ffffff;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .content {
+      flex: 1;
+      padding: var(--spacing-2xl);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 工具栏样式 */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    /* 按钮样式 */
+    .btn {
+      border: 0;
+      height: 36px;
+      border-radius: 6px;
+      background: #3b82f6;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 0 var(--spacing-xl);
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out);
+      box-shadow: 0 1px 2px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn:hover {
+      background: #2563eb;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-danger {
+      background: #dc2626;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+    }
+
+    /* 输入框样式 */
+    .input-box {
+      height: 36px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      font-size: 14px;
+      transition: all 0.2s var(--ease-out);
+    }
+
+    .input-box:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .input-box::placeholder {
+      color: #94a3b8;
+    }
+
+    .text-input {
+      width: 220px;
+      padding: 0 var(--spacing-md);
+      line-height: 36px;
+    }
+
+    /* 级联选择器样式 */
+    .cascade {
+      position: relative;
+      width: 220px;
+    }
+
+    .cascade-trigger {
+      width: 100%;
+      height: 36px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #fff;
+      text-align: left;
+      color: #64748b;
+      font-size: 14px;
+      padding: 0 34px 0 var(--spacing-md);
+      line-height: 36px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out);
+    }
+
+    .cascade-trigger:hover {
+      border-color: #cbd5e1;
+    }
+
+    .cascade-trigger::after {
+      content: "▾";
+      position: absolute;
+      right: var(--spacing-md);
+      top: 50%;
+      transform: translateY(-52%);
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .cascade-panel {
+      position: absolute;
+      top: calc(100% + var(--spacing-xs));
+      left: 0;
+      z-index: 20;
+      width: 360px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      transition: all 0.2s var(--ease-out);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .cascade-col {
+      min-height: 220px;
+      max-height: 260px;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+    }
+
+    .cascade-col:last-child {
+      border-right: 0;
+    }
+
+    .cascade-item {
+      width: 100%;
+      border: 0;
+      background: #fff;
+      font-size: 14px;
+      text-align: left;
+      padding: var(--spacing-sm) var(--spacing-md);
+      cursor: pointer;
+      transition: all 0.15s var(--ease-out);
+      color: var(--text);
+    }
+
+    .cascade-item:hover {
+      background: #f8fafc;
+    }
+
+    .cascade-item.active {
+      background: var(--active);
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    /* 表格区域样式 */
+    .table-wrap {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: var(--head);
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      height: 48px;
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    td {
+      height: 56px;
+      padding: 12px 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      transition: background 0.15s ease;
+    }
+
+    tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    /* 斑马纹 - 更柔和 */
+    tbody tr:nth-child(even) {
+      background: #ffffff;
+    }
+
+    tbody tr:nth-child(even):hover {
+      background: #f8fafc;
+    }
+
+    td.desc {
+      white-space: normal;
+      max-width: 240px;
+      text-align: center;
+      color: #64748b;
+    }
+
+    .id-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .icon-btn {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      padding: 4px 8px;
+      width: auto;
+      height: 28px;
+      color: #94a3b8;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: #f1f5f9;
+      color: var(--blue);
+    }
+
+    /* 操作按钮样式 */
+    .actions {
+      display: inline-flex;
+      gap: var(--spacing-sm);
+    }
+
+    .actions button {
+      border: 0;
+      background: transparent;
+      color: #3b82f6;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .actions button:hover {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    .actions .danger {
+      color: #dc2626;
+    }
+
+    .actions .danger:hover {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    /* 分页器样式 */
+    .footer {
+      margin-top: var(--spacing-lg);
+      display: flex;
+      justify-content: flex-end;
+      padding: var(--spacing-sm) 0 0;
+    }
+
+    .pager {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .pager span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pager button,
+    .pager .page-btn {
+      min-width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      text-align: center;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out);
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pager button:hover,
+    .pager .page-btn:hover {
+      background: var(--active);
+      border-color: var(--line-strong);
+    }
+
+    .current {
+      min-width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      text-align: center;
+      background: #3b82f6 !important;
+      color: #fff !important;
+      border-color: #3b82f6 !important;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    }
+
+    .goto {
+      width: 44px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      text-align: center;
+      font-size: 14px;
+      transition: all 0.2s var(--ease-out);
+    }
+
+    .goto:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Toast样式 */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: var(--spacing-2xl);
+      transform: translateX(-50%) translateY(8px);
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      font-size: 14px;
+      padding: var(--spacing-md) var(--spacing-xl);
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s var(--ease-out);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 空状态样式 */
+    .empty-state {
+      text-align: center;
+      padding: 64px var(--spacing-2xl);
+      color: var(--muted);
+    }
+
+    .empty-state .empty-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto var(--spacing-lg);
+      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 32px;
+    }
+
+    .empty-state .title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .empty-state .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .empty-state .btn {
+      margin-top: var(--spacing-lg);
+    }
+
+    /* 输入框最小宽度保护 */
+    .cascade,
+    .text-input {
+      min-width: 140px;
+    }
+
+    /* 按钮图标模式（为极端窄屏准备） */
+    .btn-icon-only {
+      padding: 0 12px;
+    }
+
+    .btn-icon-only .btn-text {
+      display: inline;
+    }
+
+    /* 响应式 - 平板 */
+    @media (max-width: 900px) {
+      .app {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        padding: 16px 0;
+      }
+
+      .menu-group {
+        margin-bottom: var(--spacing-sm);
+      }
+
+      /* Toolbar 响应式优化 */
+      .toolbar {
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+        align-items: stretch;
+      }
+
+      .cascade,
+      .text-input {
+        flex: 1 1 calc(50% - var(--spacing-md));
+        min-width: 140px;
+        max-width: none;
+      }
+
+      .spacer {
+        display: none;
+      }
+
+      /* 按钮保持在一行 */
+      .toolbar .btn {
+        flex-shrink: 0;
+      }
+
+      .topbar {
+        height: 60px;
+        padding: 0 20px;
+      }
+
+      .topbar h1 {
+        font-size: 20px;
+      }
+
+      .content {
+        padding: var(--spacing-lg);
+      }
+    }
+
+    /* 响应式 - 手机 */
+    @media (max-width: 768px) {
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-md);
+      }
+
+      .cascade,
+      .text-input {
+        width: 100%;
+        flex: 1 1 auto;
+        min-width: auto;
+      }
+
+      /* 级联选择器面板适配 */
+      .cascade-panel {
+        width: calc(100vw - 48px);
+        max-width: 360px;
+      }
+
+      /* 表格横向滚动 */
+      .table-wrap {
+        overflow-x: auto;
+        border-radius: 6px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        min-width: 980px;
+      }
+
+      th,
+      td {
+        height: 48px;
+      }
+
+      /* 分页器简化 */
+      .pager {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--spacing-xs);
+      }
+
+      .pager span:first-child {
+        width: 100%;
+        text-align: center;
+        margin-bottom: var(--spacing-sm);
+      }
+    }
+
+    /* 响应式 - 小手机 */
+    @media (max-width: 480px) {
+      .content {
+        padding: var(--spacing-md);
+      }
+
+      /* 按钮图标模式 */
+      .toolbar .btn .btn-text {
+        display: none;
+      }
+
+      .toolbar .btn {
+        padding: 0 12px;
+      }
+
+      .toolbar .btn::before {
+        content: "+";
+        font-size: 18px;
+        margin-right: 0;
+      }
+
+      /* 操作按钮简化 */
+      .actions button {
+        padding: 4px 6px;
+      }
+
+      .actions button .fa-icon {
+        margin-right: 0;
+      }
+
+      .actions button span {
+        display: none;
+      }
+
+      /* Toast 全宽 */
+      .toast {
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        transform: translateY(8px);
+        text-align: center;
+      }
+
+      .toast.show {
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+
+    <main class="main no-topbar">
+      <section class="content">
+        <div class="toolbar">
+          <div id="listCascade" class="cascade">
+            <button class="cascade-trigger" type="button">项目/应用</button>
+            <div class="cascade-panel hidden">
+              <div class="cascade-col projects"></div>
+              <div class="cascade-col apps"></div>
+            </div>
+          </div>
+          <input id="searchName" class="input-box text-input" placeholder="搜索名称" />
+          <input id="searchOwner" class="input-box text-input" placeholder="搜索负责人" />
+          <div class="spacer"></div>
+          <button id="newPromptBtn" class="btn" type="button">新建提示词</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>项目</th>
+                <th>应用</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>更新时间</th>
+                <th>负责人</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="promptTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="footer">
+          <div class="pager">
+            <span id="pageTotal">总页数：1</span>
+            <button type="button">&lt;</button>
+            <span class="current">1</span>
+            <button type="button">&gt;</button>
+            <span>前往</span>
+            <input class="goto" value="1" />
+            <span>页</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "prompt_rows_demo";
+
+    const projectTree = {
+      手小保: ["手小保", "理赔助手"],
+      insAI: ["Agent", "问题推荐", "PDF转md大师"],
+      增长项目: ["营销分析", "外呼助手"]
+    };
+
+    const defaultRows = [
+      {
+        id: "001",
+        project: "手小保",
+        app: "手小保",
+        name: "意图识别",
+        desc: "意图识别",
+        updated: "2025/11/25 14:00:02",
+        owners: ["kyrie", "wisewong", "mollie"],
+        messages: [
+          { role: "System Prompt", content: "你是保险助手，回答请专业准确。" },
+          { role: "User Prompt", content: "{{query}}" }
+        ]
+      },
+      {
+        id: "002",
+        project: "insAI",
+        app: "Agent",
+        name: "产品讲解",
+        desc: "产品信息、分红实现率讲解",
+        updated: "2025/11/25 14:00:02",
+        owners: ["kyrie", "wisewong", "mollie"],
+        messages: [
+          { role: "System Prompt", content: "你是产品讲解助手。" },
+          { role: "User Prompt", content: "请解释产品条款。" }
+        ]
+      },
+      {
+        id: "003",
+        project: "insAI",
+        app: "问题推荐",
+        name: "回答追加选项",
+        desc: "-",
+        updated: "2025/11/25 14:00:02",
+        owners: ["kyrie"],
+        messages: [
+          { role: "System Prompt", content: "根据上下文推荐下一问。" },
+          { role: "User Prompt", content: "{{history}}" }
+        ]
+      },
+      {
+        id: "004",
+        project: "insAI",
+        app: "Agent",
+        name: "流式生成",
+        desc: "最终回答提示词",
+        updated: "2025/11/25 14:00:02",
+        owners: ["kyrie"],
+        messages: [
+          { role: "System Prompt", content: "请给出结构化回答。" },
+          { role: "User Prompt", content: "{{question}}" }
+        ]
+      },
+      {
+        id: "009",
+        project: "手小保",
+        app: "手小保",
+        name: "009-兼容提示词",
+        desc: "兼容旧缓存ID",
+        updated: "2026/02/26 15:50:00",
+        owners: ["wisewong"],
+        messages: [
+          { role: "System Prompt", content: "你是保险助手，回答请专业准确。" },
+          { role: "User Prompt", content: "{{ocr_text}}\n{{pdf_img}}" }
+        ]
+      }
+    ];
+
+    function ensureLegacyRow009(rows) {
+      const list = Array.isArray(rows) ? [...rows] : [];
+      const normalized009 = (id) => {
+        const raw = String(id ?? "").trim();
+        const digits = raw.replace(/[^\d]/g, "");
+        return digits ? String(Number(digits)).padStart(3, "0") : "";
+      };
+      let has009 = false;
+      const deduped = [];
+      list.forEach((row) => {
+        if (normalized009(row?.id) === "009") {
+          if (has009) return;
+          has009 = true;
+          deduped.push({ ...row, id: "009" });
+          return;
+        }
+        deduped.push(row);
+      });
+      if (has009) {
+        return deduped;
+      }
+      const row009 = defaultRows.find((row) => row.id === "009");
+      if (row009) {
+        deduped.push({ ...row009 });
+      }
+      return deduped;
+    }
+
+    let rows = loadRows();
+    const filters = { project: "", app: "", name: "", owner: "" };
+    const tableBody = document.getElementById("promptTableBody");
+    const pageTotal = document.getElementById("pageTotal");
+    const toast = document.getElementById("toast");
+
+    function loadRows() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultRows));
+          return ensureLegacyRow009(defaultRows);
+        }
+        const parsed = JSON.parse(raw);
+        const nextRows = ensureLegacyRow009(Array.isArray(parsed) && parsed.length ? parsed : defaultRows);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(nextRows));
+        return nextRows;
+      } catch {
+        return ensureLegacyRow009(defaultRows);
+      }
+    }
+
+    function saveRows() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1500);
+    }
+
+    function copyText(text, okText = "已复制") {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast(okText));
+      } else {
+        const t = document.createElement("textarea");
+        t.value = text;
+        document.body.appendChild(t);
+        t.select();
+        document.execCommand("copy");
+        t.remove();
+        showToast(okText);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function nextId() {
+      const maxId = rows.reduce((max, row) => {
+        const n = Number(String(row?.id ?? "").replace(/[^\d]/g, ""));
+        return Number.isFinite(n) ? Math.max(max, n) : max;
+      }, 0);
+      return String(maxId + 1).padStart(3, "0");
+    }
+
+    function filteredRows() {
+      return rows.filter((row) => {
+        if (filters.project && row.project !== filters.project) return false;
+        if (filters.app && row.app !== filters.app) return false;
+        if (filters.name && !row.name.toLowerCase().includes(filters.name.trim().toLowerCase()))
+          return false;
+        if (
+          filters.owner &&
+          !row.owners.join(" ").toLowerCase().includes(filters.owner.trim().toLowerCase())
+        )
+          return false;
+        return true;
+      });
+    }
+
+    function renderTable() {
+      const items = filteredRows();
+      pageTotal.textContent = `总页数：${Math.max(1, Math.ceil(items.length / 10))}`;
+
+      if (!items.length) {
+        tableBody.innerHTML = `
+            <tr>
+              <td colspan="8" style="padding: 0;">
+                <div class="empty-state">
+                  <div class="empty-icon"><i class="fa-regular fa-folder-open fa-icon"></i></div>
+                  <div class="title">暂无数据</div>
+                  <div class="subtitle">还没有创建任何提示词，点击「新建提示词」开始创建</div>
+                  <button class="btn" onclick="window.location.href='./frontend-slides-guide-create.html'">新建提示词</button>
+                </div>
+              </td>
+            </tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = items
+        .map(
+          (row) => `
+            <tr data-id="${row.id}">
+              <td>${row.id}</td>
+              <td>${escapeHtml(row.project)}</td>
+              <td>${escapeHtml(row.app)}</td>
+              <td>${escapeHtml(row.name)}</td>
+              <td class="desc">${escapeHtml(row.desc)}</td>
+              <td>${escapeHtml(row.updated)}</td>
+              <td>${escapeHtml(row.owners.join("、"))}</td>
+              <td>
+                <div class="actions">
+                  <button data-action="edit"><i class="fa-regular fa-pen-to-square fa-icon"></i> 编辑</button>
+                  <button data-action="copy-row"><i class="fa-regular fa-clone fa-icon"></i> 复制</button>
+                  <button class="danger" data-action="delete"><i class="fa-regular fa-trash-can fa-icon"></i> 删除</button>
+                </div>
+              </td>
+            </tr>
+          `
+        )
+        .join("");
+    }
+
+    function createCascade(rootEl, placeholder, onSelect) {
+      const trigger = rootEl.querySelector(".cascade-trigger");
+      const panel = rootEl.querySelector(".cascade-panel");
+      const projectCol = rootEl.querySelector(".projects");
+      const appCol = rootEl.querySelector(".apps");
+      let activeProject = "";
+      let selected = { project: "", app: "" };
+
+      function setLabel() {
+        trigger.textContent =
+          selected.project && selected.app ? `${selected.project}/${selected.app}` : placeholder;
+      }
+
+      function renderProjects() {
+        const projects = Object.keys(projectTree);
+        const html = [`<button class="cascade-item ${!activeProject ? "active" : ""}" data-project="">全部项目</button>`]
+          .concat(
+            projects.map(
+              (project) =>
+                `<button class="cascade-item ${activeProject === project ? "active" : ""}" data-project="${project}">${project}</button>`
+            )
+          )
+          .join("");
+        projectCol.innerHTML = html;
+      }
+
+      function renderApps() {
+        if (!activeProject) {
+          appCol.innerHTML = `<button class="cascade-item active" data-app="">全部应用</button>`;
+          return;
+        }
+        const html = [`<button class="cascade-item ${selected.project === activeProject && !selected.app ? "active" : ""}" data-app="">全部应用</button>`]
+          .concat(
+            projectTree[activeProject].map(
+              (app) =>
+                `<button class="cascade-item ${selected.project === activeProject && selected.app === app ? "active" : ""}" data-app="${app}">${app}</button>`
+            )
+          )
+          .join("");
+        appCol.innerHTML = html;
+      }
+
+      rootEl.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (event.target === trigger) {
+          panel.classList.toggle("hidden");
+          return;
+        }
+
+        const p = event.target.closest("[data-project]");
+        if (p) {
+          activeProject = p.dataset.project;
+          renderProjects();
+          renderApps();
+          return;
+        }
+
+        const a = event.target.closest("[data-app]");
+        if (a) {
+          const app = a.dataset.app;
+          if (!activeProject) {
+            selected = { project: "", app: "" };
+          } else {
+            selected = { project: activeProject, app };
+          }
+          setLabel();
+          panel.classList.add("hidden");
+          onSelect(selected.project, selected.app);
+          renderProjects();
+          renderApps();
+        }
+      });
+
+      renderProjects();
+      renderApps();
+      setLabel();
+    }
+
+    createCascade(document.getElementById("listCascade"), "项目/应用", (project, app) => {
+      filters.project = project;
+      filters.app = app;
+      renderTable();
+    });
+
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".cascade-panel").forEach((p) => p.classList.add("hidden"));
+    });
+
+    document.getElementById("searchName").addEventListener("input", (e) => {
+      filters.name = e.target.value;
+      renderTable();
+    });
+
+    document.getElementById("searchOwner").addEventListener("input", (e) => {
+      filters.owner = e.target.value;
+      renderTable();
+    });
+
+    document.getElementById("newPromptBtn").addEventListener("click", () => {
+      window.location.href = "./frontend-slides-guide-create.html";
+    });
+
+    tableBody.addEventListener("click", (event) => {
+      const actionEl = event.target.closest("[data-action]");
+      if (!actionEl) return;
+      const rowEl = event.target.closest("tr[data-id]");
+      if (!rowEl) return;
+      const id = rowEl.dataset.id;
+      const row = rows.find((item) => item.id === id);
+      if (!row) return;
+
+      const action = actionEl.dataset.action;
+      if (action === "edit") {
+        window.location.href = `./frontend-slides-guide-edit.html?id=${encodeURIComponent(id)}`;
+        return;
+      }
+
+      if (action === "copy-row") {
+        const copy = JSON.parse(JSON.stringify(row));
+        copy.id = nextId();
+        copy.name = `${row.name}-副本`;
+        copy.updated = new Date().toLocaleString("zh-CN", { hour12: false }).replace(/\//g, "/");
+        rows.unshift(copy);
+        saveRows();
+        renderTable();
+        showToast("已复制一条提示词");
+        return;
+      }
+
+      if (action === "delete") {
+        if (!confirm(`确认删除提示词 ${row.name} 吗？`)) return;
+        rows = rows.filter((item) => item.id !== id);
+        saveRows();
+        renderTable();
+        showToast("已删除");
+      }
+    });
+
+    renderTable();
+
+    // 初始化 Lucide 图标
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,2860 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trace追踪 - 列表</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --sidebar: #ffffff;
+      --line: #f1f5f9;
+      --line-strong: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --active: #eff6ff;
+      --head: #fafbfc;
+      --blue: #3b82f6;
+      --blue-dark: #2563eb;
+      --danger: #dc2626;
+      --danger-dark: #b91c1c;
+      --success: #22c55e;
+      --success-dark: #16a34a;
+      --hover-bg: #f8fafc;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 20px;
+      --spacing-2xl: 24px;
+      --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+        sans-serif;
+      font-size: 14px;
+    }
+
+    html.modal-open,
+    body.modal-open {
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line-strong);
+      padding: var(--spacing-lg) 0;
+      flex-shrink: 0;
+    }
+
+    .menu-group {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .menu-title {
+      margin: 0 0 var(--spacing-sm);
+      padding: 0 22px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .menu-item {
+      height: 44px;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-radius: 0;
+      position: relative;
+    }
+
+    .menu-item:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .menu-item.active {
+      background: var(--active);
+      color: var(--blue);
+    }
+
+    .menu-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--blue);
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    .topbar {
+      height: 60px;
+      border-bottom: 1px solid var(--line-strong);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      background: #ffffff;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .content {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .filter-card {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-item label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .input-box {
+      height: 36px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 14px;
+      outline: none;
+      width: 100%;
+      border-radius: 4px;
+    }
+
+    .input-box:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .table-card {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .table-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .table-title span {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: normal;
+      margin-left: 8px;
+    }
+
+    .table-container {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow-x: auto;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 2200px;
+    }
+
+    th {
+      background: #f8fafc;
+      height: 44px;
+      padding: 0 16px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .cell-id {
+      width: 120px;
+      color: var(--blue);
+      cursor: pointer;
+    }
+
+    .cell-project {
+      width: 150px;
+    }
+
+    .cell-app {
+      width: 120px;
+    }
+
+    .cell-content {
+      font-family: inherit;
+      font-size: 13px;
+      color: #334155;
+      white-space: pre-wrap;
+      word-break: break-all;
+      vertical-align: middle;
+      text-align: left !important;
+    }
+
+    .cell-content-inner {
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      line-clamp: 5;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.6;
+      max-width: 600px;
+      text-align: left !important;
+    }
+
+    .cell-content.clickable {
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .cell-content.clickable:hover {
+      color: var(--blue);
+      background: #f1f5f9;
+    }
+
+    .cell-feedback {
+      width: 120px;
+    }
+
+    .cell-time {
+      width: 180px;
+    }
+
+    .cell-op {
+      width: 240px;
+      position: sticky;
+      right: 0;
+      background: inherit;
+      border-left: 1px solid var(--line);
+    }
+
+    .cell-content-header {
+      text-align: left !important;
+    }
+
+    th:last-child {
+      position: sticky;
+      right: 0;
+      background: #f8fafc;
+      z-index: 10;
+      border-left: 1px solid var(--line);
+    }
+
+    .link {
+      color: var(--blue);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .link:hover {
+      text-decoration: underline;
+    }
+
+    .btn-op-group {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .btn-small {
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: #334155;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-small:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: #f1f5f9;
+    }
+
+    .cell-quality {
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .cell-quality:hover {
+      color: var(--blue);
+      background: #f1f5f9;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .page-btn {
+      min-width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      padding: 0 8px;
+    }
+
+    .page-btn.active {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .btn {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line-strong);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      justify-content: flex-end;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      width: 80%;
+      height: 100%;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      animation: slideIn 0.3s var(--ease-out);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    .modal-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-header-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .trace-id-badge {
+      font-family: inherit;
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .copy-icon {
+      cursor: pointer;
+      color: var(--blue);
+    }
+
+    .modal-tabs {
+      display: flex;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      gap: 32px;
+    }
+
+    .tab-item {
+      padding: 12px 0;
+      font-size: 14px;
+      color: var(--muted);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .tab-item.active {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .tab-item.active::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--blue);
+    }
+
+    .modal-body {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      background: #fcfcfc;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    /* Running Result Tab Styles */
+    .section-box {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line-strong);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .section-body {
+      padding: 16px;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #334155;
+    }
+
+    .section-body .code-block {
+      margin: 0;
+    }
+
+    /* Process Log Tab Styles */
+    .user-id-box {
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .log-container {
+      font-family:
+        Menlo,
+        Monaco,
+        Consolas,
+        Courier New,
+        monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      color: #475569;
+    }
+
+    .log-entry {
+      margin-bottom: 12px;
+    }
+
+    .log-id {
+      color: #dc2626;
+    }
+
+    /* Timeline & Process Log Styles (Refined) */
+    .log-layout {
+      display: flex;
+      gap: 24px;
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .log-layout.simple-mode {
+      display: block;
+    }
+
+    .log-layout.simple-mode #timelineNav {
+      display: none;
+    }
+
+    .log-layout.simple-mode #timelineStream {
+      padding: 0 0 500px;
+    }
+
+    #timelineNav {
+      width: 180px;
+      flex-shrink: 0;
+      padding: 10px 0;
+      border-right: 1px solid var(--line);
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    #timelineNav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #timelineNav::-webkit-scrollbar-thumb {
+      background: var(--line-strong);
+      border-radius: 2px;
+    }
+
+    #timelineStream {
+      flex: 1;
+      padding: 0 10px 500px;
+      min-width: 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      margin-right: 12px;
+      border-radius: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: var(--transition);
+      border-left: 3px solid transparent;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: var(--hover-bg);
+      color: var(--blue);
+    }
+
+    .nav-item.active {
+      background: var(--active);
+      color: var(--blue);
+      font-weight: 600;
+      border-left-color: var(--blue);
+    }
+
+    .timeline-wrapper {
+      position: relative;
+      padding: 10px 0;
+    }
+
+    .timeline-wrapper.simple {
+      padding: 0;
+    }
+
+    .timeline-wrapper::before {
+      content: "";
+      position: absolute;
+      top: 20px;
+      bottom: 20px;
+      left: 16px;
+      /* Adjusted for icon alignment */
+      width: 2px;
+      background: var(--line-strong);
+    }
+
+    .timeline-wrapper.simple::before {
+      display: none;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 48px;
+      margin-bottom: 24px;
+    }
+
+    .timeline-wrapper.simple .timeline-item {
+      padding-left: 0;
+      margin-bottom: 14px;
+    }
+
+    .timeline-icon {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 2px solid var(--line-strong);
+      z-index: 2;
+    }
+
+    .icon-blue {
+      color: var(--blue);
+      background: var(--active);
+      border-color: #bfdbfe;
+    }
+
+    .icon-green {
+      color: var(--success);
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .icon-orange {
+      color: #f59e0b;
+      background: #fffbeb;
+      border-color: #fef3c7;
+    }
+
+    .icon-purple {
+      color: #8b5cf6;
+      background: #f5f3ff;
+      border-color: #ddd6fe;
+    }
+
+    .timeline-icon i {
+      width: 14px;
+      height: 14px;
+    }
+
+    .timeline-wrapper.simple .timeline-icon {
+      display: none;
+    }
+
+    .time-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-family: monospace;
+      font-weight: 500;
+    }
+
+    .t-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid var(--line-strong);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .timeline-wrapper.simple .t-card {
+      border-radius: 6px;
+      box-shadow: none;
+    }
+
+    .t-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .t-card-header {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--head);
+    }
+
+    .timeline-wrapper.simple .t-card-header {
+      padding: 8px 12px;
+      background: #f8fafc;
+    }
+
+    .t-card-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .timeline-wrapper.simple .t-card-title {
+      font-size: 12px;
+    }
+
+    .t-card-meta {
+      display: flex;
+      gap: 8px;
+    }
+
+    .t-card-meta span {
+      font-size: 11px;
+      color: var(--muted);
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .btn-copy-node {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 4px;
+      margin-left: auto;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .btn-copy-node:hover {
+      background: var(--active);
+      color: var(--blue);
+    }
+
+    .t-card-body {
+      padding: 12px 16px;
+    }
+
+    .code-block {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: "JetBrains Mono", "Menlo", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #334155;
+      position: relative;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .code-block.collapsed {
+      max-height: calc(var(--collapse-lines, 30) * 1.6em + 24px);
+      overflow: hidden;
+    }
+
+    .code-block.collapsed.is-scrollable {
+      padding-bottom: 42px;
+    }
+
+    .code-block.expanded {
+      max-height: min(60vh, 640px);
+      overflow-y: auto;
+    }
+
+    .expand-btn {
+      display: block;
+      margin-top: 8px;
+      text-align: center;
+      cursor: pointer;
+      color: var(--blue);
+      font-weight: 600;
+      font-size: 11px;
+      border: none;
+    }
+
+    .code-block.collapsed .expand-btn {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: linear-gradient(to bottom, transparent, #f8fafc 60%);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 6px;
+      margin-top: 0;
+    }
+
+    .code-block.expanded .expand-btn {
+      position: static;
+      height: auto;
+      background: none;
+      padding: 8px 0 0;
+    }
+
+    /* Compact KB Grid */
+    .kb-compact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .ref-card-compact {
+      background: #f8fafc;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .ref-card-compact:hover {
+      background: var(--active);
+      border-color: #bfdbfe;
+      transform: translateY(-1px);
+    }
+
+    .ref-card-compact i {
+      width: 14px;
+      height: 14px;
+      color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .ref-card-compact span {
+      font-size: 12px;
+      color: #475569;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      font-weight: 500;
+    }
+
+    /* Feedback Quality Tab Styles */
+    .feedback-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .empty-state {
+      padding: 60px 0;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    /* Premium Secondary Panel (Slide-over) */
+    .secondary-panel {
+      position: fixed;
+      top: 0;
+      right: -820px;
+      width: 800px;
+      bottom: 0;
+      background: #fff;
+      box-shadow: -20px 0 50px rgba(15, 23, 42, 0.1);
+      z-index: 2000;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid var(--line-strong);
+    }
+
+    .secondary-panel.open {
+      right: 0;
+    }
+
+    .sp-header {
+      height: 64px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      gap: 20px;
+    }
+
+    .sp-header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .sp-header span {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .sp-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--muted);
+      background: #f8fafc;
+    }
+
+    .sp-close:hover {
+      background: #f1f5f9;
+      color: var(--danger);
+    }
+
+    .sp-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      background: #fcfcfc;
+    }
+
+    .sp-sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--line);
+      overflow-y: auto;
+      background: #fff;
+      padding: 12px 0;
+    }
+
+    .sp-main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slice-nav-item {
+      padding: 10px 16px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #64748b;
+      border-left: 3px solid transparent;
+      transition: var(--transition);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .slice-nav-item:hover {
+      background: #f1f5f9;
+      color: var(--blue);
+    }
+
+    .slice-nav-item.active {
+      background: #eff6ff;
+      color: var(--blue);
+      font-weight: 600;
+      border-left-color: var(--blue);
+    }
+
+    .sp-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-action {
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: #475569;
+    }
+
+    .btn-action:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: #f1f5f9;
+    }
+
+    .btn-action i {
+      width: 14px;
+      height: 14px;
+    }
+
+    .sp-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.3);
+      backdrop-filter: blur(2px);
+      z-index: 1999;
+      display: none;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    #secondaryPanel.open+.sp-overlay {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Trace追踪</h1>
+      </header>
+
+      <div class="content">
+        <!-- 筛选区域保持不变 -->
+        <div class="filter-card">
+          <div class="table-title" style="margin-bottom: 24px">Trace列表</div>
+          <div class="filter-grid" style="grid-template-columns: repeat(4, 1fr)">
+            <div class="filter-item">
+              <label>Trace创建时间</label>
+              <div style="
+                    display: flex;
+                    gap: 8px;
+                    align-items: center;
+                    border: 1px solid var(--line-strong);
+                    border-radius: 4px;
+                    padding: 0 12px;
+                    height: 36px;
+                    background: #fff;
+                  ">
+                <i data-lucide="clock" style="width: 14px; color: var(--muted)"></i>
+                <input type="text" value="2026-02-01 00:00:00" style="
+                      border: none;
+                      outline: none;
+                      font-size: 13px;
+                      width: 140px;
+                    " />
+                <span style="color: var(--muted)">至</span>
+                <input type="text" value="2026-03-02 23:59:59" style="
+                      border: none;
+                      outline: none;
+                      font-size: 13px;
+                      width: 140px;
+                    " />
+              </div>
+            </div>
+            <div class="filter-item">
+              <label>企业</label>
+              <select class="input-box">
+                <option value="">请选择企业</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>搜索项目/应用</label>
+              <select class="input-box">
+                <option value="">请选择项目/应用</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>用户反馈</label>
+              <select class="input-box">
+                <option>全部</option>
+              </select>
+            </div>
+
+            <div class="filter-item">
+              <label>问题类型</label>
+              <select class="input-box">
+                <option value="">请选择</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>质检评价</label>
+              <select class="input-box">
+                <option value="">请选择</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>质检标签</label>
+              <select class="input-box">
+                <option value="">请选择</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>请求主体</label>
+              <select class="input-box">
+                <option value="">请选择</option>
+              </select>
+            </div>
+
+            <div class="filter-item">
+              <label>唯一id</label>
+              <input type="text" class="input-box" placeholder="请输入用户唯一标识值" />
+            </div>
+            <div class="filter-item">
+              <label>扩展id类型</label>
+              <select class="input-box">
+                <option>全部</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>扩展id</label>
+              <input type="text" class="input-box" placeholder="请输入扩展ID" />
+            </div>
+            <div class="filter-item">
+              <label>输入</label>
+              <input type="text" class="input-box" placeholder="请输入用户输入内容" />
+            </div>
+
+            <div class="filter-item">
+              <label>输出</label>
+              <input type="text" class="input-box" placeholder="请输入用户输出内容" />
+            </div>
+            <div class="filter-item">
+              <label>日志</label>
+              <input type="text" class="input-box" placeholder="请输入日志内容" />
+            </div>
+            <div class="filter-item">
+              <label>TraceId</label>
+              <input type="text" class="input-box" placeholder="请输入TraceId" />
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-secondary">重置</button>
+            <button class="btn btn-primary">查询</button>
+            <button class="btn btn-success">
+              导出
+              <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 4px"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">
+              搜索结果 <span>(总条数：1858)</span>
+            </div>
+            <button class="btn btn-primary">批量标注</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 40px"><input type="checkbox" /></th>
+                  <th class="cell-id">TraceId</th>
+                  <th class="cell-project">项目</th>
+                  <th class="cell-app">应用</th>
+                  <th class="cell-content-header" style="width: 300px">输入</th>
+                  <th class="cell-content-header" style="width: 500px">输出</th>
+                  <th>用户反馈</th>
+                  <th>问题类型</th>
+                  <th>问题反馈</th>
+                  <th>质检评价</th>
+                  <th>质检备注</th>
+                  <th>质检标签</th>
+                  <th>最近操作人</th>
+                  <th class="cell-time">Trace创建时间</th>
+                  <th class="cell-op">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- New Trace Row -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id" title="点击查看详情">
+                    1ab205da****
+                  </td>
+                  <td class="cell-project">咔嚓保-投保助手</td>
+                  <td class="cell-app">投保助手</td>
+                  <td class="cell-content-wrapper cell-content clickable">
+                    <div class="cell-content-inner">
+                      医保卡外借可以买什么重疾
+                    </div>
+                  </td>
+                  <td class="cell-content-wrapper cell-content clickable">
+                    <div class="cell-content-inner">符合【医保卡外借】【重疾险】的产品如下：
+                      1）君龙人寿超级玛丽15号重大疾病保险 - 君龙人寿保险有限公司
+                      投保年龄：投保人18周岁至100周岁，被保险人28天至50周岁
+                      保障期间：保至70周岁、保至85周岁、终身
+                      核心特点：核保宽松容易投，核保复议写入合同，三大结节有保障，多次重疾无限制，45岁前重疾翻倍赔
+                      2）众安保险众民保·重疾险(简易健告) - 众安在线财产保险股份有限公司
+                      投保年龄：投保人18周岁至100周岁，被保险人28天至70周岁
+                      保障期间：1年
+                      核心特点：健告仅3条，符合健告既往症可保可赔，无职业限制，重疾分组5次赔</div>
+                  </td>
+                  <td class="cell-feedback">满意</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-02-13 17:42:22</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 0 -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id" title="点击查看详情">
+                    07081cde****
+                  </td>
+                  <td class="cell-project">咔嚓保-投保助手</td>
+                  <td class="cell-app">投保助手</td>
+                  <td class="cell-content-wrapper cell-content clickable">
+                    <div class="cell-content-inner">平安岁月那个产品优点</div>
+                  </td>
+                  <td class="cell-content-wrapper cell-content clickable">
+                    <div class="cell-content-inner">
+                      请从以下【平安岁月】在售产品候选中选择具体版本
+                    </div>
+                  </td>
+                  <td class="cell-feedback">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-03-02 10:55:55</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 1 -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id">ai-13ff****</td>
+                  <td class="cell-project">咔嚓保-保单托管</td>
+                  <td class="cell-app">条款解析</td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      /share_common_sh/PDFOCR/3b040a14...
+                    </div>
+                  </td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      {"result": true, "base": {...}}
+                    </div>
+                  </td>
+                  <td class="cell-feedback">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-02-28 10:50:38</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 2 -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id">ai-1c7b****</td>
+                  <td class="cell-project">咔嚓保-保单托管</td>
+                  <td class="cell-app">条款解析</td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      /share_common_sh/PDFOCR/3b040a14...
+                    </div>
+                  </td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      {"result": true, "base": {...}}
+                    </div>
+                  </td>
+                  <td class="cell-feedback">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-02-28 10:01:21</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 3 -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id">07c8605f****</td>
+                  <td class="cell-project">咔嚓保-投保助手</td>
+                  <td class="cell-app">投保助手</td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">平安岁月那个产品优点</div>
+                  </td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      平安健康岁月长安特定疾病保险的产品优点...
+                    </div>
+                  </td>
+                  <td class="cell-feedback">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-02-27 16:34:56</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 4 -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id">5089a8ba****</td>
+                  <td class="cell-project">咔嚓保-投保助手</td>
+                  <td class="cell-app">投保助手</td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">/clear</div>
+                  </td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">会话已清空</div>
+                  </td>
+                  <td class="cell-feedback">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-02-27 16:34:53</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 5 -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id">c06a524f****</td>
+                  <td class="cell-project">咔嚓保-投保助手</td>
+                  <td class="cell-app">投保助手</td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">/clear</div>
+                  </td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">会话已清空</div>
+                  </td>
+                  <td class="cell-feedback">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-02-27 16:32:50</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 6 -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id">d65dd3c6****</td>
+                  <td class="cell-project">咔嚓保-投保助手</td>
+                  <td class="cell-app">投保助手</td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">/clear</div>
+                  </td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">会话已清空</div>
+                  </td>
+                  <td class="cell-feedback">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-02-27 16:31:28</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 7 -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id">ai-ea0a****</td>
+                  <td class="cell-project">AI核保</td>
+                  <td class="cell-app">AI人核审核</td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      {"hcid":"7442204", ...}
+                    </div>
+                  </td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      {"code":0, "msg":"ok", ...}
+                    </div>
+                  </td>
+                  <td class="cell-feedback">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-02-27 16:17:02</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 8 (有质检示例) -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id">730a8810****</td>
+                  <td class="cell-project">咔嚓保-投保助手</td>
+                  <td class="cell-app">技能搜索</td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      人力资源职业代码选哪一个呢？
+                    </div>
+                  </td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      建议您搜索“人力资源管理师”...
+                    </div>
+                  </td>
+                  <td class="cell-feedback">满意</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">5</td>
+                  <td class="cell-quality">搞定了，能通过</td>
+                  <td class="cell-quality">通过</td>
+                  <td class="cell-quality">wisewong</td>
+                  <td class="cell-time">2026-02-24 11:06:02</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 9 -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id">ai-f480****</td>
+                  <td class="cell-project">AI核保</td>
+                  <td class="cell-app">AI人核审核</td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      {"hcid":"7442202", ...}
+                    </div>
+                  </td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      {"code":0, "msg":"ok", ...}
+                    </div>
+                  </td>
+                  <td class="cell-feedback">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-02-27 16:11:05</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row 10 -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td class="cell-id">ai-8d84****</td>
+                  <td class="cell-project">AI核保</td>
+                  <td class="cell-app">AI人核审核</td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      {"hcid":"7442201", ...}
+                    </div>
+                  </td>
+                  <td class="cell-content">
+                    <div class="cell-content-inner">
+                      {"code":0, "msg":"ok", ...}
+                    </div>
+                  </td>
+                  <td class="cell-feedback">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-quality">-</td>
+                  <td class="cell-time">2026-02-27 16:05:09</td>
+                  <td class="cell-op">
+                    <div class="btn-op-group">
+                      <button class="btn-small btn-open-runResult">运行结果</button>
+                      <button class="btn-small btn-open-processLog">过程日志</button>
+                      <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="footer">
+            <div class="footer-left">
+              <span>共 1858 条</span>
+              <select class="page-size">
+                <option>10条/页</option>
+                <option>20条/页</option>
+              </select>
+            </div>
+            <div class="pagination">
+              <div class="page-btn">
+                <i class="fa-solid fa-chevron-left"></i>
+              </div>
+              <div class="page-btn active">1</div>
+              <div class="page-btn">2</div>
+              <div class="page-btn">3</div>
+              <div class="page-btn">...</div>
+              <div class="page-btn">186</div>
+              <div class="page-btn">
+                <i class="fa-solid fa-chevron-right"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-content">
+      <header class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-header-title">Trace追踪</span>
+          <div class="trace-id-badge">
+            <span id="modalTraceId">--</span>
+            <i data-lucide="copy" class="copy-icon" onclick="copyToClipboard('modalTraceId')"></i>
+          </div>
+        </div>
+        <i data-lucide="x" style="cursor: pointer; color: var(--muted)" onclick="closeModal()"></i>
+      </header>
+
+      <nav class="modal-tabs">
+        <div class="tab-item active" onclick="switchTab(event, 'runResult')">
+          运行结果
+        </div>
+        <div class="tab-item" onclick="switchTab(event, 'processLog')">
+          过程日志
+        </div>
+        <div class="tab-item" onclick="switchTab(event, 'qualityAudit')">
+          反馈质检
+        </div>
+      </nav>
+
+      <div class="modal-body">
+        <!-- 运行结果 Tab -->
+        <div id="runResult" class="tab-content active">
+          <div class="section-box">
+            <div class="section-header">
+              <span>输入</span>
+              <div style="display: flex; gap: 8px; align-items: center">
+                <select id="inputFormatSelect" onchange="renderRunResultContent()" style="
+                      border: 1px solid var(--line-strong);
+                      border-radius: 4px;
+                      padding: 2px 8px;
+                      font-size: 12px;
+                      cursor: pointer;
+                    ">
+                  <option value="auto" selected>混合格式</option>
+                  <option value="html">HTML格式</option>
+                  <option value="json">JSON格式</option>
+                  <option value="markdown">MD格式</option>
+                </select>
+                <i data-lucide="copy" class="copy-icon" onclick="copyText('inputContent')"></i>
+              </div>
+            </div>
+            <div id="inputContent" class="section-body">
+              平安岁月那个产品优点
+            </div>
+          </div>
+          <div class="section-box">
+            <div class="section-header">
+              <span>输出</span>
+              <div style="display: flex; gap: 8px; align-items: center">
+                <select id="outputFormatSelect" onchange="renderRunResultContent()" style="
+                      border: 1px solid var(--line-strong);
+                      border-radius: 4px;
+                      padding: 2px 8px;
+                      font-size: 12px;
+                      cursor: pointer;
+                    ">
+                  <option value="auto" selected>混合格式</option>
+                  <option value="html">HTML格式</option>
+                  <option value="json">JSON格式</option>
+                  <option value="markdown">MD格式</option>
+                </select>
+                <i data-lucide="copy" class="copy-icon" onclick="copyText('outputContent')"></i>
+              </div>
+            </div>
+            <div id="outputContent" class="section-body"></div>
+          </div>
+        </div>
+
+        <!-- 过程日志 Tab -->
+        <div id="processLog" class="tab-content">
+          <div class="user-id-box" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              userId:
+              <span id="logUserId">session_BG6TEjCNsKuO-43krK2tt_1769516929256</span>
+              <i data-lucide="copy" class="copy-icon" onclick="copyToClipboard('logUserId')"></i>
+            </div>
+            <div class="log-actions" style="display: flex; gap: 8px;">
+              <button class="btn-action" onclick="copyAllNodes()">
+                <i data-lucide="layers"></i> 复制全部过程日志
+              </button>
+            </div>
+          </div>
+
+          <div class="log-layout">
+            <!-- Left Navigation -->
+            <div id="timelineNav">
+              <div style="
+                    font-size: 11px;
+                    color: var(--muted);
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    margin-bottom: 12px;
+                    letter-spacing: 0.5px;
+                    padding: 0 12px;
+                  ">
+                节点目录
+              </div>
+              <div id="navContainer"></div>
+            </div>
+
+            <!-- Main Log Stream -->
+            <div id="timelineStream"></div>
+
+            <!-- Secondary Slide-over Panel -->
+            <div id="secondaryPanel" class="secondary-panel">
+              <div class="sp-header">
+                <span id="spTitle"
+                  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;">切片详情</span>
+                <div class="sp-header-right">
+                  <div class="sp-actions">
+                    <button class="btn-action" onclick="copyCurrentSlice()">
+                      <i data-lucide="copy"></i> 复制当前切片
+                    </button>
+                    <button class="btn-action" onclick="copyAllSlices()">
+                      <i data-lucide="layers"></i> 复制全部切片
+                    </button>
+                  </div>
+                  <div class="sp-close" onclick="closeSecondaryPanel()">
+                    <i data-lucide="x"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-body">
+                <div class="sp-sidebar" id="sliceNavItems">
+                  <!-- Slice items will be injected here -->
+                </div>
+                <div class="sp-main-content">
+                  <!-- 元信息区 -->
+                  <div id="spMeta" class="sp-meta" style="
+                    background: #f8fafc;
+                    padding: 16px 20px;
+                    border-bottom: 1px solid var(--line);
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    flex-wrap: wrap;
+                  ">
+                    <div class="sp-meta-item"
+                      style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted);">
+                      <i data-lucide="database" style="width: 14px; height: 14px;"></i>
+                      <span>知识库：</span>
+                      <span id="spKbName" style="color: var(--text); font-weight: 500;">-</span>
+                    </div>
+                    <div class="sp-meta-item"
+                      style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted);">
+                      <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                      <span>内容字数：</span>
+                      <span id="spWordCount" style="color: var(--text); font-weight: 500;">-</span>
+                    </div>
+                    <a id="spSourceLink" href="#" target="_blank" class="sp-source-link" style="
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 4px;
+                      font-size: 13px;
+                      color: var(--blue);
+                      text-decoration: none;
+                      margin-left: auto;
+                    ">
+                      <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                      查看源文件
+                    </a>
+                  </div>
+                  <!-- 内容区 -->
+                  <pre id="spContent" class="code-block" style="
+                        background: #fcfcfc;
+                        padding: 20px;
+                        margin: 0;
+                        font-size: 13px;
+                        line-height: 1.7;
+                        color: #1e293b;
+                        border: none;
+                        flex: 1;
+                      "></pre>
+                </div>
+              </div>
+            </div>
+            <div class="sp-overlay" onclick="closeSecondaryPanel()"></div>
+          </div>
+        </div>
+
+        <!-- 反馈质检 Tab -->
+        <div id="qualityAudit" class="tab-content">
+          <div class="feedback-actions">
+            <button class="btn btn-primary" style="font-size: 13px">
+              添加标注
+            </button>
+          </div>
+          <div class="table-container">
+            <table style="min-width: 100%">
+              <thead>
+                <tr>
+                  <th>评价</th>
+                  <th>原因</th>
+                  <th>问题类型</th>
+                  <th>反馈类型</th>
+                  <th>反馈人</th>
+                  <th>创建时间</th>
+                  <th>更新时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="8" class="empty-state">暂无数据</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    lucide.createIcons();
+
+    // 保存运行结果的原始数据
+    let rawInputData = "";
+    let rawOutputData = "";
+    const COLLAPSE_LINE_LIMIT = 30;
+
+    function countLines(content) {
+      const normalized = (content ?? "").toString().replace(/\r\n/g, "\n");
+      return normalized ? normalized.split("\n").length : 1;
+    }
+
+    function renderCodeBlock(content, lineLimit = COLLAPSE_LINE_LIMIT) {
+      const text = (content ?? "").toString();
+      const lineCount = countLines(text);
+      const byLogicalLines = lineCount > lineLimit;
+      const byContentLength = text.length > lineLimit * 120;
+      const needsCollapse = byLogicalLines || byContentLength;
+      return `<div class="code-block ${needsCollapse ? "collapsed is-scrollable" : ""}" data-line-count="${lineCount}" style="--collapse-lines:${lineLimit};">${escapeHtml(text)}${needsCollapse ? '<div class="expand-btn" onclick="toggleExpand(this.parentElement)">展开内容</div>' : ""}</div>`;
+    }
+
+    // 检测内容格式类型
+    function detectFormat(content) {
+      const trimmed = content.trim();
+      if (!trimmed) return "text";
+
+      // JSON 检测
+      if ((trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+        (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+        try {
+          JSON.parse(trimmed);
+          return "json";
+        } catch (e) { }
+      }
+
+      // Markdown 检测
+      if (/^(#{1,6}\s|[\*\-\+]\s|```|``|\_\_|\*\*|\[.*\]\(.*\)$)/m.test(trimmed)) {
+        return "markdown";
+      }
+
+      // HTML 检测
+      if (/<\/?[a-z][\s\S]*>/i.test(trimmed)) {
+        return "html";
+      }
+
+      return "text";
+    }
+
+    // 格式化内容
+    function formatContent(content, forceFormat = "auto") {
+      const trimmed = content.trim();
+      const detectedFormat = detectFormat(trimmed);
+      const format = forceFormat === "auto" ? detectedFormat : forceFormat;
+
+      if (format === "json") {
+        let jsonContent = trimmed;
+        try {
+          jsonContent = JSON.parse(trimmed);
+        } catch (e) { }
+        const jsonStr = typeof jsonContent === "object"
+          ? JSON.stringify(jsonContent, null, 2)
+          : trimmed;
+        return {
+          html: renderCodeBlock(jsonStr),
+          isFormatted: true
+        };
+      }
+
+      if (format === "markdown") {
+        // 简单的 Markdown 渲染
+        let mdHtml = escapeHtml(trimmed);
+        // 标题
+        mdHtml = mdHtml.replace(/^### (.*$)/gm, '<h3 style="margin: 16px 0 8px; font-size: 16px; font-weight: 600;">$1</h3>');
+        mdHtml = mdHtml.replace(/^## (.*$)/gm, '<h2 style="margin: 16px 0 8px; font-size: 18px; font-weight: 600;">$1</h2>');
+        mdHtml = mdHtml.replace(/^# (.*$)/gm, '<h1 style="margin: 16px 0 8px; font-size: 20px; font-weight: 700;">$1</h1>');
+        // 加粗
+        mdHtml = mdHtml.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // 斜体
+        mdHtml = mdHtml.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        // 行内代码
+        mdHtml = mdHtml.replace(/`([^`]+)`/g, '<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px;">$1</code>');
+        // 列表
+        mdHtml = mdHtml.replace(/^- (.*$)/gm, '<li style="margin-left: 20px;">$1</li>');
+        // 代码块
+        mdHtml = mdHtml.replace(/```([\s\S]*?)```/g, '<pre style="background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 6px; overflow-x: auto;"><code>$1</code></pre>');
+        // 换行
+        mdHtml = mdHtml.replace(/\n/g, '<br>');
+        return { html: mdHtml, isFormatted: true };
+      }
+
+      // 纯文本或 HTML（安全渲染）
+      if (format === "html") {
+        return {
+          html: renderCodeBlock(trimmed),
+          isFormatted: true
+        };
+      }
+
+      // 纯文本
+      return {
+        html: renderCodeBlock(trimmed),
+        isFormatted: false
+      };
+    }
+
+    // 渲染运行结果内容
+    function renderRunResultContent() {
+      const inputFormat = document.getElementById("inputFormatSelect")?.value || "auto";
+      const outputFormat = document.getElementById("outputFormatSelect")?.value || "auto";
+
+      const inputResult = formatContent(rawInputData, inputFormat);
+      const outputResult = formatContent(rawOutputData, outputFormat);
+
+      document.getElementById("inputContent").innerHTML = inputResult.html;
+      document.getElementById("outputContent").innerHTML = outputResult.html;
+
+      // 重新初始化图标
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function getProcessLogRenderOptions() {
+      const params = new URLSearchParams(window.location.search);
+      const logStyle = (params.get("logStyle") || "").trim().toLowerCase();
+      const collapseParam = Number(params.get("collapseLines"));
+      const collapseLines = Number.isFinite(collapseParam) && collapseParam > 0
+        ? Math.max(1, Math.floor(collapseParam))
+        : COLLAPSE_LINE_LIMIT;
+      return {
+        simple: logStyle === "simple",
+        collapseLines,
+      };
+    }
+
+    function applyProcessLogMode(options) {
+      const layout = document.querySelector("#processLog .log-layout");
+      if (!layout) return;
+      layout.classList.toggle("simple-mode", !!options?.simple);
+    }
+
+    function showModal(traceId, input, output, defaultTab = "runResult") {
+      document.getElementById("modalTraceId").innerText = traceId;
+
+      // 保存原始数据
+      rawInputData = input.trim();
+      rawOutputData = output.split('\n').map(l => l.trimStart()).join('\n').trim();
+
+      // 重置下拉框为"混合格式"
+      if (document.getElementById("inputFormatSelect")) {
+        document.getElementById("inputFormatSelect").value = "auto";
+      }
+      if (document.getElementById("outputFormatSelect")) {
+        document.getElementById("outputFormatSelect").value = "auto";
+      }
+
+      // 渲染格式化内容
+      renderRunResultContent();
+
+      const processLogOptions = getProcessLogRenderOptions();
+      applyProcessLogMode(processLogOptions);
+
+      // Setup Timeline Data for specific TraceId
+      const timelineStream = document.getElementById("timelineStream");
+      const navContainer = document.getElementById("navContainer");
+
+      if (
+        traceId === "1ab205da815e4de78f1bab88ef06a781" ||
+        traceId === "07081cdeedf948a4b36a20d3178c789f"
+      ) {
+        let traceData = [];
+        if (traceId === "1ab205da815e4de78f1bab88ef06a781") {
+          traceData = [
+            {
+              id: "node-1",
+              time: "17:42:22",
+              label: "INPUT",
+              icon: "user",
+              color: "blue",
+              title: "用户输入",
+              content: "医保卡外借可以买什么重疾",
+            },
+            {
+              id: "node-2",
+              time: "17:42:22",
+              label: "NLU",
+              icon: "cpu",
+              color: "orange",
+              title: "意图识别",
+              isJson: true,
+              content: {
+                version: "3.4",
+                current_query: "医保卡外借可以买什么重疾",
+                action: {
+                  type: "route",
+                  parameters: {
+                    route: ["商品检索"],
+                    intent_meta: {
+                      rewritten_query:
+                        "在【医保卡外借】条件下，筛选/推荐可投保的【重疾险】产品有哪些？",
+                      search_conditions: [
+                        { key: "人群类型", val: "医保卡外借" },
+                        { key: "险种类型", val: "重疾险" },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+            {
+              id: "node-3",
+              time: "17:42:32",
+              label: "RECALL",
+              icon: "search",
+              color: "purple",
+              title: "商品召回",
+              meta: ["召回数: 2"],
+              isRef: true,
+              query: "医保卡外借 重疾险",
+              content: [
+                {
+                  title: "君龙人寿超级玛丽15号重大疾病保险",
+                  id: 178427,
+                  content:
+                    '{"商品名称": "君龙人寿超级玛丽15号重大疾病保险", "特点": "核保宽松容易投，三大结节有保障，多次重疾无限制..."}',
+                },
+                {
+                  title: "众安保险众民保·重疾险",
+                  id: 178428,
+                  content:
+                    '{"商品名称": "众安在线财产保险股份有限公司", "特点": "健告仅3条，符合健告既往症可保可赔，无职业限制..."}',
+                },
+              ],
+            },
+            {
+              id: "node-4",
+              time: "17:42:35",
+              label: "ANSWER",
+              icon: "check-circle",
+              color: "green",
+              title: "最终答复",
+              content: `符合【医保卡外借】【重疾险】的产品如下：
+
+1）君龙人寿超级玛丽15号重大疾病保险 - 君龙人寿保险有限公司
+   投保年龄：投保人18周岁至100周岁，被保险人28天至50周岁
+   保障期间：保至70周岁、保至85周岁、终身
+   核心特点：核保宽松容易投，核保复议写入合同，三大结节有保障，多次重疾无限制，45岁前重疾翻倍赔
+
+2）众安保险众民保·重疾险(简易健告) - 众安在线财产保险股份有限公司
+   投保年龄：投保人18周岁至100周岁，被保险人28天至70周岁
+   保障期间：1年
+   核心特点：健告仅3条，符合健告既往症可保可赔，无职业限制，重疾分组5次赔`,
+            },
+          ];
+        } else {
+          traceData = [
+            {
+              id: "node-input",
+              time: "15:04:06",
+              label: "INPUT",
+              icon: "user",
+              color: "blue",
+              title: "用户输入",
+              content: "【平安岁月那个产品优点】",
+            },
+            {
+              id: "node-nlu",
+              time: "15:04:06",
+              label: "NLU",
+              icon: "cpu",
+              color: "orange",
+              title: "意图识别",
+              meta: ["Tokens: 145/42", "450ms"],
+              isJson: true,
+              content: {
+                intent: "product_inquiry",
+                raw_entity: "平安岁月",
+                confidence: 0.92,
+                reasoning: "用户询问特定产品的优点...",
+              },
+            },
+            {
+              id: "node-kb",
+              time: "15:04:07",
+              label: "RECALL",
+              icon: "database",
+              color: "purple",
+              title: "知识库检索",
+              meta: ["召回数: 44", "1.2s"],
+              isRef: true,
+              query: "平安岁月",
+              content: Array.from({ length: 44 }, (_, i) => ({
+                title: `平安岁月切片 ${i + 1}`,
+                id: 178807 + i,
+                content: `{"商品id": ${178807 + i}, "内容": "这是关于平安岁月的切片数据 ${i + 1}..."}`,
+              })),
+            },
+            {
+              id: "node-llm",
+              time: "15:04:38",
+              label: "ANSWER",
+              icon: "message-square",
+              color: "green",
+              title: "大模型生成",
+              meta: ["Tokens: 600/250", "750ms"],
+              content: `[NLU完整推理过程]\n用户现在需要处理的是用户的查询“平安岁月那个产品优点”...`,
+            },
+          ];
+        }
+        renderTimeline(traceData, timelineStream, navContainer, processLogOptions);
+      } else {
+        timelineStream.innerHTML =
+          '<div class="empty-state" style="width:100%">暂无数据</div>';
+        navContainer.innerHTML = "";
+      }
+
+      document.getElementById("detailModal").style.display = "flex";
+      document.documentElement.classList.add("modal-open");
+      document.body.classList.add("modal-open");
+
+      // Set default tab
+      const tabBtn = document.querySelector(
+        `.tab-item[onclick*="${defaultTab}"]`,
+      );
+      if (tabBtn) switchTab({ currentTarget: tabBtn }, defaultTab);
+
+      // Re-initialize icons for newly added DOM elements
+      setTimeout(() => {
+        lucide.createIcons();
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Handle selectedNode parameter - scroll to and highlight specific node
+        const selectedNodeId = urlParams.get("selectedNode");
+        if (selectedNodeId) {
+          const navItem = document.querySelector(`.nav-item[href="#${selectedNodeId}"]`);
+          if (navItem) {
+            document.querySelectorAll("#navContainer .nav-item").forEach((el) => el.classList.remove("active"));
+            navItem.classList.add("active");
+          }
+
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              const targetEl = document.getElementById(selectedNodeId);
+              if (targetEl) {
+                const timelineStream = document.getElementById("timelineStream");
+                const streamRect = timelineStream.getBoundingClientRect();
+                const targetRect = targetEl.getBoundingClientRect();
+                const scrollTarget = targetRect.top - streamRect.top + timelineStream.scrollTop - 16;
+                timelineStream.scrollTo({ top: scrollTarget, behavior: "smooth" });
+              }
+            }, 100);
+          });
+        }
+
+        // Handle openSlicePanel parameter (for backward compatibility)
+        if (urlParams.get("openSlicePanel") === "1" && !selectedNodeId) {
+          const firstRefCard = document.querySelector(".ref-card-compact");
+          if (firstRefCard) {
+            const nodeItem = firstRefCard.closest('.timeline-item');
+            if (nodeItem) {
+              const navItem = document.querySelector(`.nav-item[href="#${nodeItem.id}"]`);
+              if (navItem) navItem.click();
+            }
+            setTimeout(() => {
+              firstRefCard.click();
+            }, 300);
+          }
+        }
+      }, 10);
+    }
+
+    function renderTimeline(data, streamEl, navEl, options = {}) {
+      const simpleMode = !!options.simple;
+      const collapseLines = options.collapseLines || COLLAPSE_LINE_LIMIT;
+      let streamHtml = `<div class="timeline-wrapper ${simpleMode ? "simple" : ""}">`;
+      let navHtml = "";
+
+      data.forEach((item, index) => {
+        // Formatting content
+        let contentHtml = "";
+        if (item.isJson) {
+          let jsonContent = item.content;
+          if (typeof jsonContent === "string") {
+            try {
+              jsonContent = JSON.parse(jsonContent);
+            } catch (e) { }
+          }
+          const jsonStr =
+            typeof jsonContent === "object"
+              ? JSON.stringify(jsonContent, null, 2)
+              : jsonContent;
+          contentHtml = renderCodeBlock(jsonStr, collapseLines);
+        } else if (item.isRef) {
+          contentHtml = `<div style="font-size: 13px; margin-bottom: 8px; color: #64748b;">使用 <code>"${escapeHtml(item.query)}"</code> 检索到以下切片：</div>
+<div class="kb-compact-grid">`;
+          const slicesKey = `slices_${item.id}_${Math.random().toString(36).substr(2, 9)}`;
+          window.__slicesMap[slicesKey] = item.content;
+          item.content.forEach((ref, idx) => {
+            contentHtml += `
+<div class="ref-card-compact" onclick="openSecondaryPanel('${slicesKey}', ${idx})" title="${escapeHtml(ref.title)}">
+    <i data-lucide="file-text"></i>
+    <span>${escapeHtml(ref.title)}</span>
+</div>`;
+          });
+          contentHtml += `</div>`;
+        } else {
+          contentHtml = renderCodeBlock(item.content, collapseLines);
+        }
+
+        streamHtml += `
+<div class="timeline-item" id="${item.id}">
+    ${simpleMode ? "" : `<div class="timeline-icon icon-${item.color}"><i data-lucide="${item.icon}"></i></div>`}
+    <div class="time-label">${item.time} · ${item.label}</div>
+    <div class="t-card">
+        <div class="t-card-header">
+            <div class="t-card-title">${escapeHtml(item.title)}</div>
+            ${item.meta ? `<div class="t-card-meta">${item.meta.map((m) => `<span>${escapeHtml(m)}</span>`).join("")}</div>` : ""}
+            <button class="btn-copy-node" onclick="copyNodeById('${item.id}')" title="复制当前节点">
+                <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+            </button>
+        </div>
+        <div class="t-card-body">
+            ${contentHtml}
+        </div>
+    </div>
+</div>`;
+
+        if (!simpleMode) {
+          navHtml += `<a href="#${item.id}" class="nav-item ${index === 0 ? "active" : ""}" onclick="updateNav(this)">${escapeHtml(item.title)}</a>`;
+        }
+      });
+
+      streamHtml += "</div>";
+      streamEl.innerHTML = streamHtml;
+      navEl.innerHTML = navHtml;
+    }
+
+    function escapeHtml(unsafe) {
+      return (unsafe || "")
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function toggleExpand(el) {
+      const expandBtn = el?.querySelector(".expand-btn");
+      if (!expandBtn || !el.classList.contains("is-scrollable")) return;
+
+      if (el.classList.contains("collapsed")) {
+        el.classList.remove("collapsed");
+        el.classList.add("expanded");
+        expandBtn.innerText = "收起内容";
+        return;
+      }
+
+      el.classList.add("collapsed");
+      el.classList.remove("expanded");
+      el.scrollTop = 0;
+      expandBtn.innerText = "展开内容";
+    }
+
+    function updateNav(clickedEl) {
+      document
+        .querySelectorAll("#navContainer .nav-item")
+        .forEach((el) => el.classList.remove("active"));
+      clickedEl.classList.add("active");
+
+      const targetId = clickedEl.getAttribute("href").substring(1);
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        // Use timelineStream as the scroll container
+        const timelineStream = document.getElementById("timelineStream");
+        const streamRect = timelineStream.getBoundingClientRect();
+        const targetRect = targetEl.getBoundingClientRect();
+        const scrollTarget = targetRect.top - streamRect.top + timelineStream.scrollTop - 16;
+        timelineStream.scrollTo({
+          top: scrollTarget,
+          behavior: "smooth",
+        });
+      }
+    }
+
+    // Scroll sync: highlight nav item when scrolling
+    function setupScrollSync() {
+      const timelineStream = document.getElementById("timelineStream");
+      if (!timelineStream) return;
+
+      let scrollTimeout;
+      timelineStream.addEventListener("scroll", () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          const cards = timelineStream.querySelectorAll(".timeline-item[id]");
+          const streamRect = timelineStream.getBoundingClientRect();
+          const threshold = streamRect.top + 100; // 100px from top
+
+          let activeId = null;
+          for (const card of cards) {
+            const rect = card.getBoundingClientRect();
+            if (rect.top <= threshold) {
+              activeId = card.id;
+            }
+          }
+
+          if (activeId) {
+            document.querySelectorAll("#navContainer .nav-item").forEach((el) => {
+              el.classList.toggle("active", el.getAttribute("href") === `#${activeId}`);
+            });
+          }
+        }, 50);
+      });
+    }
+
+    window.__slicesMap = {};
+    let currentSlices = [];
+    let currentSliceIndex = 0;
+
+    function openSecondaryPanel(slicesKey, startIndex) {
+      const slices = window.__slicesMap[slicesKey];
+      if (!slices) return;
+      currentSlices = slices;
+      currentSliceIndex = startIndex;
+
+      const navContainer = document.getElementById("sliceNavItems");
+      navContainer.innerHTML = slices.map((s, i) => `
+        <div class="slice-nav-item ${i === startIndex ? 'active' : ''}" 
+             onclick="switchSlice(${i})" 
+             title="${escapeHtml(s.title)}">
+          ${escapeHtml(s.title)}
+        </div>
+      `).join('');
+
+      renderCurrentSlice();
+      document.getElementById("secondaryPanel").classList.add("open");
+      document.querySelector(".sp-overlay").style.display = "block";
+      lucide.createIcons();
+    }
+
+    function switchSlice(index) {
+      currentSliceIndex = index;
+      document.querySelectorAll(".slice-nav-item").forEach((el, i) => {
+        el.classList.toggle("active", i === index);
+      });
+      renderCurrentSlice();
+    }
+
+    function renderCurrentSlice() {
+      const slice = currentSlices[currentSliceIndex];
+      if (!slice) return;
+
+      document.getElementById("spTitle").innerText = slice.title;
+
+      // 更新元信息
+      document.getElementById("spKbName").innerText = slice.kbName || "产品知识库";
+      const wordCount = slice.content ? slice.content.length : 0;
+      document.getElementById("spWordCount").innerText = wordCount.toLocaleString();
+
+      // 更新来源链接
+      const sourceLink = document.getElementById("spSourceLink");
+      if (slice.id) {
+        sourceLink.href = `./frontend-knowledge-base-detail.html?id=${slice.id}`;
+        sourceLink.style.display = "inline-flex";
+      } else {
+        sourceLink.style.display = "none";
+      }
+
+      // 渲染内容
+      let displayContent = slice.content;
+      try {
+        const jsonObj = JSON.parse(slice.content);
+        displayContent = JSON.stringify(jsonObj, null, 2);
+      } catch (e) { }
+      document.getElementById("spContent").innerText = displayContent;
+
+      // 重新渲染图标
+      lucide.createIcons();
+    }
+
+    function copyCurrentSlice() {
+      const text = document.getElementById("spContent").innerText;
+      copyTextToClipboard(text);
+    }
+
+    function copyAllSlices() {
+      const allText = currentSlices.map(s => {
+        let content = s.content;
+        try {
+          content = JSON.stringify(JSON.parse(s.content), null, 2);
+        } catch (e) { }
+        return `### ${s.title}\n${content}`;
+      }).join('\n\n---\n\n');
+      copyTextToClipboard(allText);
+    }
+
+    function copyNodeById(nodeId) {
+      const node = document.getElementById(nodeId);
+      if (!node) return;
+
+      const title = node.querySelector(".t-card-title")?.innerText || "";
+      const timeLabel = node.querySelector(".time-label")?.innerText || "";
+      const content = node.querySelector(".t-card-body")?.innerText || "";
+
+      const text = `[${title}]\n${timeLabel}\n\n${content}`;
+      copyTextToClipboard(text);
+    }
+
+    function copyCurrentNode() {
+      // 获取当前可见的节点（在视口内的第一个节点）
+      const timelineStream = document.getElementById("timelineStream");
+      if (!timelineStream) return;
+
+      const cards = timelineStream.querySelectorAll(".timeline-item");
+      if (cards.length === 0) return;
+
+      const streamRect = timelineStream.getBoundingClientRect();
+      const threshold = streamRect.top + 100;
+
+      let activeCard = cards[0];
+      for (const card of cards) {
+        const rect = card.getBoundingClientRect();
+        if (rect.top <= threshold) {
+          activeCard = card;
+        }
+      }
+
+      // 提取节点内容
+      const title = activeCard.querySelector(".t-card-title")?.innerText || "";
+      const timeLabel = activeCard.querySelector(".time-label")?.innerText || "";
+      const content = activeCard.querySelector(".t-card-body")?.innerText || "";
+
+      const text = `[${title}]\n${timeLabel}\n\n${content}`;
+      copyTextToClipboard(text);
+    }
+
+    function copyAllNodes() {
+      const timelineStream = document.getElementById("timelineStream");
+      if (!timelineStream) return;
+
+      const cards = timelineStream.querySelectorAll(".timeline-item");
+      if (cards.length === 0) return;
+
+      const allText = Array.from(cards).map((card, index) => {
+        const title = card.querySelector(".t-card-title")?.innerText || "";
+        const timeLabel = card.querySelector(".time-label")?.innerText || "";
+        const content = card.querySelector(".t-card-body")?.innerText || "";
+        return `[${title}]\n${timeLabel}\n\n${content}`;
+      }).join('\n\n---\n\n');
+
+      copyTextToClipboard(allText);
+    }
+
+    function closeSecondaryPanel() {
+      document.getElementById("secondaryPanel").classList.remove("open");
+      document.querySelector(".sp-overlay").style.display = "none";
+    }
+
+    function closeModal() {
+      document.getElementById("detailModal").style.display = "none";
+      document.documentElement.classList.remove("modal-open");
+      document.body.classList.remove("modal-open");
+      closeSecondaryPanel(); // Ensure panel is closed when modal closes
+    }
+
+    function switchTab(e, tabId) {
+      // Update tab buttons
+      document
+        .querySelectorAll(".tab-item")
+        .forEach((item) => item.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+
+      // Update tab contents
+      document
+        .querySelectorAll(".tab-content")
+        .forEach((content) => content.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+    }
+
+    function copyTextToClipboard(text) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          const toast = document.createElement("div");
+          toast.innerText = "已复制";
+          toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0, 0, 0, 0.7);
+                    color: #fff;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    z-index: 2100;
+                    font-size: 12px;
+                `;
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 2000);
+        })
+        .catch((err) => {
+          console.error("Copy failed: ", err);
+        });
+    }
+
+    function copyToClipboard(id) {
+      const text = document.getElementById(id).innerText;
+      copyTextToClipboard(text);
+    }
+
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      copyTextToClipboard(text);
+    }
+
+    function normalizeTraceId(id) {
+      const value = (id || "").trim();
+      if (!value) return "";
+      if (value.includes("1ab205da"))
+        return "1ab205da815e4de78f1bab88ef06a781";
+      if (value.includes("07081cde"))
+        return "07081cdeedf948a4b36a20d3178c789f";
+      if (value.includes("ai-13ff"))
+        return "ai-13ff446dcfbc49ccb1ab6604df1f7345";
+      if (value.includes("ai-1c7b"))
+        return "ai-1c7b7f4ab5504582bcb2c5b0531fb2e5";
+      return value;
+    }
+
+    function normalizeTabId(tab) {
+      const value = (tab || "").trim().toLowerCase();
+      if (
+        value === "process" ||
+        value === "processlog" ||
+        value === "log" ||
+        value === "过程日志"
+      ) {
+        return "processLog";
+      }
+      if (
+        value === "quality" ||
+        value === "qualityaudit" ||
+        value === "audit" ||
+        value === "反馈质检"
+      ) {
+        return "qualityAudit";
+      }
+      return "runResult";
+    }
+
+    function getTracePayloadById(traceId) {
+      const targetTraceId = normalizeTraceId(traceId);
+      if (!targetTraceId) return null;
+
+      // 特殊测试数据：JSON 格式（约20行，不超过30行）
+      if (targetTraceId === "json-test-001") {
+        return {
+          traceId: "json-test-001",
+          input: JSON.stringify({
+            query: "医保卡外借可以买什么重疾",
+            userId: "user_12345",
+            timestamp: "2026-03-03T10:30:00Z",
+            context: {
+              appId: 3,
+              conversationId: "conv_abc123"
+            }
+          }, null, 2),
+          output: JSON.stringify({
+            status: "success",
+            data: {
+              products: [
+                {
+                  name: "君龙人寿超级玛丽15号重大疾病保险",
+                  company: "君龙人寿保险有限公司",
+                  age: "18-100周岁",
+                  period: "保至70周岁/85周岁/终身",
+                  features: ["核保宽松容易投", "核保复议写入合同", "三大结节有保障"]
+                },
+                {
+                  name: "众安保险众民保·重疾险",
+                  company: "众安在线财产保险股份有限公司",
+                  age: "18-70周岁",
+                  period: "1年",
+                  features: ["健告仅3条", "既往症可保可赔", "无职业限制"]
+                }
+              ],
+              total: 2
+            },
+            metadata: {
+              processingTime: "1.2s",
+              model: "gpt-4"
+            }
+          }, null, 2)
+        };
+      }
+
+      const idCells = document.querySelectorAll("td.cell-id");
+      for (const idCell of idCells) {
+        const row = idCell.closest("tr");
+        if (!row) continue;
+        const displayId = idCell.innerText || "";
+        const rowTraceId = normalizeTraceId(displayId);
+        if (rowTraceId !== targetTraceId) continue;
+        const contentCells = row.querySelectorAll(".cell-content");
+        return {
+          traceId: rowTraceId,
+          input: contentCells[0]?.innerText || "",
+          output: contentCells[1]?.innerText || "",
+        };
+      }
+      return null;
+    }
+
+    function getFirstTracePayload() {
+      const firstIdCell = document.querySelector("td.cell-id");
+      if (!firstIdCell) return null;
+      const row = firstIdCell.closest("tr");
+      if (!row) return null;
+      const contentCells = row.querySelectorAll(".cell-content");
+      return {
+        traceId: normalizeTraceId(firstIdCell.innerText || ""),
+        input: contentCells[0]?.innerText || "",
+        output: contentCells[1]?.innerText || "",
+      };
+    }
+
+    function openDetailFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const shouldOpen =
+        params.get("openDetail") === "1" ||
+        params.get("open") === "detail" ||
+        params.get("modal") === "detail";
+      if (!shouldOpen) return;
+
+      const tabId = normalizeTabId(params.get("tab") || "processLog");
+      const traceIdParam = params.get("traceId") || params.get("trace");
+      const payload =
+        getTracePayloadById(traceIdParam) ||
+        getTracePayloadById("07081cdeedf948a4b36a20d3178c789f") ||
+        getFirstTracePayload();
+      if (!payload) return;
+
+      showModal(payload.traceId, payload.input, payload.output, tabId);
+    }
+
+    function handleRowClick(e) {
+      const row = e.target.closest("tr");
+      if (!row || e.target.closest('input[type="checkbox"]')) return;
+
+      // Extract data
+      const contentCells = row.querySelectorAll(".cell-content");
+      const inputText = contentCells[0]?.innerText || "";
+      const outputText = contentCells[1]?.innerText || "";
+
+      const displayId = row.querySelector(".cell-id")?.innerText || "";
+      const fullId = normalizeTraceId(displayId);
+
+      // Handle specific button clicks
+      if (e.target.classList.contains("btn-open-runResult")) {
+        showModal(fullId, inputText, outputText, "runResult");
+        return;
+      }
+      if (e.target.classList.contains("btn-open-processLog")) {
+        showModal(fullId, inputText, outputText, "processLog");
+        return;
+      }
+      if (e.target.classList.contains("btn-open-qualityAudit")) {
+        showModal(fullId, inputText, outputText, "qualityAudit");
+        return;
+      }
+
+      // Handle quality cell clicks
+      if (e.target.closest(".cell-quality")) {
+        showModal(fullId, inputText, outputText, "qualityAudit");
+        return;
+      }
+
+      // Handle general cell clicks
+      if (e.target.closest(".cell-content")) {
+        showModal(fullId, inputText, outputText, "runResult");
+        return;
+      }
+
+      // Handle ID/Project/App cell clicks - open modal with runResult tab
+      if (e.target.closest(".cell-id") || e.target.closest(".cell-project") || e.target.closest(".cell-app")) {
+        showModal(fullId, inputText, outputText, "runResult");
+        return;
+      }
+    }
+
+    // Attach global listener to table body
+    document.querySelector("tbody").addEventListener("click", handleRowClick);
+
+    // Remove old direct listeners as we use delegation
+
+    // Close modal when clicking on overlay
+    document.getElementById("detailModal").addEventListener("click", (e) => {
+      if (e.target.id === "detailModal") closeModal();
+    });
+
+    // Close modal on Escape key
+    document.addEventListener("keydown", (e) => {
+      if (
+        e.key === "Escape" &&
+        document.getElementById("detailModal").style.display === "flex"
+      ) {
+        closeModal();
+      }
+    });
+
+    // Robust fix for leading whitespace caused by HTML tag indentation
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".cell-content-inner").forEach((el) => {
+        const text = el.innerText;
+        if (text.includes("\n")) {
+          el.innerText = text
+            .split("\n")
+            .map((line) => line.trimStart())
+            .join("\n")
+            .trim();
+        }
+      });
+
+      openDetailFromQuery();
+      setupScrollSync();
+    });
+  </script>
+</body>
+
+</html>
