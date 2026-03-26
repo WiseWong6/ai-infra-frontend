@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>模型测试</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../js/model-registry.js"></script>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --line: #e2e8f0;
+      --line-soft: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --green: #059669;
+      --green-soft: #ecfdf5;
+      --orange: #d97706;
+      --orange-soft: #fff7ed;
+      --purple: #7c3aed;
+      --purple-soft: #f5f3ff;
+      --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    .app { display: flex; min-height: 100vh; }
+    .main { flex: 1; min-width: 0; padding: 24px; }
+    .shell { max-width: 1480px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    .head {
+      padding: 24px; display: flex; justify-content: space-between; gap: 20px;
+      border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(135deg, #ffffff, #f9fcff 42%, #eef6ff);
+      box-shadow: var(--shadow);
+    }
+    .head h1 { margin: 0 0 8px; font-size: 28px; }
+    .head p { margin: 0; color: var(--muted); max-width: 760px; }
+    .quick {
+      min-width: 260px; padding: 16px; border-radius: 16px; border: 1px solid rgba(37,99,235,0.14);
+      background: rgba(255,255,255,0.84);
+    }
+    .quick strong { display: block; margin-bottom: 6px; }
+    .layout { display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 16px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+    .panel-head {
+      padding: 18px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-head h2 { margin: 0; font-size: 16px; }
+    .panel-body { padding: 20px; display: grid; gap: 16px; }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field label { font-size: 13px; color: var(--muted); font-weight: 600; }
+    .field input, .field select, .field textarea {
+      width: 100%; min-height: 40px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; outline: none; background: #fff;
+    }
+    .field textarea { min-height: 120px; resize: vertical; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    }
+    .tag.blue { color: var(--blue); background: var(--blue-soft); }
+    .tag.green { color: var(--green); background: var(--green-soft); }
+    .tag.orange { color: var(--orange); background: var(--orange-soft); }
+    .tag.purple { color: var(--purple); background: var(--purple-soft); }
+    .seg { display: flex; flex-wrap: wrap; gap: 8px; }
+    .seg button, .seg label {
+      min-width: 72px; height: 38px; border-radius: 12px; border: 1px solid var(--line); background: #fff;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; padding: 0 12px;
+    }
+    .seg input { display: none; }
+    .seg input:checked + span,
+    .seg input:checked + strong { color: var(--blue); }
+    .seg label.active { border-color: rgba(37,99,235,0.34); background: var(--blue-soft); color: var(--blue); }
+    .btn {
+      height: 40px; border: 0; border-radius: 12px; padding: 0 16px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn.primary { background: var(--blue); color: #fff; }
+    .btn.ghost { background: #fff; color: var(--text); border: 1px solid var(--line); }
+    .hint { font-size: 12px; color: var(--muted); }
+    .result-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .metric {
+      padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: #fbfdff;
+    }
+    .metric-label { color: var(--muted); font-size: 12px; }
+    .metric-value { margin-top: 6px; font-size: 22px; font-weight: 700; }
+    .code-box {
+      min-height: 160px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line);
+      background: #0f172a; color: #e2e8f0; font: 13px/1.7 SFMono-Regular, Monaco, Consolas, monospace; white-space: pre-wrap;
+    }
+    .subcard {
+      padding: 16px; border-radius: 16px; border: 1px solid var(--line); background: #fbfdff;
+    }
+    .subcard h3 { margin: 0 0 12px; font-size: 14px; }
+    .toast {
+      position: fixed; top: 28px; left: 50%; transform: translateX(-50%) translateY(-8px);
+      background: rgba(15, 23, 42, 0.96); color: #fff; padding: 10px 16px; border-radius: 12px;
+      opacity: 0; pointer-events: none; transition: all 0.22s ease; z-index: 10000;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (max-width: 1180px) {
+      .layout { grid-template-columns: 1fr; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+    <main class="main">
+      <div class="shell">
+        <section class="head">
+          <div>
+            <h1>模型测试</h1>
+            <p>面向单模型调试。直接选择模型，验证文本输入、图片输入、流式输出、JSON 结构化和思考强度等调用参数是否符合预期。供应商路由由底层按企业配置自动处理。</p>
+          </div>
+          <div class="quick">
+            <strong>本期范围</strong>
+            <div class="hint">只做单模型调试，不做多模型横向对比。多模型对比后续由提示词评测侧消化。</div>
+          </div>
+        </section>
+
+        <section class="layout">
+          <div class="card">
+            <div class="panel-head">
+              <h2>测试配置</h2>
+              <button class="btn ghost" id="resetBtn">重置</button>
+            </div>
+            <div class="panel-body">
+              <div class="field">
+                <label>模型</label>
+                <select id="modelSelect"></select>
+                <div class="hint" id="priceHint">-</div>
+              </div>
+              <div class="field">
+                <label>能力概览</label>
+                <div class="tags" id="capabilityTags"></div>
+              </div>
+
+              <div class="subcard">
+                <h3>调用开关</h3>
+                <div class="field">
+                  <label>思考模式</label>
+                  <div class="seg" id="thinkingSeg">
+                    <label data-mode="disabled"><input type="radio" name="thinkingMode" value="disabled" /><span>关闭</span></label>
+                    <label data-mode="enabled"><input type="radio" name="thinkingMode" value="enabled" /><span>开启</span></label>
+                    <label data-mode="auto"><input type="radio" name="thinkingMode" value="auto" /><span>自动</span></label>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>思考强度</label>
+                  <select id="reasoningEffortSelect"></select>
+                </div>
+                <div class="field">
+                  <label>输出模式</label>
+                  <select id="jsonModeSelect"></select>
+                </div>
+                <div class="field">
+                  <label>流式输出</label>
+                  <select id="streamSelect">
+                    <option value="false">关闭</option>
+                    <option value="true">开启</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>文本输入</label>
+                <textarea id="textInput" placeholder="输入要测试的 prompt 或用户问题"></textarea>
+              </div>
+              <div class="field">
+                <label>图片 URL</label>
+                <input id="imageInput" placeholder="仅支持图片输入的模型可填写" />
+                <div class="hint" id="imageHint">当前模型不支持图片输入</div>
+              </div>
+              <button class="btn primary" id="runBtn">
+                <i data-lucide="play"></i>
+                开始测试
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-head">
+              <h2>测试结果</h2>
+              <div class="hint" id="resultState">待运行</div>
+            </div>
+            <div class="panel-body">
+              <div class="result-grid">
+                <div class="metric">
+                  <div class="metric-label">耗时</div>
+                  <div class="metric-value" id="latencyMetric">-</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label">Input Tokens</div>
+                  <div class="metric-value" id="inputMetric">-</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label">Output Tokens</div>
+                  <div class="metric-value" id="outputMetric">-</div>
+                </div>
+              </div>
+
+              <div class="subcard">
+                <h3>请求摘要</h3>
+                <div class="code-box" id="requestBox">待运行</div>
+              </div>
+              <div class="subcard">
+                <h3>响应摘要</h3>
+                <div class="code-box" id="responseBox">待运行</div>
+              </div>
+              <div class="subcard">
+                <h3>结构化输出 / 原始输出</h3>
+                <div class="code-box" id="outputBox">待运行</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const {
+      getModelByKey,
+      getDefaultModel,
+      renderModelOptions,
+      getModelPriceHint,
+      buildModelConfig,
+      coerceModelConfig
+    } = window.ModelRegistryDemo;
+
+    const modelSelect = document.getElementById("modelSelect");
+    const capabilityTags = document.getElementById("capabilityTags");
+    const priceHint = document.getElementById("priceHint");
+    const imageInput = document.getElementById("imageInput");
+    const imageHint = document.getElementById("imageHint");
+    const jsonModeSelect = document.getElementById("jsonModeSelect");
+    const reasoningEffortSelect = document.getElementById("reasoningEffortSelect");
+    const streamSelect = document.getElementById("streamSelect");
+    const textInput = document.getElementById("textInput");
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function setThinkingMode(mode) {
+      document.querySelectorAll('#thinkingSeg label').forEach((label) => {
+        const active = label.dataset.mode === mode;
+        label.classList.toggle("active", active);
+        const input = label.querySelector("input");
+        input.checked = active;
+      });
+    }
+
+    function getThinkingMode() {
+      return document.querySelector('#thinkingSeg input:checked')?.value || "disabled";
+    }
+
+    function renderModels() {
+      const modelKey = getDefaultModel()?.modelKey || "";
+      renderModelOptions(modelSelect, {
+        preferredKey: modelKey
+      });
+      updateModelCapabilities();
+    }
+
+    function updateModelCapabilities() {
+      const model = getModelByKey(modelSelect.value);
+      if (!model) return;
+      priceHint.textContent = getModelPriceHint(model.modelKey) || "无价格提示";
+      capabilityTags.innerHTML = [
+        `<span class="tag blue">${model.supportsStreaming ? "支持流式" : "不支持流式"}</span>`,
+        `<span class="tag ${model.supportsThinking ? "purple" : "orange"}">${model.supportsThinking ? "支持深度思考" : "不支持深度思考"}</span>`,
+        `<span class="tag ${model.supportsImageInput ? "green" : "orange"}">${model.supportsImageInput ? "支持图片输入" : "纯文本模型"}</span>`,
+        `<span class="tag ${model.jsonModes.includes("json_object") ? "orange" : "blue"}">${model.jsonModes.includes("json_object") ? "支持 JSON Object" : "仅文本输出"}</span>`
+      ].join("");
+      jsonModeSelect.innerHTML = model.jsonModes
+        .map((mode) => `<option value="${mode}">${mode === "json_object" ? "JSON Object" : "文本输出"}</option>`)
+        .join("");
+      reasoningEffortSelect.innerHTML = model.supportsThinking
+        ? model.reasoningEfforts.map((item) => `<option value="${item}">${item}</option>`).join("")
+        : '<option value="">无</option>';
+
+      imageInput.disabled = !model.supportsImageInput;
+      if (!model.supportsImageInput) imageInput.value = "";
+      imageHint.textContent = model.supportsImageInput ? "可传图片 URL 或 file_id 的占位值" : "当前模型不支持图片输入";
+
+      const config = buildModelConfig({ modelKey: model.modelKey });
+      jsonModeSelect.value = config.jsonMode;
+      streamSelect.value = String(config.streamEnabled);
+      setThinkingMode(config.thinkingMode);
+      reasoningEffortSelect.value = config.reasoningEffort || "";
+
+      document.querySelectorAll('#thinkingSeg label').forEach((label) => {
+        const disableThinking = !model.supportsThinking && label.dataset.mode !== "disabled";
+        label.style.opacity = disableThinking ? "0.45" : "1";
+        label.style.pointerEvents = disableThinking ? "none" : "auto";
+      });
+      reasoningEffortSelect.disabled = !model.supportsThinking;
+      streamSelect.disabled = !model.supportsStreaming;
+      if (!model.supportsStreaming) streamSelect.value = "false";
+    }
+
+    function buildRequestPreview(config, model) {
+      const payload = {
+        supplierCode: config.supplierCode,
+        model: model.providerModelId,
+        stream: config.streamEnabled,
+        text: textInput.value.trim(),
+        image_url: imageInput.value.trim() || undefined,
+        thinking: config.thinkingMode,
+        reasoning_effort: config.reasoningEffort || undefined,
+        json_mode: config.jsonMode
+      };
+      return JSON.stringify(payload, null, 2);
+    }
+
+    function runTest() {
+      const model = getModelByKey(modelSelect.value);
+      if (!model) {
+        showToast("请先选择模型");
+        return;
+      }
+      const coerced = coerceModelConfig(model, {
+        modelKey: model.modelKey,
+        supplierCode: model.supplierCode,
+        thinkingMode: getThinkingMode(),
+        reasoningEffort: reasoningEffortSelect.value,
+        streamEnabled: streamSelect.value === "true",
+        jsonMode: jsonModeSelect.value,
+        temperature: model.defaultConfig.temperature,
+        seed: model.defaultConfig.seed,
+        maxTokens: model.defaultConfig.maxTokens,
+        timeout: model.defaultConfig.timeout,
+        extraBody: model.defaultConfig.extraBody
+      });
+      coerced.warnings.forEach((message) => showToast(message));
+      const config = coerced.config;
+      const inputText = textInput.value.trim() || "请帮我总结一下这个功能的用途";
+      const latency = `${(0.9 + Math.random() * 2.6).toFixed(2)}s`;
+      const inputTokens = 180 + Math.floor(Math.random() * 120);
+      const outputTokens = 320 + Math.floor(Math.random() * 260);
+      const responseShape = config.jsonMode === "json_object"
+        ? {
+            answer: `这是 ${model.displayName} 的结构化测试结果`,
+            supplier: model.supplierCode,
+            stream: config.streamEnabled,
+            reasoning_effort: config.reasoningEffort || null
+          }
+        : `模型 ${model.displayName} 已完成调用。\n输入摘要：${inputText.slice(0, 88)}\n思考模式：${config.thinkingMode}\n输出模式：${config.jsonMode}`;
+
+      document.getElementById("resultState").textContent = "已完成";
+      document.getElementById("latencyMetric").textContent = latency;
+      document.getElementById("inputMetric").textContent = String(inputTokens);
+      document.getElementById("outputMetric").textContent = String(outputTokens);
+      document.getElementById("requestBox").textContent = buildRequestPreview(config, model);
+      document.getElementById("responseBox").textContent = [
+        `模型：${model.displayName}`,
+        `供应商：${model.supplierCode}`,
+        `耗时：${latency}`,
+        `输入 Tokens：${inputTokens}`,
+        `输出 Tokens：${outputTokens}`
+      ].join("\n");
+      document.getElementById("outputBox").textContent =
+        typeof responseShape === "string" ? responseShape : JSON.stringify(responseShape, null, 2);
+      showToast("测试完成");
+    }
+
+    function resetForm() {
+      textInput.value = "";
+      imageInput.value = "";
+      renderModels();
+      document.getElementById("resultState").textContent = "待运行";
+      document.getElementById("latencyMetric").textContent = "-";
+      document.getElementById("inputMetric").textContent = "-";
+      document.getElementById("outputMetric").textContent = "-";
+      document.getElementById("requestBox").textContent = "待运行";
+      document.getElementById("responseBox").textContent = "待运行";
+      document.getElementById("outputBox").textContent = "待运行";
+    }
+
+    modelSelect.addEventListener("change", updateModelCapabilities);
+    document.querySelectorAll('#thinkingSeg label').forEach((label) => {
+      label.addEventListener("click", () => {
+        setThinkingMode(label.dataset.mode);
+      });
+    });
+    document.getElementById("runBtn").addEventListener("click", runTest);
+    document.getElementById("resetBtn").addEventListener("click", resetForm);
+
+    renderModels();
+  </script>
+</body>
+
+</html>

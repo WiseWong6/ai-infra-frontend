@@ -58,22 +58,14 @@
         
         <!-- Tools with sub-menu -->
         <div style="position: relative;">
-          <a class="menu-item ${isPage('frontend-tools.html,frontend-tools-log.html') ? 'active' : ''}" href="./frontend-tools.html">
+          <a class="menu-item ${isPage('frontend-ocr-eval.html') ? 'active' : ''}" href="./frontend-ocr-eval.html">
             <i data-lucide="wrench"></i>
-            <span class="menu-text">工具管理</span>
+            <span class="menu-text">工具</span>
           </a>
           <div style="display: flex; flex-direction: column;">
             <a class="menu-item ${isPage('frontend-ocr-eval.html') ? 'active' : ''}" href="./frontend-ocr-eval.html" style="padding-left: 44px; font-size: 13px; height: 36px; padding-top: 5px; padding-bottom: 5px;">
               <i data-lucide="scan-text" style="width: 16px; height: 16px;"></i>
               <span class="menu-text">OCR 评测</span>
-            </a>
-            <a class="menu-item ${isPage('frontend-tools.html') ? 'active' : ''}" href="./frontend-tools.html" style="padding-left: 44px; font-size: 13px; height: 36px; padding-top: 5px; padding-bottom: 5px;">
-              <i data-lucide="wrench" style="width: 16px; height: 16px;"></i>
-              <span class="menu-text">工具列表</span>
-            </a>
-            <a class="menu-item ${isPage('frontend-tools-log.html') ? 'active' : ''}" href="./frontend-tools-log.html" style="padding-left: 44px; font-size: 13px; height: 36px; padding-top: 5px; padding-bottom: 5px;">
-              <i data-lucide="scroll-text" style="width: 16px; height: 16px;"></i>
-              <span class="menu-text">调用日志</span>
             </a>
           </div>
         </div>
@@ -100,6 +92,22 @@
         <a class="menu-item" href="#">
           <i data-lucide="bar-chart-3"></i>
           <span class="menu-text">应用指标</span>
+        </a>
+      </div>
+
+      <div class="menu-group">
+        <h2 class="menu-title">基础设施</h2>
+        <a class="menu-item ${isPage('frontend-mcp-center.html') ? 'active' : ''}" href="./frontend-mcp-center.html">
+          <i data-lucide="plug-zap"></i>
+          <span class="menu-text">MCP中心</span>
+        </a>
+        <a class="menu-item ${isPage('frontend-models.html') ? 'active' : ''}" href="./frontend-models.html">
+          <i data-lucide="cpu"></i>
+          <span class="menu-text">模型管理</span>
+        </a>
+        <a class="menu-item ${isPage('frontend-model-test.html') ? 'active' : ''}" href="./frontend-model-test.html">
+          <i data-lucide="flask-conical"></i>
+          <span class="menu-text">模型测试</span>
         </a>
       </div>
 
@@ -152,4 +160,3 @@
   // Backup initialization for dynamic content
   setTimeout(setupSidebarToggle, 100);
 })();
-

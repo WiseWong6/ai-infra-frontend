@@ -8,6 +8,7 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../js/model-registry.js"></script>
   <style>
     :root {
       --bg: #fafbfc;
@@ -1865,7 +1866,7 @@
 
     }
   </style>
-  <link rel="stylesheet" href="./ui-refresh.css" />
+  <link rel="stylesheet" href="../css/ui-refresh.css" />
 </head>
 
 <body>
@@ -1956,14 +1957,8 @@
             <div class="kv">
               <label class="label">模型选择</label>
               <select id="modelSelect">
-                <option>Deepseek v 3.2</option>
-                <option>doubao-seed 1.6 flash</option>
-                <option>gpt-4o-mini</option>
               </select>
-              <div class="hint">价格信息
-                ≤32,000 tokens，输入: 0.002，输出: 0.003
-                >32,001 tokens，输入: 0.004，输出: 0.006
-                单位：元/千tokens</div>
+              <div class="hint" id="modelHint">价格信息与能力说明将随模型切换刷新</div>
             </div>
 
             <div class="sub-title">模型参数</div>
@@ -1975,6 +1970,26 @@
                 <label><input type="radio" name="deepMode" value="on" checked /> 开启</label>
                 <label><input type="radio" name="deepMode" value="auto" /> 自动</label>
               </div>
+            </div>
+
+            <div class="kv">
+              <label class="label">思考强度</label>
+              <select id="reasoningEffortSelect"></select>
+              <span class="hint">仅支持深度思考的模型可配置</span>
+            </div>
+
+            <div class="kv">
+              <label class="label">流式输出</label>
+              <select id="streamSelect">
+                <option value="false">关闭</option>
+                <option value="true">开启</option>
+              </select>
+            </div>
+
+            <div class="kv">
+              <label class="label">JSON结构化</label>
+              <select id="jsonModeSelect"></select>
+              <span class="hint">根据模型能力自动提供可选输出模式</span>
             </div>
 
             <div class="kv">
@@ -2186,6 +2201,17 @@
   <script>
 
     const STORAGE_KEY = "prompt_rows_demo";
+    const {
+      renderModelOptions,
+      getModelByKey,
+      getDefaultModel,
+      getModelPriceHint,
+      buildModelConfig,
+      coerceModelConfig,
+      toUiThinkingMode,
+      fromUiThinkingMode
+    } = window.ModelRegistryDemo;
+    const DEFAULT_MODEL = getDefaultModel();
     const ROLE_OPTIONS = [
       { value: "system", label: "System Prompt" },
       { value: "user", label: "User Prompt" },
@@ -2469,12 +2495,15 @@
         { role: "System Prompt", content: DEFAULT_SYSTEM_PROMPT },
         { role: "User Prompt", content: DEFAULT_USER_PROMPT }
       ],
-      model: "Deepseek v 3.2",
-      deepMode: "on",
-      temp: "0.3",
-      seed: "42",
-      maxTokens: "32000",
-      timeout: "300",
+      model: DEFAULT_MODEL?.modelKey || "",
+      deepMode: toUiThinkingMode(DEFAULT_MODEL?.defaultConfig?.thinkingMode || "disabled"),
+      reasoningEffort: DEFAULT_MODEL?.defaultConfig?.reasoningEffort || "",
+      streamEnabled: Boolean(DEFAULT_MODEL?.defaultConfig?.streamEnabled),
+      jsonMode: DEFAULT_MODEL?.defaultConfig?.jsonMode || "none",
+      temp: DEFAULT_MODEL?.defaultConfig?.temperature || "0.3",
+      seed: DEFAULT_MODEL?.defaultConfig?.seed || "42",
+      maxTokens: DEFAULT_MODEL?.defaultConfig?.maxTokens || "32000",
+      timeout: DEFAULT_MODEL?.defaultConfig?.timeout || "300",
       extraBody: "",
       refMode: "eval",
       evalSet: "",
@@ -2546,6 +2575,10 @@
     const responseBox = document.getElementById("responseBox");
     const outputBox = document.getElementById("outputBox");
     const modelSelect = document.getElementById("modelSelect");
+    const modelHint = document.getElementById("modelHint");
+    const reasoningEffortSelect = document.getElementById("reasoningEffortSelect");
+    const streamSelect = document.getElementById("streamSelect");
+    const jsonModeSelect = document.getElementById("jsonModeSelect");
     const temperatureInput = document.getElementById("temperatureInput");
     const seedInput = document.getElementById("seedInput");
     const maxTokensInput = document.getElementById("maxTokensInput");
@@ -2773,6 +2806,75 @@
 
     function renderAddMessageRoleOptions() {
       addMessageBtn.disabled = false;
+    }
+
+    function renderPromptModelOptions(preferredKey) {
+      renderModelOptions(modelSelect, { preferredKey });
+    }
+
+    function applyPromptModelCapabilities(options = {}) {
+      const model = getModelByKey(modelSelect.value) || DEFAULT_MODEL;
+      if (!model) return;
+      editorState.model = model.modelKey;
+
+      if (modelHint) {
+        const parts = [getModelPriceHint(model.modelKey) || "无价格提示"];
+        parts.push(model.supportsThinking ? "支持深度思考" : "不支持深度思考");
+        parts.push(model.jsonModes.includes("json_object") ? "支持 JSON Object" : "仅文本输出");
+        modelHint.textContent = parts.join(" | ");
+      }
+
+      jsonModeSelect.innerHTML = model.jsonModes
+        .map((mode) => `<option value="${mode}">${mode === "json_object" ? "JSON Object" : "文本输出"}</option>`)
+        .join("");
+      reasoningEffortSelect.innerHTML = model.supportsThinking
+        ? model.reasoningEfforts.map((item) => `<option value="${item}">${item}</option>`).join("")
+        : '<option value="">无</option>';
+
+      const { config, warnings } = coerceModelConfig(model, {
+        modelKey: model.modelKey,
+        thinkingMode: fromUiThinkingMode(editorState.deepMode),
+        reasoningEffort: editorState.reasoningEffort,
+        streamEnabled: editorState.streamEnabled,
+        jsonMode: editorState.jsonMode,
+        temperature: editorState.temp,
+        seed: editorState.seed,
+        maxTokens: editorState.maxTokens,
+        timeout: editorState.timeout,
+        extraBody: editorState.extraBody
+      });
+
+      editorState.deepMode = toUiThinkingMode(config.thinkingMode);
+      editorState.reasoningEffort = config.reasoningEffort || "";
+      editorState.streamEnabled = Boolean(config.streamEnabled);
+      editorState.jsonMode = config.jsonMode;
+      editorState.temp = config.temperature;
+      editorState.seed = config.seed;
+      editorState.maxTokens = config.maxTokens;
+      editorState.timeout = config.timeout;
+      editorState.extraBody = config.extraBody;
+      temperatureInput.value = editorState.temp;
+      seedInput.value = editorState.seed;
+      maxTokensInput.value = editorState.maxTokens;
+      timeoutInput.value = editorState.timeout;
+      extraBodyInput.value = editorState.extraBody;
+
+      document.querySelectorAll('input[name="deepMode"]').forEach((el) => {
+        const disableThinking = !model.supportsThinking && el.value !== "off";
+        el.disabled = disableThinking;
+        const label = el.closest("label");
+        if (label) label.style.opacity = disableThinking ? "0.45" : "1";
+        el.checked = el.value === editorState.deepMode;
+      });
+      reasoningEffortSelect.disabled = !model.supportsThinking;
+      reasoningEffortSelect.value = editorState.reasoningEffort || "";
+      streamSelect.disabled = !model.supportsStreaming;
+      streamSelect.value = String(editorState.streamEnabled);
+      jsonModeSelect.value = editorState.jsonMode;
+
+      if (options.showWarnings) {
+        warnings.forEach((message) => showToast(message));
+      }
     }
 
     function refreshInputVisualState(root = document) {
@@ -4193,7 +4295,7 @@
       promptName.value = editorState.name;
       promptDesc.value = String(editorState.desc || "").slice(0, 200);
       promptOwner.value = editorState.owner;
-      modelSelect.value = editorState.model;
+      renderPromptModelOptions(editorState.model);
       temperatureInput.value = editorState.temp;
       seedInput.value = editorState.seed;
       maxTokensInput.value = editorState.maxTokens;
@@ -4205,9 +4307,13 @@
       document.querySelectorAll('input[name="deepMode"]').forEach((el) => {
         el.checked = el.value === editorState.deepMode;
       });
+      streamSelect.value = String(editorState.streamEnabled);
+      jsonModeSelect.value = editorState.jsonMode;
+      reasoningEffortSelect.value = editorState.reasoningEffort || "";
       document.querySelectorAll('input[name="refMode"]').forEach((el) => {
         el.checked = el.value === editorState.refMode;
       });
+      applyPromptModelCapabilities();
       setRunState(isOutputReady() ? "done" : "idle");
       syncReferenceSelectors();
       renderMessages();
@@ -4234,6 +4340,17 @@
       editorState.variableInputs = row.variableInputs || {};
       editorState.variableMeta = row.variableMeta || {};
       editorState.variableFiles = {};
+      const modelConfig = buildModelConfig(row);
+      editorState.model = modelConfig.modelKey;
+      editorState.deepMode = toUiThinkingMode(modelConfig.thinkingMode);
+      editorState.reasoningEffort = modelConfig.reasoningEffort || "";
+      editorState.streamEnabled = Boolean(modelConfig.streamEnabled);
+      editorState.jsonMode = modelConfig.jsonMode;
+      editorState.temp = modelConfig.temperature;
+      editorState.seed = modelConfig.seed;
+      editorState.maxTokens = modelConfig.maxTokens;
+      editorState.timeout = modelConfig.timeout;
+      editorState.extraBody = modelConfig.extraBody;
       editorState.response = row.response || "待运行";
       editorState.output = row.output || "待运行";
       editorState.tracePerf = row.tracePerf || TRACE_IDLE_TEXT;
@@ -4411,7 +4528,19 @@
       editorState.desc = value;
     });
     promptOwner.addEventListener("input", (e) => (editorState.owner = e.target.value));
-    modelSelect.addEventListener("change", (e) => (editorState.model = e.target.value));
+    modelSelect.addEventListener("change", (e) => {
+      editorState.model = e.target.value;
+      applyPromptModelCapabilities({ showWarnings: true });
+    });
+    reasoningEffortSelect.addEventListener("change", (e) => {
+      editorState.reasoningEffort = e.target.value;
+    });
+    streamSelect.addEventListener("change", (e) => {
+      editorState.streamEnabled = e.target.value === "true";
+    });
+    jsonModeSelect.addEventListener("change", (e) => {
+      editorState.jsonMode = e.target.value;
+    });
     temperatureInput.addEventListener("input", (e) => (editorState.temp = e.target.value));
     seedInput.addEventListener("input", (e) => (editorState.seed = e.target.value));
     maxTokensInput.addEventListener("input", (e) => (editorState.maxTokens = e.target.value));
@@ -4593,6 +4722,7 @@
     document.querySelectorAll('input[name="deepMode"]').forEach((el) => {
       el.addEventListener("change", (event) => {
         editorState.deepMode = event.target.value;
+        applyPromptModelCapabilities();
       });
     });
 
@@ -4674,6 +4804,19 @@
       }
 
       const rows = loadRows();
+      const persistedModelConfig = buildModelConfig({
+        modelKey: editorState.model,
+        thinkingMode: fromUiThinkingMode(editorState.deepMode),
+        reasoningEffort: editorState.reasoningEffort,
+        streamEnabled: editorState.streamEnabled,
+        jsonMode: editorState.jsonMode,
+        temp: editorState.temp,
+        seed: editorState.seed,
+        maxTokens: editorState.maxTokens,
+        timeout: editorState.timeout,
+        extraBody: editorState.extraBody
+      });
+      const resolvedModel = getModelByKey(persistedModelConfig.modelKey);
       const payload = {
         project: editorState.project,
         app: editorState.app,
@@ -4688,6 +4831,19 @@
         caseId: editorState.refMode === "eval" ? editorState.caseId : "",
         variableInputs: { ...editorState.variableInputs },
         variableMeta: { ...editorState.variableMeta },
+        supplierCode: persistedModelConfig.supplierCode,
+        model: persistedModelConfig.modelKey,
+        modelName: resolvedModel?.displayName || persistedModelConfig.modelKey,
+        deepMode: editorState.deepMode,
+        reasoningEffort: persistedModelConfig.reasoningEffort,
+        streamEnabled: persistedModelConfig.streamEnabled,
+        jsonMode: persistedModelConfig.jsonMode,
+        temp: persistedModelConfig.temperature,
+        seed: persistedModelConfig.seed,
+        maxTokens: persistedModelConfig.maxTokens,
+        timeout: persistedModelConfig.timeout,
+        extraBody: persistedModelConfig.extraBody,
+        modelConfig: persistedModelConfig,
         response: editorState.response,
         output: editorState.output,
         tracePerf: editorState.tracePerf,

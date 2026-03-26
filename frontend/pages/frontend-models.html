@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>模型管理</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../js/model-registry.js"></script>
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --card: #ffffff;
+      --line: #f1f5f9;
+      --line-strong: #e2e8f0;
+      --line-soft: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --blue: #3b82f6;
+      --blue-soft: #eff6ff;
+      --green: #059669;
+      --green-soft: #ecfdf5;
+      --orange: #d97706;
+      --orange-soft: #fff7ed;
+      --purple: #7c3aed;
+      --purple-soft: #f5f3ff;
+      --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    .app { display: flex; min-height: 100vh; }
+    .main { flex: 1; min-width: 0; padding: 24px; }
+    .shell { max-width: 1640px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    .head {
+      padding: 8px 0 0;
+    }
+    .head h1 { margin: 0 0 8px; font-size: 28px; }
+    .head p { margin: 0; color: var(--muted); max-width: 880px; }
+    .filter-card {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 16px;
+      align-items: end;
+    }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .field input, .field select, .field textarea {
+      width: 100%; min-height: 36px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 4px; outline: none; background: #fff;
+    }
+    .field textarea { min-height: 88px; resize: vertical; padding: 10px 12px; }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      align-items: center;
+      grid-column: 1 / -1;
+    }
+    .table-card {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .btn {
+      height: 36px; border: 0; border-radius: 4px; padding: 0 16px; cursor: pointer; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn.primary { background: var(--blue); color: #fff; }
+    .btn.secondary { background: #fff; color: var(--text); border: 1px solid var(--line-strong); }
+    .btn.ghost { background: #fff; color: var(--text); border: 1px solid var(--line-strong); }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    table { width: 100%; border-collapse: collapse; min-width: 1240px; }
+    th, td { padding: 14px 16px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
+    th { font-size: 12px; font-weight: 600; color: var(--muted); background: #f8fafc; }
+    td strong { display: block; }
+    .muted { color: var(--muted); font-size: 12px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    }
+    .tag.blue { color: var(--blue); background: var(--blue-soft); }
+    .tag.green { color: var(--green); background: var(--green-soft); }
+    .tag.orange { color: var(--orange); background: var(--orange-soft); }
+    .tag.purple { color: var(--purple); background: var(--purple-soft); }
+    .status {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      color: var(--green); background: var(--green-soft);
+    }
+    .status.disabled { color: var(--orange); background: var(--orange-soft); }
+    .status.icon-only {
+      min-width: auto;
+      justify-content: center;
+      padding: 0;
+      font-size: 14px;
+      background: transparent;
+      border-radius: 0;
+    }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .row-btn {
+      height: 32px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--text);
+      padding: 0 12px; cursor: pointer; font-size: 12px; font-weight: 600;
+    }
+    .empty { padding: 48px 24px; text-align: center; color: var(--muted); }
+    .modal {
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px;
+      background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 9999;
+    }
+    .modal.show { display: flex; }
+    .panel {
+      width: min(1040px, 100%); max-height: calc(100vh - 48px); overflow: auto; background: #fff;
+      border-radius: 20px; border: 1px solid var(--line); box-shadow: 0 32px 96px rgba(15, 23, 42, 0.24);
+    }
+    .panel-head, .panel-foot {
+      padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .panel-foot { border-bottom: 0; border-top: 1px solid var(--line); justify-content: flex-end; }
+    .panel-body { padding: 20px; display: grid; gap: 18px; }
+    .grid-2, .grid-3 { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .subcard {
+      border: 1px solid var(--line); border-radius: 16px; padding: 16px; background: #fbfdff;
+    }
+    .subcard h3 { margin: 0 0 14px; font-size: 15px; }
+    .checks { display: flex; flex-wrap: wrap; gap: 10px 14px; }
+    .checks label { display: inline-flex; align-items: center; gap: 8px; color: var(--text); font-size: 13px; }
+    .toggle-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .toggle-chip {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--line);
+      border-radius: 12px; background: #fff;
+    }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .toast {
+      position: fixed; top: 28px; left: 50%; transform: translateX(-50%) translateY(-8px);
+      background: rgba(15, 23, 42, 0.96); color: #fff; padding: 10px 16px; border-radius: 12px;
+      opacity: 0; pointer-events: none; transition: all 0.22s ease; z-index: 10000;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (max-width: 1180px) {
+      .filter-grid, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .filter-actions { justify-content: flex-start; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+    <main class="main">
+      <div class="shell">
+        <section class="head">
+          <div>
+            <h1>模型管理</h1>
+          </div>
+        </section>
+
+        <section class="filter-card">
+          <div class="filter-grid">
+            <div class="field">
+              <label>搜索</label>
+              <input id="keywordInput" placeholder="按模型名称、模型 ID 搜索" />
+            </div>
+            <div class="field">
+              <label>供应商</label>
+              <select id="supplierFilter"></select>
+            </div>
+            <div class="field">
+              <label>状态</label>
+              <select id="statusFilter">
+                <option value="">全部</option>
+                <option value="active">启用</option>
+                <option value="disabled">下架</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>深度思考</label>
+              <select id="thinkingFilter">
+                <option value="">全部</option>
+                <option value="supported">支持</option>
+                <option value="unsupported">不支持</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>多模态</label>
+              <select id="multimodalFilter">
+                <option value="">全部</option>
+                <option value="supported">支持</option>
+                <option value="unsupported">不支持</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>JSON 输出</label>
+              <select id="jsonFilter">
+                <option value="">全部</option>
+                <option value="supported">支持</option>
+                <option value="unsupported">不支持</option>
+              </select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn ghost" id="resetBtn">重置</button>
+              <button class="btn primary" id="createBtn">
+                <i data-lucide="plus"></i>
+                添加模型
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="table-card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>模型名称</th>
+                  <th>模型 ID</th>
+                  <th>供应商</th>
+                  <th>深度思考</th>
+                  <th>多模态</th>
+                  <th>Json输出</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+            <div id="emptyState" class="empty" hidden>暂无符合条件的模型</div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <strong id="modalTitle">新建模型</strong>
+          <div class="muted" style="margin-top:4px;">一条模型记录代表一个当前封装层可直接调用的模型。</div>
+        </div>
+        <button class="row-btn" id="closeModalBtn">关闭</button>
+      </div>
+      <div class="panel-body">
+        <div class="grid-3">
+          <div class="field">
+            <label>模型键</label>
+            <input id="modelKeyInput" placeholder="如 volc-doubao-seed-2-0-pro" />
+          </div>
+          <div class="field">
+            <label>展示名称</label>
+            <input id="displayNameInput" placeholder="如 Doubao Seed 2.0 Pro" />
+          </div>
+          <div class="field">
+            <label>供应商</label>
+            <select id="supplierInput"></select>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="field">
+            <label>模型 ID</label>
+            <input id="providerModelIdInput" placeholder="如 doubao-seed-2-0-pro-250415" />
+          </div>
+          <div class="field">
+            <label>状态</label>
+            <select id="statusInput">
+              <option value="active">启用</option>
+              <option value="disabled">下架</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>价格提示</label>
+            <input id="pricingHintInput" placeholder="如 输入 0.0032 / 输出 0.0160 元/千tokens" />
+          </div>
+        </div>
+
+        <div class="subcard">
+          <h3>能力矩阵</h3>
+          <div class="toggle-row">
+            <label class="toggle-chip"><input type="checkbox" id="supportsThinkingInput" /> 支持深度思考</label>
+            <label class="toggle-chip"><input type="checkbox" id="supportsImageInput" /> 支持图片输入</label>
+            <label class="toggle-chip"><input type="checkbox" id="supportsStreamingInput" checked /> 支持流式输出</label>
+          </div>
+          <div class="grid-2" style="margin-top:16px;">
+            <div class="field">
+              <label>JSON 模式</label>
+              <div class="checks">
+                <label><input type="checkbox" value="none" data-json-mode checked disabled /> 文本输出</label>
+                <label><input type="checkbox" value="json_object" data-json-mode /> JSON Object</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>思考强度</label>
+              <div class="checks" id="reasoningChecks">
+                <label><input type="checkbox" value="minimal" data-reasoning-effort /> minimal</label>
+                <label><input type="checkbox" value="low" data-reasoning-effort /> low</label>
+                <label><input type="checkbox" value="medium" data-reasoning-effort checked /> medium</label>
+                <label><input type="checkbox" value="high" data-reasoning-effort /> high</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subcard">
+          <h3>默认配置</h3>
+          <div class="grid-3">
+            <div class="field">
+              <label>思考模式</label>
+              <select id="defaultThinkingModeInput">
+                <option value="disabled">关闭</option>
+                <option value="enabled">开启</option>
+                <option value="auto">自动</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>默认流式</label>
+              <select id="defaultStreamInput">
+                <option value="false">关闭</option>
+                <option value="true">开启</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>默认 JSON 模式</label>
+              <select id="defaultJsonModeInput">
+                <option value="none">文本输出</option>
+                <option value="json_object">JSON Object</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid-3" style="margin-top:16px;">
+            <div class="field">
+              <label>默认思考强度</label>
+              <select id="defaultReasoningEffortInput">
+                <option value="">无</option>
+                <option value="minimal">minimal</option>
+                <option value="low">low</option>
+                <option value="medium">medium</option>
+                <option value="high">high</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>温度</label>
+              <input id="temperatureInput" value="0.3" />
+            </div>
+            <div class="field">
+              <label>Seed</label>
+              <input id="seedInput" value="42" />
+            </div>
+          </div>
+          <div class="grid-3" style="margin-top:16px;">
+            <div class="field">
+              <label>Max Tokens</label>
+              <input id="maxTokensInput" value="32000" />
+            </div>
+            <div class="field">
+              <label>Timeout</label>
+              <input id="timeoutInput" value="300" />
+            </div>
+            <div class="field">
+              <label>Extra Body</label>
+              <input id="extraBodyInput" placeholder='{"key":"value"}' />
+            </div>
+          </div>
+          <div class="field" style="margin-top:16px;">
+            <label>描述</label>
+            <textarea id="descriptionInput" placeholder="说明这个模型适合什么场景、有哪些约束"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="panel-foot">
+        <button class="btn ghost" id="cancelBtn">取消</button>
+        <button class="btn primary" id="saveBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const {
+      STORAGE_KEYS,
+      getSuppliers,
+      getSupplierByCode,
+      getModels,
+      saveModels,
+      getModelByKey,
+      coerceModelConfig
+    } = window.ModelRegistryDemo;
+
+    const keywordInput = document.getElementById("keywordInput");
+    const supplierFilter = document.getElementById("supplierFilter");
+    const statusFilter = document.getElementById("statusFilter");
+    const thinkingFilter = document.getElementById("thinkingFilter");
+    const multimodalFilter = document.getElementById("multimodalFilter");
+    const jsonFilter = document.getElementById("jsonFilter");
+    const tableBody = document.getElementById("tableBody");
+    const emptyState = document.getElementById("emptyState");
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const toast = document.getElementById("toast");
+
+    const modelKeyInput = document.getElementById("modelKeyInput");
+    const displayNameInput = document.getElementById("displayNameInput");
+    const supplierInput = document.getElementById("supplierInput");
+    const providerModelIdInput = document.getElementById("providerModelIdInput");
+    const statusInput = document.getElementById("statusInput");
+    const pricingHintInput = document.getElementById("pricingHintInput");
+    const supportsThinkingInput = document.getElementById("supportsThinkingInput");
+    const supportsImageInput = document.getElementById("supportsImageInput");
+    const supportsStreamingInput = document.getElementById("supportsStreamingInput");
+    const defaultThinkingModeInput = document.getElementById("defaultThinkingModeInput");
+    const defaultStreamInput = document.getElementById("defaultStreamInput");
+    const defaultJsonModeInput = document.getElementById("defaultJsonModeInput");
+    const defaultReasoningEffortInput = document.getElementById("defaultReasoningEffortInput");
+    const temperatureInput = document.getElementById("temperatureInput");
+    const seedInput = document.getElementById("seedInput");
+    const maxTokensInput = document.getElementById("maxTokensInput");
+    const timeoutInput = document.getElementById("timeoutInput");
+    const extraBodyInput = document.getElementById("extraBodyInput");
+    const descriptionInput = document.getElementById("descriptionInput");
+
+    let editingModelKey = "";
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function getJsonModesFromInputs() {
+      return Array.from(document.querySelectorAll("[data-json-mode]:checked")).map((node) => node.value);
+    }
+
+    function getReasoningEffortsFromInputs() {
+      return Array.from(document.querySelectorAll("[data-reasoning-effort]:checked")).map((node) => node.value);
+    }
+
+    function renderSupplierOptions() {
+      const suppliers = getSuppliers({ includeDisabled: true });
+      const options = ['<option value="">全部供应商</option>'].concat(
+        suppliers.map((item) => `<option value="${item.supplierCode}">${item.supplierName}</option>`)
+      );
+      supplierFilter.innerHTML = options.join("");
+      supplierInput.innerHTML = suppliers
+        .map((item) => `<option value="${item.supplierCode}">${item.supplierName}</option>`)
+        .join("");
+    }
+
+    function getFilteredRows() {
+      const keyword = keywordInput.value.trim().toLowerCase();
+      const supplierCode = supplierFilter.value;
+      const status = statusFilter.value;
+      const thinking = thinkingFilter.value;
+      const multimodal = multimodalFilter.value;
+      const jsonOutput = jsonFilter.value;
+      return getModels({ includeDisabled: true }).filter((item) => {
+        if (supplierCode && item.supplierCode !== supplierCode) return false;
+        if (status && item.status !== status) return false;
+        if (thinking === "supported" && !item.supportsThinking) return false;
+        if (thinking === "unsupported" && item.supportsThinking) return false;
+        if (multimodal === "supported" && !item.supportsImageInput) return false;
+        if (multimodal === "unsupported" && item.supportsImageInput) return false;
+        if (jsonOutput === "supported" && !item.jsonModes.includes("json_object")) return false;
+        if (jsonOutput === "unsupported" && item.jsonModes.includes("json_object")) return false;
+        if (!keyword) return true;
+        return [item.displayName, item.providerModelId]
+          .some((text) => String(text || "").toLowerCase().includes(keyword));
+      });
+    }
+
+    function renderTable() {
+      const rows = getFilteredRows();
+      emptyState.hidden = rows.length > 0;
+      tableBody.innerHTML = rows.map((item) => {
+        const supplier = getSupplierByCode(item.supplierCode);
+        const supplierLabel = supplier?.supplierName || item.supplierCode;
+        return `
+          <tr>
+            <td>
+              <strong>${item.displayName}</strong>
+            </td>
+            <td>
+              <strong>${item.providerModelId}</strong>
+            </td>
+            <td>
+              <strong>${supplierLabel}</strong>
+            </td>
+            <td>
+              <span class="status icon-only ${item.supportsThinking ? "" : "disabled"}" aria-label="${item.supportsThinking ? "支持" : "不支持"}">
+                <i class="fa-solid ${item.supportsThinking ? "fa-check" : "fa-xmark"}"></i>
+              </span>
+            </td>
+            <td>
+              <span class="status icon-only ${item.supportsImageInput ? "" : "disabled"}" aria-label="${item.supportsImageInput ? "支持" : "不支持"}">
+                <i class="fa-solid ${item.supportsImageInput ? "fa-check" : "fa-xmark"}"></i>
+              </span>
+            </td>
+            <td>
+              <span class="status icon-only ${item.jsonModes.includes("json_object") ? "" : "disabled"}" aria-label="${item.jsonModes.includes("json_object") ? "支持" : "不支持"}">
+                <i class="fa-solid ${item.jsonModes.includes("json_object") ? "fa-check" : "fa-xmark"}"></i>
+              </span>
+            </td>
+            <td><span class="status ${item.status === "disabled" ? "disabled" : ""}">${item.status === "active" ? "启用" : "下架"}</span></td>
+            <td>
+              <div class="row-actions">
+                <button class="row-btn" data-action="edit" data-key="${item.modelKey}">编辑</button>
+                <button class="row-btn" data-action="toggle" data-key="${item.modelKey}">${item.status === "active" ? "下架" : "启用"}</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+      if (window.lucide?.createIcons) window.lucide.createIcons();
+    }
+
+    function syncCapabilityDependencies() {
+      const supportsThinking = supportsThinkingInput.checked;
+      document.querySelectorAll("[data-reasoning-effort]").forEach((node) => {
+        node.disabled = !supportsThinking;
+        if (!supportsThinking) node.checked = false;
+      });
+      defaultThinkingModeInput.disabled = !supportsThinking;
+      defaultReasoningEffortInput.disabled = !supportsThinking;
+      if (!supportsThinking) {
+        defaultThinkingModeInput.value = "disabled";
+        defaultReasoningEffortInput.value = "";
+      } else if (!getReasoningEffortsFromInputs().length) {
+        document.querySelector('[data-reasoning-effort="medium"]').checked = true;
+        defaultReasoningEffortInput.value = "medium";
+      }
+
+      const supportsStreaming = supportsStreamingInput.checked;
+      if (!supportsStreaming) defaultStreamInput.value = "false";
+      defaultStreamInput.disabled = !supportsStreaming;
+
+      const jsonModes = getJsonModesFromInputs();
+      if (!jsonModes.includes("json_object")) defaultJsonModeInput.value = "none";
+      defaultJsonModeInput.querySelector('option[value="json_object"]').disabled = !jsonModes.includes("json_object");
+    }
+
+    function setCheckboxes(selector, values) {
+      const selected = new Set(values || []);
+      document.querySelectorAll(selector).forEach((node) => {
+        node.checked = selected.has(node.value);
+      });
+    }
+
+    function openModal(row) {
+      editingModelKey = row?.modelKey || "";
+      modalTitle.textContent = editingModelKey ? "编辑模型" : "新建模型";
+      modelKeyInput.value = row?.modelKey || "";
+      displayNameInput.value = row?.displayName || "";
+      supplierInput.value = row?.supplierCode || supplierInput.options[0]?.value || "";
+      providerModelIdInput.value = row?.providerModelId || "";
+      statusInput.value = row?.status || "active";
+      pricingHintInput.value = row?.pricingHint || "";
+      supportsThinkingInput.checked = Boolean(row?.supportsThinking);
+      supportsImageInput.checked = Boolean(row?.supportsImageInput);
+      supportsStreamingInput.checked = row?.supportsStreaming !== false;
+      setCheckboxes("[data-json-mode]", row?.jsonModes || ["none"]);
+      setCheckboxes("[data-reasoning-effort]", row?.reasoningEfforts || []);
+      defaultThinkingModeInput.value = row?.defaultConfig?.thinkingMode || "disabled";
+      defaultStreamInput.value = String(Boolean(row?.defaultConfig?.streamEnabled));
+      defaultJsonModeInput.value = row?.defaultConfig?.jsonMode || "none";
+      defaultReasoningEffortInput.value = row?.defaultConfig?.reasoningEffort || "";
+      temperatureInput.value = row?.defaultConfig?.temperature || "0.3";
+      seedInput.value = row?.defaultConfig?.seed || "42";
+      maxTokensInput.value = row?.defaultConfig?.maxTokens || "32000";
+      timeoutInput.value = row?.defaultConfig?.timeout || "300";
+      extraBodyInput.value = row?.defaultConfig?.extraBody || "";
+      descriptionInput.value = row?.description || "";
+      modelKeyInput.disabled = Boolean(editingModelKey);
+      syncCapabilityDependencies();
+      modal.classList.add("show");
+    }
+
+    function closeModal() {
+      modal.classList.remove("show");
+    }
+
+    function persistModel() {
+      const modelKey = modelKeyInput.value.trim();
+      const displayName = displayNameInput.value.trim();
+      const supplierCode = supplierInput.value;
+      const providerModelId = providerModelIdInput.value.trim();
+      if (!modelKey || !displayName || !supplierCode || !providerModelId) {
+        showToast("请先填写模型键、展示名称、供应商和模型 ID");
+        return;
+      }
+      const reasoningEfforts = supportsThinkingInput.checked ? getReasoningEffortsFromInputs() : [];
+      const jsonModes = Array.from(new Set(["none"].concat(getJsonModesFromInputs())));
+      const row = {
+        modelKey,
+        supplierCode,
+        displayName,
+        providerModelId,
+        status: statusInput.value === "disabled" ? "disabled" : "active",
+        supportsThinking: supportsThinkingInput.checked,
+        supportsImageInput: supportsImageInput.checked,
+        supportsStreaming: supportsStreamingInput.checked,
+        jsonModes,
+        reasoningEfforts,
+        pricingHint: pricingHintInput.value.trim(),
+        description: descriptionInput.value.trim(),
+        defaultConfig: {
+          thinkingMode: defaultThinkingModeInput.value,
+          reasoningEffort: defaultReasoningEffortInput.value,
+          streamEnabled: defaultStreamInput.value === "true",
+          jsonMode: defaultJsonModeInput.value,
+          temperature: temperatureInput.value.trim(),
+          seed: seedInput.value.trim(),
+          maxTokens: maxTokensInput.value.trim(),
+          timeout: timeoutInput.value.trim(),
+          extraBody: extraBodyInput.value.trim()
+        }
+      };
+      const coerced = coerceModelConfig(row, row.defaultConfig);
+      row.defaultConfig = coerced.config;
+      const rows = getModels({ includeDisabled: true });
+      const nextRows = editingModelKey
+        ? rows.map((item) => item.modelKey === editingModelKey ? row : item)
+        : rows.concat(row);
+      saveModels(nextRows);
+      closeModal();
+      renderTable();
+      showToast(editingModelKey ? "模型已更新" : "模型已创建");
+    }
+
+    function toggleStatus(modelKey) {
+      const rows = getModels({ includeDisabled: true }).map((item) => {
+        if (item.modelKey !== modelKey) return item;
+        return { ...item, status: item.status === "active" ? "disabled" : "active" };
+      });
+      saveModels(rows);
+      renderTable();
+      showToast("模型状态已更新");
+    }
+
+    document.getElementById("createBtn").addEventListener("click", () => openModal(null));
+    document.getElementById("closeModalBtn").addEventListener("click", closeModal);
+    document.getElementById("cancelBtn").addEventListener("click", closeModal);
+    document.getElementById("saveBtn").addEventListener("click", persistModel);
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      keywordInput.value = "";
+      supplierFilter.value = "";
+      statusFilter.value = "";
+      thinkingFilter.value = "";
+      multimodalFilter.value = "";
+      jsonFilter.value = "";
+      renderTable();
+    });
+    [keywordInput, supplierFilter, statusFilter, thinkingFilter, multimodalFilter, jsonFilter].forEach((node) => {
+      node.addEventListener("input", renderTable);
+      node.addEventListener("change", renderTable);
+    });
+    [supportsThinkingInput, supportsStreamingInput].forEach((node) => {
+      node.addEventListener("change", syncCapabilityDependencies);
+    });
+    document.querySelectorAll("[data-json-mode], [data-reasoning-effort]").forEach((node) => {
+      node.addEventListener("change", syncCapabilityDependencies);
+    });
+    tableBody.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const modelKey = button.dataset.key;
+      if (button.dataset.action === "edit") {
+        openModal(getModelByKey(modelKey));
+      } else if (button.dataset.action === "toggle") {
+        toggleStatus(modelKey);
+      }
+    });
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeModal();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modal.classList.contains("show")) closeModal();
+    });
+
+    renderSupplierOptions();
+    renderTable();
+  </script>
+</body>
+
+</html>

@@ -1162,8 +1162,8 @@
                 <div class="arch-box">
                   <div class="arch-box-title">模型管理</div>
                   <div class="arch-box-items">
-                    <div class="arch-box-item">供应商管理</div>
                     <div class="arch-box-item">模型管理</div>
+                    <div class="arch-box-item">模型测试</div>
                     <div class="arch-box-item">路由策略</div>
                     <div class="arch-box-item">成本监控</div>
                   </div>
@@ -1282,8 +1282,6 @@
             name: "工具",
             icon: "wrench",
             children: [
-              { name: "工具管理", file: "frontend-tools.html", desc: "Tools 工具注册与配置", icon: "tool" },
-              { name: "工具日志", file: "frontend-tools-log.html", desc: "工具调用日志", icon: "list" },
               { name: "OCR 评测工作台", file: "frontend-ocr-eval.html", desc: "优化上传流程", icon: "scan-text" }
             ]
           }
@@ -1303,6 +1301,21 @@
         icon: "activity",
         children: [
           { name: "Trace 追踪", file: "frontend-trace.html", desc: "Trace 列表与详情", icon: "search" }
+        ]
+      },
+      {
+        id: "infra",
+        name: "基础设施",
+        icon: "server",
+        children: [
+          {
+            name: "模型管理",
+            icon: "cpu",
+            children: [
+              { name: "模型管理", file: "frontend-models.html", desc: "模型能力与默认配置", icon: "boxes" },
+              { name: "模型测试", file: "frontend-model-test.html", desc: "单模型调试与响应预览", icon: "flask-conical" }
+            ]
+          }
         ]
       }
     ];
@@ -1523,7 +1536,7 @@
         label: "基础设施",
         layout: "grid",
         platforms: [
-          { name: "模型管理", items: ["供应商管理", "模型管理", "路由策略", "成本监控"] },
+          { name: "模型管理", items: ["模型管理", "模型测试", "路由策略", "成本监控"] },
           { name: "日志治理", items: ["审计日志", "操作日志", "登录日志", "异常日志"] },
           { name: "权限管理", items: ["组织架构", "角色管理", "功能权限", "操作权限"] }
         ]

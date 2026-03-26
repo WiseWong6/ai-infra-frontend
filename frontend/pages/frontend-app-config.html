@@ -7,6 +7,7 @@
     <title>应用配置</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../js/model-registry.js"></script>
     <style>
         :root {
             --bg: #fafbfc;
@@ -1142,12 +1143,7 @@
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             <label style="font-size: 13px; color: var(--muted);">目标模型</label>
-                            <select id="modalModelSelect" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 6px; font-size: 14px;">
-                                <option value="doubao-seed-2.0-pro">Doubao-Seed-2.0-pro</option>
-                                <option value="gpt-4">GPT-4</option>
-                                <option value="gpt-4o">GPT-4o</option>
-                                <option value="claude-3-sonnet">Claude 3 Sonnet</option>
-                            </select>
+                            <select id="modalModelSelect" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 6px; font-size: 14px;"></select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1241,17 +1237,9 @@
                             <label style="font-size:13px; font-weight:500;">模型选择</label>
                             <select id="modelSelect"
                                 style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none; background:#fff; appearance:none; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;">
-                                <option value="doubao-seed-2.0-pro">Doubao-Seed-2.0-pro</option>
-                                <option value="gpt-4">GPT-4</option>
-                                <option value="gpt-4o">GPT-4o</option>
-                                <option value="claude-3-sonnet">Claude 3 Sonnet</option>
                             </select>
-                            <div style="font-size:12px; color:var(--muted); line-height:1.6; margin-top:4px;">
-                                <strong>≤32000 tokens</strong><br />
-                                输入：0.0032 ， 输出：0.0160<br />
-                                <strong style="margin-top:8px; display:block;">32001-128000 tokens</strong>
-                                输入：0.0048 ， 输出：0.0240<br />
-                                <div style="margin-top:8px;">单位：元/千tokens</div>
+                            <div id="modelHint" style="font-size:12px; color:var(--muted); line-height:1.6; margin-top:4px;">
+                                价格信息与能力说明将随模型切换刷新
                             </div>
                         </div>
 
@@ -1266,20 +1254,48 @@
                                     <div style="display:flex; gap:16px; align-items:center;">
                                         <label
                                             style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
-                                            <input type="radio" name="deepthink" checked
+                                            <input type="radio" name="deepthink" value="disabled" checked
                                                 style="accent-color: var(--blue);" />
                                             <span style="color:var(--text); white-space:nowrap;">关闭</span>
                                         </label>
                                         <label
                                             style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
-                                            <input type="radio" name="deepthink" />
+                                            <input type="radio" name="deepthink" value="enabled" />
                                             <span style="color:var(--text); white-space:nowrap;">开启</span>
                                         </label>
                                         <label
                                             style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
-                                            <input type="radio" name="deepthink" />
+                                            <input type="radio" name="deepthink" value="auto" />
                                             <span style="color:var(--text); white-space:nowrap;">自动</span>
                                         </label>
+                                    </div>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <label style="font-size:13px; font-weight:500;">思考强度</label>
+                                    <div>
+                                        <select id="reasoningEffortSelect"
+                                            style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;"></select>
+                                        <div style="font-size:12px; color:var(--muted); margin-top:6px;">仅支持深度思考的模型可配置
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <label style="font-size:13px; font-weight:500;">流式输出</label>
+                                    <div>
+                                        <select id="streamSelect"
+                                            style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;">
+                                            <option value="false">关闭</option>
+                                            <option value="true">开启</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <label style="font-size:13px; font-weight:500;">JSON结构化</label>
+                                    <div>
+                                        <select id="jsonModeSelect"
+                                            style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;"></select>
+                                        <div style="font-size:12px; color:var(--muted); margin-top:6px;">根据模型能力自动提供可选输出模式
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- 温度 -->
@@ -1961,6 +1977,17 @@ current_image:
         const PROMPT_MANAGER_ONLINE_KEY = "prompt_manager_online_demo";
         const APP_RESOURCE_BINDING_KEY = "app_resource_bindings_demo_v1";
         const APP_RESOURCE_REVISION_KEY = "app_resource_revision_log_demo_v1";
+        const {
+            getModels,
+            getModelByKey,
+            renderModelOptions,
+            getModelPriceHint,
+            getDefaultModel,
+            buildModelConfig,
+            coerceModelConfig,
+            toUiThinkingMode,
+            fromUiThinkingMode
+        } = window.ModelRegistryDemo;
         const urlParams = new URLSearchParams(window.location.search);
         const appId = (urlParams.get("appId") || "3").trim();
         let activeResourceId = (urlParams.get("resourceId") || "86").trim();
@@ -2011,13 +2038,9 @@ current_image:
         }
 
         // 编辑资源时携带 appId + resourceId
-        // 可用模型列表
-        const AVAILABLE_MODELS = [
-            { id: 'doubao-seed-2.0-pro', name: 'Doubao-Seed-2.0-pro', provider: 'volc' },
-            { id: 'gpt-4', name: 'GPT-4', provider: 'openai' },
-            { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai' },
-            { id: 'claude-3-sonnet', name: 'Claude 3 Sonnet', provider: 'anthropic' }
-        ];
+        function getAvailableModels() {
+            return getModels();
+        }
 
         // 模型节点数据（提示词）
         const MODEL_NODE_DATA = [
@@ -2042,7 +2065,7 @@ current_image:
         function getResourceModel(resourceId) {
             const bindings = loadJSON(APP_RESOURCE_BINDING_KEY, {});
             const key = `${appId}:${resourceId}`;
-            return bindings[key]?.resourcePromptSnapshot?.model || 'doubao-seed-2.0-pro';
+            return buildModelConfig(bindings[key]?.resourcePromptSnapshot || {}).modelKey || getDefaultModel()?.modelKey || "";
         }
 
         // 获取资源的提示词内容（系统/用户）
@@ -2072,7 +2095,8 @@ current_image:
             const key = `${appId}:${resourceId}`;
 
             const before = bindings[key]?.resourcePromptSnapshot || null;
-            const beforeModel = before?.model || 'doubao-seed-2.0-pro';
+            const beforeConfig = buildModelConfig(before || {});
+            const nextConfig = buildModelConfig({ ...(before || {}), modelKey: newModel });
 
             const timestamp = new Date().toISOString();
             bindings[key] = {
@@ -2084,7 +2108,17 @@ current_image:
                 updatedAt: timestamp,
                 resourcePromptSnapshot: {
                     ...(before || {}),
-                    model: newModel
+                    model: nextConfig.modelKey,
+                    deepMode: toUiThinkingMode(nextConfig.thinkingMode),
+                    reasoningEffort: nextConfig.reasoningEffort,
+                    streamEnabled: nextConfig.streamEnabled,
+                    jsonMode: nextConfig.jsonMode,
+                    temp: nextConfig.temperature,
+                    seed: nextConfig.seed,
+                    maxTokens: nextConfig.maxTokens,
+                    timeout: nextConfig.timeout,
+                    extraBody: nextConfig.extraBody,
+                    modelConfig: nextConfig
                 }
             };
 
@@ -2092,7 +2126,7 @@ current_image:
             revisions[key].push({
                 at: timestamp,
                 reason: reason,
-                summary: `模型: ${beforeModel} → ${newModel}`
+                summary: `模型: ${beforeConfig.modelKey} → ${nextConfig.modelKey}`
             });
 
             saveJSON(APP_RESOURCE_BINDING_KEY, bindings);
@@ -2101,7 +2135,7 @@ current_image:
 
         // 获取模型名称
         function getModelDisplayName(modelId) {
-            return AVAILABLE_MODELS.find(m => m.id === modelId)?.name || modelId;
+            return getModelByKey(modelId)?.displayName || modelId;
         }
 
         // 渲染模型节点表格
@@ -2112,8 +2146,8 @@ current_image:
             tbody.innerHTML = MODEL_NODE_DATA.map(node => {
                 const currentModel = getResourceModel(node.id);
                 const promptContent = getResourcePromptContent(node.id);
-                const modelOptions = AVAILABLE_MODELS.map(m =>
-                    `<option value="${m.id}" ${m.id === currentModel ? 'selected' : ''}>${m.name}</option>`
+                const modelOptions = getAvailableModels().map(m =>
+                    `<option value="${m.modelKey}" ${m.modelKey === currentModel ? 'selected' : ''}>${m.displayName}</option>`
                 ).join('');
 
                 return `
@@ -2206,7 +2240,7 @@ current_image:
             if (!isOpen) {
                 dropdown.classList.add('show');
                 dropdown.focus();
-                dropdown.size = Math.min(AVAILABLE_MODELS.length, 5);
+                dropdown.size = Math.min(getAvailableModels().length, 5);
             }
         }
 
@@ -2434,6 +2468,10 @@ current_image:
         const repullTemplateBtn = document.getElementById("repullTemplateBtn");
         const resourceNameInput = document.getElementById("resourceNameInput");
         const modelSelect = document.getElementById("modelSelect");
+        const modelHint = document.getElementById("modelHint");
+        const reasoningEffortSelect = document.getElementById("reasoningEffortSelect");
+        const streamSelect = document.getElementById("streamSelect");
+        const jsonModeSelect = document.getElementById("jsonModeSelect");
         const temperatureInput = document.getElementById("temperatureInput");
         const seedInput = document.getElementById("seedInput");
         const maxTokensInput = document.getElementById("maxTokensInput");
@@ -2466,6 +2504,92 @@ current_image:
             selectEl.value = val;
         }
 
+        function renderAppModelOptions(preferredKey) {
+            renderModelOptions(modelSelect, { preferredKey });
+            renderModelOptions(document.getElementById("modalModelSelect"), { preferredKey });
+        }
+
+        function getSelectedDeepthinkMode() {
+            return document.querySelector("input[name='deepthink']:checked")?.value || "disabled";
+        }
+
+        function setSelectedDeepthinkMode(mode) {
+            const uiMode = toUiThinkingMode(mode);
+            document.querySelectorAll("input[name='deepthink']").forEach((radio) => {
+                radio.checked = radio.value === uiMode;
+            });
+        }
+
+        function collectCurrentModelConfigInput() {
+            return {
+                modelKey: modelSelect?.value || "",
+                thinkingMode: fromUiThinkingMode(getSelectedDeepthinkMode()),
+                reasoningEffort: reasoningEffortSelect?.value || "",
+                streamEnabled: streamSelect?.value === "true",
+                jsonMode: jsonModeSelect?.value || "none",
+                temperature: temperatureInput?.value || "",
+                seed: seedInput?.value || "",
+                maxTokens: maxTokensInput?.value || "",
+                timeout: timeoutInput?.value || "",
+                extraBody: extraBodyInput?.value || ""
+            };
+        }
+
+        function applyAppModelCapabilities(options = {}) {
+            const model = getModelByKey(modelSelect?.value || "") || getDefaultModel();
+            if (!model) return;
+            if (modelSelect) modelSelect.value = model.modelKey;
+
+            if (modelHint) {
+                const parts = [getModelPriceHint(model.modelKey) || "无价格提示"];
+                parts.push(model.supportsThinking ? "支持深度思考" : "不支持深度思考");
+                parts.push(model.jsonModes.includes("json_object") ? "支持 JSON Object" : "仅文本输出");
+                modelHint.textContent = parts.join(" | ");
+            }
+
+            if (jsonModeSelect) {
+                jsonModeSelect.innerHTML = model.jsonModes
+                    .map((mode) => `<option value="${mode}">${mode === "json_object" ? "JSON Object" : "文本输出"}</option>`)
+                    .join("");
+            }
+            if (reasoningEffortSelect) {
+                reasoningEffortSelect.innerHTML = model.supportsThinking
+                    ? model.reasoningEfforts.map((item) => `<option value="${item}">${item}</option>`).join("")
+                    : '<option value="">无</option>';
+            }
+
+            const { config, warnings } = coerceModelConfig(model, collectCurrentModelConfigInput());
+            setSelectedDeepthinkMode(config.thinkingMode);
+            if (reasoningEffortSelect) {
+                reasoningEffortSelect.value = config.reasoningEffort || "";
+                reasoningEffortSelect.disabled = promptManagerOnline || !model.supportsThinking;
+            }
+            if (streamSelect) {
+                streamSelect.value = String(config.streamEnabled);
+                streamSelect.disabled = promptManagerOnline || !model.supportsStreaming;
+            }
+            if (jsonModeSelect) {
+                jsonModeSelect.value = config.jsonMode;
+                jsonModeSelect.disabled = promptManagerOnline;
+            }
+            if (temperatureInput) temperatureInput.value = config.temperature;
+            if (seedInput) seedInput.value = config.seed;
+            if (maxTokensInput) maxTokensInput.value = config.maxTokens;
+            if (timeoutInput) timeoutInput.value = config.timeout;
+            if (extraBodyInput) extraBodyInput.value = config.extraBody;
+
+            document.querySelectorAll("input[name='deepthink']").forEach((radio) => {
+                const disableThinking = !model.supportsThinking && radio.value !== "off";
+                radio.disabled = promptManagerOnline || disableThinking;
+                const label = radio.closest("label");
+                if (label) label.style.opacity = disableThinking ? "0.45" : (radio.disabled ? "0.6" : "1");
+            });
+
+            if (options.showWarnings) {
+                warnings.forEach((message) => showToast(message));
+            }
+        }
+
         function currentResourceKey() {
             return `${appId}:${activeResourceId || "86"}`;
         }
@@ -2484,13 +2608,20 @@ current_image:
         }
 
         function collectCurrentSnapshot() {
+            const modelConfig = buildModelConfig(collectCurrentModelConfigInput());
             return {
-                model: modelSelect?.value || "",
-                temp: temperatureInput?.value || "",
-                seed: seedInput?.value || "",
-                maxTokens: maxTokensInput?.value || "",
-                timeout: timeoutInput?.value || "",
-                extraBody: extraBodyInput?.value || "",
+                supplierCode: modelConfig.supplierCode,
+                model: modelConfig.modelKey,
+                deepMode: toUiThinkingMode(modelConfig.thinkingMode),
+                reasoningEffort: modelConfig.reasoningEffort,
+                streamEnabled: modelConfig.streamEnabled,
+                jsonMode: modelConfig.jsonMode,
+                temp: modelConfig.temperature,
+                seed: modelConfig.seed,
+                maxTokens: modelConfig.maxTokens,
+                timeout: modelConfig.timeout,
+                extraBody: modelConfig.extraBody,
+                modelConfig,
                 messages: [
                     { role: "System Prompt", content: systemPromptTextarea?.value || "" },
                     { role: "User Prompt", content: userPromptTextarea?.value || "" },
@@ -2502,6 +2633,10 @@ current_image:
         function getRevisionSummary(beforeSnap, afterSnap) {
             const changes = [];
             if ((beforeSnap?.model || "") !== (afterSnap?.model || "")) changes.push("模型");
+            if ((beforeSnap?.deepMode || "") !== (afterSnap?.deepMode || "")) changes.push("思考模式");
+            if ((beforeSnap?.reasoningEffort || "") !== (afterSnap?.reasoningEffort || "")) changes.push("思考强度");
+            if (Boolean(beforeSnap?.streamEnabled) !== Boolean(afterSnap?.streamEnabled)) changes.push("流式输出");
+            if ((beforeSnap?.jsonMode || "") !== (afterSnap?.jsonMode || "")) changes.push("JSON结构化");
             if ((beforeSnap?.temp || "") !== (afterSnap?.temp || "")) changes.push("温度");
             if ((beforeSnap?.seed || "") !== (afterSnap?.seed || "")) changes.push("Seed");
             if ((beforeSnap?.maxTokens || "") !== (afterSnap?.maxTokens || "")) changes.push("MaxTokens");
@@ -2546,12 +2681,18 @@ current_image:
             const binding = bindings[currentResourceKey()];
             if (!binding || !binding.resourcePromptSnapshot) return;
             const snap = binding.resourcePromptSnapshot;
-            setSelectValue(modelSelect, snap.model);
-            if (temperatureInput && snap.temp != null) temperatureInput.value = String(snap.temp);
-            if (seedInput && snap.seed != null) seedInput.value = String(snap.seed);
-            if (maxTokensInput && snap.maxTokens != null) maxTokensInput.value = String(snap.maxTokens);
-            if (timeoutInput && snap.timeout != null) timeoutInput.value = String(snap.timeout);
-            if (extraBodyInput && snap.extraBody != null) extraBodyInput.value = String(snap.extraBody);
+            const modelConfig = buildModelConfig(snap);
+            renderAppModelOptions(modelConfig.modelKey);
+            setSelectValue(modelSelect, modelConfig.modelKey);
+            setSelectedDeepthinkMode(modelConfig.thinkingMode);
+            if (reasoningEffortSelect) reasoningEffortSelect.value = modelConfig.reasoningEffort || "";
+            if (streamSelect) streamSelect.value = String(modelConfig.streamEnabled);
+            if (jsonModeSelect) jsonModeSelect.value = modelConfig.jsonMode;
+            if (temperatureInput) temperatureInput.value = String(modelConfig.temperature);
+            if (seedInput) seedInput.value = String(modelConfig.seed);
+            if (maxTokensInput) maxTokensInput.value = String(modelConfig.maxTokens);
+            if (timeoutInput) timeoutInput.value = String(modelConfig.timeout);
+            if (extraBodyInput) extraBodyInput.value = String(modelConfig.extraBody);
             const msgMap = new Map((snap.messages || []).map((item) => [roleKey(item.role), item.content || ""]));
             if (systemPromptTextarea) systemPromptTextarea.value = String(msgMap.get("system") || "");
             if (userPromptTextarea) userPromptTextarea.value = String(msgMap.get("user") || "");
@@ -2563,6 +2704,7 @@ current_image:
             if (assistantPromptBlock) {
                 assistantPromptBlock.style.display = assistantPromptTextarea?.value ? "flex" : "none";
             }
+            applyAppModelCapabilities();
         }
 
         function toggleReadonlyByPrompt(isReadonly) {
@@ -2595,12 +2737,15 @@ current_image:
                 if (input) input.readOnly = isReadonly;
             });
             if (extraBodyInput) extraBodyInput.readOnly = isReadonly;
+            if (reasoningEffortSelect) reasoningEffortSelect.disabled = isReadonly;
+            if (streamSelect) streamSelect.disabled = isReadonly;
+            if (jsonModeSelect) jsonModeSelect.disabled = isReadonly;
             document.querySelectorAll("input[name='deepthink']").forEach((radio) => {
                 radio.disabled = isReadonly;
                 const label = radio.closest("label");
                 if (label) label.style.opacity = isReadonly ? "0.6" : "1";
             });
-            [modelSelect, temperatureInput, seedInput, maxTokensInput, timeoutInput, extraBodyInput].forEach((field) => {
+            [modelSelect, reasoningEffortSelect, streamSelect, jsonModeSelect, temperatureInput, seedInput, maxTokensInput, timeoutInput, extraBodyInput].forEach((field) => {
                 setFieldStyle(field, isReadonly);
             });
             [systemPromptTextarea, userPromptTextarea].forEach((area) => {
@@ -2619,15 +2764,22 @@ current_image:
         }
 
         function buildFallbackPrompt() {
+            const modelConfig = buildModelConfig(collectCurrentModelConfigInput());
             return {
                 id: "resource-fallback",
                 name: (resourceNameInput?.value || "意图分流（有产品检索）").trim() || "意图分流（有产品检索）",
-                model: modelSelect?.value || "Doubao-Seed-2.0-pro",
-                temp: temperatureInput?.value || "0.2",
-                seed: seedInput?.value || "42",
-                maxTokens: maxTokensInput?.value || "131072",
-                timeout: timeoutInput?.value || "300",
-                extraBody: extraBodyInput?.value || "",
+                supplierCode: modelConfig.supplierCode,
+                model: modelConfig.modelKey,
+                deepMode: toUiThinkingMode(modelConfig.thinkingMode),
+                reasoningEffort: modelConfig.reasoningEffort,
+                streamEnabled: modelConfig.streamEnabled,
+                jsonMode: modelConfig.jsonMode,
+                temp: modelConfig.temperature,
+                seed: modelConfig.seed,
+                maxTokens: modelConfig.maxTokens,
+                timeout: modelConfig.timeout,
+                extraBody: modelConfig.extraBody,
+                modelConfig,
                 messages: [
                     { role: "System Prompt", content: systemPromptTextarea?.value || "" },
                     { role: "User Prompt", content: userPromptTextarea?.value || "" }
@@ -2659,14 +2811,18 @@ current_image:
             const selectedName = String(row.name || row.title || "").trim();
             if (resourceNameInput && selectedName) resourceNameInput.value = selectedName;
 
-            setSelectValue(modelSelect, row.model || row.modelName);
-            if (temperatureInput && (row.temp != null || row.temperature != null)) {
-                temperatureInput.value = String(row.temp ?? row.temperature);
-            }
-            if (seedInput && row.seed != null) seedInput.value = String(row.seed);
-            if (maxTokensInput && row.maxTokens != null) maxTokensInput.value = String(row.maxTokens);
-            if (timeoutInput && row.timeout != null) timeoutInput.value = String(row.timeout);
-            if (extraBodyInput && row.extraBody != null) extraBodyInput.value = String(row.extraBody);
+            const modelConfig = buildModelConfig(row);
+            renderAppModelOptions(modelConfig.modelKey);
+            setSelectValue(modelSelect, modelConfig.modelKey);
+            setSelectedDeepthinkMode(modelConfig.thinkingMode);
+            if (reasoningEffortSelect) reasoningEffortSelect.value = modelConfig.reasoningEffort || "";
+            if (streamSelect) streamSelect.value = String(modelConfig.streamEnabled);
+            if (jsonModeSelect) jsonModeSelect.value = modelConfig.jsonMode;
+            if (temperatureInput) temperatureInput.value = String(modelConfig.temperature);
+            if (seedInput) seedInput.value = String(modelConfig.seed);
+            if (maxTokensInput) maxTokensInput.value = String(modelConfig.maxTokens);
+            if (timeoutInput) timeoutInput.value = String(modelConfig.timeout);
+            if (extraBodyInput) extraBodyInput.value = String(modelConfig.extraBody);
 
             const systemText = collectRoleContent(row, "system");
             const userText = collectRoleContent(row, "user");
@@ -2683,6 +2839,7 @@ current_image:
                     templatePromptVersion: String(row.version || row.updated || "")
                 };
             }
+            applyAppModelCapabilities();
         }
 
         function initPromptSelector() {
@@ -2786,6 +2943,34 @@ current_image:
                 });
             });
         }
+
+        renderAppModelOptions(getDefaultModel()?.modelKey || "");
+        applyAppModelCapabilities();
+        if (modelSelect) {
+            modelSelect.addEventListener("change", () => {
+                applyAppModelCapabilities({ showWarnings: true });
+            });
+        }
+        if (reasoningEffortSelect) {
+            reasoningEffortSelect.addEventListener("change", () => {
+                applyAppModelCapabilities();
+            });
+        }
+        if (streamSelect) {
+            streamSelect.addEventListener("change", () => {
+                applyAppModelCapabilities();
+            });
+        }
+        if (jsonModeSelect) {
+            jsonModeSelect.addEventListener("change", () => {
+                applyAppModelCapabilities();
+            });
+        }
+        document.querySelectorAll("input[name='deepthink']").forEach((radio) => {
+            radio.addEventListener("change", () => {
+                applyAppModelCapabilities();
+            });
+        });
 
         if (repullTemplateBtn) {
             repullTemplateBtn.addEventListener("click", () => {
