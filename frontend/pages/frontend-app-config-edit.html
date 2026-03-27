@@ -178,7 +178,7 @@
         }
 
         .pane-left {
-            width: 320px;
+            width: 30%;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
@@ -187,7 +187,7 @@
         }
 
         .pane-right {
-            flex: 1;
+            width: 70%;
             display: flex;
             flex-direction: column;
             background: #f8fafc;
@@ -568,17 +568,11 @@
                                 value="意图分流（有产品检索）" />
                         </div>
 
-                        <div id="promptSelectorBlock" style="display:flex; flex-direction:column; gap:8px;">
+                        <div id="promptSelectorBlock" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <label style="font-size:13px; font-weight:500;">选择提示词</label>
-                                <div style="display:flex; align-items:center; gap:10px;">
-                                    <button id="repullTemplateBtn" type="button"
-                                        style="height:24px; padding:0 8px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; font-size:12px; cursor:pointer;">重新从模板拉取</button>
-                                    <a href="./frontend-slides-guide.html"
-                                        style="font-size:12px; color:var(--blue); text-decoration:none;"><i
-                                            class="fa-solid fa-arrow-up-right-from-square"
-                                            style="font-size:10px; margin-right:4px;"></i>去管理</a>
-                                </div>
+                                <button id="repullTemplateBtn" type="button"
+                                    style="background:none; border:none; color:var(--blue); font-size:12px; cursor:pointer; padding:0;">重新加载</button>
                             </div>
                             <select id="promptSelect"
                                 style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none; background:#fff; appearance:none; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;">
@@ -587,7 +581,7 @@
                                 <option>寒暄兜底提示词 (v1.0.0)</option>
                             </select>
                             <div style="font-size:12px; color:#64748b;">
-                                模板引用后即与提示词管理解耦存储，后续仅更新应用内快照；保存时会记录资源内部变更摘要。
+                                应用管理仅会加载选中提示词作为模版，后续提示词更新后请重新加载。
                             </div>
                         </div>
 
@@ -732,10 +726,11 @@
                             <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center;">
                                     <label style="font-size:13px; font-weight:500;">知识库</label>
-                                    <button id="selectKbBtn" type="button" class="btn btn-secondary btn-small">选择知识库</button>
+                                    <button id="selectKbBtn" type="button"
+                                    style="background:none; border:none; color:var(--blue); font-size:12px; cursor:pointer; padding:0;">添加</button>
                                 </div>
-                                <div id="selectedKbList" style="display:flex; flex-wrap:wrap; gap:8px;">
-                                    <!-- 已选知识库标签将渲染在这里 -->
+                                <div id="selectedKbList">
+                                    <!-- 已选知识库表格将渲染在这里 -->
                                 </div>
                             </div>
                             
@@ -798,27 +793,35 @@
         </main>
     </div>
 
-    <!-- 知识库选择弹窗 -->
+    <!-- 知识库添加/编辑弹窗 -->
     <div class="modal-mask" id="kbSelectModal" style="position:fixed; inset:0; background:rgba(15,23,42,0.32); display:none; align-items:center; justify-content:center; z-index:2000; padding:24px;">
         <div class="modal" style="width:min(480px, calc(100vw - 48px)); max-height:calc(100vh - 48px); overflow:auto; background:#fff; border-radius:8px; box-shadow:0 10px 30px rgba(15,23,42,0.08); border:1px solid var(--line-strong);">
             <div class="modal-header" style="padding:18px 20px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <div style="font-size:16px; font-weight:600;">选择知识库</div>
-                    <div style="font-size:12px; color:var(--muted); margin-top:4px;">可选范围仅限当前应用资源配置中已有的知识库</div>
-                </div>
+                <div id="kbModalTitle" style="font-size:16px; font-weight:600;">添加知识库</div>
                 <button class="close-btn" type="button" onclick="closeKbModal()" style="width:32px; height:32px; border-radius:4px; border:1px solid var(--line-strong); background:#fff; color:var(--muted); cursor:pointer;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body" style="padding:20px;">
+            <div class="modal-body" style="padding:24px;">
                 <div id="kbSelectEmpty" class="empty-state" style="display:none; padding:24px; border:1px dashed var(--line-strong); border-radius:6px; text-align:center; color:var(--muted);">
                     当前应用还没有可选知识库
                 </div>
-                <div id="kbSelectList" class="checkbox-list" style="display:flex; flex-direction:column; gap:10px; max-height:320px; overflow:auto;"></div>
+                <div id="kbFormContainer" style="display:flex; flex-direction:column; gap:20px;">
+                    <!-- 知识库选择 -->
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <label style="font-size:14px; color:var(--text);">
+                            <span style="color:var(--danger); margin-right:4px;">*</span>知识库选择
+                        </label>
+                        <select id="kbSelectDropdown" 
+                            style="height:40px; padding:0 12px; border:1px solid var(--line-strong); border-radius:6px; font-size:14px; outline:none; background:#fff; cursor:pointer;">
+                            <option value="">请选择知识库</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer" style="padding:16px 20px 20px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:10px;">
                 <button class="btn btn-secondary" type="button" onclick="closeKbModal()">取消</button>
-                <button class="btn" id="confirmKbSelection" type="button">确认绑定</button>
+                <button class="btn" id="confirmKbSelection" type="button">创建</button>
             </div>
         </div>
     </div>
@@ -957,10 +960,14 @@
         const kbSelectEmpty = document.getElementById("kbSelectEmpty");
         const selectedKbList = document.getElementById("selectedKbList");
         const selectKbBtn = document.getElementById("selectKbBtn");
+        const kbModalTitle = document.getElementById("kbModalTitle");
+        const kbResourceNameInput = document.getElementById("kbResourceNameInput");
+        const kbSelectDropdown = document.getElementById("kbSelectDropdown");
         
         // 节点资源绑定数据（模拟从 node-binding 页传递的数据结构）
         const APP_CONFIG_KEY = "app_config_node_binding_demo_v1";
         let currentNodeResourceIds = [];
+        let editingKbId = null; // 当前编辑的知识库ID
 
         // Tab 切换
         function initResourceBindingTab() {
@@ -1060,7 +1067,7 @@
             }
         }
 
-        // 渲染已选知识库列表
+        // 渲染已选知识库列表（表格形式）
         function renderSelectedKbList() {
             if (!selectedKbList) return;
             
@@ -1078,28 +1085,90 @@
                     return;
                 }
                 
-                selectedKbList.innerHTML = kbResources.map(kb => `
-                    <span class="resource-tag" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:var(--active); color:var(--blue); font-size:12px; border:1px solid #bfdbfe;">
-                        ${kb.name}
-                        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="removeKb('${kb.id}')"></i>
-                    </span>
-                `).join('');
+                selectedKbList.innerHTML = `
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="background:var(--head); border-bottom:1px solid var(--line-strong);">
+                                <th style="padding:10px 12px; text-align:left; font-weight:500; color:var(--muted); width:60px;">ID</th>
+                                <th style="padding:10px 12px; text-align:left; font-weight:500; color:var(--muted);">名称</th>
+                                <th style="padding:10px 12px; text-align:left; font-weight:500; color:var(--muted); width:100px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${kbResources.map(kb => `
+                                <tr style="border-bottom:1px solid var(--line);">
+                                    <td style="padding:10px 12px; color:var(--muted);">${kb.id}</td>
+                                    <td style="padding:10px 12px;">${kb.name}</td>
+                                    <td style="padding:10px 12px;">
+                                        <div style="display:flex; gap:8px;">
+                                            <button type="button" class="btn-text" onclick="editKb('${kb.id}')" style="color:var(--blue); background:none; border:none; cursor:pointer; font-size:13px; padding:0;">编辑</button>
+                                            <button type="button" class="btn-text" onclick="removeKb('${kb.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-size:13px; padding:0;">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
             } catch (e) {
                 console.error('渲染知识库列表失败:', e);
             }
         }
 
+        // 编辑知识库
+        window.editKb = function(kbId) {
+            editingKbId = kbId;
+            
+            try {
+                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+                const appState = allState[appId] || {};
+                const resources = appState.resources || [];
+                const kb = resources.find(r => r.id === kbId && r.type === 'knowledge_base');
+                
+                if (!kb) {
+                    showToast('知识库不存在');
+                    return;
+                }
+                
+                // 设置标题
+                if (kbModalTitle) kbModalTitle.textContent = '编辑知识库';
+                
+                // 填充表单
+                if (kbResourceNameInput) kbResourceNameInput.value = kb.name;
+                
+                // 填充下拉框（包含当前选项）
+                kbSelectDropdown.innerHTML = '<option value="">请选择知识库</option>';
+                const kbResources = resources.filter(r => r.type === 'knowledge_base');
+                kbResources.forEach(r => {
+                    const option = document.createElement('option');
+                    option.value = r.id;
+                    option.textContent = r.name;
+                    if (r.id === kbId) option.selected = true;
+                    kbSelectDropdown.appendChild(option);
+                });
+                
+                kbSelectEmpty.style.display = 'none';
+                document.getElementById('kbFormContainer').style.display = 'flex';
+                kbSelectModal.style.display = 'flex';
+            } catch (e) {
+                console.error('编辑知识库失败:', e);
+            }
+        };
+
         // 移除知识库
         window.removeKb = function(kbId) {
+            if (!confirm('确定要删除该知识库绑定吗？')) return;
             currentNodeResourceIds = currentNodeResourceIds.filter(id => id !== kbId);
             saveNodeResourceBindings();
             renderSelectedKbList();
-            showToast('已移除知识库');
+            showToast('知识库已删除');
         };
 
         // 打开知识库选择弹窗
         function openKbModal() {
-            if (!kbSelectList) return;
+            if (!kbSelectDropdown) return;
+            
+            editingKbId = null;
             
             try {
                 const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
@@ -1107,27 +1176,28 @@
                 const resources = appState.resources || [];
                 const kbResources = resources.filter(r => r.type === 'knowledge_base');
                 
-                kbSelectList.innerHTML = '';
+                // 清空表单
+                if (kbResourceNameInput) kbResourceNameInput.value = '';
+                kbSelectDropdown.innerHTML = '<option value="">请选择知识库</option>';
+                
+                // 设置标题
+                if (kbModalTitle) kbModalTitle.textContent = '添加知识库';
                 
                 if (kbResources.length === 0) {
                     kbSelectEmpty.style.display = 'block';
-                    kbSelectList.style.display = 'none';
+                    document.getElementById('kbFormContainer').style.display = 'none';
                 } else {
                     kbSelectEmpty.style.display = 'none';
-                    kbSelectList.style.display = 'flex';
+                    document.getElementById('kbFormContainer').style.display = 'flex';
                     
-                    kbResources.forEach(kb => {
-                        const isChecked = currentNodeResourceIds.includes(kb.id) ? 'checked' : '';
-                        const item = document.createElement('label');
-                        item.className = 'checkbox-item';
-                        item.style.cssText = 'display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border-radius:6px; border:1px solid var(--line-strong); background:#fff; cursor:pointer;';
-                        item.innerHTML = `
-                            <input type="checkbox" value="${kb.id}" ${isChecked} style="margin-top:2px; accent-color:var(--blue);">
-                            <div>
-                                <div style="font-weight:600; font-size:14px;">${kb.name}</div>
-                            </div>
-                        `;
-                        kbSelectList.appendChild(item);
+                    // 过滤掉已绑定的知识库
+                    const availableKbs = kbResources.filter(kb => !currentNodeResourceIds.includes(kb.id));
+                    
+                    availableKbs.forEach(kb => {
+                        const option = document.createElement('option');
+                        option.value = kb.id;
+                        option.textContent = kb.name;
+                        kbSelectDropdown.appendChild(option);
                     });
                 }
                 
@@ -1144,10 +1214,25 @@
 
         // 保存知识库选择
         function saveKbSelection() {
-            if (!kbSelectList) return;
+            if (!kbSelectDropdown) return;
             
-            const checkedBoxes = kbSelectList.querySelectorAll('input[type="checkbox"]:checked');
-            const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+            const selectedKbId = kbSelectDropdown.value;
+            const resourceName = kbResourceNameInput ? kbResourceNameInput.value.trim() : '';
+            
+            if (!selectedKbId) {
+                showToast('请选择知识库');
+                return;
+            }
+            
+            if (!resourceName) {
+                showToast('请输入资源名称');
+                return;
+            }
+            
+            // 如果是编辑模式，先移除旧的
+            if (editingKbId) {
+                currentNodeResourceIds = currentNodeResourceIds.filter(id => id !== editingKbId);
+            }
             
             // 保留非知识库的资源ID
             const nonKbIds = currentNodeResourceIds.filter(id => {
@@ -1162,11 +1247,11 @@
                 }
             });
             
-            currentNodeResourceIds = [...nonKbIds, ...selectedIds];
+            currentNodeResourceIds = [...nonKbIds, selectedKbId];
             saveNodeResourceBindings();
             renderSelectedKbList();
             closeKbModal();
-            showToast('知识库绑定已更新');
+            showToast(editingKbId ? '知识库已更新' : '知识库已添加');
         }
 
         function roleKey(role) {
@@ -1243,7 +1328,7 @@
             setSelectedDeepthinkMode(config.thinkingMode);
             if (reasoningEffortSelect) {
                 reasoningEffortSelect.value = config.reasoningEffort || "";
-                reasoningEffortSelect.disabled = promptManagerOnline || !model.supportsThinking;
+                reasoningEffortSelect.disabled = !model.supportsThinking;
             }
             // 设置流式输出 radio
             const streamRadio = document.querySelector(`input[name="streamMode"][value="${String(config.streamEnabled)}"]`);
@@ -1259,7 +1344,7 @@
 
             document.querySelectorAll("input[name='deepthink']").forEach((radio) => {
                 const disableThinking = !model.supportsThinking && radio.value !== "off";
-                radio.disabled = promptManagerOnline || disableThinking;
+                radio.disabled = disableThinking;
                 const label = radio.closest("label");
                 if (label) label.style.opacity = disableThinking ? "0.45" : (radio.disabled ? "0.6" : "1");
             });
@@ -1591,7 +1676,7 @@
                 promptSelectorBlock.style.display = promptManagerOnline ? "flex" : "none";
             }
             if (promptManagerOnline) {
-                toggleReadonlyByPrompt(true);
+                toggleReadonlyByPrompt(false);
                 initPromptSelector();
             } else {
                 toggleReadonlyByPrompt(false);
