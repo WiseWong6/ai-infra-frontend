@@ -60,6 +60,22 @@
     }
     .field { display: flex; flex-direction: column; gap: 8px; }
     .field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+    /* 筛选区域 label 和控件同行 */
+    .filter-card .field {
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+    .filter-card .field label {
+      flex: 0 0 auto;
+      margin: 0;
+      white-space: nowrap;
+    }
+    .filter-card .field input,
+    .filter-card .field select {
+      flex: 1;
+      min-width: 0;
+    }
     .field input:not([type="radio"]):not([type="checkbox"]), .field select, .field textarea {
       width: 100%; min-height: 36px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 4px; outline: none; background: #fff;
     }
@@ -378,7 +394,7 @@
           <div class="filter-grid">
             <div class="field">
               <label>搜索</label>
-              <input id="keywordInput" placeholder="按模型名称、模型 ID 搜索" />
+              <input id="keywordInput" placeholder="模型名称" />
             </div>
             <div class="field">
               <label>供应商</label>
@@ -417,11 +433,8 @@
               </select>
             </div>
             <div class="filter-actions">
-              <button class="btn ghost" id="resetBtn">重置</button>
-              <button class="btn primary" id="createBtn">
-                <i data-lucide="plus"></i>
-                添加模型
-              </button>
+              <button class="btn ghost" id="resetBtn" style="min-width: 100px; text-align: center; justify-content: center;">重置</button>
+              <button class="btn primary" id="createBtn" style="min-width: 100px;">添加模型</button>
             </div>
           </div>
         </section>
@@ -1004,7 +1017,7 @@
 
     function renderSupplierOptions() {
       const suppliers = getSuppliers({ includeDisabled: true });
-      const options = ['<option value="">全部供应商</option>'].concat(
+      const options = ['<option value="">全部</option>'].concat(
         suppliers.map((item) => `<option value="${item.supplierCode}">${item.supplierName}</option>`)
       );
       supplierFilter.innerHTML = options.join("");
@@ -1250,9 +1263,10 @@
       if (isDisabling) {
         // 下架需要二次确认
         const model = getModelByKey(modelKey);
+        const linkedCount = model?.linkedNodes ?? (mockNodesData[modelKey]?.length || 0);
         showConfirm(
           "确认下架",
-          `确定要下架模型 "${model?.displayName || modelKey}" 吗？下架后该模型将无法被调用。`,
+          `确定要下架模型 "${model?.displayName || modelKey}" 吗？模型关联${linkedCount}个节点，下架后该模型将无法被调用.`,
           () => {
             const rows = getModels({ includeDisabled: true }).map((item) => {
               if (item.modelKey !== modelKey) return item;

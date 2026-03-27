@@ -1,0 +1,2107 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>应用配置</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../js/model-registry.js"></script>
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --sidebar: #ffffff;
+      --line: #f1f5f9;
+      --line-strong: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --active: #eff6ff;
+      --head: #fafbfc;
+      --blue: #3b82f6;
+      --blue-dark: #2563eb;
+      --danger: #dc2626;
+      --danger-dark: #b91c1c;
+      --orange: #d97706;
+      --orange-soft: #fff7ed;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 20px;
+      --spacing-2xl: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    .content {
+      flex: 1;
+      padding: var(--spacing-2xl);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      min-width: 0;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid #e1e4e8;
+      width: max-content;
+      color: var(--text);
+    }
+
+    .page-title.app-config {
+      border-bottom-color: var(--blue);
+    }
+
+    .page-subtitle {
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+
+    .detail-card,
+    .card {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      margin-bottom: 24px;
+    }
+
+    .detail-card {
+      padding: var(--spacing-xl);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--spacing-xl);
+    }
+
+    .detail-left {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      min-width: 0;
+    }
+
+    .detail-title-row {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      flex-wrap: wrap;
+    }
+
+    .detail-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-title i,
+    .detail-id i {
+      font-size: 14px;
+      color: var(--blue);
+      cursor: pointer;
+    }
+
+    .detail-id {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .detail-info-row {
+      display: flex;
+      gap: 32px;
+      font-size: 13px;
+      color: var(--text);
+      flex-wrap: wrap;
+    }
+
+    .detail-info-item span {
+      color: var(--muted);
+    }
+
+    .detail-actions,
+    .card-actions,
+    .inline-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+
+    td .inline-actions {
+      flex-wrap: nowrap;
+    }
+
+    .card {
+      padding: var(--spacing-xl);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .card-desc,
+    .field-hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 6px;
+    }
+
+    .btn {
+      border: 0;
+      height: 32px;
+      border-radius: 4px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 13px;
+      padding: 0 16px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: none;
+    }
+
+    .btn:hover {
+      background: var(--blue-dark);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line-strong);
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+    }
+
+    .btn-danger {
+      background: #fff;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .btn-danger:hover {
+      background: #fef2f2;
+      color: var(--danger-dark);
+    }
+
+    .btn-link {
+      background: transparent;
+      color: var(--blue);
+      border: 0;
+      height: auto;
+      padding: 0;
+    }
+
+    .btn-link:hover {
+      background: transparent;
+      text-decoration: underline;
+    }
+
+    .btn-small {
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    /* 表格单元格不换行 */
+    table td, table th {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow-x: auto;
+      background: #fff;
+      max-width: 100%;
+    }
+
+
+    table,
+    .nested-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: var(--head);
+      border-bottom: 1px solid var(--line);
+    }
+
+    th,
+    .nested-table th {
+      height: 48px;
+      padding: 12px 20px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--head);
+    }
+
+    td,
+    .nested-table td {
+      min-height: 56px;
+      padding: 12px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td,
+    .nested-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .node-row {
+      background: #fff;
+    }
+
+    .node-row:hover {
+      background: #f8fafc;
+    }
+
+    .node-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+
+    .summary-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      margin-right: 8px;
+      margin-bottom: 8px;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+
+    .summary-chip strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .toggle-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .toggle-switch .switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      transition: background 0.2s ease;
+    }
+
+    .toggle-switch .switch::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .toggle-switch.on .switch {
+      background: var(--blue);
+    }
+
+    .toggle-switch.on .switch::after {
+      transform: translateX(16px);
+    }
+
+    .toggle-switch.auto .switch {
+      background: #f59e0b;
+    }
+
+    .toggle-switch.auto .switch::after {
+      transform: translateX(8px);
+    }
+
+    .icon-check {
+      color: #22c55e;
+      font-size: 16px;
+    }
+
+    .icon-cross {
+      color: #cbd5e1;
+      font-size: 16px;
+    }
+
+    .row-checkbox {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--blue);
+    }
+
+    .row-checkbox:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .batch-action-bar {
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid var(--line-strong);
+      padding: 12px 20px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+      z-index: 100;
+      margin-top: auto;
+    }
+
+    .batch-action-bar.is-open {
+      display: flex;
+    }
+
+    .batch-info {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .batch-info span {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .batch-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .batch-controls label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .batch-model-select {
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      font-size: 13px;
+      background: #fff;
+      min-width: 160px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .batch-model-select:hover {
+      border-color: var(--blue);
+    }
+
+    .batch-model-select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .resource-tags {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      width: 100%;
+      min-width: 100%;
+    }
+
+    .resource-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--active);
+      color: var(--blue);
+      border: 1px solid #bfdbfe;
+      white-space: nowrap;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    .resource-tag-more {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      background: #f8fafc;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .resource-tag-more:hover {
+      background: var(--active);
+      color: var(--blue);
+      border-color: #bfdbfe;
+    }
+
+    .resource-tag-empty {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tooltip {
+      position: fixed;
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      max-width: 280px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 4000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .tooltip.show {
+      opacity: 1;
+    }
+
+    .resource-type,
+    .placeholder-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .resource-type {
+      background: var(--active);
+      color: var(--blue);
+    }
+
+    .placeholder-tag {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .resource-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .resource-meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .empty-state {
+      padding: 24px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 6px;
+      text-align: center;
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .modal-mask,
+    .drawer-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.32);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 24px;
+    }
+
+    .modal-mask.is-open,
+    .drawer-mask.is-open {
+      display: flex;
+    }
+
+    .drawer-mask {
+      justify-content: flex-end;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .modal {
+      width: min(680px, calc(100vw - 48px));
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--line-strong);
+    }
+
+    .modal-header,
+    .drawer-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-title,
+    .drawer-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .modal-body,
+    .drawer-body {
+      padding: 20px;
+    }
+
+    .modal-footer,
+    .drawer-footer {
+      padding: 16px 20px 20px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      padding: 8px 12px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .checkbox-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 320px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+    }
+
+    .checkbox-item input {
+      margin-top: 2px;
+    }
+
+    .checkbox-item-title {
+      font-weight: 600;
+    }
+
+    .checkbox-item-desc {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .drawer {
+      width: min(1200px, calc(100vw - 48px));
+      height: 100vh;
+      background: #fff;
+      box-shadow: -8px 0 24px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid var(--line);
+    }
+
+    /* 顶部导航栏 */
+    .drawer-top-nav {
+      height: 60px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      border-bottom: 1px solid var(--line-strong);
+      flex-shrink: 0;
+    }
+
+    .drawer-breadcrumb {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .drawer-nav-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .drawer-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .drawer-pane-left {
+      width: 360px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border-right: 1px solid var(--line-strong);
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .drawer-pane-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #f8fafc;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 14px;
+    }
+
+    .section-block {
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .preview-card {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      min-height: 180px;
+      overflow: hidden;
+    }
+
+    .preview-card-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      font-weight: 600;
+      background: #fff;
+    }
+
+    .preview-card textarea {
+      border: 0;
+      padding: 16px;
+      flex: 1;
+      min-height: 180px;
+      resize: vertical;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .toast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(15, 23, 42, 0.88);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s ease;
+      z-index: 3000;
+    }
+
+    .toast.is-open {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 1180px) {
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .drawer {
+        width: 100vw;
+      }
+
+      .drawer-pane-left {
+        width: 320px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+
+    <main class="main">
+      <section class="content">
+
+        <div class="detail-card">
+          <div class="detail-left">
+            <div class="detail-title-row">
+              <div class="detail-title"><span id="appName">投保助手</span> <i class="fa-solid fa-pen"></i></div>
+              <div class="detail-id">项目ID：<span id="projectId">2</span></div>
+              <div class="detail-id">应用ID：<span id="appIdText">3</span></div>
+            </div>
+            <div class="detail-info-row">
+              <div class="detail-info-item"><span>企业：</span><span id="companyName">创信</span></div>
+              <div class="detail-info-item"><span>项目：</span><span id="projectName">咔嚓保-投保助手</span></div>
+              <div class="detail-info-item"><span>负责人：</span><span id="owners">wisewong, jerry, martin, able, lurk, kant</span></div>
+            </div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-secondary" type="button">数据同步</button>
+            <button class="btn btn-secondary" type="button">版本历史</button>
+            <button class="btn" type="button">版本发布</button>
+          </div>
+        </div>
+
+        <!-- 输入配置 -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">输入配置</h2>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="text-align: left;">值</th>
+                  <th style="width: 100px; text-align: left;">最近更新人</th>
+                  <th style="width: 160px; text-align: left;">最近更新时间</th>
+                  <th style="width: 80px; text-align: left;">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-size: 13px; color: var(--text);">{{hh_a}}{{hh_b}}啊实打实大{{hh}}{{hh}}{{hh}}{{hh}}{{hh}}{{hh}}{{hh}}{{hh}}{{hh}}<br>123</td>
+                  <td style="font-size: 12px; color: var(--muted);">lurk</td>
+                  <td style="font-size: 12px; color: var(--muted);">2026-03-19 17:05:50</td>
+                  <td><a href="#" style="color: var(--blue); font-size: 13px; text-decoration: none;">编辑</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">模型节点</h2>
+              
+            </div>
+            <div class="inline-actions">
+              <button class="btn btn-secondary" id="batchSwitchModelBtn" type="button" style="display:none;">
+                <i class="fa-solid fa-robot" style="font-size:12px;"></i> 切换模型
+              </button>
+              <button class="btn" id="addNodeBtn" type="button">模型节点</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="text-align: left;">
+                    <input type="checkbox" id="selectAllNodes" class="row-checkbox" title="全选/取消">
+                  </th>
+                  <th style="text-align: left;">ID</th>
+                  <th style="text-align: left;">节点名称</th>
+                  <th style="text-align: left;">模型</th>
+                  <th style="text-align: left;">深度思考</th>
+                  <th style="text-align: left;">JSON输出</th>
+                  <th style="text-align: left;">多模态</th>
+                  <th style="text-align: left;">知识库</th>
+                  <th style="text-align: left;">MCP</th>
+                  <th style="text-align: left;">Skills</th>
+                  <th style="text-align: left;">最近更新人</th>
+                  <th style="text-align: left;">最近更新时间</th>
+                  <th style="text-align: left;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="nodeTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-mask" id="kbSelectModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">选择知识库</div>
+          <div class="field-hint">可选范围仅限当前应用资源配置中已有的知识库。</div>
+        </div>
+        <button class="close-btn" type="button" data-close-modal="kbSelectModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="kbSelectEmpty" class="empty-state" style="display:none;">
+          当前应用还没有可选知识库。请先到页面下方“资源配置”里添加知识库。
+        </div>
+        <div id="kbSelectList" class="checkbox-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-close-modal="kbSelectModal">取消</button>
+        <button class="btn" id="confirmKbSelection" type="button">确认绑定</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="drawer-mask" id="nodeDrawer">
+    <div class="drawer">
+      <!-- 顶部导航栏 -->
+      <div class="drawer-top-nav">
+        <div class="drawer-breadcrumb">
+          <span id="drawerBreadcrumbText">编辑节点</span>
+        </div>
+        <div class="drawer-nav-actions">
+          <button class="btn btn-secondary" type="button" id="closeNodeDrawer">取消</button>
+          <button class="btn" type="button" id="saveNodeBtn">保存</button>
+        </div>
+      </div>
+      
+      <!-- 分栏工作区 -->
+      <div class="drawer-body">
+        <!-- 左侧：配置参数 -->
+        <div class="drawer-pane-left">
+          <div class="drawer-section">
+            <div style="font-weight:600; font-size:16px; margin-bottom:16px;">配置参数</div>
+            
+            <!-- 节点名称 -->
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+              <label style="font-size:13px; font-weight:500;">节点名称</label>
+              <input id="nodeNameInput" type="text" 
+                style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none;" />
+            </div>
+
+            <!-- 提示词选择 -->
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <label style="font-size:13px; font-weight:500;">选择提示词</label>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <button id="repullPromptBtn" type="button"
+                    style="height:24px; padding:0 8px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; font-size:12px; cursor:pointer;">重新从模板拉取</button>
+                  <a href="./frontend-slides-guide.html" 
+                    style="font-size:12px; color:var(--blue); text-decoration:none;">
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px; margin-right:4px;"></i>去管理
+                  </a>
+                </div>
+              </div>
+              <select id="promptTemplateSelect"
+                style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none; background:#fff;">
+              </select>
+              <div style="font-size:12px; color:#64748b;">
+                模板引用后即与提示词管理解耦存储，后续仅更新应用内快照；保存时会记录资源内部变更摘要。
+              </div>
+            </div>
+
+            <!-- 模型选择 -->
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px; border-top:1px solid var(--line); padding-top:16px;">
+              <label style="font-size:13px; font-weight:500;">模型选择</label>
+              <select id="nodeModelSelect"
+                style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none; background:#fff;">
+              </select>
+              <div id="nodeModelHint" style="font-size:12px; color:var(--muted); line-height:1.6; margin-top:4px;"></div>
+            </div>
+
+            <!-- 模型参数 -->
+            <div style="border-top:1px solid var(--line); padding-top:16px;">
+              <div style="font-weight:600; font-size:14px; margin-bottom:16px; color:var(--text);">模型参数</div>
+              
+              <div style="display:flex; flex-direction:column; gap:16px;">
+                <!-- 深度思考 -->
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <label style="font-size:13px; font-weight:500;">深度思考</label>
+                  <div style="display:flex; gap:16px; align-items:center;">
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeThinking" value="disabled" checked style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">关闭</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeThinking" value="enabled" style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">开启</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeThinking" value="auto" style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">自动</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 流式输出 -->
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <label style="font-size:13px; font-weight:500;">流式输出</label>
+                  <div style="display:flex; gap:16px; align-items:center;">
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeStream" value="false" checked style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">关闭</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeStream" value="true" style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">开启</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- JSON结构化 -->
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <label style="font-size:13px; font-weight:500;">JSON输出</label>
+                  <div style="display:flex; gap:16px; align-items:center;">
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeJsonMode" value="none" checked style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">关闭</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeJsonMode" value="json_object" style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">开启</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 温度 -->
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <label style="font-size:13px; font-weight:500;"><span style="color:var(--danger);">*</span> 温度</label>
+                  <input id="nodeTemperatureInput" type="number" step="0.1" value="0.2"
+                    style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;" />
+                  <div style="font-size:12px; color:var(--muted); margin-top:4px;">控制输出的随机性，0为确定性输出，2为最大随机性</div>
+                </div>
+
+                <!-- MaxTokens -->
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <label style="font-size:13px; font-weight:500;"><span style="color:var(--danger);">*</span> MaxTokens</label>
+                  <input id="nodeMaxTokensInput" type="number" value="131072"
+                    style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;" />
+                  <div style="font-size:12px; color:var(--muted); margin-top:4px;">最大输出令牌数，取值范围: 0-131072</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：提示词编辑 -->
+        <div class="drawer-pane-right">
+          <div style="flex:1; display:flex; flex-direction:column; gap:20px; overflow-y:auto;">
+            <!-- 系统提示词 -->
+            <div style="flex:1; display:flex; flex-direction:column; min-height:140px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-size:15px; font-weight:600; color:var(--text);">系统提示词</div>
+              </div>
+              <div style="flex:1; background:#fff; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.02);">
+                <textarea id="systemPromptTextarea" spellcheck="false"
+                  style="width:100%; height:100%; min-height:140px; border:none; padding:16px; font-size:14px; line-height:1.6; outline:none; resize:vertical;"></textarea>
+              </div>
+            </div>
+
+            <!-- 用户提示词 -->
+            <div style="flex:1; display:flex; flex-direction:column; min-height:140px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-size:15px; font-weight:600; color:var(--text);">用户提示词</div>
+              </div>
+              <div style="flex:1; background:#fff; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.02);">
+                <textarea id="userPromptTextarea" spellcheck="false"
+                  style="width:100%; height:100%; min-height:140px; border:none; padding:16px; font-size:14px; line-height:1.6; outline:none; resize:vertical;"></textarea>
+              </div>
+            </div>
+
+            <!-- Assistant提示词 -->
+            <div id="assistantPromptBlock" style="flex:1; display:flex; flex-direction:column; min-height:140px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-size:15px; font-weight:600; color:var(--text);">Assistant 提示词</div>
+              </div>
+              <div style="flex:1; background:#fff; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.02);">
+                <textarea id="assistantPromptTextarea" spellcheck="false" placeholder="如无 assistant 消息，可留空。"
+                  style="width:100%; height:100%; min-height:140px; border:none; padding:16px; font-size:14px; line-height:1.6; outline:none; resize:vertical;"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="tooltip" id="resourceTooltip"></div>
+
+  <div class="modal-mask" id="batchModelModal">
+    <div class="modal" style="width: min(480px, calc(100vw - 48px));">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">批量切换模型</div>
+          <div class="field-hint">为选中的节点批量更新模型配置</div>
+        </div>
+        <button class="close-btn" type="button" data-close-modal="batchModelModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: 16px;">
+          已选择 <span id="batchSelectedCount" style="color: var(--blue); font-weight: 600;">0</span> 个模型节点
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-size: 13px; color: var(--muted);">目标模型</label>
+          <select id="batchModelSelect" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 6px; font-size: 14px;"></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-close-modal="batchModelModal">取消</button>
+        <button class="btn" id="confirmBatchModelSwitch" type="button">确认切换</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    const APP_STORAGE_KEY = "app_config_node_binding_demo_v1";
+    const urlParams = new URLSearchParams(window.location.search);
+    const appId = String(urlParams.get("appId") || "3").trim();
+
+    const APP_META_MAP = {
+      "3": {
+        projectId: "2",
+        appId: "3",
+        appName: "投保助手",
+        companyName: "创信",
+        projectName: "咔嚓保-投保助手",
+        owners: "wisewong, jerry, martin, able, lurk, kant"
+      },
+      "5": {
+        projectId: "2",
+        appId: "5",
+        appName: "条款解析",
+        companyName: "创信",
+        projectName: "咔嚓保-保单托管",
+        owners: "wisewong, sueweng, weikun, martin"
+      }
+    };
+
+    const PROMPT_LIBRARY = [
+      {
+        id: "prompt-routing",
+        name: "意图分流（有产品检索）提示词",
+        messages: {
+          system: "# 意图分流与路由\\n\\n你负责识别用户意图，并将查询路由到合适的业务节点。优先抽取险种、产品名、保司与问法类型。",
+          user: "history: {{history}}\\ncurrent_query: {{current_query}}\\n请输出结构化路由结果。",
+          assistant: ""
+        }
+      },
+      {
+        id: "prompt-product",
+        name: "产品检索选品提示词",
+        messages: {
+          system: "# 产品检索\\n\\n结合召回结果，从多个候选产品中筛选最匹配的一项或给出澄清问题。",
+          user: "query: {{query}}\\nretrieval_results: {{retrieval_results}}\\n请输出候选排序与推荐理由。",
+          assistant: ""
+        }
+      },
+      {
+        id: "prompt-fallback",
+        name: "寒暄兜底提示词",
+        messages: {
+          system: "# 兜底回复\\n\\n当用户不属于保险业务问答场景时，给出简洁、礼貌且可继续引导的回复。",
+          user: "query: {{query}}\\ncontext: {{context}}",
+          assistant: "当然可以，我先帮你确认下具体问题。"
+        }
+      }
+    ];
+
+    function loadJSON(key, fallback) {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(key) || "");
+        return parsed && typeof parsed === "object" ? parsed : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function saveJSON(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function createDefaultNode(id, name, modelKey, promptId, resourceIds) {
+      const prompt = PROMPT_LIBRARY.find((item) => item.id === promptId) || PROMPT_LIBRARY[0];
+      const registry = window.ModelRegistryDemo;
+      const model = registry?.getModelByKey(modelKey) || registry?.getDefaultModel();
+      const config = registry?.buildModelConfig(model?.modelKey || modelKey) || {
+        thinkingMode: "disabled",
+        jsonMode: "none"
+      };
+
+      return {
+        id,
+        name,
+        modelKey: model?.modelKey || modelKey,
+        thinkingMode: config.thinkingMode || "disabled",
+        jsonMode: config.jsonMode || "none",
+        streamEnabled: false,
+        temperature: "0.2",
+        maxTokens: "131072",
+        promptTemplateId: prompt.id,
+        promptSnapshot: {
+          system: prompt.messages.system,
+          user: prompt.messages.user,
+          assistant: prompt.messages.assistant
+        },
+        resourceIds: resourceIds.slice(),
+        updatedBy: "admin",
+        updatedAt: "2026-03-26 10:30:00"
+      };
+    }
+
+    function buildDefaultAppState(targetAppId) {
+      const meta = APP_META_MAP[targetAppId] || {
+        projectId: "2",
+        appId: targetAppId,
+        appName: "未命名应用",
+        companyName: "创信",
+        projectName: "默认项目",
+        owners: "wisewong"
+      };
+
+      return {
+        meta,
+        resources: [
+          {
+            id: "201",
+            type: "knowledge_base",
+            name: "保险产品知识库",
+            updatedBy: "admin",
+            updatedAt: "2026-03-24 09:15:22"
+          },
+          {
+            id: "202",
+            type: "knowledge_base",
+            name: "FAQ知识库",
+            updatedBy: "admin",
+            updatedAt: "2026-03-25 10:10:45"
+          },
+          {
+            id: "203",
+            type: "knowledge_base",
+            name: "条款知识库",
+            updatedBy: "martin",
+            updatedAt: "2026-03-25 18:42:10"
+          }
+        ],
+        nodes: [
+          createDefaultNode("101", "意图分流", "volc-doubao-seed-2-0-pro", "prompt-routing", ["202"]),
+          createDefaultNode("102", "产品咨询", "openai-gpt-4o-mini", "prompt-product", ["201", "202"]),
+          createDefaultNode("103", "条款答疑", "aliyun-qwen-3-5-plus", "prompt-product", ["203"])
+        ]
+      };
+    }
+
+    function migrateOldIds(data) {
+      // 转换节点 ID: node-101 -> 101
+      if (data.nodes) {
+        data.nodes.forEach(node => {
+          if (node.id && node.id.includes('-')) {
+            node.id = node.id.replace(/\\D/g, '');
+          }
+        });
+      }
+      // 转换资源 ID: kb-201 -> 201
+      if (data.resources) {
+        data.resources.forEach(res => {
+          if (res.id && res.id.includes('-')) {
+            res.id = res.id.replace(/\\D/g, '');
+          }
+        });
+      }
+      // 转换 resourceIds 引用
+      if (data.nodes) {
+        data.nodes.forEach(node => {
+          if (node.resourceIds) {
+            node.resourceIds = node.resourceIds.map(id => id.includes('-') ? id.replace(/\\D/g, '') : id);
+          }
+        });
+      }
+      return data;
+    }
+
+    function getAllState() {
+      const existing = loadJSON(APP_STORAGE_KEY, {});
+      if (!existing[appId]) {
+        existing[appId] = buildDefaultAppState(appId);
+        saveJSON(APP_STORAGE_KEY, existing);
+      } else {
+        // 迁移旧数据
+        existing[appId] = migrateOldIds(existing[appId]);
+        saveJSON(APP_STORAGE_KEY, existing);
+      }
+      return existing;
+    }
+
+    function saveCurrentState() {
+      const allState = getAllState();
+      allState[appId] = state;
+      saveJSON(APP_STORAGE_KEY, allState);
+    }
+
+    let state = getAllState()[appId];
+    let kbModalNodeId = "";
+    let editingNodeId = "";
+    let selectedNodeIds = new Set();
+
+    const appNameEl = document.getElementById("appName");
+    const projectIdEl = document.getElementById("projectId");
+    const appIdTextEl = document.getElementById("appIdText");
+    const companyNameEl = document.getElementById("companyName");
+    const projectNameEl = document.getElementById("projectName");
+    const ownersEl = document.getElementById("owners");
+    const nodeTableBody = document.getElementById("nodeTableBody");
+    const kbSelectModal = document.getElementById("kbSelectModal");
+    const kbSelectList = document.getElementById("kbSelectList");
+    const kbSelectEmpty = document.getElementById("kbSelectEmpty");
+    const nodeDrawerTitle = document.getElementById("nodeDrawerTitle");
+    const nodeNameInput = document.getElementById("nodeNameInput");
+    const promptTemplateSelect = document.getElementById("promptTemplateSelect");
+    const nodeModelSelect = document.getElementById("nodeModelSelect");
+
+    const nodeTemperatureInput = document.getElementById("nodeTemperatureInput");
+    const nodeMaxTokensInput = document.getElementById("nodeMaxTokensInput");
+    const nodeModelHint = document.getElementById("nodeModelHint");
+    const systemPromptTextarea = document.getElementById("systemPromptTextarea");
+    const userPromptTextarea = document.getElementById("userPromptTextarea");
+    const assistantPromptTextarea = document.getElementById("assistantPromptTextarea");
+    const drawerBreadcrumbText = document.getElementById("drawerBreadcrumbText");
+    const toast = document.getElementById("toast");
+    const batchModelModal = document.getElementById("batchModelModal");
+    const batchModelSelect = document.getElementById("batchModelSelect");
+    const batchSelectedCount = document.getElementById("batchSelectedCount");
+    const batchSwitchModelBtn = document.getElementById("batchSwitchModelBtn");
+    const selectAllNodes = document.getElementById("selectAllNodes");
+
+    function showToast(message) {
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("is-open");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => {
+        toast.classList.remove("is-open");
+      }, 2200);
+    }
+
+    function formatThinkingMode(value) {
+      if (value === "enabled") return "开启";
+      if (value === "auto") return "自动";
+      return "关闭";
+    }
+
+    function formatJsonMode(value) {
+      return value === "json_object" ? "JSON Object" : "文本输出";
+    }
+
+    function getNodeById(nodeId) {
+      return state.nodes.find((node) => node.id === nodeId);
+    }
+
+    function getResourceById(resourceId) {
+      return state.resources.find((resource) => resource.id === resourceId);
+    }
+
+    function getKnowledgeBaseResources() {
+      return state.resources.filter((resource) => resource.type === "knowledge_base");
+    }
+
+    function getResourceUsageCount(resourceId) {
+      return state.nodes.filter((node) => Array.isArray(node.resourceIds) && node.resourceIds.includes(resourceId)).length;
+    }
+
+    function renderAppMeta() {
+      const meta = state.meta || {};
+      appNameEl.textContent = meta.appName || "未命名应用";
+      projectIdEl.textContent = meta.projectId || "-";
+      appIdTextEl.textContent = meta.appId || appId;
+      companyNameEl.textContent = meta.companyName || "-";
+      projectNameEl.textContent = meta.projectName || "-";
+      ownersEl.textContent = meta.owners || "-";
+    }
+
+    function buildNodeSummary(node) {
+      return [
+        `<span class="summary-chip"><strong>深度思考</strong>${formatThinkingMode(node.thinkingMode)}</span>`,
+        `<span class="summary-chip"><strong>JSON输出</strong>${formatJsonMode(node.jsonMode)}</span>`
+      ].join("");
+    }
+
+    function renderResourceTags(resources) {
+      if (!resources || resources.length === 0) {
+        return '<span class="resource-tag-empty">-</span>';
+      }
+      
+      const maxPerRow = 2;
+      const maxRows = 2;
+      const maxDisplay = maxPerRow * maxRows - 1; // 最多3个标签 + "..."
+      const displayResources = resources.slice(0, maxDisplay);
+      const hasMore = resources.length > maxDisplay;
+      const allNames = resources.map(r => r.name).join('\n');
+      
+      let html = `<div class="resource-tags" data-has-more="${hasMore}" data-tooltip="${allNames}">`;
+      displayResources.forEach(resource => {
+        html += `<span class="resource-tag" title="${resource.name}">${resource.name}</span>`;
+      });
+      
+      if (hasMore) {
+        html += '<span class="resource-tag-more">...</span>';
+      }
+      
+      html += '</div>';
+      return html;
+    }
+
+    function renderNodeTable() {
+      nodeTableBody.innerHTML = state.nodes.map((node) => {
+        const model = window.ModelRegistryDemo?.getModelByKey(node.modelKey);
+        
+        // 获取节点关联的各类资源
+        const resources = (node.resourceIds || []).map(getResourceById).filter(Boolean);
+        const kbResources = resources.filter(r => r.type === 'knowledge_base');
+        // Mock MCP 和 Skills 数据
+        const mcpResources = node.id === 'node-101' ? [
+          { name: '文档检索 MCP' },
+          { name: '数据库查询 MCP' },
+          { name: '搜索引擎 MCP' }
+        ] : node.id === 'node-102' ? [
+          { name: '产品检索 MCP' }
+        ] : [];
+        const skillResources = node.id === 'node-101' ? [
+          { name: '意图识别 Skill' },
+          { name: '实体提取 Skill' },
+          { name: '情感分析 Skill' },
+          { name: '文本分类 Skill' }
+        ] : node.id === 'node-103' ? [
+          { name: '条款解析 Skill' }
+        ] : [];
+        
+        const isSelected = selectedNodeIds.has(node.id);
+        const nodeIdNum = node.id.replace(/\\D/g, '');
+        return `
+          <tr class="node-row" data-node-id="${node.id}">
+            <td>
+              <input type="checkbox" class="row-checkbox node-checkbox" value="${node.id}" ${isSelected ? "checked" : ""}>
+            </td>
+            <td style="color: var(--muted); font-size: 12px;">${nodeIdNum}</td>
+            <td>
+              <div class="node-name">${node.name}</div>
+            </td>
+            <td>
+              <div class="resource-name">${model?.displayName || node.modelKey}</div>
+            </td>
+            <td>
+              <span class="toggle-switch ${node.thinkingMode === 'enabled' || node.thinkingMode === 'auto' ? (node.thinkingMode === 'auto' ? 'auto' : 'on') : ''}" 
+                    data-action="toggle-thinking" data-node-id="${node.id}" style="cursor:pointer;"
+                    title="点击切换: 关闭 → 开启 → 自动">
+                <span class="switch"></span>
+              </span>
+            </td>
+            <td>
+              <span class="toggle-switch ${node.jsonMode === 'json_object' ? 'on' : ''}" 
+                    data-action="toggle-json" data-node-id="${node.id}" style="cursor:pointer;"
+                    title="点击切换 JSON 输出">
+                <span class="switch"></span>
+              </span>
+            </td>
+            <td>
+              ${model?.supportsImageInput ? '<i class="fa-solid fa-check icon-check"></i>' : '<i class="fa-solid fa-xmark icon-cross"></i>'}
+            </td>
+            <td>${renderResourceTags(kbResources, 2)}</td>
+            <td>${renderResourceTags(mcpResources, 2)}</td>
+            <td>${renderResourceTags(skillResources, 2)}</td>
+            <td style="font-size: 12px; color: var(--muted);">${node.updatedBy || '-'}</td>
+            <td style="font-size: 12px; color: var(--muted);">${node.updatedAt || '-'}</td>
+            <td style="white-space: nowrap;">
+              <div class="inline-actions" style="flex-wrap: nowrap; gap: 8px;">
+                <button class="btn btn-secondary btn-small" type="button" data-action="edit-node" data-node-id="${node.id}">编辑</button>
+                <button class="btn btn-danger btn-small" type="button" data-action="delete-node" data-node-id="${node.id}">删除</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+      updateSelectAllCheckbox();
+      // 延迟执行以确保 DOM 已渲染
+      setTimeout(bindResourceTooltipEvents, 0);
+    }
+
+    function bindResourceTooltipEvents() {
+      const tooltip = document.getElementById('resourceTooltip');
+      if (!tooltip) return;
+      
+      document.querySelectorAll('.resource-tags').forEach(container => {
+        const text = container.dataset.tooltip;
+        if (!text || container.dataset.tooltipBound) return;
+        
+        container.dataset.tooltipBound = 'true';
+        
+        // 为整个容器添加 tooltip 事件
+        container.addEventListener('mouseenter', (e) => {
+          const tooltipText = container.dataset.tooltip;
+          if (!tooltipText) return;
+          
+          // 只有当有更多内容或有标签被截断时才显示
+          tooltip.innerHTML = tooltipText.replace(/\n/g, '<br>');
+          tooltip.classList.add('show');
+          
+          const rect = container.getBoundingClientRect();
+          tooltip.style.left = rect.left + 'px';
+          tooltip.style.top = (rect.bottom + 8) + 'px';
+        });
+        
+        container.addEventListener('mouseleave', () => {
+          tooltip.classList.remove('show');
+        });
+      });
+    }
+
+
+    function openModal(modalEl) {
+      if (modalEl) modalEl.classList.add("is-open");
+    }
+
+    function closeModal(modalEl) {
+      if (modalEl) modalEl.classList.remove("is-open");
+    }
+
+    function openKbSelect(nodeId) {
+      kbModalNodeId = nodeId;
+      const resources = getKnowledgeBaseResources();
+      const node = getNodeById(nodeId);
+      kbSelectList.innerHTML = "";
+      kbSelectEmpty.style.display = resources.length ? "none" : "block";
+      kbSelectList.style.display = resources.length ? "flex" : "none";
+      resources.forEach((resource) => {
+        const item = document.createElement("label");
+        item.className = "checkbox-item";
+        const checked = node?.resourceIds?.includes(resource.id) ? "checked" : "";
+        item.innerHTML = `
+          <input type="checkbox" value="${resource.id}" ${checked} />
+          <div>
+            <div class="checkbox-item-title">${resource.name}</div>
+            <div class="checkbox-item-desc">${resource.description || "暂无说明"}</div>
+          </div>
+        `;
+        kbSelectList.appendChild(item);
+      });
+      openModal(kbSelectModal);
+    }
+
+
+    function goToNodeEditPage(nodeId) {
+      const node = getNodeById(nodeId);
+      if (!nodeId || !node) return;
+      window.location.href = `./frontend-app-config-edit.html?appId=${encodeURIComponent(appId)}&resourceId=${encodeURIComponent(nodeId)}`;
+    }
+
+    function openNodeDrawerById(nodeId) {
+      editingNodeId = nodeId;
+      const node = getNodeById(nodeId);
+      if (!node) return;
+
+      // 更新面包屑导航
+      if (drawerBreadcrumbText) {
+        drawerBreadcrumbText.textContent = `编辑节点：${node.name}`;
+      }
+      
+      nodeNameInput.value = node.name;
+      promptTemplateSelect.innerHTML = PROMPT_LIBRARY.map((prompt) => `
+        <option value="${prompt.id}">${prompt.name}</option>
+      `).join("");
+      promptTemplateSelect.value = node.promptTemplateId || PROMPT_LIBRARY[0].id;
+      window.ModelRegistryDemo?.renderModelOptions(nodeModelSelect, { preferredKey: node.modelKey });
+      nodeModelSelect.value = node.modelKey;
+      
+      // 深度思考 radio button
+      const thinkingMode = node.thinkingMode || "disabled";
+      document.querySelectorAll('input[name="nodeThinking"]').forEach((radio) => {
+        radio.checked = radio.value === thinkingMode;
+      });
+      
+      renderJsonModeOptions(nodeModelSelect.value, node.jsonMode || "none");
+      
+      // 流式输出
+      const streamRadio = document.querySelector('input[name="nodeStream"][value="' + (node.streamEnabled ? "true" : "false") + '"]');
+      if (streamRadio) streamRadio.checked = true;
+      
+      // 温度和 maxTokens
+      if (nodeTemperatureInput) {
+        nodeTemperatureInput.value = node.temperature || "0.2";
+      }
+      if (nodeMaxTokensInput) {
+        nodeMaxTokensInput.value = node.maxTokens || "131072";
+      }
+      
+      systemPromptTextarea.value = node.promptSnapshot?.system || "";
+      userPromptTextarea.value = node.promptSnapshot?.user || "";
+      assistantPromptTextarea.value = node.promptSnapshot?.assistant || "";
+      refreshModelHint(nodeModelSelect.value);
+      nodeDrawer.classList.add("is-open");
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeNodeDrawerPanel() {
+      editingNodeId = "";
+      nodeDrawer.classList.remove("is-open");
+      document.body.style.overflow = '';
+    }
+
+    function refreshModelHint(modelKey) {
+      const model = window.ModelRegistryDemo?.getModelByKey(modelKey);
+      nodeModelHint.textContent = model ? (window.ModelRegistryDemo?.getModelPriceHint(model.modelKey) || "未配置模型价格") : "";
+    }
+
+    function renderJsonModeOptions(modelKey, preferredValue) {
+      const model = window.ModelRegistryDemo?.getModelByKey(modelKey);
+      const supported = Array.isArray(model?.jsonModes) && model.jsonModes.length ? model.jsonModes : ["none"];
+      const value = supported.includes(preferredValue) ? preferredValue : supported[0];
+      const jsonRadio = document.querySelector('input[name="nodeJsonMode"][value="' + value + '"]');
+      if (jsonRadio) jsonRadio.checked = true;
+    }
+
+
+
+    function deleteNode(nodeId) {
+      if (!confirm("确定要删除该模型节点吗？")) return;
+      state.nodes = state.nodes.filter((node) => node.id !== nodeId);
+      selectedNodeIds.delete(nodeId);
+      saveCurrentState();
+      renderNodeTable();
+      updateBatchSwitchButton();
+      showToast("模型节点已删除");
+    }
+
+    function saveKbSelection() {
+      const node = getNodeById(kbModalNodeId);
+      if (!node) return;
+      const selectedIds = Array.from(kbSelectList.querySelectorAll('input[type="checkbox"]:checked')).map((input) => input.value);
+      node.resourceIds = selectedIds;
+      node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
+      saveCurrentState();
+      renderNodeTable();
+      closeModal(kbSelectModal);
+      showToast("节点知识库绑定已更新");
+    }
+
+    function unbindResource(nodeId, resourceId) {
+      const node = getNodeById(nodeId);
+      if (!node) return;
+      node.resourceIds = (node.resourceIds || []).filter((id) => id !== resourceId);
+      node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
+      saveCurrentState();
+      renderNodeTable();
+      showToast("已移除知识库");
+    }
+
+    function toggleThinking(nodeId) {
+      const node = getNodeById(nodeId);
+      if (!node) return;
+      const model = window.ModelRegistryDemo?.getModelByKey(node.modelKey);
+      if (!model?.supportsThinking) {
+        showToast("当前模型不支持深度思考");
+        return;
+      }
+      const cycle = ["disabled", "enabled", "auto"];
+      const currentIndex = cycle.indexOf(node.thinkingMode);
+      const nextIndex = (currentIndex + 1) % cycle.length;
+      node.thinkingMode = cycle[nextIndex];
+      node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
+      saveCurrentState();
+      renderNodeTable();
+      showToast(`深度思考已切换为: ${formatThinkingMode(node.thinkingMode)}`);
+    }
+
+    function toggleJson(nodeId) {
+      const node = getNodeById(nodeId);
+      if (!node) return;
+      const model = window.ModelRegistryDemo?.getModelByKey(node.modelKey);
+      if (!model?.supportsJson) {
+        showToast("当前模型不支持 JSON 输出");
+        return;
+      }
+      node.jsonMode = node.jsonMode === "json_object" ? "none" : "json_object";
+      node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
+      saveCurrentState();
+      renderNodeTable();
+      showToast(`JSON 输出已切换为: ${formatJsonMode(node.jsonMode)}`);
+    }
+
+    function saveNode() {
+      const node = getNodeById(editingNodeId);
+      if (!node) return;
+      
+      // 获取深度思考 radio 值
+      const thinkingRadio = document.querySelector('input[name="nodeThinking"]:checked');
+      const thinkingMode = thinkingRadio ? thinkingRadio.value : "disabled";
+      
+      node.name = nodeNameInput.value.trim() || node.name;
+      node.promptTemplateId = promptTemplateSelect.value;
+      node.modelKey = nodeModelSelect.value;
+      node.thinkingMode = thinkingMode;
+      const jsonRadio = document.querySelector('input[name="nodeJsonMode"]:checked');
+      node.jsonMode = jsonRadio ? jsonRadio.value : "none";
+      const streamRadio = document.querySelector('input[name="nodeStream"]:checked');
+      node.streamEnabled = streamRadio ? streamRadio.value === "true" : false;
+      node.temperature = nodeTemperatureInput?.value || "0.2";
+      node.maxTokens = nodeMaxTokensInput?.value || "131072";
+      node.promptSnapshot = {
+        system: systemPromptTextarea.value,
+        user: userPromptTextarea.value,
+        assistant: assistantPromptTextarea.value
+      };
+      node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
+      saveCurrentState();
+      renderNodeTable();
+      closeNodeDrawerPanel();
+      showToast("节点配置已保存");
+    }
+
+    function repullPromptTemplate() {
+      const node = getNodeById(editingNodeId);
+      const prompt = PROMPT_LIBRARY.find((item) => item.id === promptTemplateSelect.value);
+      if (!node || !prompt) return;
+      node.promptTemplateId = prompt.id;
+      node.promptSnapshot = {
+        system: prompt.messages.system,
+        user: prompt.messages.user,
+        assistant: prompt.messages.assistant
+      };
+      systemPromptTextarea.value = node.promptSnapshot.system;
+      userPromptTextarea.value = node.promptSnapshot.user;
+      assistantPromptTextarea.value = node.promptSnapshot.assistant;
+      showToast("已重新从模板拉取提示词快照");
+    }
+
+    function handleTableClick(event) {
+      const actionEl = event.target.closest("[data-action]");
+      if (!actionEl) return;
+      const action = actionEl.dataset.action;
+      const nodeId = actionEl.dataset.nodeId || "";
+      const resourceId = actionEl.dataset.resourceId || "";
+
+      if (action === "edit-node") {
+        goToNodeEditPage(nodeId);
+      } else if (action === "toggle-thinking") {
+        toggleThinking(nodeId);
+      } else if (action === "toggle-json") {
+        toggleJson(nodeId);
+      } else if (action === "delete-node") {
+        deleteNode(nodeId);
+      }
+    }
+
+    function updateBatchSwitchButton() {
+      if (batchSwitchModelBtn) {
+        batchSwitchModelBtn.style.display = selectedNodeIds.size > 0 ? "flex" : "none";
+      }
+    }
+
+    function updateSelectAllCheckbox() {
+      if (!selectAllNodes) return;
+      const checkboxes = document.querySelectorAll(".node-checkbox");
+      const checked = document.querySelectorAll(".node-checkbox:checked");
+
+      if (checkboxes.length === 0) {
+        selectAllNodes.checked = false;
+        selectAllNodes.indeterminate = false;
+      } else if (checked.length === 0) {
+        selectAllNodes.checked = false;
+        selectAllNodes.indeterminate = false;
+      } else if (checked.length === checkboxes.length) {
+        selectAllNodes.checked = true;
+        selectAllNodes.indeterminate = false;
+      } else {
+        selectAllNodes.checked = false;
+        selectAllNodes.indeterminate = true;
+      }
+    }
+
+    function handleSelectAllNodes(event) {
+      const checked = event.target.checked;
+      const checkboxes = document.querySelectorAll(".node-checkbox");
+      checkboxes.forEach((cb) => {
+        const nodeId = cb.value;
+        if (checked) {
+          selectedNodeIds.add(nodeId);
+        } else {
+          selectedNodeIds.delete(nodeId);
+        }
+      });
+      renderNodeTable();
+      updateBatchSwitchButton();
+    }
+
+    function handleNodeCheckboxChange(event) {
+      const checkbox = event.target;
+      const nodeId = checkbox.value;
+      if (checkbox.checked) {
+        selectedNodeIds.add(nodeId);
+      } else {
+        selectedNodeIds.delete(nodeId);
+      }
+      updateBatchSwitchButton();
+      updateSelectAllCheckbox();
+    }
+
+    function openBatchModelModal() {
+      if (selectedNodeIds.size === 0) {
+        showToast("请先选择要切换模型的节点");
+        return;
+      }
+      window.ModelRegistryDemo?.renderModelOptions(batchModelSelect, {});
+      if (batchSelectedCount) {
+        batchSelectedCount.textContent = selectedNodeIds.size;
+      }
+      openModal(batchModelModal);
+    }
+
+    function closeBatchModelModal() {
+      closeModal(batchModelModal);
+    }
+
+    function closeFloatingLayers() {
+      closeModal(kbSelectModal);
+      closeBatchModelModal();
+      closeNodeDrawerPanel();
+    }
+
+    function confirmBatchModelSwitch() {
+      const targetModelKey = batchModelSelect?.value;
+      if (!targetModelKey) {
+        showToast("请选择目标模型");
+        return;
+      }
+
+      const targetModel = window.ModelRegistryDemo?.getModelByKey(targetModelKey);
+      if (!targetModel) {
+        showToast("无效的模型");
+        return;
+      }
+
+      let successCount = 0;
+      selectedNodeIds.forEach((nodeId) => {
+        const node = getNodeById(nodeId);
+        if (node) {
+          const config = window.ModelRegistryDemo?.buildModelConfig({ modelKey: targetModelKey });
+          node.modelKey = targetModelKey;
+          node.thinkingMode = config?.thinkingMode || targetModel.defaultConfig?.thinkingMode || "disabled";
+          node.jsonMode = config?.jsonMode || targetModel.defaultConfig?.jsonMode || "none";
+          node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+          node.updatedBy = "admin";
+          successCount++;
+        }
+      });
+
+      saveCurrentState();
+      renderNodeTable();
+      updateBatchSwitchButton();
+      updateSelectAllCheckbox();
+      closeBatchModelModal();
+      showToast(`${successCount} 个节点已切换至 ${targetModel.displayName}`);
+    }
+
+    function addNode() {
+      const defaultModel = window.ModelRegistryDemo?.getDefaultModel();
+      const registry = window.ModelRegistryDemo;
+      const model = defaultModel || registry?.getDefaultModel();
+      const config = registry?.buildModelConfig(model?.modelKey) || {
+        thinkingMode: "disabled",
+        jsonMode: "none"
+      };
+      const newNodeId = String(Math.floor(1000 + Math.random() * 9000));
+      const now = new Date().toISOString().slice(0, 19).replace("T", " ");
+      
+      // 创建空白节点，不预置提示词
+      const newNode = {
+        id: newNodeId,
+        name: "新节点",
+        modelKey: model?.modelKey || "volc-doubao-seed-2-0-pro",
+        thinkingMode: config.thinkingMode || "disabled",
+        jsonMode: config.jsonMode || "none",
+        streamEnabled: false,
+        temperature: "0.2",
+        maxTokens: "131072",
+        promptTemplateId: "",
+        promptSnapshot: {
+          system: "",
+          user: "",
+          assistant: ""
+        },
+        resourceIds: [],
+        updatedBy: "admin",
+        updatedAt: now
+      };
+      
+      state.nodes.unshift(newNode);
+      saveCurrentState();
+      renderNodeTable();
+      showToast("新节点已添加");
+      
+      // 自动跳转到编辑页
+      goToNodeEditPage(newNodeId);
+    }
+
+    function bindEvents() {
+      nodeTableBody.addEventListener("click", handleTableClick);
+      
+      // 复选框事件委托
+      nodeTableBody.addEventListener("change", (event) => {
+        if (event.target.classList.contains("node-checkbox")) {
+          handleNodeCheckboxChange(event);
+        }
+      });
+      
+      // 全选复选框
+      if (selectAllNodes) {
+        selectAllNodes.addEventListener("change", handleSelectAllNodes);
+      }
+      
+      // 批量切换模型按钮
+      if (batchSwitchModelBtn) {
+        batchSwitchModelBtn.addEventListener("click", openBatchModelModal);
+      }
+      
+      // 批量切换模型确认
+      const confirmBatchBtn = document.getElementById("confirmBatchModelSwitch");
+      if (confirmBatchBtn) {
+        confirmBatchBtn.addEventListener("click", confirmBatchModelSwitch);
+      }
+      
+      // 添加模型节点按钮
+      const addNodeBtn = document.getElementById("addNodeBtn");
+      if (addNodeBtn) {
+        addNodeBtn.addEventListener("click", addNode);
+      }
+      
+      document.getElementById("confirmKbSelection").addEventListener("click", saveKbSelection);
+      document.getElementById("closeNodeDrawer").addEventListener("click", closeNodeDrawerPanel);
+      document.getElementById("saveNodeBtn").addEventListener("click", saveNode);
+      document.getElementById("repullPromptBtn").addEventListener("click", repullPromptTemplate);
+      const drawerSelectKbBtn = document.getElementById("drawerSelectKbBtn");
+      if (drawerSelectKbBtn) {
+        drawerSelectKbBtn.addEventListener("click", () => {
+          if (editingNodeId) openKbSelect(editingNodeId);
+        });
+      }
+      nodeModelSelect.addEventListener("change", () => {
+        const modelKey = nodeModelSelect.value;
+        const config = window.ModelRegistryDemo?.buildModelConfig(modelKey);
+        refreshModelHint(modelKey);
+        if (config?.thinkingMode) {
+          // 更新 radio button
+          document.querySelectorAll('input[name="nodeThinking"]').forEach((radio) => {
+            radio.checked = radio.value === config.thinkingMode;
+          });
+        }
+        renderJsonModeOptions(modelKey, config?.jsonMode || "none");
+      });
+
+      document.querySelectorAll("[data-close-modal]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const modalId = button.dataset.closeModal;
+          } else if (modalId === "kbSelectModal") {
+            closeModal(kbSelectModal);
+          } else if (modalId === "batchModelModal") {
+            closeBatchModelModal();
+          }
+        });
+      });
+
+      kbSelectModal.addEventListener("click", (event) => {
+        if (event.target === kbSelectModal) closeModal(kbSelectModal);
+      });
+      nodeDrawer.addEventListener("click", (event) => {
+        if (event.target === nodeDrawer) closeNodeDrawerPanel();
+      });
+      if (batchModelModal) {
+        batchModelModal.addEventListener("click", (event) => {
+          if (event.target === batchModelModal) closeBatchModelModal();
+        });
+      }
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        closeFloatingLayers();
+      });
+    }
+
+    function init() {
+      renderAppMeta();
+      renderNodeTable();
+      bindEvents();
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
