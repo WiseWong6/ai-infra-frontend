@@ -549,9 +549,7 @@
       <div class="panel-head">
         <div>
           <strong id="nodesModalTitle">关联节点</strong>
-          <div class="muted" style="margin-top:4px;">查看当前模型关联的所有节点信息。</div>
         </div>
-        <button class="row-btn" id="closeNodesModalBtn">关闭</button>
       </div>
       <div class="panel-body">
         <div class="table-wrap">
@@ -572,7 +570,7 @@
           <div id="nodesEmptyState" class="empty" hidden>暂无关联节点</div>
         </div>
       </div>
-      <div class="panel-foot">
+      <div class="panel-foot" style="justify-content: flex-start;">
         <button class="btn ghost" id="closeNodesBtn">关闭</button>
       </div>
     </div>
@@ -1291,7 +1289,6 @@
 
     document.getElementById("createBtn").addEventListener("click", () => openModal(null));
     document.getElementById("cancelBtn").addEventListener("click", closeModal);
-    document.getElementById("closeNodesModalBtn").addEventListener("click", closeNodesModal);
     document.getElementById("closeNodesBtn").addEventListener("click", closeNodesModal);
     document.getElementById("closeTestBtn").addEventListener("click", closeTestModal);
     document.getElementById("saveBtn").addEventListener("click", persistModel);

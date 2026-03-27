@@ -353,6 +353,7 @@
       status: raw?.status === "disabled" ? "disabled" : "active",
       supportsThinking,
       supportsImageInput: Boolean(raw?.supportsImageInput || raw?.supportsImage),
+      supportsFileInput: Boolean(raw?.supportsFileInput),
       supportsJson,
       supportsStreaming: raw?.supportsStreaming !== false,
       jsonModes: jsonModes.length ? jsonModes : ["none"],

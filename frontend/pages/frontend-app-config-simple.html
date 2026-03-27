@@ -489,19 +489,19 @@
     }
 
     .resource-tags {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
+      flex-wrap: wrap;
       gap: 4px;
       width: 100%;
-      min-width: 100%;
     }
 
     .resource-tag {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 2px 4px;
+      padding: 2px 6px;
       border-radius: 4px;
+      white-space: nowrap;
       font-size: 11px;
       font-weight: 500;
       background: var(--active);
@@ -517,8 +517,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 2px 4px;
+      padding: 2px 6px;
       border-radius: 4px;
+      white-space: nowrap;
       font-size: 11px;
       font-weight: 500;
       background: #f8fafc;
@@ -1618,8 +1619,22 @@
           tooltip.classList.add('show');
           
           const rect = container.getBoundingClientRect();
-          tooltip.style.left = rect.left + 'px';
-          tooltip.style.top = (rect.bottom + 8) + 'px';
+          const tooltipRect = tooltip.getBoundingClientRect();
+          
+          // 水平居中
+          let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+          // 防止超出视口边界
+          left = Math.max(8, Math.min(left, window.innerWidth - tooltipRect.width - 8));
+          
+          // 默认显示在容器上方
+          let top = rect.top - tooltipRect.height - 8;
+          // 如果上方空间不足，显示在下方
+          if (top < 8) {
+            top = rect.bottom + 8;
+          }
+          
+          tooltip.style.left = left + 'px';
+          tooltip.style.top = top + 'px';
         });
         
         container.addEventListener('mouseleave', () => {
@@ -2077,7 +2092,7 @@
       document.querySelectorAll("[data-close-modal]").forEach((button) => {
         button.addEventListener("click", () => {
           const modalId = button.dataset.closeModal;
-          } else if (modalId === "kbSelectModal") {
+          if (modalId === "kbSelectModal") {
             closeModal(kbSelectModal);
           } else if (modalId === "batchModelModal") {
             closeBatchModelModal();
