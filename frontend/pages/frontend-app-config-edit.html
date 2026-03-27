@@ -770,11 +770,7 @@
                             </div>
                             <div class="editor-box" style="background: #f8fafc;">
                                 <textarea id="systemPromptTextarea" spellcheck="false" readonly
-                                    style="cursor: default;"># 保险问句规范化与路由引擎 v3.6
-# 注意：只输出 JSON；严禁输出推理过程。
-
-# 角色
-你是保险问句规范化与路由引擎（Coref + NER + Normalize + Intent + Rewrite）。
+                                    style="cursor: default;" placeholder="请输入系统提示词"></textarea>
 
 # 最高优先级硬约束（必须遵守）
 1) 严禁输出任何推理过程/自问自答/权衡文字。
@@ -1344,18 +1340,7 @@ BMI要求
                                 <div class="editor-title">用户提示词</div>
                             </div>
                             <div class="editor-box" style="background: #f8fafc;">
-                                <textarea id="userPromptTextarea" spellcheck="false" readonly style="cursor: default;">history:
-{{history}}
-
-catalogs (optional):
-{{catalogs}}
-
-current_query:
-{{current_query}}
-
-current_image:
-{{current_image}}
-</textarea>
+                                <textarea id="userPromptTextarea" spellcheck="false" readonly style="cursor: default;" placeholder="请输入用户提示词"></textarea>
                             </div>
                         </div>
                         <div id="assistantPromptBlock" style="flex: 1; display: none; flex-direction: column;">
@@ -1443,8 +1428,24 @@ current_image:
             "46": "意图分流（无产品检索）"
         };
 
+        // 从 localStorage 读取节点名称
+        function getNodeNameFromStorage(nodeId) {
+            try {
+                const APP_CONFIG_KEY = "app_config_node_binding_demo_v1";
+                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+                const appState = allState[appId] || {};
+                const nodes = appState.nodes || [];
+                const node = nodes.find(n => n.id === nodeId);
+                return node?.name || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
         const appName = appNameMap[appId] || `应用${appId}`;
-        const fallbackResourceName = resourceNameMap[resourceId] || "意图分流（有产品检索）";
+        // 优先从 localStorage 获取节点名称，否则使用硬编码映射
+        const storageNodeName = getNodeNameFromStorage(resourceId);
+        const fallbackResourceName = storageNodeName || resourceNameMap[resourceId] || "新节点";
 
         const breadcrumbLinks = document.querySelectorAll(".breadcrumb a");
         if (breadcrumbLinks[1]) {

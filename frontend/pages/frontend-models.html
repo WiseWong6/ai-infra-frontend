@@ -251,8 +251,11 @@
     }
     .form-list .field {
       flex-direction: row;
-      align-items: center;
+      align-items: flex-start;
       gap: 16px;
+    }
+    .form-list .field label {
+      margin-top: 8px;
     }
     .form-list .field label {
       width: 104px;
@@ -600,20 +603,20 @@
         <div class="subcard test-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h3 style="margin:0; font-size:15px;">基础测试</h3>
-            <button class="row-btn test-run-btn" data-test="basic">运行</button>
+            <button class="btn primary test-run-btn" data-test="basic" style="border-radius:0;">运行</button>
           </div>
           <div class="form-list">
             <div class="field">
               <label>输入</label>
               <textarea class="test-input" data-test="basic" placeholder="请输入测试内容">你好，请介绍一下自己</textarea>
             </div>
-            <div class="field test-reasoning-field" data-test="basic" style="display:none;">
+            <div class="field test-reasoning-field" data-test="basic">
               <label>推理</label>
-              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);"></div>
+              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);">点击运行查看推理过程</div>
             </div>
-            <div class="field test-output-field" data-test="basic" style="display:none;">
+            <div class="field test-output-field" data-test="basic">
               <label>输出</label>
-              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px;"></div>
+              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px; color:var(--muted);">点击运行查看输出结果</div>
             </div>
           </div>
         </div>
@@ -622,7 +625,7 @@
         <div class="subcard test-card" id="multimodalTestCard">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h3 style="margin:0; font-size:15px;">多模态测试</h3>
-            <button class="row-btn test-run-btn" data-test="multimodal">运行</button>
+            <button class="btn primary test-run-btn" data-test="multimodal" style="border-radius:0;">运行</button>
           </div>
           <div class="form-list">
             <div class="field">
@@ -636,13 +639,13 @@
                 <button class="row-btn" style="height:32px;">选择图片</button>
               </div>
             </div>
-            <div class="field test-reasoning-field" data-test="multimodal" style="display:none;">
+            <div class="field test-reasoning-field" data-test="multimodal">
               <label>推理</label>
-              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);"></div>
+              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);">点击运行查看推理过程</div>
             </div>
-            <div class="field test-output-field" data-test="multimodal" style="display:none;">
+            <div class="field test-output-field" data-test="multimodal">
               <label>输出</label>
-              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px;"></div>
+              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px; color:var(--muted);">点击运行查看输出结果</div>
             </div>
           </div>
         </div>
@@ -651,20 +654,20 @@
         <div class="subcard test-card" id="jsonTestCard">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h3 style="margin:0; font-size:15px;">JSON格式化测试</h3>
-            <button class="row-btn test-run-btn" data-test="json">运行</button>
+            <button class="btn primary test-run-btn" data-test="json" style="border-radius:0;">运行</button>
           </div>
           <div class="form-list">
             <div class="field">
               <label>输入</label>
               <textarea class="test-input" data-test="json" placeholder="请输入测试内容">请以JSON格式返回一个用户信息，包含name和age字段</textarea>
             </div>
-            <div class="field test-reasoning-field" data-test="json" style="display:none;">
+            <div class="field test-reasoning-field" data-test="json">
               <label>推理</label>
-              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);"></div>
+              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);">点击运行查看推理过程</div>
             </div>
-            <div class="field test-output-field" data-test="json" style="display:none;">
+            <div class="field test-output-field" data-test="json">
               <label>输出</label>
-              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px;"></div>
+              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px; color:var(--muted);">点击运行查看输出结果</div>
             </div>
           </div>
         </div>
@@ -680,20 +683,20 @@
                 <label class="choice-radio" style="font-size:13px;"><input type="radio" name="thinkingStream" value="true" /> 开启</label>
               </div>
             </div>
-            <button class="row-btn test-run-btn" data-test="thinking">运行</button>
+            <button class="btn primary test-run-btn" data-test="thinking" style="border-radius:0;">运行</button>
           </div>
           <div class="form-list">
             <div class="field">
               <label>输入</label>
               <textarea class="test-input" data-test="thinking" placeholder="请输入测试内容">分析人工智能的优缺点，并给出实际应用建议</textarea>
             </div>
-            <div class="field test-reasoning-field" data-test="thinking" style="display:none;">
+            <div class="field test-reasoning-field" data-test="thinking">
               <label>推理</label>
-              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);"></div>
+              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);">点击运行查看推理过程</div>
             </div>
-            <div class="field test-output-field" data-test="thinking" style="display:none;">
+            <div class="field test-output-field" data-test="thinking">
               <label>输出</label>
-              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px;"></div>
+              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px; color:var(--muted);">点击运行查看输出结果</div>
             </div>
           </div>
         </div>
@@ -1044,9 +1047,9 @@
             <td>
               <div class="row-actions">
                 <button class="row-btn" data-action="edit" data-key="${item.modelKey}">编辑</button>
+                <button class="row-btn" data-action="test" data-key="${item.modelKey}">测试</button>
                 <button class="row-btn" data-action="toggle" data-key="${item.modelKey}">${item.status === "active" ? "下架" : "启用"}</button>
                 <button class="row-btn" data-action="nodes" data-key="${item.modelKey}">关联节点</button>
-                <button class="row-btn" data-action="test" data-key="${item.modelKey}">测试</button>
               </div>
             </td>
           </tr>
@@ -1229,11 +1232,17 @@
       thinkingCard.hidden = !row.supportsThinking;
       
       // 重置所有测试状态
-      document.querySelectorAll(".test-reasoning-field, .test-output-field").forEach(el => {
-        el.style.display = "none";
+      document.querySelectorAll(".test-reasoning-output").forEach(el => {
+        el.textContent = "点击运行查看推理过程";
+        el.style.color = "var(--muted)";
       });
-      document.querySelectorAll(".test-reasoning-output, .test-output").forEach(el => {
-        el.textContent = "";
+      document.querySelectorAll(".test-output").forEach(el => {
+        el.textContent = "点击运行查看输出结果";
+        el.style.color = "var(--muted)";
+      });
+      document.querySelectorAll(".test-run-btn").forEach(btn => {
+        btn.textContent = "运行";
+        btn.disabled = false;
       });
       
       document.body.classList.add("modal-open");

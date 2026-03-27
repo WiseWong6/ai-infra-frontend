@@ -2140,15 +2140,35 @@
 
     function addNode() {
       const defaultModel = window.ModelRegistryDemo?.getDefaultModel();
-      const defaultPrompt = PROMPT_LIBRARY[0];
+      const registry = window.ModelRegistryDemo;
+      const model = defaultModel || registry?.getDefaultModel();
+      const config = registry?.buildModelConfig(model?.modelKey) || {
+        thinkingMode: "disabled",
+        jsonMode: "none"
+      };
       const newNodeId = String(Math.floor(1000 + Math.random() * 9000));
-      const newNode = createDefaultNode(
-        newNodeId,
-        "新节点",
-        defaultModel?.modelKey || "volc-doubao-seed-2-0-pro",
-        defaultPrompt?.id || "prompt-routing",
-        []
-      );
+      const now = new Date().toISOString().slice(0, 19).replace("T", " ");
+      
+      // 创建空白节点，不预置提示词
+      const newNode = {
+        id: newNodeId,
+        name: "新节点",
+        modelKey: model?.modelKey || "volc-doubao-seed-2-0-pro",
+        thinkingMode: config.thinkingMode || "disabled",
+        jsonMode: config.jsonMode || "none",
+        streamEnabled: false,
+        temperature: "0.2",
+        maxTokens: "131072",
+        promptTemplateId: "",
+        promptSnapshot: {
+          system: "",
+          user: "",
+          assistant: ""
+        },
+        resourceIds: [],
+        updatedBy: "admin",
+        updatedAt: now
+      };
       
       state.nodes.unshift(newNode);
       saveCurrentState();
