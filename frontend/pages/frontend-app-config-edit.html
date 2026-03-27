@@ -1918,6 +1918,23 @@ BMI要求
         }
 
         function restoreResourceBinding() {
+            // 优先从 node-binding 存储读取节点数据
+            const APP_CONFIG_KEY = "app_config_node_binding_demo_v1";
+            const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+            const appState = allState[appId] || {};
+            const nodes = appState.nodes || [];
+            const node = nodes.find(n => n.id === resourceId);
+            
+            // 如果有节点数据，使用节点的提示词快照
+            if (node && node.promptSnapshot) {
+                if (systemPromptTextarea) systemPromptTextarea.value = node.promptSnapshot.system || "";
+                if (userPromptTextarea) userPromptTextarea.value = node.promptSnapshot.user || "";
+                if (assistantPromptTextarea) assistantPromptTextarea.value = node.promptSnapshot.assistant || "";
+                if (assistantPromptBlock) {
+                    assistantPromptBlock.style.display = assistantPromptTextarea?.value ? "flex" : "none";
+                }
+            }
+            
             const bindings = loadJSON(APP_RESOURCE_BINDING_KEY, {});
             const binding = bindings[currentResourceKey()];
             if (!binding || !binding.resourcePromptSnapshot) return;
@@ -1936,10 +1953,17 @@ BMI要求
             if (maxTokensInput) maxTokensInput.value = String(modelConfig.maxTokens);
             if (timeoutInput) timeoutInput.value = String(modelConfig.timeout);
             if (extraBodyInput) extraBodyInput.value = String(modelConfig.extraBody);
-            const msgMap = new Map((snap.messages || []).map((item) => [roleKey(item.role), item.content || ""]));
-            if (systemPromptTextarea) systemPromptTextarea.value = String(msgMap.get("system") || "");
-            if (userPromptTextarea) userPromptTextarea.value = String(msgMap.get("user") || "");
-            if (assistantPromptTextarea) assistantPromptTextarea.value = String(msgMap.get("assistant") || "");
+            
+            // 只有当 node-binding 没有提示词时，才从 APP_RESOURCE_BINDING_KEY 加载
+            const hasNodePrompt = node && node.promptSnapshot && 
+                (node.promptSnapshot.system || node.promptSnapshot.user || node.promptSnapshot.assistant);
+            if (!hasNodePrompt) {
+                const msgMap = new Map((snap.messages || []).map((item) => [roleKey(item.role), item.content || ""]));
+                if (systemPromptTextarea) systemPromptTextarea.value = String(msgMap.get("system") || "");
+                if (userPromptTextarea) userPromptTextarea.value = String(msgMap.get("user") || "");
+                if (assistantPromptTextarea) assistantPromptTextarea.value = String(msgMap.get("assistant") || "");
+            }
+            
             currentBindingMeta = {
                 templatePromptId: binding.templatePromptId || "",
                 templatePromptVersion: binding.templatePromptVersion || ""
