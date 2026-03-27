@@ -448,7 +448,8 @@
                   <th>模型 ID</th>
                   <th>供应商</th>
                   <th>深度思考</th>
-                  <th>多模态</th>
+                  <th>图片</th>
+                  <th>文件</th>
                   <th>Json输出</th>
                   <th>状态</th>
                   <th>关联节点</th>
@@ -471,7 +472,6 @@
           <strong id="modalTitle">添加模型</strong>
           <div class="muted" style="margin-top:4px;">维护模型基础信息、价格、能力和默认参数。</div>
         </div>
-        <button class="row-btn" id="closeModalBtn">关闭</button>
       </div>
       <div class="panel-body">
         <div class="subcard">
@@ -489,23 +489,6 @@
               <label>模型名称</label>
               <input id="displayNameInput" placeholder="如 Doubao Seed 2.0 Pro" />
             </div>
-            <div class="field">
-              <label>状态</label>
-              <div class="status-options" id="statusInput">
-                <label class="status-radio"><input type="radio" name="modelStatus" value="active" checked /> 启用</label>
-                <label class="status-radio"><input type="radio" name="modelStatus" value="disabled" /> 不启用</label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="subcard">
-          <h3>能力支持</h3>
-          <div class="toggle-row">
-            <label class="toggle-inline"><input type="checkbox" id="supportsImageInput" /> 多模态</label>
-            <label class="toggle-inline"><input type="checkbox" id="supportsThinkingInput" /> 深度思考</label>
-            <label class="toggle-inline"><input type="checkbox" id="supportsJsonInput" /> Json格式化</label>
-            <label class="toggle-inline"><input type="checkbox" id="supportsStreamingInput" checked /> 流式输出</label>
           </div>
         </div>
 
@@ -515,6 +498,17 @@
             <label>价格说明</label>
             <textarea id="pricingNoteInput" placeholder="如 输入¥0.003/千tokens，输出¥0.015/千tokens"></textarea>
             <div class="hint">填写模型的价格信息，支持自由格式</div>
+          </div>
+        </div>
+
+        <div class="subcard">
+          <h3>能力支持</h3>
+          <div class="toggle-row">
+            <label class="toggle-inline"><input type="checkbox" id="supportsImageInput" /> 图片</label>
+            <label class="toggle-inline"><input type="checkbox" id="supportsFileInput" /> 文件</label>
+            <label class="toggle-inline"><input type="checkbox" id="supportsThinkingInput" /> 深度思考</label>
+            <label class="toggle-inline"><input type="checkbox" id="supportsStreamingInput" checked /> 流式输出</label>
+            <label class="toggle-inline"><input type="checkbox" id="supportsJsonInput" /> Json格式化</label>
           </div>
         </div>
 
@@ -610,15 +604,21 @@
       <div class="panel-head">
         <div>
           <strong id="testModalTitle">模型测试</strong>
-          <div class="muted" style="margin-top:4px;">测试模型各项能力表现。</div>
         </div>
       </div>
       <div class="panel-body" id="testPanelBody">
         <!-- 基础测试 -->
         <div class="subcard test-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <h3 style="margin:0; font-size:15px;">基础测试</h3>
             <button class="btn primary test-run-btn" data-test="basic" style="border-radius:0;">运行</button>
+          </div>
+          <div style="margin-bottom:12px;">
+            <div class="choice-options" style="flex-wrap:nowrap;">
+              <span style="font-size:13px; color:var(--muted);">流式输出:</span>
+              <label class="choice-radio" style="font-size:13px;"><input type="radio" name="basicStream" value="false" checked /> 关闭</label>
+              <label class="choice-radio" style="font-size:13px;"><input type="radio" name="basicStream" value="true" /> 开启</label>
+            </div>
           </div>
           <div class="form-list">
             <div class="field">
@@ -636,20 +636,20 @@
           </div>
         </div>
 
-        <!-- 多模态测试 -->
-        <div class="subcard test-card" id="multimodalTestCard">
+        <!-- 图片测试 -->
+        <div class="subcard test-card" id="imageTestCard">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3 style="margin:0; font-size:15px;">多模态测试</h3>
-            <button class="btn primary test-run-btn" data-test="multimodal" style="border-radius:0;">运行</button>
+            <h3 style="margin:0; font-size:15px;">图片测试</h3>
+            <button class="btn primary test-run-btn" data-test="image" style="border-radius:0;">运行</button>
           </div>
           <div class="form-list">
             <div class="field">
               <label>输入</label>
-              <textarea class="test-input" data-test="multimodal" placeholder="请输入测试内容">请告诉我图片上有什么信息</textarea>
+              <textarea class="test-input" data-test="image" placeholder="请输入测试内容">请告诉我图片上有什么信息</textarea>
             </div>
             <div class="field">
               <label>图片</label>
-              <div class="multimodal-images" style="flex:1; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start;">
+              <div class="image-test-images" style="flex:1; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start;">
                 <div class="image-list" style="display:flex; flex-wrap:wrap; gap:12px;">
                   <div class="image-item" style="position:relative; width:120px; height:120px; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden;">
                     <img src="https://picsum.photos/120/120?random=1" style="width:100%; height:100%; object-fit:cover;" />
@@ -661,11 +661,48 @@
                 </button>
               </div>
             </div>
-            <div class="field test-reasoning-field" data-test="multimodal">
+            <div class="field test-reasoning-field" data-test="image">
               <label>推理</label>
               <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);">点击运行查看推理过程</div>
             </div>
-            <div class="field test-output-field" data-test="multimodal">
+            <div class="field test-output-field" data-test="image">
+              <label>输出</label>
+              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px; color:var(--muted);">点击运行查看输出结果</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 文件测试 -->
+        <div class="subcard test-card" id="fileTestCard">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0; font-size:15px;">文件测试</h3>
+            <button class="btn primary test-run-btn" data-test="file" style="border-radius:0;">运行</button>
+          </div>
+          <div class="form-list">
+            <div class="field">
+              <label>输入</label>
+              <textarea class="test-input" data-test="file" placeholder="请输入测试内容">请总结文件的主要内容</textarea>
+            </div>
+            <div class="field">
+              <label>文件</label>
+              <div class="file-test-files" style="flex:1; display:flex; flex-direction:column; gap:12px;">
+                <div class="file-list" style="display:flex; flex-wrap:wrap; gap:12px;">
+                  <div class="file-item" style="position:relative; width:120px; height:120px; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc;">
+                    <i class="fa-solid fa-file-lines" style="font-size:32px; color:var(--muted);"></i>
+                    <span style="font-size:12px; color:var(--muted); margin-top:8px;">document.pdf</span>
+                    <button class="file-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:var(--danger); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+                  </div>
+                </div>
+                <button class="row-btn upload-file-btn" style="height:36px; width:fit-content;">
+                  <i class="fa-solid fa-plus" style="margin-right:4px;"></i>上传文件
+                </button>
+              </div>
+            </div>
+            <div class="field test-reasoning-field" data-test="file">
+              <label>推理</label>
+              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);">点击运行查看推理过程</div>
+            </div>
+            <div class="field test-output-field" data-test="file">
               <label>输出</label>
               <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px; color:var(--muted);">点击运行查看输出结果</div>
             </div>
@@ -936,10 +973,11 @@
     const displayNameInput = document.getElementById("displayNameInput");
     const supplierInput = document.getElementById("supplierInput");
     const providerModelIdInput = document.getElementById("providerModelIdInput");
-    const statusInputs = Array.from(document.querySelectorAll('input[name="modelStatus"]'));
+
     const pricingNoteInput = document.getElementById("pricingNoteInput");
     const supportsThinkingInput = document.getElementById("supportsThinkingInput");
     const supportsImageInput = document.getElementById("supportsImageInput");
+    const supportsFileInput = document.getElementById("supportsFileInput");
     const supportsJsonInput = document.getElementById("supportsJsonInput");
     const supportsStreamingInput = document.getElementById("supportsStreamingInput");
     const defaultThinkingField = document.getElementById("defaultThinkingField");
@@ -1076,6 +1114,11 @@
               </span>
             </td>
             <td>
+              <span class="status icon-only ${item.supportsFileInput ? "" : "disabled"}" aria-label="${item.supportsFileInput ? "支持" : "不支持"}">
+                <i class="fa-solid ${item.supportsFileInput ? "fa-check" : "fa-xmark"}"></i>
+              </span>
+            </td>
+            <td>
               <span class="status icon-only ${item.jsonModes.includes("json_object") ? "" : "disabled"}" aria-label="${item.jsonModes.includes("json_object") ? "支持" : "不支持"}">
                 <i class="fa-solid ${item.jsonModes.includes("json_object") ? "fa-check" : "fa-xmark"}"></i>
               </span>
@@ -1100,17 +1143,6 @@
       if (customSelects[id]) {
         customSelects[id].refresh();
       }
-    }
-
-    function getSelectedStatus() {
-      return statusInputs.find((input) => input.checked)?.value === "disabled" ? "disabled" : "active";
-    }
-
-    function setSelectedStatus(value) {
-      const nextValue = value === "disabled" ? "disabled" : "active";
-      statusInputs.forEach((input) => {
-        input.checked = input.value === nextValue;
-      });
     }
 
     function getCheckedValue(inputs, fallback) {
@@ -1150,7 +1182,6 @@
       displayNameInput.value = row?.displayName || "";
       supplierInput.value = row?.supplierCode || supplierInput.options[0]?.value || "";
       providerModelIdInput.value = row?.providerModelId || "";
-      setSelectedStatus(row?.status || "active");
       pricingNoteInput.value = row?.pricingNote || "";
       supportsThinkingInput.checked = Boolean(row?.supportsThinking);
       supportsImageInput.checked = Boolean(row?.supportsImageInput);
@@ -1194,9 +1225,10 @@
         supplierCode,
         displayName,
         providerModelId,
-        status: getSelectedStatus(),
+        status: "active",
         supportsThinking: supportsThinkingInput.checked,
         supportsImageInput: supportsImageInput.checked,
+        supportsFileInput: supportsFileInput.checked,
         supportsJson: supportsJsonInput.checked,
         supportsStreaming: supportsStreamingInput.checked,
         jsonModes,
@@ -1290,7 +1322,6 @@
     }
 
     document.getElementById("createBtn").addEventListener("click", () => openModal(null));
-    document.getElementById("closeModalBtn").addEventListener("click", closeModal);
     document.getElementById("cancelBtn").addEventListener("click", closeModal);
     document.getElementById("closeNodesModalBtn").addEventListener("click", closeNodesModal);
     document.getElementById("closeNodesBtn").addEventListener("click", closeNodesModal);
@@ -1309,11 +1340,13 @@
       testModalTitle.textContent = `模型测试 - ${row.displayName}`;
       
       // 根据模型能力显示/隐藏测试卡片
-      const multimodalCard = document.getElementById("multimodalTestCard");
+      const imageCard = document.getElementById("imageTestCard");
+      const fileCard = document.getElementById("fileTestCard");
       const jsonCard = document.getElementById("jsonTestCard");
       const thinkingCard = document.getElementById("thinkingTestCard");
       
-      multimodalCard.hidden = !row.supportsImageInput;
+      imageCard.hidden = !row.supportsImageInput;
+      fileCard.hidden = !row.supportsFileInput;
       jsonCard.hidden = !row.jsonModes.includes("json_object");
       thinkingCard.hidden = !row.supportsThinking;
       
@@ -1330,13 +1363,25 @@
         btn.textContent = "运行";
         btn.disabled = false;
       });
-      // 重置多模态图片为默认一张
-      const imageList = document.querySelector(".multimodal-images .image-list");
-      if (imageList) {
-        imageList.innerHTML = `
+      // 重置图片测试为默认一张
+      const imageTestList = document.querySelector(".image-test-images .image-list");
+      if (imageTestList) {
+        imageTestList.innerHTML = `
           <div class="image-item" style="position:relative; width:120px; height:120px; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden;">
             <img src="https://picsum.photos/120/120?random=1" style="width:100%; height:100%; object-fit:cover;" />
             <button class="image-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:var(--danger); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+          </div>
+        `;
+      }
+      
+      // 重置文件测试为默认一个
+      const fileTestList = document.querySelector(".file-test-files .file-list");
+      if (fileTestList) {
+        fileTestList.innerHTML = `
+          <div class="file-item" style="position:relative; width:120px; height:120px; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc;">
+            <i class="fa-solid fa-file-lines" style="font-size:32px; color:var(--muted);"></i>
+            <span style="font-size:12px; color:var(--muted); margin-top:8px;">document.pdf</span>
+            <button class="file-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:var(--danger); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
           </div>
         `;
       }
@@ -1358,9 +1403,13 @@
           reasoning: "用户询问自我介绍，这是一个简单的问候场景，需要友好回应。",
           output: `你好！我是 ${currentTestModel?.displayName || "AI助手"}，很高兴为你服务。我可以帮助你回答问题、生成内容、进行对话等。有什么我可以帮你的吗？`
         },
-        multimodal: {
+        image: {
           reasoning: "用户上传了图片并询问内容，需要分析图片中的视觉信息。",
           output: "图片中有一只橘色的猫咪，它正躺在沙发上，看起来很舒服。背景是一个温馨的客厅，有窗户透进来的阳光。"
+        },
+        file: {
+          reasoning: "用户上传了文件并要求总结内容，需要提取文件中的关键信息。",
+          output: "该文件是一份关于人工智能发展报告，主要内容包括：\n1. AI技术发展历程\n2. 当前主流应用场景\n3. 未来发展趋势预测\n4. 面临的挑战与机遇"
         },
         json: {
           reasoning: "用户要求返回JSON格式，需要构造符合要求的数据结构。",
@@ -1415,6 +1464,61 @@
     });
 
     // 多模态图片删除和上传
+    // 图片测试 - 图片上传和删除
+    document.querySelector(".image-test-images")?.addEventListener("click", (e) => {
+      // 删除图片
+      if (e.target.classList.contains("image-remove") || e.target.closest(".image-remove")) {
+        const item = e.target.closest(".image-item");
+        if (item) {
+          item.remove();
+        }
+      }
+      // 上传图片按钮
+      if (e.target.classList.contains("upload-image-btn") || e.target.closest(".upload-image-btn")) {
+        const imageList = document.querySelector(".image-test-images .image-list");
+        if (imageList) {
+          const randomId = Math.floor(Math.random() * 1000);
+          const newItem = document.createElement("div");
+          newItem.className = "image-item";
+          newItem.style.cssText = "position:relative; width:120px; height:120px; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden;";
+          newItem.innerHTML = `
+            <img src="https://picsum.photos/120/120?random=${randomId}" style="width:100%; height:100%; object-fit:cover;" />
+            <button class="image-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:var(--danger); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+          `;
+          imageList.appendChild(newItem);
+        }
+      }
+    });
+
+    // 文件测试 - 文件上传和删除
+    document.querySelector(".file-test-files")?.addEventListener("click", (e) => {
+      // 删除文件
+      if (e.target.classList.contains("file-remove") || e.target.closest(".file-remove")) {
+        const item = e.target.closest(".file-item");
+        if (item) {
+          item.remove();
+        }
+      }
+      // 上传文件按钮
+      if (e.target.classList.contains("upload-file-btn") || e.target.closest(".upload-file-btn")) {
+        const fileList = document.querySelector(".file-test-files .file-list");
+        if (fileList) {
+          const fileNames = ["report.pdf", "data.xlsx", "doc.txt", "slides.pptx"];
+          const randomFile = fileNames[Math.floor(Math.random() * fileNames.length)];
+          const newItem = document.createElement("div");
+          newItem.className = "file-item";
+          newItem.style.cssText = "position:relative; width:120px; height:120px; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc;";
+          newItem.innerHTML = `
+            <i class="fa-solid fa-file-lines" style="font-size:32px; color:var(--muted);"></i>
+            <span style="font-size:12px; color:var(--muted); margin-top:8px;">${randomFile}</span>
+            <button class="file-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:var(--danger); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+          `;
+          fileList.appendChild(newItem);
+        }
+      }
+    });
+
+    // 多模态图片上传和删除（旧代码保留兼容）
     document.querySelector(".multimodal-images")?.addEventListener("click", (e) => {
       // 删除图片
       if (e.target.classList.contains("image-remove") || e.target.closest(".image-remove")) {
