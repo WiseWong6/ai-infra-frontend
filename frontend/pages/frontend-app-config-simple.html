@@ -1386,7 +1386,9 @@
 
     function getAllState() {
       const existing = loadJSON(APP_STORAGE_KEY, {});
-      if (!existing[appId]) {
+      const appState = existing[appId];
+      // 严格检查：如果不存在、没有nodes、或nodes为空数组，都重新初始化
+      if (!appState || !appState.nodes || !Array.isArray(appState.nodes) || appState.nodes.length === 0) {
         existing[appId] = buildDefaultAppState(appId);
         saveJSON(APP_STORAGE_KEY, existing);
       } else {
@@ -1404,6 +1406,13 @@
     }
 
     let state = getAllState()[appId];
+    // 安全检查：确保 state 有正确的结构
+    if (!state || !state.nodes || !state.resources) {
+      const allState = loadJSON(APP_STORAGE_KEY, {});
+      allState[appId] = buildDefaultAppState(appId);
+      saveJSON(APP_STORAGE_KEY, allState);
+      state = allState[appId];
+    }
     let kbModalNodeId = "";
     let editingNodeId = "";
     let selectedNodeIds = new Set();
@@ -1523,19 +1532,19 @@
         const resources = (node.resourceIds || []).map(getResourceById).filter(Boolean);
         const kbResources = resources.filter(r => r.type === 'knowledge_base');
         // Mock MCP 和 Skills 数据
-        const mcpResources = node.id === 'node-101' ? [
+        const mcpResources = node.id === '101' ? [
           { name: '文档检索 MCP' },
           { name: '数据库查询 MCP' },
           { name: '搜索引擎 MCP' }
-        ] : node.id === 'node-102' ? [
+        ] : node.id === '102' ? [
           { name: '产品检索 MCP' }
         ] : [];
-        const skillResources = node.id === 'node-101' ? [
+        const skillResources = node.id === '101' ? [
           { name: '意图识别 Skill' },
           { name: '实体提取 Skill' },
           { name: '情感分析 Skill' },
           { name: '文本分类 Skill' }
-        ] : node.id === 'node-103' ? [
+        ] : node.id === '103' ? [
           { name: '条款解析 Skill' }
         ] : [];
         

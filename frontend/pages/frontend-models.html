@@ -229,6 +229,9 @@
       background: transparent;
       border-radius: 0;
     }
+    .status.icon-only.disabled {
+      background: transparent;
+    }
     .row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .row-btn {
       height: 32px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--text);
@@ -408,30 +411,6 @@
                 <option value="disabled">下架</option>
               </select>
             </div>
-            <div class="field">
-              <label>深度思考</label>
-              <select id="thinkingFilter">
-                <option value="">全部</option>
-                <option value="supported">支持</option>
-                <option value="unsupported">不支持</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>多模态</label>
-              <select id="multimodalFilter">
-                <option value="">全部</option>
-                <option value="supported">支持</option>
-                <option value="unsupported">不支持</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>JSON 输出</label>
-              <select id="jsonFilter">
-                <option value="">全部</option>
-                <option value="supported">支持</option>
-                <option value="unsupported">不支持</option>
-              </select>
-            </div>
             <div class="filter-actions">
               <button class="btn ghost" id="resetBtn" style="min-width: 100px; text-align: center; justify-content: center;">重置</button>
               <button class="btn primary" id="createBtn" style="min-width: 100px;">添加模型</button>
@@ -448,9 +427,9 @@
                   <th>模型 ID</th>
                   <th>供应商</th>
                   <th>深度思考</th>
-                  <th>图片</th>
-                  <th>文件</th>
                   <th>Json输出</th>
+                  <th>图片理解</th>
+                  <th>文件理解</th>
                   <th>状态</th>
                   <th>关联节点</th>
                   <th>操作</th>
@@ -504,11 +483,11 @@
         <div class="subcard">
           <h3>能力支持</h3>
           <div class="toggle-row">
-            <label class="toggle-inline"><input type="checkbox" id="supportsImageInput" /> 图片</label>
-            <label class="toggle-inline"><input type="checkbox" id="supportsFileInput" /> 文件</label>
             <label class="toggle-inline"><input type="checkbox" id="supportsThinkingInput" /> 深度思考</label>
             <label class="toggle-inline"><input type="checkbox" id="supportsStreamingInput" checked /> 流式输出</label>
             <label class="toggle-inline"><input type="checkbox" id="supportsJsonInput" /> Json格式化</label>
+            <label class="toggle-inline"><input type="checkbox" id="supportsImageInput" /> 图片理解</label>
+            <label class="toggle-inline"><input type="checkbox" id="supportsFileInput" /> 文件理解</label>
           </div>
         </div>
 
@@ -961,9 +940,7 @@
     const keywordInput = document.getElementById("keywordInput");
     const supplierFilter = document.getElementById("supplierFilter");
     const statusFilter = document.getElementById("statusFilter");
-    const thinkingFilter = document.getElementById("thinkingFilter");
-    const multimodalFilter = document.getElementById("multimodalFilter");
-    const jsonFilter = document.getElementById("jsonFilter");
+
     const tableBody = document.getElementById("tableBody");
     const emptyState = document.getElementById("emptyState");
     const modal = document.getElementById("modal");
@@ -1068,18 +1045,9 @@
       const keyword = keywordInput.value.trim().toLowerCase();
       const supplierCode = supplierFilter.value;
       const status = statusFilter.value;
-      const thinking = thinkingFilter.value;
-      const multimodal = multimodalFilter.value;
-      const jsonOutput = jsonFilter.value;
       return getModels({ includeDisabled: true }).filter((item) => {
         if (supplierCode && item.supplierCode !== supplierCode) return false;
         if (status && item.status !== status) return false;
-        if (thinking === "supported" && !item.supportsThinking) return false;
-        if (thinking === "unsupported" && item.supportsThinking) return false;
-        if (multimodal === "supported" && !item.supportsImageInput) return false;
-        if (multimodal === "unsupported" && item.supportsImageInput) return false;
-        if (jsonOutput === "supported" && !item.jsonModes.includes("json_object")) return false;
-        if (jsonOutput === "unsupported" && item.jsonModes.includes("json_object")) return false;
         if (!keyword) return true;
         return [item.displayName, item.providerModelId]
           .some((text) => String(text || "").toLowerCase().includes(keyword));
@@ -1109,6 +1077,11 @@
               </span>
             </td>
             <td>
+              <span class="status icon-only ${item.jsonModes.includes("json_object") ? "" : "disabled"}" aria-label="${item.jsonModes.includes("json_object") ? "支持" : "不支持"}">
+                <i class="fa-solid ${item.jsonModes.includes("json_object") ? "fa-check" : "fa-xmark"}"></i>
+              </span>
+            </td>
+            <td>
               <span class="status icon-only ${item.supportsImageInput ? "" : "disabled"}" aria-label="${item.supportsImageInput ? "支持" : "不支持"}">
                 <i class="fa-solid ${item.supportsImageInput ? "fa-check" : "fa-xmark"}"></i>
               </span>
@@ -1116,11 +1089,6 @@
             <td>
               <span class="status icon-only ${item.supportsFileInput ? "" : "disabled"}" aria-label="${item.supportsFileInput ? "支持" : "不支持"}">
                 <i class="fa-solid ${item.supportsFileInput ? "fa-check" : "fa-xmark"}"></i>
-              </span>
-            </td>
-            <td>
-              <span class="status icon-only ${item.jsonModes.includes("json_object") ? "" : "disabled"}" aria-label="${item.jsonModes.includes("json_object") ? "支持" : "不支持"}">
-                <i class="fa-solid ${item.jsonModes.includes("json_object") ? "fa-check" : "fa-xmark"}"></i>
               </span>
             </td>
             <td><span class="status ${item.status === "disabled" ? "disabled" : ""}">${item.status === "active" ? "启用" : "下架"}</span></td>
@@ -1548,12 +1516,10 @@
       keywordInput.value = "";
       supplierFilter.value = "";
       statusFilter.value = "";
-      thinkingFilter.value = "";
-      multimodalFilter.value = "";
-      jsonFilter.value = "";
+
       renderTable();
     });
-    [keywordInput, supplierFilter, statusFilter, thinkingFilter, multimodalFilter, jsonFilter].forEach((node) => {
+    [keywordInput, supplierFilter, statusFilter].forEach((node) => {
       node.addEventListener("input", renderTable);
       node.addEventListener("change", renderTable);
     });
