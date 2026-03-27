@@ -1287,20 +1287,21 @@
         reasoningField.style.display = "flex";
         outputField.style.display = "flex";
         
+        const response = getTestResponse(testType);
         const isStream = testType === "thinking" && document.querySelector('input[name="thinkingStream"]:checked').value === "true";
         
         if (isStream) {
           // 流式输出效果
-          reasoningOutput.textContent = testResponses.thinking.reasoning;
+          reasoningOutput.textContent = response.reasoning;
           output.textContent = "";
-          const text = testResponses.thinking.output;
+          const text = response.output;
           for (let i = 0; i < text.length; i++) {
             output.textContent += text[i];
             await new Promise(r => setTimeout(r, 20));
           }
         } else {
-          reasoningOutput.textContent = testResponses[testType].reasoning;
-          output.textContent = testResponses[testType].output;
+          reasoningOutput.textContent = response.reasoning;
+          output.textContent = response.output;
         }
         
         btn.disabled = false;
