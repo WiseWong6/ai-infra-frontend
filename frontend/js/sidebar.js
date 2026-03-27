@@ -39,7 +39,7 @@
   <div class="sidebar-component" style="display:flex; flex-direction: column; height: 100%;">
       <div class="menu-group">
         <h2 class="menu-title">应用</h2>
-        <a class="menu-item ${isPage('frontend-app-management.html,frontend-app-config.html,frontend-app-config-edit.html') ? 'active' : ''}" href="./frontend-app-management.html">
+        <a class="menu-item ${isPage('frontend-app-management.html,frontend-app-config.html,frontend-app-config-edit.html,frontend-app-config-node-binding.html') ? 'active' : ''}" href="./frontend-app-management.html">
           <i data-lucide="layout-grid"></i>
           <span class="menu-text">应用管理</span>
         </a>
