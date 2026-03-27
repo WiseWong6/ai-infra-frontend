@@ -25,6 +25,7 @@
       --orange-soft: #fff7ed;
       --purple: #7c3aed;
       --purple-soft: #f5f3ff;
+      --danger: #dc2626;
       --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
     }
 
@@ -633,14 +634,14 @@
             </div>
             <div class="field">
               <label>图片</label>
-              <div class="multimodal-images" style="flex:1; display:flex; flex-direction:column; gap:12px;">
+              <div class="multimodal-images" style="flex:1; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start;">
                 <div class="image-list" style="display:flex; flex-wrap:wrap; gap:12px;">
                   <div class="image-item" style="position:relative; width:120px; height:120px; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden;">
                     <img src="https://picsum.photos/120/120?random=1" style="width:100%; height:100%; object-fit:cover;" />
-                    <button class="image-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:rgba(0,0,0,0.5); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+                    <button class="image-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:var(--danger); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
                   </div>
                 </div>
-                <button class="row-btn upload-image-btn" style="height:32px; width:fit-content;">
+                <button class="row-btn upload-image-btn" style="height:120px; width:120px; display:flex; align-items:center; justify-content:center;">
                   <i class="fa-solid fa-plus" style="margin-right:4px;"></i>上传图片
                 </button>
               </div>
@@ -665,7 +666,7 @@
           <div class="form-list">
             <div class="field">
               <label>输入</label>
-              <textarea class="test-input" data-test="json" placeholder="请输入测试内容">请以JSON格式返回一个用户信息，包含name和age字段</textarea>
+              <textarea class="test-input" data-test="json" placeholder="请输入测试内容">请告诉我什么是保险</textarea>
             </div>
             <div class="field test-reasoning-field" data-test="json">
               <label>推理</label>
@@ -681,17 +682,17 @@
         <!-- 深度思考测试 -->
         <div class="subcard test-card" id="thinkingTestCard">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <div style="display:flex; align-items:center; gap:16px;">
-              <h3 style="margin:0; font-size:15px;">深度思考测试</h3>
-              <div class="choice-options" style="flex-wrap:nowrap;">
-                <span style="font-size:13px; color:var(--muted);">流式输出:</span>
-                <label class="choice-radio" style="font-size:13px;"><input type="radio" name="thinkingStream" value="false" checked /> 关闭</label>
-                <label class="choice-radio" style="font-size:13px;"><input type="radio" name="thinkingStream" value="true" /> 开启</label>
-              </div>
-            </div>
+            <h3 style="margin:0; font-size:15px;">深度思考测试</h3>
             <button class="btn primary test-run-btn" data-test="thinking" style="border-radius:0;">运行</button>
           </div>
           <div class="form-list">
+            <div class="field">
+              <label>流式输出</label>
+              <div class="choice-options" style="flex-wrap:nowrap;">
+                <label class="choice-radio"><input type="radio" name="thinkingStream" value="false" checked /> 关闭</label>
+                <label class="choice-radio"><input type="radio" name="thinkingStream" value="true" /> 开启</label>
+              </div>
+            </div>
             <div class="field">
               <label>输入</label>
               <textarea class="test-input" data-test="thinking" placeholder="请输入测试内容">分析人工智能的优缺点，并给出实际应用建议</textarea>
@@ -1255,7 +1256,7 @@
         imageList.innerHTML = `
           <div class="image-item" style="position:relative; width:120px; height:120px; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden;">
             <img src="https://picsum.photos/120/120?random=1" style="width:100%; height:100%; object-fit:cover;" />
-            <button class="image-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:rgba(0,0,0,0.5); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+            <button class="image-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:var(--danger); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
           </div>
         `;
       }
@@ -1352,7 +1353,7 @@
           newItem.style.cssText = "position:relative; width:120px; height:120px; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden;";
           newItem.innerHTML = `
             <img src="https://picsum.photos/120/120?random=${randomId}" style="width:100%; height:100%; object-fit:cover;" />
-            <button class="image-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:rgba(0,0,0,0.5); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+            <button class="image-remove" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border:none; border-radius:50%; background:var(--danger); color:#fff; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
           `;
           imageList.appendChild(newItem);
         }
