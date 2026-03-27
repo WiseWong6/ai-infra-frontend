@@ -574,9 +574,11 @@
               <tr>
                 <th>应用 ID</th>
                 <th>应用名称</th>
+                <th>节点 ID</th>
                 <th>节点名称</th>
                 <th>最近编辑用户</th>
                 <th>最近编辑时间</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody id="nodesTableBody"></tbody>
@@ -715,6 +717,22 @@
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <!-- 二次确认弹窗 -->
+  <div class="modal" id="confirmModal">
+    <div class="panel" style="width: 400px; height: auto; max-height: 200px; margin: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 8px;">
+      <div class="panel-head" style="border-bottom: none;">
+        <strong id="confirmTitle">确认操作</strong>
+      </div>
+      <div class="panel-body" style="padding: 0 20px;">
+        <p id="confirmMessage" style="margin: 0; font-size: 14px; color: var(--text);">确定要执行此操作吗？</p>
+      </div>
+      <div class="panel-foot">
+        <button class="btn ghost" id="cancelConfirmBtn">取消</button>
+        <button class="btn primary" id="confirmBtn">确定</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // 自定义下拉框组件
@@ -931,25 +949,25 @@
     // Mock 关联节点数据 - key 与 model-registry.js 中的 modelKey 对应
     const mockNodesData = {
       "volc-doubao-seed-2-0-pro": [
-        { appId: "app_001", appName: "智能客服系统", nodeName: "意图识别节点", editor: "张三", editTime: "2025-03-26 14:30:00" },
-        { appId: "app_002", appName: "文档生成助手", nodeName: "内容生成节点", editor: "李四", editTime: "2025-03-25 09:15:00" },
-        { appId: "app_003", appName: "代码审查工具", nodeName: "代码分析节点", editor: "王五", editTime: "2025-03-24 16:45:00" }
+        { nodeId: "20001", appId: "10001", appName: "智能客服系统", nodeName: "意图识别节点", editor: "wisewong", editTime: "2025-03-26 14:30:00" },
+        { nodeId: "20002", appId: "10002", appName: "文档生成助手", nodeName: "内容生成节点", editor: "zhangsan", editTime: "2025-03-25 09:15:00" },
+        { nodeId: "20003", appId: "10003", appName: "代码审查工具", nodeName: "代码分析节点", editor: "lisi", editTime: "2025-03-24 16:45:00" }
       ],
       "volc-doubao-seed-1-6-flash": [
-        { appId: "app_004", appName: "快速问答系统", nodeName: "问答节点", editor: "赵六", editTime: "2025-03-27 08:20:00" },
-        { appId: "app_005", appName: "文本摘要工具", nodeName: "摘要生成节点", editor: "钱七", editTime: "2025-03-26 11:00:00" }
+        { nodeId: "20004", appId: "10004", appName: "快速问答系统", nodeName: "问答节点", editor: "wangwu", editTime: "2025-03-27 08:20:00" },
+        { nodeId: "20005", appId: "10005", appName: "文本摘要工具", nodeName: "摘要生成节点", editor: "zhaoliu", editTime: "2025-03-26 11:00:00" }
       ],
       "aliyun-qwen-3-5-plus": [],
       "aliyun-qwen-3-5-flash": [],
       "deepseek-v3-2": [
-        { appId: "app_006", appName: "数据分析平台", nodeName: "数据清洗节点", editor: "孙八", editTime: "2025-03-27 10:30:00" },
-        { appId: "app_007", appName: "营销文案生成", nodeName: "文案生成节点", editor: "周九", editTime: "2025-03-26 15:00:00" },
-        { appId: "app_008", appName: "知识问答系统", nodeName: "问答匹配节点", editor: "吴十", editTime: "2025-03-25 11:30:00" },
-        { appId: "app_009", appName: "内容审核系统", nodeName: "敏感词检测节点", editor: "张三", editTime: "2025-03-24 09:45:00" },
-        { appId: "app_010", appName: "翻译助手", nodeName: "翻译节点", editor: "李四", editTime: "2025-03-23 14:20:00" }
+        { nodeId: "20006", appId: "10006", appName: "数据分析平台", nodeName: "数据清洗节点", editor: "sunba", editTime: "2025-03-27 10:30:00" },
+        { nodeId: "20007", appId: "10007", appName: "营销文案生成", nodeName: "文案生成节点", editor: "zhoujiu", editTime: "2025-03-26 15:00:00" },
+        { nodeId: "20008", appId: "10008", appName: "知识问答系统", nodeName: "问答匹配节点", editor: "wushi", editTime: "2025-03-25 11:30:00" },
+        { nodeId: "20009", appId: "10009", appName: "内容审核系统", nodeName: "敏感词检测节点", editor: "wisewong", editTime: "2025-03-24 09:45:00" },
+        { nodeId: "20010", appId: "10010", appName: "翻译助手", nodeName: "翻译节点", editor: "zhangsan", editTime: "2025-03-23 14:20:00" }
       ],
       "openai-gpt-4o-mini": [
-        { appId: "app_011", appName: "AI绘画助手", nodeName: "图像生成节点", editor: "王五", editTime: "2025-03-27 10:30:00" }
+        { nodeId: "20011", appId: "10011", appName: "AI绘画助手", nodeName: "图像生成节点", editor: "lisi", editTime: "2025-03-27 10:30:00" }
       ]
     };
 
@@ -1199,14 +1217,62 @@
       showToast(editingModelKey ? "模型已更新" : "模型已添加");
     }
 
-    function toggleStatus(modelKey) {
-      const rows = getModels({ includeDisabled: true }).map((item) => {
-        if (item.modelKey !== modelKey) return item;
-        return { ...item, status: item.status === "active" ? "disabled" : "active" };
-      });
-      saveModels(rows);
-      renderTable();
-      showToast("模型状态已更新");
+    let pendingToggleModelKey = null;
+    let pendingToggleAction = null;
+
+    function showConfirm(title, message, onConfirm) {
+      const confirmModal = document.getElementById("confirmModal");
+      document.getElementById("confirmTitle").textContent = title;
+      document.getElementById("confirmMessage").textContent = message;
+      confirmModal.classList.add("show");
+      
+      // 存储回调
+      window._confirmCallback = onConfirm;
+    }
+
+    function hideConfirm() {
+      document.getElementById("confirmModal").classList.remove("show");
+      window._confirmCallback = null;
+    }
+
+    document.getElementById("cancelConfirmBtn").addEventListener("click", hideConfirm);
+    document.getElementById("confirmBtn").addEventListener("click", () => {
+      if (window._confirmCallback) {
+        window._confirmCallback();
+      }
+      hideConfirm();
+    });
+    document.getElementById("confirmModal").addEventListener("click", (e) => {
+      if (e.target === document.getElementById("confirmModal")) hideConfirm();
+    });
+
+    function toggleStatus(modelKey, isDisabling) {
+      if (isDisabling) {
+        // 下架需要二次确认
+        const model = getModelByKey(modelKey);
+        showConfirm(
+          "确认下架",
+          `确定要下架模型 "${model?.displayName || modelKey}" 吗？下架后该模型将无法被调用。`,
+          () => {
+            const rows = getModels({ includeDisabled: true }).map((item) => {
+              if (item.modelKey !== modelKey) return item;
+              return { ...item, status: "disabled" };
+            });
+            saveModels(rows);
+            renderTable();
+            showToast("模型已下架");
+          }
+        );
+      } else {
+        // 启用直接执行
+        const rows = getModels({ includeDisabled: true }).map((item) => {
+          if (item.modelKey !== modelKey) return item;
+          return { ...item, status: "active" };
+        });
+        saveModels(rows);
+        renderTable();
+        showToast("模型已启用");
+      }
     }
 
     document.getElementById("createBtn").addEventListener("click", () => openModal(null));
@@ -1383,7 +1449,8 @@
       if (button.dataset.action === "edit") {
         openModal(getModelByKey(modelKey));
       } else if (button.dataset.action === "toggle") {
-        toggleStatus(modelKey);
+        const isDisabling = button.textContent === "下架";
+        toggleStatus(modelKey, isDisabling);
       } else if (button.dataset.action === "nodes") {
         openNodesModal(getModelByKey(modelKey));
       } else if (button.dataset.action === "test") {
@@ -1419,11 +1486,15 @@
         nodesEmptyState.hidden = true;
         nodesTableBody.innerHTML = nodes.map(node => `
           <tr>
-            <td><strong>${node.appId}</strong></td>
+            <td>${node.appId}</td>
             <td>${node.appName}</td>
+            <td><strong>${node.nodeId}</strong></td>
             <td>${node.nodeName}</td>
             <td>${node.editor}</td>
             <td>${node.editTime}</td>
+            <td>
+              <button class="row-btn copy-node-btn" data-node='${JSON.stringify(node).replace(/'/g, "&#39;")}'>复制</button>
+            </td>
           </tr>
         `).join("");
       }
@@ -1436,6 +1507,24 @@
       nodesModal.classList.remove("show");
       document.body.classList.remove("modal-open");
     }
+
+    // 关联节点复制功能
+    nodesTableBody.addEventListener("click", (e) => {
+      if (e.target.classList.contains("copy-node-btn")) {
+        const node = JSON.parse(e.target.dataset.node);
+        const mdContent = `- 节点ID: ${node.nodeId}
+- 应用ID: ${node.appId}
+- 应用名称: ${node.appName}
+- 节点名称: ${node.nodeName}
+- 最近编辑用户: ${node.editor}
+- 最近编辑时间: ${node.editTime}`;
+        navigator.clipboard.writeText(mdContent).then(() => {
+          showToast("已复制到剪贴板");
+        }).catch(() => {
+          showToast("复制失败");
+        });
+      }
+    });
 
     renderSupplierOptions();
     renderTable();
