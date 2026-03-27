@@ -105,10 +105,6 @@
           <i data-lucide="cpu"></i>
           <span class="menu-text">模型管理</span>
         </a>
-        <a class="menu-item ${isPage('frontend-model-test.html') ? 'active' : ''}" href="./frontend-model-test.html">
-          <i data-lucide="flask-conical"></i>
-          <span class="menu-text">模型测试</span>
-        </a>
       </div>
 
       <div class="menu-group">
