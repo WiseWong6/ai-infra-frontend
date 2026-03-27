@@ -1,0 +1,3563 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trace追踪指标增强 - PRD原型</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --sidebar: #ffffff;
+      --line: #f1f5f9;
+      --line-strong: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --active: #eff6ff;
+      --head: #fafbfc;
+      --blue: #3b82f6;
+      --blue-dark: #2563eb;
+      --danger: #dc2626;
+      --danger-dark: #b91c1c;
+      --success: #22c55e;
+      --success-dark: #16a34a;
+      --hover-bg: #f8fafc;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 20px;
+      --spacing-2xl: 24px;
+      --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        "MiSans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+        sans-serif;
+      font-size: 14px;
+    }
+
+    html.modal-open,
+    body.modal-open {
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line-strong);
+      padding: var(--spacing-lg) 0;
+      flex-shrink: 0;
+    }
+
+    .menu-group {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .menu-title {
+      margin: 0 0 var(--spacing-sm);
+      padding: 0 22px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .menu-item {
+      height: 44px;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-radius: 0;
+      position: relative;
+    }
+
+    .menu-item:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .menu-item.active {
+      background: var(--active);
+      color: var(--blue);
+    }
+
+    .menu-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--blue);
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    .topbar {
+      height: 60px;
+      border-bottom: 1px solid var(--line-strong);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      background: #ffffff;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .content {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .filter-card {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-item label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .input-box {
+      height: 36px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 14px;
+      outline: none;
+      width: 100%;
+      border-radius: 4px;
+    }
+
+    .input-box:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .table-card {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .table-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .table-title span {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: normal;
+      margin-left: 8px;
+    }
+
+    .table-container {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow-x: auto;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 2720px;
+    }
+
+    th {
+      background: #f8fafc;
+      height: 44px;
+      padding: 0 16px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .cell-id {
+      width: 156px;
+      color: var(--blue);
+      cursor: pointer;
+      text-align: left !important;
+    }
+
+    .trace-id-cell {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cell-project {
+      width: 150px;
+    }
+
+    .cell-app {
+      width: 120px;
+    }
+
+    .cell-duration,
+    .cell-token,
+    .cell-cost,
+    .cell-status {
+      width: 128px;
+    }
+
+    .cell-content {
+      font-family: inherit;
+      font-size: 13px;
+      color: #334155;
+      white-space: pre-wrap;
+      word-break: break-all;
+      vertical-align: middle;
+      text-align: left !important;
+    }
+
+    .cell-content-inner {
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      line-clamp: 5;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.6;
+      max-width: 600px;
+      text-align: left !important;
+    }
+
+    .cell-content.clickable {
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .cell-content.clickable:hover {
+      color: var(--blue);
+      background: #f1f5f9;
+    }
+
+    .cell-feedback {
+      width: 120px;
+    }
+
+    .cell-time {
+      width: 180px;
+    }
+
+    .clickable-cell {
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .clickable-cell:hover {
+      color: var(--blue);
+      background: #f1f5f9;
+    }
+
+    .trace-status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 56px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .trace-status-pill.success {
+      color: var(--success-dark);
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+    }
+
+    .trace-status-pill.failed {
+      color: var(--danger-dark);
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+    }
+
+    .trace-status-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+    }
+
+    .trace-status-icon.success {
+      color: var(--success-dark);
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .trace-status-icon.failed {
+      color: var(--danger-dark);
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .trace-status-icon i {
+      width: 14px;
+      height: 14px;
+    }
+
+    .metric-muted {
+      color: var(--muted);
+    }
+
+    .cell-op {
+      width: 240px;
+      position: sticky;
+      right: 0;
+      background: inherit;
+      border-left: 1px solid var(--line);
+    }
+
+    .cell-content-header {
+      text-align: left !important;
+    }
+
+    th:last-child {
+      position: sticky;
+      right: 0;
+      background: #f8fafc;
+      z-index: 10;
+      border-left: 1px solid var(--line);
+    }
+
+    .link {
+      color: var(--blue);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .link:hover {
+      text-decoration: underline;
+    }
+
+    .btn-op-group {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .btn-small {
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: #334155;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-small:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: #f1f5f9;
+    }
+
+    .cell-quality {
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .cell-quality:hover {
+      color: var(--blue);
+      background: #f1f5f9;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .page-btn {
+      min-width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      padding: 0 8px;
+    }
+
+    .page-btn.active {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .btn {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line-strong);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      justify-content: flex-end;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      width: 80%;
+      height: 100%;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      animation: slideIn 0.3s var(--ease-out);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    .modal-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .modal-header-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .modal-header-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .modal-header-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .trace-id-badge {
+      font-family: inherit;
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .copy-icon {
+      cursor: pointer;
+      color: var(--blue);
+    }
+
+    .modal-tabs {
+      display: flex;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      gap: 32px;
+    }
+
+    .modal-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px 0;
+      padding: 0;
+      background: transparent;
+      flex-wrap: wrap;
+    }
+
+    .summary-chip {
+      min-width: 0;
+      padding: 0 18px;
+      border-left: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .summary-chip-status {
+      padding-left: 0;
+      border-left: none;
+    }
+
+    .summary-label {
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--muted);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .summary-value {
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 600;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+
+    .modal-summary #summaryStatus {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-summary .trace-status-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .modal-summary .trace-status-icon i {
+      width: 12px;
+      height: 12px;
+    }
+
+    .summary-status-text {
+      font-size: 13px;
+      line-height: 1.4;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .modal-summary {
+        gap: 10px 12px;
+      }
+
+      .modal-header-top {
+        align-items: flex-start;
+      }
+
+      .summary-chip {
+        padding: 0;
+        border-left: none;
+        min-width: calc(50% - 6px);
+      }
+    }
+
+    .tab-item {
+      padding: 12px 0;
+      font-size: 14px;
+      color: var(--muted);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .tab-item.active {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .tab-item.active::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--blue);
+    }
+
+    .modal-body {
+      flex: 1;
+      min-height: 0;
+      padding: 24px;
+      overflow-y: auto;
+      background: #fcfcfc;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+
+    /* Running Result Tab Styles */
+    .section-box {
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line-strong);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .section-body {
+      padding: 16px;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #334155;
+    }
+
+    .section-body .code-block {
+      margin: 0;
+    }
+
+    /* Process Log Tab Styles */
+    .user-id-box {
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .process-log-extension {
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .process-log-extension-title {
+      font-size: 12px;
+      line-height: 1;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+    }
+
+    .process-log-extension-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .extension-id-item {
+      min-width: 260px;
+      max-width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .extension-id-item-label {
+      font-size: 12px;
+      color: var(--muted);
+      min-width: 52px;
+      line-height: 1.6;
+      flex-shrink: 0;
+    }
+
+    .extension-id-item-value {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .extension-id-item-empty {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .process-log-toolbar {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .process-log-overview {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .process-log-overview strong {
+      color: var(--text);
+      font-size: 14px;
+      margin-left: 4px;
+    }
+
+    .log-container {
+      font-family:
+        Menlo,
+        Monaco,
+        Consolas,
+        Courier New,
+        monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      color: #475569;
+    }
+
+    .log-entry {
+      margin-bottom: 12px;
+    }
+
+    .log-id {
+      color: #dc2626;
+    }
+
+    /* Timeline & Process Log Styles (Refined) */
+    .log-layout {
+      display: flex;
+      gap: 24px;
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .log-layout.prd-no-nav {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .log-layout.prd-no-nav #timelineStream {
+      flex: 1;
+      min-height: 0;
+      padding: 0 0 500px;
+    }
+
+    .log-layout.simple-mode {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .log-layout.simple-mode #timelineNav {
+      display: none;
+    }
+
+    .log-layout.simple-mode #timelineStream {
+      flex: 1;
+      min-height: 0;
+      padding: 0 0 500px;
+    }
+
+    #timelineNav {
+      width: 180px;
+      flex-shrink: 0;
+      padding: 10px 0;
+      border-right: 1px solid var(--line);
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    #timelineNav::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #timelineNav::-webkit-scrollbar-thumb {
+      background: var(--line-strong);
+      border-radius: 2px;
+    }
+
+    #timelineStream {
+      flex: 1;
+      padding: 0 10px 500px;
+      min-width: 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      margin-right: 12px;
+      border-radius: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: var(--transition);
+      border-left: 3px solid transparent;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: var(--hover-bg);
+      color: var(--blue);
+    }
+
+    .nav-item.active {
+      background: var(--active);
+      color: var(--blue);
+      font-weight: 600;
+      border-left-color: var(--blue);
+    }
+
+    .nav-item-title {
+      min-width: 0;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-item-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--line-strong);
+    }
+
+    .nav-item-status.success {
+      background: var(--success);
+      box-shadow: 0 0 0 2px #dcfce7;
+    }
+
+    .nav-item-status.failed {
+      background: var(--danger);
+      box-shadow: 0 0 0 2px #fee2e2;
+    }
+
+    .timeline-wrapper {
+      position: relative;
+      padding: 10px 0;
+    }
+
+    .timeline-wrapper.simple {
+      padding: 0;
+    }
+
+    .timeline-wrapper::before {
+      content: "";
+      position: absolute;
+      top: 20px;
+      bottom: 20px;
+      left: 16px;
+      /* Adjusted for icon alignment */
+      width: 2px;
+      background: var(--line-strong);
+    }
+
+    .timeline-wrapper.simple::before {
+      display: none;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 48px;
+      margin-bottom: 24px;
+    }
+
+    .timeline-wrapper.simple .timeline-item {
+      padding-left: 0;
+      margin-bottom: 14px;
+    }
+
+    .timeline-icon {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 2px solid var(--line-strong);
+      z-index: 2;
+    }
+
+    .icon-blue {
+      color: var(--blue);
+      background: var(--active);
+      border-color: #bfdbfe;
+    }
+
+    .icon-green {
+      color: var(--success);
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .icon-orange {
+      color: #f59e0b;
+      background: #fffbeb;
+      border-color: #fef3c7;
+    }
+
+    .icon-purple {
+      color: #8b5cf6;
+      background: #f5f3ff;
+      border-color: #ddd6fe;
+    }
+
+    .timeline-icon i {
+      width: 14px;
+      height: 14px;
+    }
+
+    .timeline-wrapper.simple .timeline-icon {
+      display: none;
+    }
+
+    .time-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-family: monospace;
+      font-weight: 500;
+    }
+
+    .t-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid var(--line-strong);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .timeline-wrapper.simple .t-card {
+      border-radius: 6px;
+      box-shadow: none;
+    }
+
+    .t-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .t-card-header {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--head);
+    }
+
+    .timeline-wrapper.simple .t-card-header {
+      padding: 8px 12px;
+      background: #f8fafc;
+    }
+
+    .t-card-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      min-width: 0;
+    }
+
+    .t-card-header-main {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .t-card-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+      flex-wrap: wrap;
+    }
+
+    .timeline-wrapper.simple .t-card-title {
+      font-size: 12px;
+    }
+
+    .t-card-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .t-card-meta span {
+      font-size: 11px;
+      color: var(--muted);
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .t-card-meta span.meta-highlight {
+      color: var(--text);
+      background: #eef2ff;
+    }
+
+    .btn-copy-node {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 4px;
+      margin-left: auto;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .btn-copy-node:hover {
+      background: var(--active);
+      color: var(--blue);
+    }
+
+    .t-card-body {
+      padding: 12px 16px;
+    }
+
+    .code-block {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: "JetBrains Mono", "Menlo", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #334155;
+      position: relative;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .code-block.is-scrollable {
+      padding-bottom: 56px;
+    }
+
+    .code-block-content {
+      white-space: inherit;
+      word-break: inherit;
+      min-width: 0;
+    }
+
+    .code-block.collapsed {
+      max-height: calc(var(--collapse-lines, 30) * 1.6em + 80px);
+      overflow: hidden;
+    }
+
+    .code-block.collapsed.is-scrollable {
+      padding-bottom: 56px;
+    }
+
+    .code-block.collapsed::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 56px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(248, 250, 252, 0), #f8fafc 72%);
+      pointer-events: none;
+    }
+
+    .code-block.expanded {
+      max-height: min(60vh, 640px);
+      overflow: hidden;
+    }
+
+    .expand-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      min-width: 72px;
+      margin: 0;
+      padding: 4px 10px;
+      text-align: center;
+      cursor: pointer;
+      color: var(--blue);
+      font-weight: 600;
+      font-size: 11px;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(6px);
+      position: absolute;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      z-index: 2;
+      box-shadow: 0 4px 12px rgba(148, 163, 184, 0.18);
+    }
+
+    .code-block.expanded .expand-btn {
+      box-shadow: 0 4px 12px rgba(148, 163, 184, 0.22);
+    }
+
+    .code-block.expanded .code-block-content {
+      max-height: calc(min(60vh, 640px) - 68px);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    /* Compact KB Grid */
+    .kb-compact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .ref-card-compact {
+      background: #f8fafc;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .ref-card-compact:hover {
+      background: var(--active);
+      border-color: #bfdbfe;
+      transform: translateY(-1px);
+    }
+
+    .ref-card-compact i {
+      width: 14px;
+      height: 14px;
+      color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .ref-card-compact span {
+      font-size: 12px;
+      color: #475569;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      font-weight: 500;
+    }
+
+    /* Feedback Quality Tab Styles */
+    .feedback-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .empty-state {
+      padding: 60px 0;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    /* Premium Secondary Panel (Slide-over) */
+    .secondary-panel {
+      position: fixed;
+      top: 0;
+      right: -820px;
+      width: 800px;
+      bottom: 0;
+      background: #fff;
+      box-shadow: -20px 0 50px rgba(15, 23, 42, 0.1);
+      z-index: 2000;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid var(--line-strong);
+    }
+
+    .secondary-panel.open {
+      right: 0;
+    }
+
+    .sp-header {
+      height: 64px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      gap: 20px;
+    }
+
+    .sp-header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .sp-header span {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .sp-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--muted);
+      background: #f8fafc;
+    }
+
+    .sp-close:hover {
+      background: #f1f5f9;
+      color: var(--danger);
+    }
+
+    .sp-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      background: #fcfcfc;
+    }
+
+    .sp-sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--line);
+      overflow-y: auto;
+      background: #fff;
+      padding: 12px 0;
+    }
+
+    .sp-main-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slice-nav-item {
+      padding: 10px 16px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #64748b;
+      border-left: 3px solid transparent;
+      transition: var(--transition);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .slice-nav-item:hover {
+      background: #f1f5f9;
+      color: var(--blue);
+    }
+
+    .slice-nav-item.active {
+      background: #eff6ff;
+      color: var(--blue);
+      font-weight: 600;
+      border-left-color: var(--blue);
+    }
+
+    .sp-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-action {
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: #475569;
+    }
+
+    .btn-action:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: #f1f5f9;
+    }
+
+    .btn-action i {
+      width: 14px;
+      height: 14px;
+    }
+
+    .sp-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.3);
+      backdrop-filter: blur(2px);
+      z-index: 1999;
+      display: none;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    #secondaryPanel.open+.sp-overlay {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Trace追踪指标增强</h1>
+      </header>
+
+      <div class="content">
+        <!-- 筛选区域保持不变 -->
+        <div class="filter-card">
+          <div class="table-title" style="margin-bottom: 24px">Trace列表 PRD原型</div>
+          <div class="filter-grid" style="grid-template-columns: repeat(4, 1fr)">
+            <div class="filter-item">
+              <label>Trace创建时间</label>
+              <div style="
+                    display: flex;
+                    gap: 8px;
+                    align-items: center;
+                    border: 1px solid var(--line-strong);
+                    border-radius: 4px;
+                    padding: 0 12px;
+                    height: 36px;
+                    background: #fff;
+                  ">
+                <i data-lucide="clock" style="width: 14px; color: var(--muted)"></i>
+                <input type="text" value="2026-02-01 00:00:00" style="
+                      border: none;
+                      outline: none;
+                      font-size: 13px;
+                      width: 140px;
+                    " />
+                <span style="color: var(--muted)">至</span>
+                <input type="text" value="2026-03-02 23:59:59" style="
+                      border: none;
+                      outline: none;
+                      font-size: 13px;
+                      width: 140px;
+                    " />
+              </div>
+            </div>
+            <div class="filter-item">
+              <label>企业</label>
+              <select class="input-box">
+                <option value="">请选择企业</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>搜索项目/应用</label>
+              <select class="input-box">
+                <option value="">请选择项目/应用</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>用户反馈</label>
+              <select class="input-box">
+                <option>全部</option>
+              </select>
+            </div>
+
+            <div class="filter-item">
+              <label>问题类型</label>
+              <select class="input-box">
+                <option value="">请选择</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>质检评价</label>
+              <select class="input-box">
+                <option value="">请选择</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>质检标签</label>
+              <select class="input-box">
+                <option value="">请选择</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>请求主体</label>
+              <select class="input-box">
+                <option value="">请选择</option>
+              </select>
+            </div>
+
+            <div class="filter-item">
+              <label>唯一id</label>
+              <input type="text" class="input-box" placeholder="请输入用户唯一标识值" />
+            </div>
+            <div class="filter-item">
+              <label>扩展id类型</label>
+              <select class="input-box">
+                <option>全部</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>扩展id</label>
+              <input type="text" class="input-box" placeholder="请输入扩展ID" />
+            </div>
+            <div class="filter-item">
+              <label>输入</label>
+              <input type="text" class="input-box" placeholder="请输入用户输入内容" />
+            </div>
+
+            <div class="filter-item">
+              <label>输出</label>
+              <input type="text" class="input-box" placeholder="请输入用户输出内容" />
+            </div>
+            <div class="filter-item">
+              <label>日志</label>
+              <input type="text" class="input-box" placeholder="请输入日志内容" />
+            </div>
+            <div class="filter-item">
+              <label>TraceId</label>
+              <input type="text" class="input-box" placeholder="请输入TraceId" />
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-secondary">重置</button>
+            <button class="btn btn-primary">查询</button>
+            <button class="btn btn-success">
+              导出
+              <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 4px"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">
+              搜索结果 <span>(总条数：1858)</span>
+            </div>
+            <button class="btn btn-primary">批量标注</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead id="traceTableHead"></thead>
+              <tbody id="traceTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="footer">
+            <div class="footer-left">
+              <span>共 1858 条</span>
+              <select class="page-size">
+                <option>10条/页</option>
+                <option>20条/页</option>
+              </select>
+            </div>
+            <div class="pagination">
+              <div class="page-btn">
+                <i class="fa-solid fa-chevron-left"></i>
+              </div>
+              <div class="page-btn active">1</div>
+              <div class="page-btn">2</div>
+              <div class="page-btn">3</div>
+              <div class="page-btn">...</div>
+              <div class="page-btn">186</div>
+              <div class="page-btn">
+                <i class="fa-solid fa-chevron-right"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-content">
+      <header class="modal-header">
+        <div class="modal-header-left">
+          <div class="modal-header-top">
+            <span class="modal-header-title">Trace追踪</span>
+            <div class="trace-id-badge">
+              <span id="modalTraceId">--</span>
+              <i data-lucide="copy" class="copy-icon" onclick="copyToClipboard('modalTraceId')"></i>
+            </div>
+          </div>
+          <div class="modal-summary" id="traceSummaryBar">
+            <div class="summary-chip summary-chip-status">
+              <span class="summary-label">最终状态</span>
+              <span id="summaryStatus"></span>
+            </div>
+            <div class="summary-chip">
+              <span class="summary-label">端到端耗时</span>
+              <span class="summary-value" id="summaryDuration">-</span>
+            </div>
+            <div class="summary-chip">
+              <span class="summary-label">总Token</span>
+              <span class="summary-value" id="summaryTokens">-</span>
+            </div>
+            <div class="summary-chip">
+              <span class="summary-label">总成本</span>
+              <span class="summary-value" id="summaryCost">-</span>
+            </div>
+          </div>
+        </div>
+        <i data-lucide="x" style="cursor: pointer; color: var(--muted)" onclick="closeModal()"></i>
+      </header>
+
+      <nav class="modal-tabs">
+        <div class="tab-item active" onclick="switchTab(event, 'runResult')">
+          运行结果
+        </div>
+        <div class="tab-item" onclick="switchTab(event, 'processLog')">
+          过程日志
+        </div>
+        <div class="tab-item" onclick="switchTab(event, 'qualityAudit')">
+          反馈质检
+        </div>
+      </nav>
+
+      <div class="modal-body">
+        <!-- 运行结果 Tab -->
+        <div id="runResult" class="tab-content active">
+          <div class="section-box">
+            <div class="section-header">
+              <span>输入</span>
+              <div style="display: flex; gap: 8px; align-items: center">
+                <select id="inputFormatSelect" onchange="renderRunResultContent()" style="
+                      border: 1px solid var(--line-strong);
+                      border-radius: 4px;
+                      padding: 2px 8px;
+                      font-size: 12px;
+                      cursor: pointer;
+                    ">
+                  <option value="auto" selected>混合格式</option>
+                  <option value="html">HTML格式</option>
+                  <option value="json">JSON格式</option>
+                  <option value="markdown">MD格式</option>
+                </select>
+                <i data-lucide="copy" class="copy-icon" onclick="copyText('inputContent')"></i>
+              </div>
+            </div>
+            <div id="inputContent" class="section-body">
+              平安岁月那个产品优点
+            </div>
+          </div>
+          <div class="section-box">
+            <div class="section-header">
+              <span>输出</span>
+              <div style="display: flex; gap: 8px; align-items: center">
+                <select id="outputFormatSelect" onchange="renderRunResultContent()" style="
+                      border: 1px solid var(--line-strong);
+                      border-radius: 4px;
+                      padding: 2px 8px;
+                      font-size: 12px;
+                      cursor: pointer;
+                    ">
+                  <option value="auto" selected>混合格式</option>
+                  <option value="html">HTML格式</option>
+                  <option value="json">JSON格式</option>
+                  <option value="markdown">MD格式</option>
+                </select>
+                <i data-lucide="copy" class="copy-icon" onclick="copyText('outputContent')"></i>
+              </div>
+            </div>
+            <div id="outputContent" class="section-body"></div>
+          </div>
+        </div>
+
+        <!-- 过程日志 Tab -->
+        <div id="processLog" class="tab-content">
+          <div class="process-log-extension">
+            <div class="process-log-extension-title">扩展ID</div>
+            <div class="process-log-extension-list" id="processExtensionIdList"></div>
+          </div>
+          <div class="process-log-toolbar">
+            <div class="process-log-overview">
+              <span>节点总数 <strong id="logNodeCount">0</strong></span>
+              <span>失败节点 <strong id="logFailureCount">0</strong></span>
+            </div>
+            <div class="log-actions" style="display: flex; gap: 8px;">
+              <button class="btn-action" onclick="copyAllNodes()">
+                <i data-lucide="layers"></i> 复制全部过程日志
+              </button>
+            </div>
+          </div>
+
+          <div class="log-layout prd-no-nav">
+            <div id="navContainer" hidden></div>
+            <div id="timelineStream"></div>
+
+            <!-- Secondary Slide-over Panel -->
+            <div id="secondaryPanel" class="secondary-panel">
+              <div class="sp-header">
+                <span id="spTitle"
+                  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;">切片详情</span>
+                <div class="sp-header-right">
+                  <div class="sp-actions">
+                    <button class="btn-action" onclick="copyCurrentSlice()">
+                      <i data-lucide="copy"></i> 复制当前切片
+                    </button>
+                    <button class="btn-action" onclick="copyAllSlices()">
+                      <i data-lucide="layers"></i> 复制全部切片
+                    </button>
+                  </div>
+                  <div class="sp-close" onclick="closeSecondaryPanel()">
+                    <i data-lucide="x"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-body">
+                <div class="sp-sidebar" id="sliceNavItems">
+                  <!-- Slice items will be injected here -->
+                </div>
+                <div class="sp-main-content">
+                  <!-- 元信息区 -->
+                  <div id="spMeta" class="sp-meta" style="
+                    background: #f8fafc;
+                    padding: 16px 20px;
+                    border-bottom: 1px solid var(--line);
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    flex-wrap: wrap;
+                  ">
+                    <div class="sp-meta-item"
+                      style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted);">
+                      <i data-lucide="database" style="width: 14px; height: 14px;"></i>
+                      <span>知识库：</span>
+                      <span id="spKbName" style="color: var(--text); font-weight: 500;">-</span>
+                    </div>
+                    <div class="sp-meta-item"
+                      style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted);">
+                      <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                      <span>内容字数：</span>
+                      <span id="spWordCount" style="color: var(--text); font-weight: 500;">-</span>
+                    </div>
+                    <a id="spSourceLink" href="#" target="_blank" class="sp-source-link" style="
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 4px;
+                      font-size: 13px;
+                      color: var(--blue);
+                      text-decoration: none;
+                      margin-left: auto;
+                    ">
+                      <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                      查看源文件
+                    </a>
+                  </div>
+                  <!-- 内容区 -->
+                  <pre id="spContent" class="code-block" style="
+                        background: #fcfcfc;
+                        padding: 20px;
+                        margin: 0;
+                        font-size: 13px;
+                        line-height: 1.7;
+                        color: #1e293b;
+                        border: none;
+                        flex: 1;
+                      "></pre>
+                </div>
+              </div>
+            </div>
+            <div class="sp-overlay" onclick="closeSecondaryPanel()"></div>
+          </div>
+        </div>
+
+        <!-- 反馈质检 Tab -->
+        <div id="qualityAudit" class="tab-content">
+          <div class="feedback-actions">
+            <button class="btn btn-primary" style="font-size: 13px">
+              添加标注
+            </button>
+          </div>
+          <div class="table-container">
+            <table style="min-width: 100%">
+              <thead>
+                <tr>
+                  <th>评价</th>
+                  <th>原因</th>
+                  <th>问题类型</th>
+                  <th>反馈类型</th>
+                  <th>反馈人</th>
+                  <th>创建时间</th>
+                  <th>更新时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="8" class="empty-state">暂无数据</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const COLLAPSE_LINE_LIMIT = 30;
+    const PROCESS_LOG_COLLAPSE_LINE_LIMIT = 3;
+    const TRACE_STATUS_META = {
+      success: { label: "成功", className: "success" },
+      failed: { label: "失败", className: "failed" },
+    };
+
+    const TRACE_TABLE_COLUMNS = [
+      {
+        key: "select",
+        label: '<input type="checkbox" />',
+        className: "cell-select",
+        renderCell: () => '<input type="checkbox" />',
+      },
+      {
+        key: "createdAt",
+        label: "Trace创建时间",
+        className: "cell-time clickable-cell",
+        renderCell: (trace) => escapeHtml(trace.createdAt),
+      },
+      {
+        key: "traceId",
+        label: "TraceId",
+        className: "cell-id clickable-cell",
+        renderCell: (trace) => `
+          <span class="trace-id-cell">
+            ${renderStatusIcon(trace.finalStatus)}
+            <span>${escapeHtml(trace.displayId)}</span>
+          </span>
+        `,
+      },
+      {
+        key: "project",
+        label: "项目",
+        className: "cell-project clickable-cell",
+        renderCell: (trace) => escapeHtml(trace.project),
+      },
+      {
+        key: "app",
+        label: "应用",
+        className: "cell-app clickable-cell",
+        renderCell: (trace) => escapeHtml(trace.app),
+      },
+      {
+        key: "input",
+        label: "输入",
+        className: "cell-content cell-content-header clickable-cell",
+        thClassName: "cell-content-header",
+        renderCell: (trace) => renderContentCell(trace.input),
+      },
+      {
+        key: "output",
+        label: "输出",
+        className: "cell-content cell-content-header clickable-cell",
+        thClassName: "cell-content-header",
+        renderCell: (trace) => renderContentCell(trace.output),
+      },
+      {
+        key: "endToEndDurationMs",
+        label: "端到端耗时",
+        className: "cell-duration clickable-cell",
+        renderCell: (trace) => renderMetricText(formatDuration(trace.endToEndDurationMs)),
+      },
+      {
+        key: "totalModelTokens",
+        label: "总Token",
+        className: "cell-token clickable-cell",
+        renderCell: (trace) => renderMetricText(formatTokenCount(trace.totalModelTokens)),
+      },
+      {
+        key: "totalModelCost",
+        label: "总成本",
+        className: "cell-cost clickable-cell",
+        renderCell: (trace) => renderMetricText(formatCost(trace.totalModelCost)),
+      },
+      {
+        key: "userFeedback",
+        label: "用户反馈",
+        className: "cell-feedback",
+        renderCell: (trace) => escapeHtml(trace.userFeedback),
+      },
+      {
+        key: "problemType",
+        label: "问题类型",
+        className: "cell-quality clickable-cell",
+        renderCell: (trace) => escapeHtml(trace.problemType),
+      },
+      {
+        key: "problemFeedback",
+        label: "问题反馈",
+        className: "cell-quality clickable-cell",
+        renderCell: (trace) => escapeHtml(trace.problemFeedback),
+      },
+      {
+        key: "qcEvaluation",
+        label: "质检评价",
+        className: "cell-quality clickable-cell",
+        renderCell: (trace) => escapeHtml(trace.qcEvaluation),
+      },
+      {
+        key: "qcNotes",
+        label: "质检备注",
+        className: "cell-quality clickable-cell",
+        renderCell: (trace) => escapeHtml(trace.qcNotes),
+      },
+      {
+        key: "qcTags",
+        label: "质检标签",
+        className: "cell-quality clickable-cell",
+        renderCell: (trace) => escapeHtml(trace.qcTags),
+      },
+      {
+        key: "lastOperator",
+        label: "最近操作人",
+        className: "cell-quality",
+        renderCell: (trace) => escapeHtml(trace.lastOperator),
+      },
+      {
+        key: "actions",
+        label: "操作",
+        className: "cell-op",
+        renderCell: () => `
+          <div class="btn-op-group">
+            <button class="btn-small btn-open-runResult">运行结果</button>
+            <button class="btn-small btn-open-processLog">过程日志</button>
+            <button class="btn-small btn-open-qualityAudit">反馈质检</button>
+          </div>
+        `,
+      },
+    ];
+
+    const TRACE_DATA = [
+      {
+        traceId: "1ab205da815e4de78f1bab88ef06a781",
+        displayId: "1ab205da****",
+        project: "咔嚓保-投保助手",
+        app: "投保助手",
+        input: "你能回答哪些内容？",
+        output: "呀，你还没说具体要问什么呢～我现在能搞定条款解读、产品对比、核保咨询、投保报错这些事，有啥问题直接甩给我就行😉",
+        userFeedback: "满意",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-03-26 18:25:38",
+        finalStatus: "success",
+        endToEndDurationMs: 7000,
+        totalModelTokens: 187,
+        totalModelCost: 0.004,
+        userId: "session_route_fallback_1769605538001",
+        processNodes: [
+          {
+            id: "node-1",
+            time: "18:25:38.000",
+            occurredAt: "2026-03-26 18:25:38",
+            logId: "fd71cc26d61040c2b13d446074ddfccc",
+            label: "INPUT",
+            icon: "user",
+            color: "blue",
+            title: "用户输入",
+            status: "success",
+            durationMs: 16,
+            content: "你能回答哪些内容？",
+          },
+          {
+            id: "node-2",
+            time: "18:25:38.000",
+            occurredAt: "2026-03-26 18:25:38",
+            logId: "86f4c69fc7ea4b55a9d8f22b8e3c91b7",
+            label: "NLU",
+            icon: "cpu",
+            color: "orange",
+            title: "NLU核心日志",
+            status: "success",
+            durationMs: 482,
+            tokenUsage: { input: 145, output: 42, total: 187 },
+            cost: 0.004,
+            content: `2026-03-26 18:25:38
+[input] 节点输入：【你能回答哪些内容？】
+
+2026-03-26 18:25:38
+[NLU]第1次迭代，NLU核心，节点输入：
+问题：
+【你能回答哪些内容？】，
+
+近几轮会话：
+【User:  11
+Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大赶工呢～现在可以帮你做条款解读、产品对比、核保咨询哦，有相关问题随时问呀😉
+[助手响应参考信息]
+{
+  "internal_context": {
+    "latest_decision": {
+      "version": "3.14",
+      "current_query": "11",
+      "action": {
+        "type": "route",
+        "parameters": {
+          "clarify": null,
+          "route": [
+            "兜底"
+          ],
+          "intent_meta": {
+            "rewritten_query": "11",
+            "history_images": [],
+            "insurer": {
+              "raw": null,
+              "itemname": null
+            },
+            "scenario": [],
+            "search_conditions": [],
+            "products": []
+          }
+        }
+      }
+    }
+  }
+}
+User: 我提交了代理人申请？
+Assistant: 您好，代理人签约认证除了平台需要进行资料审核，同时还需要审核通过的代理人在金事通完成签约登记。
+1）一般来说您提交申请，并在收到平台触达提示后及时去金事通完成任务的话，是可以在1工作日内完成签约登记的。平台工作日签约审核时间是上午10点、下午2点、下午6点，一共3次。
+2）金事通需要72小时内完成任务，超时未完成，系统会退回申请需要重新提交，若连续2次任务超时失败，需3个月后重新申请签约。
+3）申请完后建议耐心等待，如有异常可以联系人工客服处理，输入“rg”或“人工客服”即可转接。
+[助手响应参考信息]
+{
+  "internal_context": {
+    "latest_decision": {
+      "version": "3.14",
+      "current_query": "我提交了代理人申请？",
+      "action": {
+        "type": "route",
+        "parameters": {
+          "clarify": null,
+          "route": [
+            "运营支持"
+          ],
+          "intent_meta": {
+            "rewritten_query": "我提交了代理人申请？",
+            "history_images": [],
+            "insurer": {
+              "raw": null,
+              "itemname": null
+            },
+            "scenario": [],
+            "search_conditions": [],
+            "products": []
+          }
+        }
+      }
+    }
+  }
+}
+User: 我提交了代理人申请，怎么看进度
+Assistant: 您好，代理人签约认证除了平台需要进行资料审核，同时还需要审核通过的代理人在金事通完成签约登记。
+1）一般来说您提交申请，并在收到平台触达提示后及时去金事通完成任务的话，是可以在1工作日内完成签约登记的。平台工作日签约审核时间是上午10点、下午2点、下午6点，一共3次。
+2）金事通需要72小时内完成任务，超时未完成，系统会退回申请需要重新提交，若连续2次任务超时失败，需3个月后重新申请签约。
+3）申请完后建议耐心等待，如有异常可以联系人工客服处理，输入“rg”或“人工客服”即可转接。
+[助手响应参考信息]
+{
+  "internal_context": {
+    "latest_decision": {
+      "version": "3.14",
+      "current_query": "我提交了代理人申请，怎么看进度",
+      "action": {
+        "type": "route",
+        "parameters": {
+          "clarify": null,
+          "route": [
+            "运营支持"
+          ],
+          "intent_meta": {
+            "rewritten_query": "我提交了代理人申请，怎么查询进度",
+            "history_images": [],
+            "insurer": {
+              "raw": null,
+              "itemname": null
+            },
+            "scenario": [],
+            "search_conditions": [],
+            "products": []
+          }
+        }
+      }
+    }
+  }
+}】，
+
+候选产品id
+【】
+
+2026-03-26 18:25:38
+意图识别输入 - 用户消息: 你能回答哪些内容？, 上下文长度: 2450, 参考信息长度: 0, node_id: 86, 图片数量: 0
+
+2026-03-26 18:25:42
+[NLU内容输出结束] {
+  "version": "3.14",
+  "current_query": "你能回答哪些内容？",
+  "action": {
+    "type": "route",
+    "parameters": {
+      "clarify": null,
+      "route": [
+        "兜底"
+      ],
+      "intent_meta": {
+        "rewritten_query": "你能回答哪些内容？",
+        "history_images": [],
+        "insurer": {
+          "raw": null,
+          "itemname": null
+        },
+        "scenario": [],
+        "search_conditions": [],
+        "products": []
+      }
+    }
+  }
+}
+
+2026-03-26 18:25:42
+意图识别解析结果:
+\`\`\`json
+{
+  "version": "3.14",
+  "current_query": "你能回答哪些内容？",
+  "action": {
+    "type": "route",
+    "parameters": {
+      "clarify": null,
+      "route": [
+        "兜底"
+      ],
+      "intent_meta": {
+        "rewritten_query": "你能回答哪些内容？",
+        "history_images": [],
+        "insurer": {
+          "raw": null,
+          "itemname": null
+        },
+        "scenario": [],
+        "search_conditions": [],
+        "products": []
+      }
+    }
+  }
+}
+\`\`\`
+
+2026-03-26 18:25:42
+[NLU] NLU核心，节点输出：type:route, canonical:, itemid:, route:兜底
+
+2026-03-26 18:25:42
+识别到意图: ['兜底']
+
+2026-03-26 18:25:42
+路由到 Agent: 人工/兜底
+
+2026-03-26 18:25:42
+[人工/兜底] 用户消息: 你能回答哪些内容？
+
+2026-03-26 18:25:42
+[人工/兜底] 历史消息: User:  11
+Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大赶工呢～现在可以帮你做条款解读、产品对比、核保咨询哦，有相关问题随时问呀😉
+[助手响应参考信息]
+{
+  "in...
+
+2026-03-26 18:25:45
+[人工/兜底] 模型输出: 呀，你还没说具体要问什么呢～我现在能搞定条款解读、产品对比、核保咨询、投保报错这些事，有啥问题直接甩给我就行😉`,
+          },
+          {
+            id: "node-3",
+            time: "18:25:45.000",
+            occurredAt: "2026-03-26 18:25:45",
+            logId: "5e6dd7de0d934d10a4e4f54211cb1fd2",
+            label: "ANSWER",
+            icon: "message-square",
+            color: "green",
+            title: "人工/兜底回复",
+            status: "success",
+            durationMs: 2518,
+            content: "呀，你还没说具体要问什么呢～我现在能搞定条款解读、产品对比、核保咨询、投保报错这些事，有啥问题直接甩给我就行😉",
+          },
+        ],
+      },
+      {
+        traceId: "07081cdeedf948a4b36a20d3178c789f",
+        displayId: "07081cde****",
+        project: "咔嚓保-投保助手",
+        app: "投保助手",
+        input: "平安岁月那个产品优点",
+        output: "请从以下【平安岁月】在售产品候选中选择具体版本",
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-03-02 10:55:55",
+        finalStatus: "success",
+        endToEndDurationMs: 32640,
+        totalModelTokens: 1037,
+        totalModelCost: 0.024,
+        userId: "session_XV22eY-clarify_1769517005001",
+        processNodes: [
+          {
+            id: "node-input",
+            time: "10:55:55.012",
+            label: "INPUT",
+            icon: "user",
+            color: "blue",
+            title: "用户输入",
+            status: "success",
+            durationMs: 28,
+            content: "【平安岁月那个产品优点】",
+          },
+          {
+            id: "node-nlu",
+            time: "10:55:55.071",
+            label: "NLU",
+            icon: "cpu",
+            color: "orange",
+            title: "意图识别",
+            status: "success",
+            durationMs: 450,
+            tokenUsage: { input: 145, output: 42, total: 187 },
+            cost: 0.0034,
+            isJson: true,
+            content: {
+              intent: "product_inquiry",
+              raw_entity: "平安岁月",
+              confidence: 0.92,
+              reasoning: "用户询问特定产品的优点，需要先确认产品具体版本。",
+            },
+          },
+          {
+            id: "node-kb",
+            time: "10:55:56.004",
+            label: "RECALL",
+            icon: "database",
+            color: "purple",
+            title: "知识库检索",
+            status: "success",
+            durationMs: 1240,
+            meta: ["候选数: 44"],
+            isRef: true,
+            query: "平安岁月",
+            content: Array.from({ length: 8 }, (_, index) => ({
+              title: `平安岁月切片 ${index + 1}`,
+              id: 178807 + index,
+              kbName: "产品知识库",
+              content: `{"商品id": ${178807 + index}, "内容": "这是关于平安岁月的切片数据 ${index + 1}..."}`,
+            })),
+          },
+          {
+            id: "node-llm",
+            time: "10:56:26.820",
+            label: "ANSWER",
+            icon: "message-square",
+            color: "green",
+            title: "澄清回复生成",
+            status: "success",
+            durationMs: 30922,
+            tokenUsage: { input: 530, output: 320, total: 850 },
+            cost: 0.0206,
+            content: `请从以下【平安岁月】在售产品候选中选择具体版本：
+1. 平安健康岁月长安特定疾病保险
+2. 平安福岁月版重大疾病保险
+
+回复序号即可继续查看对应产品优点。`,
+          },
+        ],
+      },
+      {
+        traceId: "ai-13ff446dcfbc49ccb1ab6604df1f7345",
+        displayId: "ai-13ff****",
+        project: "咔嚓保-保单托管",
+        app: "条款解析",
+        input: "/share_common_sh/PDFOCR/3b040a14...",
+        output: '{"result": false, "error": "OCR_TIMEOUT", "message": "条款解析超时"}',
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-02-28 10:50:38",
+        finalStatus: "failed",
+        endToEndDurationMs: 4820,
+        totalModelTokens: null,
+        totalModelCost: null,
+        userId: "ocr_parse_7442205",
+        processNodes: [
+          {
+            id: "ocr-input",
+            time: "10:50:38.011",
+            label: "INPUT",
+            icon: "file-text",
+            color: "blue",
+            title: "文件接收",
+            status: "success",
+            durationMs: 55,
+            content: "/share_common_sh/PDFOCR/3b040a14...",
+          },
+          {
+            id: "ocr-prepare",
+            time: "10:50:38.120",
+            label: "PREP",
+            icon: "wand-2",
+            color: "orange",
+            title: "PDF预处理",
+            status: "success",
+            durationMs: 640,
+            content: '{"pages": 18, "dpi": 200, "layoutMode": "auto"}',
+          },
+          {
+            id: "ocr-main",
+            time: "10:50:38.892",
+            label: "OCR",
+            icon: "triangle-alert",
+            color: "purple",
+            title: "OCR结构化抽取",
+            status: "failed",
+            durationMs: 4125,
+            isJson: true,
+            content: {
+              errorCode: "OCR_TIMEOUT",
+              message: "条款解析超时，未在 SLA 内完成结构化抽取",
+              suggestion: "请检查文件清晰度或缩小解析范围后重试",
+            },
+          },
+        ],
+      },
+      {
+        traceId: "ai-1c7b7f4ab5504582bcb2c5b0531fb2e5",
+        displayId: "ai-1c7b****",
+        project: "咔嚓保-保单托管",
+        app: "条款解析",
+        input: "/share_common_sh/PDFOCR/3b040a14...",
+        output: '{"result": true, "base": {...}}',
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-02-28 10:01:21",
+        finalStatus: "success",
+        endToEndDurationMs: 4210,
+        totalModelTokens: null,
+        totalModelCost: null,
+        userId: "ocr_parse_7442204",
+      },
+      {
+        traceId: "07c8605f9d784f2b9d0c10d4641a6af1",
+        displayId: "07c8605f****",
+        project: "咔嚓保-投保助手",
+        app: "投保助手",
+        input: "平安岁月那个产品优点",
+        output: "平安健康岁月长安特定疾病保险的产品优点...",
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-02-27 16:34:56",
+        finalStatus: "success",
+        endToEndDurationMs: 8420,
+        totalModelTokens: 1168,
+        totalModelCost: 0.026,
+        userId: "session_policy_helper_1769502896001",
+      },
+      {
+        traceId: "5089a8ba4aab4a2580b4d4c0f29582f3",
+        displayId: "5089a8ba****",
+        project: "咔嚓保-投保助手",
+        app: "投保助手",
+        input: "/clear",
+        output: "会话已清空",
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-02-27 16:34:53",
+        finalStatus: "success",
+        endToEndDurationMs: 180,
+        totalModelTokens: null,
+        totalModelCost: null,
+        userId: "session_clear_1769502893001",
+      },
+      {
+        traceId: "c06a524fa1e74ae8ba09e1c2b0a9672d",
+        displayId: "c06a524f****",
+        project: "咔嚓保-投保助手",
+        app: "投保助手",
+        input: "/clear",
+        output: "会话已清空",
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-02-27 16:32:50",
+        finalStatus: "success",
+        endToEndDurationMs: 160,
+        totalModelTokens: null,
+        totalModelCost: null,
+        userId: "session_clear_1769502770002",
+      },
+      {
+        traceId: "d65dd3c6cf23484282d0f0f4b7864477",
+        displayId: "d65dd3c6****",
+        project: "咔嚓保-投保助手",
+        app: "投保助手",
+        input: "/clear",
+        output: "会话已清空",
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-02-27 16:31:28",
+        finalStatus: "success",
+        endToEndDurationMs: 150,
+        totalModelTokens: null,
+        totalModelCost: null,
+        userId: "session_clear_1769502688003",
+      },
+      {
+        traceId: "ai-ea0a4f9948c84ceea62917989fa2b57f",
+        displayId: "ai-ea0a****",
+        project: "AI核保",
+        app: "AI人核审核",
+        input: '{"hcid":"7442204", ...}',
+        output: '{"code":0, "msg":"ok", ...}',
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-02-27 16:17:02",
+        finalStatus: "success",
+        endToEndDurationMs: 2640,
+        totalModelTokens: 1388,
+        totalModelCost: 0.031,
+        userId: "underwrite_ai_7442204",
+      },
+      {
+        traceId: "730a8810d9694a05a6bbd6b09bd2af4c",
+        displayId: "730a8810****",
+        project: "咔嚓保-投保助手",
+        app: "技能搜索",
+        input: "人力资源职业代码选哪一个呢？",
+        output: "建议您搜索“人力资源管理师”...",
+        userFeedback: "满意",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "5",
+        qcNotes: "搞定了，能通过",
+        qcTags: "通过",
+        lastOperator: "wisewong",
+        createdAt: "2026-02-24 11:06:02",
+        finalStatus: "success",
+        endToEndDurationMs: 7410,
+        totalModelTokens: 912,
+        totalModelCost: 0.021,
+        userId: "session_skill_search_1769214362007",
+      },
+      {
+        traceId: "ai-f480d5508aa64dc7af7e9df8b326001f",
+        displayId: "ai-f480****",
+        project: "AI核保",
+        app: "AI人核审核",
+        input: '{"hcid":"7442202", ...}',
+        output: '{"code":500, "msg":"model timeout", ...}',
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-02-27 16:11:05",
+        finalStatus: "failed",
+        endToEndDurationMs: 2190,
+        totalModelTokens: 1205,
+        totalModelCost: 0.029,
+        userId: "underwrite_ai_7442202",
+      },
+      {
+        traceId: "ai-8d84b31e5e214885b1e0fca7cc71d085",
+        displayId: "ai-8d84****",
+        project: "AI核保",
+        app: "AI人核审核",
+        input: '{"hcid":"7442201", ...}',
+        output: '{"code":0, "msg":"ok", ...}',
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-02-27 16:05:09",
+        finalStatus: "success",
+        endToEndDurationMs: 2120,
+        totalModelTokens: 1188,
+        totalModelCost: 0.028,
+        userId: "underwrite_ai_7442201",
+      },
+      {
+        traceId: "json-test-001",
+        displayId: "json-test****",
+        project: "咔嚓保-投保助手",
+        app: "投保助手",
+        input: JSON.stringify(
+          {
+            query: "医保卡外借可以买什么重疾",
+            userId: "user_12345",
+            timestamp: "2026-03-03T10:30:00Z",
+            context: {
+              appId: 3,
+              conversationId: "conv_abc123",
+            },
+          },
+          null,
+          2,
+        ),
+        output: JSON.stringify(
+          {
+            status: "success",
+            data: {
+              products: [
+                {
+                  name: "君龙人寿超级玛丽15号重大疾病保险",
+                  company: "君龙人寿保险有限公司",
+                  age: "18-100周岁",
+                  period: "保至70周岁/85周岁/终身",
+                  features: ["核保宽松容易投", "核保复议写入合同", "三大结节有保障"],
+                },
+                {
+                  name: "众安保险众民保·重疾险",
+                  company: "众安在线财产保险股份有限公司",
+                  age: "18-70周岁",
+                  period: "1年",
+                  features: ["健告仅3条", "既往症可保可赔", "无职业限制"],
+                },
+              ],
+              total: 2,
+            },
+            metadata: {
+              processingTime: "1.2s",
+              model: "gpt-4",
+            },
+          },
+          null,
+          2,
+        ),
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-03-03 10:30:00",
+        finalStatus: "success",
+        endToEndDurationMs: 1200,
+        totalModelTokens: 1680,
+        totalModelCost: 0.036,
+        userId: "user_12345",
+      },
+    ];
+
+    let rawInputData = "";
+    let rawOutputData = "";
+    let currentTrace = null;
+    let currentSlices = [];
+    let currentSliceIndex = 0;
+    window.__slicesMap = {};
+
+    function escapeHtml(unsafe) {
+      return (unsafe || "")
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatDuration(ms) {
+      if (!Number.isFinite(ms)) return "-";
+      if (ms >= 60000) {
+        const minutes = Math.floor(ms / 60000);
+        const seconds = ((ms % 60000) / 1000).toFixed(1);
+        return `${minutes}m ${seconds}s`;
+      }
+      if (ms >= 1000) {
+        const digits = ms >= 10000 ? 1 : ms % 1000 === 0 ? 0 : 1;
+        return `${(ms / 1000).toFixed(digits)}s`;
+      }
+      return `${Math.round(ms)}ms`;
+    }
+
+    function formatTokenCount(tokens) {
+      if (!Number.isFinite(tokens)) return "-";
+      return tokens.toLocaleString("zh-CN");
+    }
+
+    function formatCost(cost) {
+      if (!Number.isFinite(cost)) return "-";
+      return `¥${cost.toFixed(cost >= 1 ? 2 : 3)}`;
+    }
+
+    function renderMetricText(value) {
+      if (value === "-") {
+        return '<span class="metric-muted">-</span>';
+      }
+      return escapeHtml(value);
+    }
+
+    function renderStatusPill(status) {
+      const meta = TRACE_STATUS_META[status] || TRACE_STATUS_META.success;
+      return `<span class="trace-status-pill ${meta.className}">${meta.label}</span>`;
+    }
+
+    function renderStatusIcon(status) {
+      const meta = TRACE_STATUS_META[status] || TRACE_STATUS_META.success;
+      const iconName = meta.className === "failed" ? "circle-x" : "circle-check-big";
+      return `<span class="trace-status-icon ${meta.className}" title="${meta.label}" aria-label="${meta.label}"><i data-lucide="${iconName}"></i></span>`;
+    }
+
+    function renderStatusInline(status) {
+      const meta = TRACE_STATUS_META[status] || TRACE_STATUS_META.success;
+      return `${renderStatusIcon(status)}<span class="summary-status-text">${meta.label}</span>`;
+    }
+
+    function renderContentCell(content) {
+      return `<div class="cell-content-inner">${escapeHtml(normalizeMultilineText(content))}</div>`;
+    }
+
+    function normalizeMultilineText(text) {
+      return (text || "")
+        .toString()
+        .split("\n")
+        .map((line) => line.trimStart())
+        .join("\n")
+        .trim();
+    }
+
+    function normalizeTraceId(id) {
+      const value = (id || "").trim();
+      if (!value) return "";
+      const normalized = value.replace(/\*/g, "");
+      const match = TRACE_DATA.find((trace) => {
+        const display = (trace.displayId || "").replace(/\*/g, "");
+        return (
+          trace.traceId === value ||
+          trace.traceId.startsWith(normalized) ||
+          display === normalized
+        );
+      });
+      return match?.traceId || value;
+    }
+
+    function normalizeTabId(tab) {
+      const value = (tab || "").trim().toLowerCase();
+      if (value === "process" || value === "processlog" || value === "log" || value === "过程日志") {
+        return "processLog";
+      }
+      if (value === "quality" || value === "qualityaudit" || value === "audit" || value === "反馈质检") {
+        return "qualityAudit";
+      }
+      return "runResult";
+    }
+
+    function getTraceById(traceId) {
+      const targetTraceId = normalizeTraceId(traceId);
+      if (!targetTraceId) return null;
+      return TRACE_DATA.find((trace) => trace.traceId === targetTraceId) || null;
+    }
+
+    function getFirstTrace() {
+      return TRACE_DATA[0] || null;
+    }
+
+    function renderTraceTable() {
+      const thead = document.getElementById("traceTableHead");
+      const tbody = document.getElementById("traceTableBody");
+      if (!thead || !tbody) return;
+
+      thead.innerHTML = `<tr>${TRACE_TABLE_COLUMNS.map((column) => {
+        const className = column.thClassName || column.className || "";
+        return `<th class="${className}">${column.label}</th>`;
+      }).join("")}</tr>`;
+
+      const visibleRows = TRACE_DATA.filter((trace) => trace.traceId !== "json-test-001");
+      tbody.innerHTML = visibleRows.map((trace) => `
+        <tr data-trace-id="${trace.traceId}">
+          ${TRACE_TABLE_COLUMNS.map((column) => `
+            <td class="${column.className || ""}" data-column-key="${column.key}">
+              ${column.renderCell(trace)}
+            </td>
+          `).join("")}
+        </tr>
+      `).join("");
+    }
+
+    function countLines(content) {
+      const normalized = (content ?? "").toString().replace(/\r\n/g, "\n");
+      return normalized ? normalized.split("\n").length : 1;
+    }
+
+    function renderCodeBlock(content, lineLimit = COLLAPSE_LINE_LIMIT) {
+      const text = (content ?? "").toString();
+      const lineCount = countLines(text);
+      const byLogicalLines = lineCount > lineLimit;
+      const byContentLength = text.length > lineLimit * 120;
+      const needsCollapse = byLogicalLines || byContentLength;
+      return `<div class="code-block ${needsCollapse ? "collapsed is-scrollable" : ""}" data-line-count="${lineCount}" style="--collapse-lines:${lineLimit};">${needsCollapse ? '<div class="expand-btn" onclick="toggleExpand(this.parentElement)">展开内容</div>' : ""}<div class="code-block-content">${escapeHtml(text)}</div></div>`;
+    }
+
+    function detectFormat(content) {
+      const trimmed = (content || "").trim();
+      if (!trimmed) return "text";
+
+      if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+        try {
+          JSON.parse(trimmed);
+          return "json";
+        } catch (error) {}
+      }
+
+      if (/^(#{1,6}\s|[\*\-\+]\s|```|``|\_\_|\*\*|\[.*\]\(.*\)$)/m.test(trimmed)) {
+        return "markdown";
+      }
+
+      if (/<\/?[a-z][\s\S]*>/i.test(trimmed)) {
+        return "html";
+      }
+
+      return "text";
+    }
+
+    function formatContent(content, forceFormat = "auto") {
+      const trimmed = (content || "").trim();
+      const detectedFormat = detectFormat(trimmed);
+      const format = forceFormat === "auto" ? detectedFormat : forceFormat;
+
+      if (format === "json") {
+        let jsonContent = trimmed;
+        try {
+          jsonContent = JSON.parse(trimmed);
+        } catch (error) {}
+        const jsonStr = typeof jsonContent === "object" ? JSON.stringify(jsonContent, null, 2) : trimmed;
+        return { html: renderCodeBlock(jsonStr), isFormatted: true };
+      }
+
+      if (format === "markdown") {
+        let mdHtml = escapeHtml(trimmed);
+        mdHtml = mdHtml.replace(/^### (.*$)/gm, '<h3 style="margin: 16px 0 8px; font-size: 16px; font-weight: 600;">$1</h3>');
+        mdHtml = mdHtml.replace(/^## (.*$)/gm, '<h2 style="margin: 16px 0 8px; font-size: 18px; font-weight: 600;">$1</h2>');
+        mdHtml = mdHtml.replace(/^# (.*$)/gm, '<h1 style="margin: 16px 0 8px; font-size: 20px; font-weight: 700;">$1</h1>');
+        mdHtml = mdHtml.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        mdHtml = mdHtml.replace(/\*(.*?)\*/g, "<em>$1</em>");
+        mdHtml = mdHtml.replace(/`([^`]+)`/g, '<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px;">$1</code>');
+        mdHtml = mdHtml.replace(/^- (.*$)/gm, '<li style="margin-left: 20px;">$1</li>');
+        mdHtml = mdHtml.replace(/```([\s\S]*?)```/g, '<pre style="background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 6px; overflow-x: auto;"><code>$1</code></pre>');
+        mdHtml = mdHtml.replace(/\n/g, "<br>");
+        return { html: mdHtml, isFormatted: true };
+      }
+
+      if (format === "html") {
+        return { html: renderCodeBlock(trimmed), isFormatted: true };
+      }
+
+      return { html: renderCodeBlock(trimmed), isFormatted: false };
+    }
+
+    function renderRunResultContent() {
+      const inputFormat = document.getElementById("inputFormatSelect")?.value || "auto";
+      const outputFormat = document.getElementById("outputFormatSelect")?.value || "auto";
+
+      const inputResult = formatContent(rawInputData, inputFormat);
+      const outputResult = formatContent(rawOutputData, outputFormat);
+
+      document.getElementById("inputContent").innerHTML = inputResult.html;
+      document.getElementById("outputContent").innerHTML = outputResult.html;
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function getProcessLogRenderOptions() {
+      const params = new URLSearchParams(window.location.search);
+      const logStyle = (params.get("logStyle") || "").trim().toLowerCase();
+      const collapseParam = Number(params.get("collapseLines"));
+      const collapseLines = Number.isFinite(collapseParam) && collapseParam > 0
+        ? Math.max(1, Math.floor(collapseParam))
+        : PROCESS_LOG_COLLAPSE_LINE_LIMIT;
+      return {
+        simple: logStyle !== "tree" && logStyle !== "full",
+        collapseLines,
+      };
+    }
+
+    function applyProcessLogMode(options) {
+      const layout = document.querySelector("#processLog .log-layout");
+      if (!layout) return;
+      layout.classList.toggle("simple-mode", !!options?.simple);
+    }
+
+    function renderModalSummary(trace) {
+      document.getElementById("summaryStatus").innerHTML = renderStatusInline(trace.finalStatus);
+      document.getElementById("summaryDuration").innerText = formatDuration(trace.endToEndDurationMs);
+      document.getElementById("summaryTokens").innerText = formatTokenCount(trace.totalModelTokens);
+      document.getElementById("summaryCost").innerText = formatCost(trace.totalModelCost);
+    }
+
+    function getExtensionIdItems(trace) {
+      const items = [];
+      if (trace.userId) {
+        items.push({ label: "userId", value: trace.userId });
+      }
+      if (trace.groupId) {
+        items.push({ label: "groupId", value: trace.groupId });
+      }
+      if (trace.requestId) {
+        items.push({ label: "requestId", value: trace.requestId });
+      }
+      return items;
+    }
+
+    function renderProcessExtensionIds(trace) {
+      const container = document.getElementById("processExtensionIdList");
+      if (!container) return;
+
+      const items = getExtensionIdItems(trace);
+      if (!items.length) {
+        container.innerHTML = '<div class="extension-id-item-empty">暂无扩展ID</div>';
+        return;
+      }
+
+      container.innerHTML = items.map((item, index) => `
+        <div class="extension-id-item">
+          <span class="extension-id-item-label">${escapeHtml(item.label)}</span>
+          <span class="extension-id-item-value" id="processExtensionIdValue${index}">${escapeHtml(item.value)}</span>
+          <i data-lucide="copy" class="copy-icon" onclick="copyToClipboard('processExtensionIdValue${index}')"></i>
+        </div>
+      `).join("");
+    }
+
+    function buildClockTime(baseTime, offsetMs = 0) {
+      if (!baseTime) return "--";
+      const base = new Date(`1970-01-01T${baseTime}`);
+      if (Number.isNaN(base.getTime())) return baseTime;
+      base.setMilliseconds(base.getMilliseconds() + Math.max(0, offsetMs));
+      return `${String(base.getHours()).padStart(2, "0")}:${String(base.getMinutes()).padStart(2, "0")}:${String(base.getSeconds()).padStart(2, "0")}.${String(base.getMilliseconds()).padStart(3, "0")}`;
+    }
+
+    function formatNodeTimestamp(trace, node) {
+      const explicit = (node.occurredAt || node.timestamp || "").toString().trim();
+      if (explicit) return explicit;
+
+      const rawTime = (node.time || "").toString().trim();
+      const rawDate = (trace?.createdAt || "").toString().trim();
+      if (!rawTime) return rawDate || "--";
+      if (!rawDate) return rawTime.replace(/\.\d{3}$/, "");
+
+      const datePart = rawDate.split(" ")[0] || rawDate;
+      const timePart = rawTime.replace(/\.\d{3}$/, "");
+      return `${datePart} ${timePart}`;
+    }
+
+    function buildFallbackNodeLogId(trace, node) {
+      const explicit = (node.logId || node.requestId || node.spanId || "").toString().trim();
+      if (explicit) return explicit;
+
+      const seed = `${trace?.traceId || ""}${node?.id || ""}`.toLowerCase().replace(/[^a-f0-9]/g, "");
+      if (!seed) return "";
+      if (seed.length >= 32) return seed.slice(0, 32);
+      return seed.padEnd(32, "0");
+    }
+
+    function getNodeLogMetaLine(trace, node) {
+      const parts = [];
+      const timestamp = formatNodeTimestamp(trace, node);
+      const logId = buildFallbackNodeLogId(trace, node);
+      const nodeName = (node.nodeName || "").toString().trim();
+
+      if (timestamp) parts.push(timestamp);
+      if (logId) parts.push(logId);
+      if (nodeName) parts.push(nodeName);
+
+      return parts.join(" · ");
+    }
+
+    function distributeTokenUsage(totalTokens) {
+      if (!Number.isFinite(totalTokens)) return null;
+      const input = Math.round(totalTokens * 0.62);
+      const output = totalTokens - input;
+      return { input, output, total: totalTokens };
+    }
+
+    function buildGenericNodes(trace) {
+      const baseTime = trace.createdAt.split(" ")[1] || "00:00:00";
+      const isModelFlow = Number.isFinite(trace.totalModelTokens);
+      const processDuration = Number.isFinite(trace.endToEndDurationMs)
+        ? Math.max(60, Math.round(trace.endToEndDurationMs * 0.72))
+        : null;
+      const resultDuration = Number.isFinite(trace.endToEndDurationMs)
+        ? Math.max(40, trace.endToEndDurationMs - (processDuration || 0))
+        : null;
+      const processStatus = trace.finalStatus;
+      const processTitle = isModelFlow ? `${trace.app}模型处理` : `${trace.app}处理`;
+      const processContent = trace.finalStatus === "failed"
+        ? JSON.stringify(
+          {
+            errorCode: "TRACE_NODE_FAILED",
+            message: `${trace.app}流程执行失败，请结合节点日志排查。`,
+            traceId: trace.traceId,
+          },
+          null,
+          2,
+        )
+        : trace.output;
+
+      return [
+        {
+          id: "node-input",
+          time: buildClockTime(baseTime, 0),
+          label: "INPUT",
+          icon: "user",
+          color: "blue",
+          title: "用户输入",
+          status: "success",
+          durationMs: 32,
+          content: trace.input,
+        },
+        {
+          id: "node-process",
+          time: buildClockTime(baseTime, 90),
+          label: isModelFlow ? "MODEL" : "FLOW",
+          icon: isModelFlow ? "cpu" : "workflow",
+          color: "orange",
+          title: processTitle,
+          status: processStatus,
+          durationMs: processDuration,
+          tokenUsage: distributeTokenUsage(trace.totalModelTokens),
+          cost: trace.totalModelCost,
+          isJson: trace.finalStatus === "failed",
+          content: processContent,
+        },
+        {
+          id: "node-result",
+          time: buildClockTime(baseTime, Math.max(160, trace.endToEndDurationMs || 160)),
+          label: "RESULT",
+          icon: trace.finalStatus === "failed" ? "triangle-alert" : "check-circle",
+          color: trace.finalStatus === "failed" ? "purple" : "green",
+          title: "最终结果",
+          status: trace.finalStatus,
+          durationMs: resultDuration,
+          content: trace.output,
+        },
+      ];
+    }
+
+    function getTraceNodes(trace) {
+      return trace.processNodes?.length ? trace.processNodes : buildGenericNodes(trace);
+    }
+
+    function getNodeMetaItems(node) {
+      const items = [];
+      if (Number.isFinite(node.durationMs)) {
+        items.push({ text: `耗时 ${formatDuration(node.durationMs)}`, highlight: true });
+      }
+      if (node.tokenUsage) {
+        items.push({ text: `输入 ${formatTokenCount(node.tokenUsage.input)}`, highlight: false });
+        items.push({ text: `输出 ${formatTokenCount(node.tokenUsage.output)}`, highlight: false });
+        items.push({ text: `总Token ${formatTokenCount(node.tokenUsage.total)}`, highlight: true });
+      }
+      if (Number.isFinite(node.cost)) {
+        items.push({ text: `成本 ${formatCost(node.cost)}`, highlight: false });
+      }
+      if (Array.isArray(node.meta)) {
+        node.meta.forEach((meta) => items.push({ text: meta, highlight: false }));
+      }
+      return items;
+    }
+
+    function renderProcessLogHeader(nodes) {
+      const failedCount = nodes.filter((node) => node.status === "failed").length;
+      document.getElementById("logNodeCount").innerText = String(nodes.length);
+      document.getElementById("logFailureCount").innerText = String(failedCount);
+    }
+
+    function renderNodeContent(node, collapseLines) {
+      if (node.isJson) {
+        let jsonContent = node.content;
+        if (typeof jsonContent === "string") {
+          try {
+            jsonContent = JSON.parse(jsonContent);
+          } catch (error) {}
+        }
+        const jsonStr = typeof jsonContent === "object" ? JSON.stringify(jsonContent, null, 2) : jsonContent;
+        return renderCodeBlock(jsonStr, collapseLines);
+      }
+
+      if (node.isRef) {
+        const slicesKey = `slices_${node.id}_${Math.random().toString(36).slice(2, 9)}`;
+        window.__slicesMap[slicesKey] = node.content;
+        return `
+          <div style="font-size: 13px; margin-bottom: 8px; color: #64748b;">使用 <code>"${escapeHtml(node.query)}"</code> 检索到以下切片：</div>
+          <div class="kb-compact-grid">
+            ${node.content.map((ref, index) => `
+              <div class="ref-card-compact" onclick="openSecondaryPanel('${slicesKey}', ${index})" title="${escapeHtml(ref.title)}">
+                <i data-lucide="file-text"></i>
+                <span>${escapeHtml(ref.title)}</span>
+              </div>
+            `).join("")}
+          </div>
+        `;
+      }
+
+      return renderCodeBlock(node.content, collapseLines);
+    }
+
+    function renderTimeline(data, streamEl, navEl, options = {}) {
+      const simpleMode = !!options.simple;
+      const collapseLines = options.collapseLines || COLLAPSE_LINE_LIMIT;
+      const trace = options.trace || null;
+      window.__slicesMap = {};
+
+      let streamHtml = `<div class="timeline-wrapper ${simpleMode ? "simple" : ""}">`;
+      let navHtml = "";
+
+      data.forEach((node, index) => {
+        const statusMeta = TRACE_STATUS_META[node.status] || TRACE_STATUS_META.success;
+        const contentHtml = renderNodeContent(node, collapseLines);
+        const metaItems = getNodeMetaItems(node);
+
+        streamHtml += `
+          <div class="timeline-item" id="${node.id}">
+            ${simpleMode ? "" : `<div class="timeline-icon icon-${node.color}"><i data-lucide="${node.icon}"></i></div>`}
+            <div class="time-label">${escapeHtml(getNodeLogMetaLine(trace, node))}</div>
+            <div class="t-card">
+              <div class="t-card-header">
+                <div class="t-card-header-main">
+                  <div class="t-card-title-row">
+                    <div class="t-card-title">${escapeHtml(node.title)}</div>
+                    ${renderStatusPill(node.status)}
+                    ${metaItems.length ? `<div class="t-card-meta">${metaItems.map((item) => `<span class="${item.highlight ? "meta-highlight" : ""}">${escapeHtml(item.text)}</span>`).join("")}</div>` : ""}
+                  </div>
+                </div>
+                <button class="btn-copy-node" onclick="copyNodeById('${node.id}')" title="复制当前节点">
+                  <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+                </button>
+              </div>
+              <div class="t-card-body">${contentHtml}</div>
+            </div>
+          </div>
+        `;
+
+        if (!simpleMode) {
+          navHtml += `
+            <a href="#${node.id}" class="nav-item ${index === 0 ? "active" : ""}" onclick="updateNav(this)">
+              <span class="nav-item-title">${escapeHtml(node.title)}</span>
+              <span class="nav-item-status ${statusMeta.className}"></span>
+            </a>
+          `;
+        }
+      });
+
+      streamHtml += "</div>";
+      streamEl.innerHTML = streamHtml;
+      navEl.innerHTML = navHtml;
+    }
+
+    function showModal(traceRef, defaultTab = "runResult") {
+      const trace = typeof traceRef === "string" ? getTraceById(traceRef) : traceRef;
+      if (!trace) return;
+
+      currentTrace = trace;
+      document.getElementById("modalTraceId").innerText = trace.traceId;
+      renderModalSummary(trace);
+      renderProcessExtensionIds(trace);
+
+      rawInputData = normalizeMultilineText(trace.input);
+      rawOutputData = normalizeMultilineText(trace.output);
+
+      if (document.getElementById("inputFormatSelect")) {
+        document.getElementById("inputFormatSelect").value = "auto";
+      }
+      if (document.getElementById("outputFormatSelect")) {
+        document.getElementById("outputFormatSelect").value = "auto";
+      }
+
+      renderRunResultContent();
+
+      const processLogOptions = getProcessLogRenderOptions();
+      applyProcessLogMode(processLogOptions);
+
+      const timelineStream = document.getElementById("timelineStream");
+      const navContainer = document.getElementById("navContainer");
+      const nodes = getTraceNodes(trace);
+      renderProcessLogHeader(nodes);
+      renderTimeline(nodes, timelineStream, navContainer, { ...processLogOptions, trace });
+
+      document.getElementById("detailModal").style.display = "flex";
+      document.documentElement.classList.add("modal-open");
+      document.body.classList.add("modal-open");
+
+      const tabBtn = document.querySelector(`.tab-item[onclick*="${defaultTab}"]`);
+      if (tabBtn) {
+        switchTab({ currentTarget: tabBtn }, defaultTab);
+      }
+
+      closeSecondaryPanel();
+
+      setTimeout(() => {
+        lucide.createIcons();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedNodeId = urlParams.get("selectedNode");
+        if (selectedNodeId) {
+          const navItem = document.querySelector(`.nav-item[href="#${selectedNodeId}"]`);
+          if (navItem) {
+            document.querySelectorAll("#navContainer .nav-item").forEach((el) => el.classList.remove("active"));
+            navItem.classList.add("active");
+          }
+
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              const targetEl = document.getElementById(selectedNodeId);
+              if (targetEl) {
+                const streamRect = timelineStream.getBoundingClientRect();
+                const targetRect = targetEl.getBoundingClientRect();
+                const scrollTarget = targetRect.top - streamRect.top + timelineStream.scrollTop - 16;
+                timelineStream.scrollTo({ top: scrollTarget, behavior: "smooth" });
+              }
+            }, 100);
+          });
+        }
+
+        if (urlParams.get("openSlicePanel") === "1" && !selectedNodeId) {
+          const firstRefCard = document.querySelector(".ref-card-compact");
+          if (firstRefCard) {
+            const nodeItem = firstRefCard.closest(".timeline-item");
+            if (nodeItem) {
+              const navItem = document.querySelector(`.nav-item[href="#${nodeItem.id}"]`);
+              if (navItem) navItem.click();
+            }
+            setTimeout(() => firstRefCard.click(), 300);
+          }
+        }
+      }, 10);
+    }
+
+    function toggleExpand(el) {
+      const expandBtn = el?.querySelector(".expand-btn");
+      const contentEl = el?.querySelector(".code-block-content");
+      if (!expandBtn || !el.classList.contains("is-scrollable")) return;
+
+      if (el.classList.contains("collapsed")) {
+        el.classList.remove("collapsed");
+        el.classList.add("expanded");
+        expandBtn.innerText = "收起内容";
+        return;
+      }
+
+      el.classList.add("collapsed");
+      el.classList.remove("expanded");
+      if (contentEl) contentEl.scrollTop = 0;
+      expandBtn.innerText = "展开内容";
+    }
+
+    function updateNav(clickedEl) {
+      document.querySelectorAll("#navContainer .nav-item").forEach((el) => el.classList.remove("active"));
+      clickedEl.classList.add("active");
+
+      const targetId = clickedEl.getAttribute("href").substring(1);
+      const targetEl = document.getElementById(targetId);
+      if (!targetEl) return;
+
+      const timelineStream = document.getElementById("timelineStream");
+      const streamRect = timelineStream.getBoundingClientRect();
+      const targetRect = targetEl.getBoundingClientRect();
+      const scrollTarget = targetRect.top - streamRect.top + timelineStream.scrollTop - 16;
+      timelineStream.scrollTo({ top: scrollTarget, behavior: "smooth" });
+    }
+
+    function setupScrollSync() {
+      const timelineStream = document.getElementById("timelineStream");
+      if (!timelineStream || timelineStream.dataset.scrollSyncBound === "1") return;
+      timelineStream.dataset.scrollSyncBound = "1";
+
+      let scrollTimeout;
+      timelineStream.addEventListener("scroll", () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          const cards = timelineStream.querySelectorAll(".timeline-item[id]");
+          const streamRect = timelineStream.getBoundingClientRect();
+          const threshold = streamRect.top + 100;
+          let activeId = null;
+
+          for (const card of cards) {
+            const rect = card.getBoundingClientRect();
+            if (rect.top <= threshold) {
+              activeId = card.id;
+            }
+          }
+
+          if (!activeId) return;
+          document.querySelectorAll("#navContainer .nav-item").forEach((el) => {
+            el.classList.toggle("active", el.getAttribute("href") === `#${activeId}`);
+          });
+        }, 50);
+      });
+    }
+
+    function openSecondaryPanel(slicesKey, startIndex) {
+      const slices = window.__slicesMap[slicesKey];
+      if (!slices) return;
+
+      currentSlices = slices;
+      currentSliceIndex = startIndex;
+
+      const navContainer = document.getElementById("sliceNavItems");
+      navContainer.innerHTML = slices.map((slice, index) => `
+        <div class="slice-nav-item ${index === startIndex ? "active" : ""}" onclick="switchSlice(${index})" title="${escapeHtml(slice.title)}">
+          ${escapeHtml(slice.title)}
+        </div>
+      `).join("");
+
+      renderCurrentSlice();
+      document.getElementById("secondaryPanel").classList.add("open");
+      document.querySelector(".sp-overlay").style.display = "block";
+      lucide.createIcons();
+    }
+
+    function switchSlice(index) {
+      currentSliceIndex = index;
+      document.querySelectorAll(".slice-nav-item").forEach((el, itemIndex) => {
+        el.classList.toggle("active", itemIndex === index);
+      });
+      renderCurrentSlice();
+    }
+
+    function renderCurrentSlice() {
+      const slice = currentSlices[currentSliceIndex];
+      if (!slice) return;
+
+      document.getElementById("spTitle").innerText = slice.title;
+      document.getElementById("spKbName").innerText = slice.kbName || "产品知识库";
+      document.getElementById("spWordCount").innerText = (slice.content ? slice.content.length : 0).toLocaleString();
+
+      const sourceLink = document.getElementById("spSourceLink");
+      if (slice.id) {
+        sourceLink.href = `./frontend-knowledge-base-detail.html?id=${slice.id}`;
+        sourceLink.style.display = "inline-flex";
+      } else {
+        sourceLink.style.display = "none";
+      }
+
+      let displayContent = slice.content;
+      try {
+        displayContent = JSON.stringify(JSON.parse(slice.content), null, 2);
+      } catch (error) {}
+      document.getElementById("spContent").innerText = displayContent;
+      lucide.createIcons();
+    }
+
+    function copyCurrentSlice() {
+      const text = document.getElementById("spContent").innerText;
+      copyTextToClipboard(text);
+    }
+
+    function copyAllSlices() {
+      const allText = currentSlices.map((slice) => {
+        let content = slice.content;
+        try {
+          content = JSON.stringify(JSON.parse(slice.content), null, 2);
+        } catch (error) {}
+        return `### ${slice.title}\n${content}`;
+      }).join("\n\n---\n\n");
+      copyTextToClipboard(allText);
+    }
+
+    function copyNodeById(nodeId) {
+      const node = document.getElementById(nodeId);
+      if (!node) return;
+
+      const title = node.querySelector(".t-card-title")?.innerText || "";
+      const timeLabel = node.querySelector(".time-label")?.innerText || "";
+      const content = node.querySelector(".t-card-body")?.innerText || "";
+      copyTextToClipboard(`[${title}]\n${timeLabel}\n\n${content}`);
+    }
+
+    function copyAllNodes() {
+      const timelineStream = document.getElementById("timelineStream");
+      if (!timelineStream) return;
+
+      const cards = timelineStream.querySelectorAll(".timeline-item");
+      if (!cards.length) return;
+
+      const allText = Array.from(cards).map((card) => {
+        const title = card.querySelector(".t-card-title")?.innerText || "";
+        const timeLabel = card.querySelector(".time-label")?.innerText || "";
+        const content = card.querySelector(".t-card-body")?.innerText || "";
+        return `[${title}]\n${timeLabel}\n\n${content}`;
+      }).join("\n\n---\n\n");
+
+      copyTextToClipboard(allText);
+    }
+
+    function closeSecondaryPanel() {
+      document.getElementById("secondaryPanel").classList.remove("open");
+      document.querySelector(".sp-overlay").style.display = "none";
+    }
+
+    function closeModal() {
+      document.getElementById("detailModal").style.display = "none";
+      document.documentElement.classList.remove("modal-open");
+      document.body.classList.remove("modal-open");
+      closeSecondaryPanel();
+    }
+
+    function switchTab(e, tabId) {
+      document.querySelectorAll(".tab-item").forEach((item) => item.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+
+      document.querySelectorAll(".tab-content").forEach((content) => content.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+    }
+
+    function copyTextToClipboard(text) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          const toast = document.createElement("div");
+          toast.innerText = "已复制";
+          toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 4px;
+            z-index: 2100;
+            font-size: 12px;
+          `;
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 2000);
+        })
+        .catch((error) => {
+          console.error("Copy failed:", error);
+        });
+    }
+
+    function copyToClipboard(id) {
+      const text = document.getElementById(id).innerText;
+      copyTextToClipboard(text);
+    }
+
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      copyTextToClipboard(text);
+    }
+
+    function openDetailFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const shouldOpen =
+        params.get("openDetail") === "1" ||
+        params.get("open") === "detail" ||
+        params.get("modal") === "detail";
+      if (!shouldOpen) return;
+
+      const tabId = normalizeTabId(params.get("tab") || "processLog");
+      const traceIdParam = params.get("traceId") || params.get("trace");
+      const trace =
+        getTraceById(traceIdParam) ||
+        getTraceById("07081cdeedf948a4b36a20d3178c789f") ||
+        getFirstTrace();
+      if (!trace) return;
+
+      showModal(trace, tabId);
+    }
+
+    function handleRowClick(event) {
+      const row = event.target.closest("tr[data-trace-id]");
+      if (!row || event.target.closest('input[type="checkbox"]')) return;
+
+      const trace = getTraceById(row.dataset.traceId);
+      if (!trace) return;
+
+      if (event.target.closest(".btn-open-runResult")) {
+        showModal(trace, "runResult");
+        return;
+      }
+
+      if (event.target.closest(".btn-open-processLog")) {
+        showModal(trace, "processLog");
+        return;
+      }
+
+      if (event.target.closest(".btn-open-qualityAudit")) {
+        showModal(trace, "qualityAudit");
+        return;
+      }
+
+      const cell = event.target.closest("td[data-column-key]");
+      const columnKey = cell?.dataset.columnKey;
+      if (!columnKey) return;
+
+      if (["problemType", "problemFeedback", "qcEvaluation", "qcNotes", "qcTags"].includes(columnKey)) {
+        showModal(trace, "qualityAudit");
+        return;
+      }
+
+      if (["input", "output"].includes(columnKey)) {
+        showModal(trace, "runResult");
+        return;
+      }
+
+      if (
+        [
+          "createdAt",
+          "traceId",
+          "project",
+          "app",
+          "endToEndDurationMs",
+          "totalModelTokens",
+          "totalModelCost",
+        ].includes(columnKey)
+      ) {
+        showModal(trace, "processLog");
+      }
+    }
+
+    document.getElementById("detailModal").addEventListener("click", (event) => {
+      if (event.target.id === "detailModal") closeModal();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && document.getElementById("detailModal").style.display === "flex") {
+        closeModal();
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderTraceTable();
+      document.getElementById("traceTableBody").addEventListener("click", handleRowClick);
+      setupScrollSync();
+      lucide.createIcons();
+      openDetailFromQuery();
+    });
+  </script>
+</body>
+
+</html>

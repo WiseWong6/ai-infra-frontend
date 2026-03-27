@@ -6,6 +6,7 @@ This repository is a static frontend prototype set for the AI Infra platform, en
 - `prd/`: Contains source-of-truth product requirement documents.
   - `PRD-提示词管理平台-优化版.html`: Core prompt management logic (List, Create, Edit, Variables).
   - `PRD-应用配置与Trace详情交互优化.html`: App Config & Trace Detail interaction optimization (includes App Config split-pane edit, Trace list three-button actions, Process Log timeline with node navigation, and KB Slice slide-over panel).
+  - `PRD-Trace列表指标与详情摘要优化.html`: Incremental Trace enhancements (list metrics, detail summary bar, node-level metrics, expand/collapse interaction).
   - `PRD-AI平台功能优化.html`: AI platform optimization features (OCR evaluation, workflow enhancements).
   - `PRD-模版-使用说明.md`: PRD template usage guide for generating new PRD documents from HTML prototypes.
   - **Navigation Pattern**: PRD files use **IntersectionObserver** for sidebar TOC highlighting:
