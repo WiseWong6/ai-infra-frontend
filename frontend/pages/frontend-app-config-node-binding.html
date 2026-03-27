@@ -174,6 +174,10 @@
       flex-wrap: wrap;
     }
 
+    td .inline-actions {
+      flex-wrap: nowrap;
+    }
+
     .card {
       padding: var(--spacing-xl);
     }
@@ -260,6 +264,14 @@
       padding: 0 10px;
       border-radius: 4px;
       font-size: 13px;
+      white-space: nowrap;
+    }
+
+    /* 表格单元格不换行 */
+    table td, table th {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .table-wrap {
@@ -267,14 +279,23 @@
       border-radius: 6px;
       overflow-x: auto;
       background: #fff;
+      max-width: 100%;
+    }
+
+    /* 资源配置表格等宽 */
+    #resourceSection .table-wrap table {
+      table-layout: fixed;
+    }
+
+    #resourceSection .table-wrap th,
+    #resourceSection .table-wrap td {
+      width: 16.66%;
     }
 
     table,
     .nested-table {
       width: 100%;
-      min-width: 1200px;
       border-collapse: collapse;
-      table-layout: fixed;
     }
 
     thead tr {
@@ -909,14 +930,14 @@
           <div class="card-header">
             <div>
               <h2 class="card-title">模型节点</h2>
-              <div class="card-desc">列表展示节点概况和关联资源，详情请点击编辑查看。</div>
+              
             </div>
             <div class="inline-actions">
               <button class="btn btn-secondary" id="batchSwitchModelBtn" type="button" style="display:none;">
                 <i class="fa-solid fa-robot" style="font-size:12px;"></i> 切换模型
               </button>
               <button class="btn" id="addNodeBtn" type="button">
-                <i class="fa-solid fa-plus" style="font-size:12px;"></i> 添加模型节点
+                <i class="fa-solid fa-plus" style="font-size:12px;"></i> 模型节点
               </button>
             </div>
           </div>
@@ -925,18 +946,21 @@
             <table>
               <thead>
                 <tr>
-                  <th style="width: 40px; text-align: center;">
+                  <th style="text-align: left;">
                     <input type="checkbox" id="selectAllNodes" class="row-checkbox" title="全选/取消">
                   </th>
-                  <th style="width: 120px;">节点名称</th>
-                  <th style="width: 160px;">模型</th>
-                  <th style="width: 90px;">深度思考</th>
-                  <th style="width: 90px;">JSON输出</th>
-                  <th style="width: 70px;">多模态</th>
-                  <th style="width: 180px;">知识库</th>
-                  <th style="width: 180px;">MCP</th>
-                  <th style="width: 180px;">Skills</th>
-                  <th style="width: 80px;">操作</th>
+                  <th style="text-align: left;">ID</th>
+                  <th style="text-align: left;">节点名称</th>
+                  <th style="text-align: left;">模型</th>
+                  <th style="text-align: left;">深度思考</th>
+                  <th style="text-align: left;">JSON输出</th>
+                  <th style="text-align: left;">多模态</th>
+                  <th style="text-align: left;">知识库</th>
+                  <th style="text-align: left;">MCP</th>
+                  <th style="text-align: left;">Skills</th>
+                  <th style="text-align: left;">最近更新人</th>
+                  <th style="text-align: left;">最近更新时间</th>
+                  <th style="text-align: left;">操作</th>
                 </tr>
               </thead>
               <tbody id="nodeTableBody"></tbody>
@@ -948,7 +972,7 @@
           <div class="card-header">
             <div>
               <h2 class="card-title">资源配置</h2>
-              <div class="card-desc">当前版本仅知识库可用。MCP 与 Skill 先保留占位，不参与节点绑定。</div>
+              
             </div>
           </div>
 
@@ -956,9 +980,12 @@
             <table>
               <thead>
                 <tr>
-                  <th style="width: 140px;">类型</th>
-                  <th>资源名称</th>
-                  <th style="width: 180px;">操作</th>
+                  <th style="text-align: left; width: 16.66%;">ID</th>
+                  <th style="text-align: left; width: 16.66%;">类型</th>
+                  <th style="text-align: left; width: 16.66%;">资源名称</th>
+                  <th style="text-align: left; width: 16.66%;">最近更新人</th>
+                  <th style="text-align: left; width: 16.66%;">最近更新时间</th>
+                  <th style="text-align: left; width: 16.66%;">操作</th>
                 </tr>
               </thead>
               <tbody id="resourceTableBody"></tbody>
@@ -1001,8 +1028,7 @@
     <div class="modal">
       <div class="modal-header">
         <div>
-          <div class="modal-title" id="resourceModalTitle">新增知识库</div>
-          <div class="field-hint">资源配置区管理资源本体；节点侧只负责选择与移除。</div>
+          <div class="modal-title" id="resourceModalTitle">新增资源</div>
         </div>
         <button class="close-btn" type="button" data-close-modal="resourceModal">
           <i class="fa-solid fa-xmark"></i>
@@ -1010,8 +1036,16 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label for="resourceNameInput">资源名称</label>
-          <input id="resourceNameInput" type="text" placeholder="例如：产品知识库" />
+          <label for="resourceNameInput">选择资源</label>
+          <select id="resourceNameInput">
+            <option value="">请选择资源</option>
+            <option value="保险产品知识库">保险产品知识库</option>
+            <option value="FAQ知识库">FAQ知识库</option>
+            <option value="条款知识库">条款知识库</option>
+            <option value="理赔知识库">理赔知识库</option>
+            <option value="核保知识库">核保知识库</option>
+            <option value="客户案例库">客户案例库</option>
+          </select>
         </div>
         <div class="field" style="margin-top:16px;">
           <label for="resourceDescInput">说明（可选）</label>
@@ -1109,21 +1143,31 @@
                 <!-- 流式输出 -->
                 <div style="display:flex; flex-direction:column; gap:8px;">
                   <label style="font-size:13px; font-weight:500;">流式输出</label>
-                  <select id="nodeStreamSelect"
-                    style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;">
-                    <option value="false">关闭</option>
-                    <option value="true">开启</option>
-                  </select>
+                  <div style="display:flex; gap:16px; align-items:center;">
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeStream" value="false" checked style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">关闭</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeStream" value="true" style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">开启</span>
+                    </label>
+                  </div>
                 </div>
 
                 <!-- JSON结构化 -->
                 <div style="display:flex; flex-direction:column; gap:8px;">
-                  <label style="font-size:13px; font-weight:500;">JSON结构化</label>
-                  <select id="nodeJsonModeSelect"
-                    style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;">
-                    <option value="none">文本输出</option>
-                    <option value="json_object">JSON Object</option>
-                  </select>
+                  <label style="font-size:13px; font-weight:500;">JSON输出</label>
+                  <div style="display:flex; gap:16px; align-items:center;">
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeJsonMode" value="none" checked style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">关闭</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                      <input type="radio" name="nodeJsonMode" value="json_object" style="accent-color:var(--blue);" />
+                      <span style="color:var(--text); white-space:nowrap;">开启</span>
+                    </label>
+                  </div>
                 </div>
 
                 <!-- 温度 -->
@@ -1311,6 +1355,7 @@
           assistant: prompt.messages.assistant
         },
         resourceIds: resourceIds.slice(),
+        updatedBy: "admin",
         updatedAt: "2026-03-26 10:30:00"
       };
     }
@@ -1329,42 +1374,71 @@
         meta,
         resources: [
           {
-            id: "kb-201",
+            id: "201",
             type: "knowledge_base",
             name: "保险产品知识库",
-            description: "覆盖投保助手常见产品咨询与产品对比问答。",
             updatedBy: "admin",
             updatedAt: "2026-03-24 09:15:22"
           },
           {
-            id: "kb-202",
+            id: "202",
             type: "knowledge_base",
             name: "FAQ知识库",
-            description: "收录通用问答、流程说明与兜底话术参考。",
             updatedBy: "admin",
             updatedAt: "2026-03-25 10:10:45"
           },
           {
-            id: "kb-203",
+            id: "203",
             type: "knowledge_base",
             name: "条款知识库",
-            description: "条款解释与责任说明，适合条款答疑节点使用。",
             updatedBy: "martin",
             updatedAt: "2026-03-25 18:42:10"
           }
         ],
         nodes: [
-          createDefaultNode("node-101", "意图分流", "volc-doubao-seed-2-0-pro", "prompt-routing", ["kb-202"]),
-          createDefaultNode("node-102", "产品咨询", "openai-gpt-4o-mini", "prompt-product", ["kb-201", "kb-202"]),
-          createDefaultNode("node-103", "条款答疑", "aliyun-qwen-3-5-plus", "prompt-product", ["kb-203"])
+          createDefaultNode("101", "意图分流", "volc-doubao-seed-2-0-pro", "prompt-routing", ["202"]),
+          createDefaultNode("102", "产品咨询", "openai-gpt-4o-mini", "prompt-product", ["201", "202"]),
+          createDefaultNode("103", "条款答疑", "aliyun-qwen-3-5-plus", "prompt-product", ["203"])
         ]
       };
+    }
+
+    function migrateOldIds(data) {
+      // 转换节点 ID: node-101 -> 101
+      if (data.nodes) {
+        data.nodes.forEach(node => {
+          if (node.id && node.id.includes('-')) {
+            node.id = node.id.replace(/\\D/g, '');
+          }
+        });
+      }
+      // 转换资源 ID: kb-201 -> 201
+      if (data.resources) {
+        data.resources.forEach(res => {
+          if (res.id && res.id.includes('-')) {
+            res.id = res.id.replace(/\\D/g, '');
+          }
+        });
+      }
+      // 转换 resourceIds 引用
+      if (data.nodes) {
+        data.nodes.forEach(node => {
+          if (node.resourceIds) {
+            node.resourceIds = node.resourceIds.map(id => id.includes('-') ? id.replace(/\\D/g, '') : id);
+          }
+        });
+      }
+      return data;
     }
 
     function getAllState() {
       const existing = loadJSON(APP_STORAGE_KEY, {});
       if (!existing[appId]) {
         existing[appId] = buildDefaultAppState(appId);
+        saveJSON(APP_STORAGE_KEY, existing);
+      } else {
+        // 迁移旧数据
+        existing[appId] = migrateOldIds(existing[appId]);
         saveJSON(APP_STORAGE_KEY, existing);
       }
       return existing;
@@ -1397,13 +1471,13 @@
     const resourceModalTitle = document.getElementById("resourceModalTitle");
     const resourceNameInput = document.getElementById("resourceNameInput");
     const resourceDescInput = document.getElementById("resourceDescInput");
+    const resourceOwnerInput = document.getElementById("resourceOwnerInput");
     const nodeDrawer = document.getElementById("nodeDrawer");
     const nodeDrawerTitle = document.getElementById("nodeDrawerTitle");
     const nodeNameInput = document.getElementById("nodeNameInput");
     const promptTemplateSelect = document.getElementById("promptTemplateSelect");
     const nodeModelSelect = document.getElementById("nodeModelSelect");
-    const nodeJsonModeSelect = document.getElementById("nodeJsonModeSelect");
-    const nodeStreamSelect = document.getElementById("nodeStreamSelect");
+
     const nodeTemperatureInput = document.getElementById("nodeTemperatureInput");
     const nodeMaxTokensInput = document.getElementById("nodeMaxTokensInput");
     const nodeModelHint = document.getElementById("nodeModelHint");
@@ -1521,11 +1595,13 @@
         ] : [];
         
         const isSelected = selectedNodeIds.has(node.id);
+        const nodeIdNum = node.id.replace(/\\D/g, '');
         return `
           <tr class="node-row" data-node-id="${node.id}">
-            <td style="text-align: center;">
+            <td>
               <input type="checkbox" class="row-checkbox node-checkbox" value="${node.id}" ${isSelected ? "checked" : ""}>
             </td>
+            <td style="color: var(--muted); font-size: 12px;">${nodeIdNum}</td>
             <td>
               <div class="node-name">${node.name}</div>
             </td>
@@ -1537,7 +1613,6 @@
                     data-action="toggle-thinking" data-node-id="${node.id}" style="cursor:pointer;"
                     title="点击切换: 关闭 → 开启 → 自动">
                 <span class="switch"></span>
-                <span>${node.thinkingMode === 'enabled' ? '开启' : node.thinkingMode === 'auto' ? '自动' : '关闭'}</span>
               </span>
             </td>
             <td>
@@ -1545,7 +1620,6 @@
                     data-action="toggle-json" data-node-id="${node.id}" style="cursor:pointer;"
                     title="点击切换 JSON 输出">
                 <span class="switch"></span>
-                <span>${node.jsonMode === 'json_object' ? '开启' : '关闭'}</span>
               </span>
             </td>
             <td>
@@ -1554,8 +1628,13 @@
             <td>${renderResourceTags(kbResources, 2)}</td>
             <td>${renderResourceTags(mcpResources, 2)}</td>
             <td>${renderResourceTags(skillResources, 2)}</td>
-            <td>
-              <button class="btn btn-secondary btn-small" type="button" data-action="edit-node" data-node-id="${node.id}">编辑</button>
+            <td style="font-size: 12px; color: var(--muted);">${node.updatedBy || '-'}</td>
+            <td style="font-size: 12px; color: var(--muted);">${node.updatedAt || '-'}</td>
+            <td style="white-space: nowrap;">
+              <div class="inline-actions" style="flex-wrap: nowrap; gap: 8px;">
+                <button class="btn btn-secondary btn-small" type="button" data-action="edit-node" data-node-id="${node.id}">编辑</button>
+                <button class="btn btn-danger btn-small" type="button" data-action="delete-node" data-node-id="${node.id}">删除</button>
+              </div>
             </td>
           </tr>
         `;
@@ -1598,13 +1677,16 @@
     function renderResourceTable() {
       const kbRows = getKnowledgeBaseResources().map((resource) => {
         const usageCount = getResourceUsageCount(resource.id);
+        const resourceIdNum = resource.id.replace(/\\D/g, '');
         return `
           <tr>
+            <td style="color: var(--muted); font-size: 12px;">${resourceIdNum}</td>
             <td><span class="resource-type">知识库</span></td>
             <td>
               <div class="resource-name">${resource.name}</div>
-              <div class="resource-meta">${resource.description || "暂无说明"} · 当前被 ${usageCount} 个节点引用</div>
             </td>
+            <td style="font-size: 12px; color: var(--muted);">${resource.updatedBy || '-'}</td>
+            <td style="font-size: 12px; color: var(--muted);">${resource.updatedAt || '-'}</td>
             <td>
               <div class="inline-actions">
                 <button class="btn btn-secondary btn-small" type="button" data-action="edit-resource" data-resource-id="${resource.id}">编辑</button>
@@ -1618,19 +1700,23 @@
       resourceTableBody.innerHTML = `
         ${kbRows}
         <tr>
+          <td style="color: var(--muted); font-size: 12px;">-</td>
           <td><span class="placeholder-tag">MCP</span></td>
           <td>
             <div class="resource-name">暂未开放</div>
-            <div class="resource-meta">MCP 将在下一版接入，不参与当前节点绑定流程。</div>
           </td>
+          <td style="font-size: 12px; color: var(--muted);">-</td>
+          <td style="font-size: 12px; color: var(--muted);">-</td>
           <td>-</td>
         </tr>
         <tr>
+          <td style="color: var(--muted); font-size: 12px;">-</td>
           <td><span class="placeholder-tag">Skill</span></td>
           <td>
             <div class="resource-name">暂未开放</div>
-            <div class="resource-meta">Skill 暂不纳入本版应用配置交互。</div>
           </td>
+          <td style="font-size: 12px; color: var(--muted);">-</td>
+          <td style="font-size: 12px; color: var(--muted);">-</td>
           <td>-</td>
         </tr>
       `;
@@ -1671,14 +1757,14 @@
       editingResourceId = resourceId;
       if (resourceId) {
         const resource = getResourceById(resourceId);
-        resourceModalTitle.textContent = "编辑知识库";
+        resourceModalTitle.textContent = "编辑资源";
         resourceNameInput.value = resource?.name || "";
-        resourceOwnerInput.value = resource?.updatedBy || "";
+        if (resourceOwnerInput) resourceOwnerInput.value = resource?.updatedBy || "";
         resourceDescInput.value = resource?.description || "";
       } else {
-        resourceModalTitle.textContent = "新增知识库";
+        resourceModalTitle.textContent = "新增资源";
         resourceNameInput.value = "";
-        resourceOwnerInput.value = "admin";
+        if (resourceOwnerInput) resourceOwnerInput.value = "admin";
         resourceDescInput.value = "";
       }
       openModal(resourceModal);
@@ -1722,9 +1808,8 @@
       renderJsonModeOptions(nodeModelSelect.value, node.jsonMode || "none");
       
       // 流式输出
-      if (nodeStreamSelect) {
-        nodeStreamSelect.value = node.streamEnabled ? "true" : "false";
-      }
+      const streamRadio = document.querySelector('input[name="nodeStream"][value="' + (node.streamEnabled ? "true" : "false") + '"]');
+      if (streamRadio) streamRadio.checked = true;
       
       // 温度和 maxTokens
       if (nodeTemperatureInput) {
@@ -1756,39 +1841,36 @@
     function renderJsonModeOptions(modelKey, preferredValue) {
       const model = window.ModelRegistryDemo?.getModelByKey(modelKey);
       const supported = Array.isArray(model?.jsonModes) && model.jsonModes.length ? model.jsonModes : ["none"];
-      nodeJsonModeSelect.innerHTML = supported.map((mode) => `
-        <option value="${mode}">${formatJsonMode(mode)}</option>
-      `).join("");
-      nodeJsonModeSelect.value = supported.includes(preferredValue) ? preferredValue : supported[0];
+      const value = supported.includes(preferredValue) ? preferredValue : supported[0];
+      const jsonRadio = document.querySelector('input[name="nodeJsonMode"][value="' + value + '"]');
+      if (jsonRadio) jsonRadio.checked = true;
     }
 
     function saveResource() {
       const name = resourceNameInput.value.trim();
-      const updatedBy = resourceOwnerInput.value.trim() || "admin";
-      const description = resourceDescInput.value.trim();
+      const updatedBy = resourceOwnerInput?.value?.trim() || "admin";
 
       if (!name) {
-        showToast("请先填写知识库名称");
+        showToast("请先选择资源");
         resourceNameInput.focus();
         return;
       }
 
-      const now = "2026-03-26 11:20:00";
+      const now = new Date().toISOString().slice(0, 19).replace("T", " ");
       if (editingResourceId) {
         const target = getResourceById(editingResourceId);
         if (!target) return;
         target.name = name;
         target.updatedBy = updatedBy;
-        target.description = description;
         target.updatedAt = now;
         showToast("知识库已更新");
       } else {
+        const newResourceId = String(Math.floor(1000 + Math.random() * 9000));
         state.resources.unshift({
-          id: `kb-${Date.now()}`,
+          id: newResourceId,
           type: "knowledge_base",
           name,
           updatedBy,
-          description,
           updatedAt: now
         });
         showToast("知识库已添加");
@@ -1812,11 +1894,23 @@
       showToast("知识库已删除");
     }
 
+    function deleteNode(nodeId) {
+      if (!confirm("确定要删除该模型节点吗？")) return;
+      state.nodes = state.nodes.filter((node) => node.id !== nodeId);
+      selectedNodeIds.delete(nodeId);
+      saveCurrentState();
+      renderNodeTable();
+      updateBatchSwitchButton();
+      showToast("模型节点已删除");
+    }
+
     function saveKbSelection() {
       const node = getNodeById(kbModalNodeId);
       if (!node) return;
       const selectedIds = Array.from(kbSelectList.querySelectorAll('input[type="checkbox"]:checked')).map((input) => input.value);
       node.resourceIds = selectedIds;
+      node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
       saveCurrentState();
       renderNodeTable();
       closeModal(kbSelectModal);
@@ -1827,6 +1921,8 @@
       const node = getNodeById(nodeId);
       if (!node) return;
       node.resourceIds = (node.resourceIds || []).filter((id) => id !== resourceId);
+      node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
       saveCurrentState();
       renderNodeTable();
       showToast("已移除知识库");
@@ -1845,6 +1941,7 @@
       const nextIndex = (currentIndex + 1) % cycle.length;
       node.thinkingMode = cycle[nextIndex];
       node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
       saveCurrentState();
       renderNodeTable();
       showToast(`深度思考已切换为: ${formatThinkingMode(node.thinkingMode)}`);
@@ -1860,6 +1957,7 @@
       }
       node.jsonMode = node.jsonMode === "json_object" ? "none" : "json_object";
       node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
       saveCurrentState();
       renderNodeTable();
       showToast(`JSON 输出已切换为: ${formatJsonMode(node.jsonMode)}`);
@@ -1877,8 +1975,10 @@
       node.promptTemplateId = promptTemplateSelect.value;
       node.modelKey = nodeModelSelect.value;
       node.thinkingMode = thinkingMode;
-      node.jsonMode = nodeJsonModeSelect.value;
-      node.streamEnabled = nodeStreamSelect?.value === "true";
+      const jsonRadio = document.querySelector('input[name="nodeJsonMode"]:checked');
+      node.jsonMode = jsonRadio ? jsonRadio.value : "none";
+      const streamRadio = document.querySelector('input[name="nodeStream"]:checked');
+      node.streamEnabled = streamRadio ? streamRadio.value === "true" : false;
       node.temperature = nodeTemperatureInput?.value || "0.2";
       node.maxTokens = nodeMaxTokensInput?.value || "131072";
       node.promptSnapshot = {
@@ -1886,7 +1986,8 @@
         user: userPromptTextarea.value,
         assistant: assistantPromptTextarea.value
       };
-      node.updatedAt = "2026-03-26 11:40:00";
+      node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
       saveCurrentState();
       renderNodeTable();
       closeNodeDrawerPanel();
@@ -1926,6 +2027,8 @@
         toggleThinking(nodeId);
       } else if (action === "toggle-json") {
         toggleJson(nodeId);
+      } else if (action === "delete-node") {
+        deleteNode(nodeId);
       }
     }
 
@@ -1998,6 +2101,13 @@
       closeModal(batchModelModal);
     }
 
+    function closeFloatingLayers() {
+      closeModal(kbSelectModal);
+      closeResourceModal();
+      closeBatchModelModal();
+      closeNodeDrawerPanel();
+    }
+
     function confirmBatchModelSwitch() {
       const targetModelKey = batchModelSelect?.value;
       if (!targetModelKey) {
@@ -2020,6 +2130,7 @@
           node.thinkingMode = config?.thinkingMode || targetModel.defaultConfig?.thinkingMode || "disabled";
           node.jsonMode = config?.jsonMode || targetModel.defaultConfig?.jsonMode || "none";
           node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+          node.updatedBy = "admin";
           successCount++;
         }
       });
@@ -2035,7 +2146,7 @@
     function addNode() {
       const defaultModel = window.ModelRegistryDemo?.getDefaultModel();
       const defaultPrompt = PROMPT_LIBRARY[0];
-      const newNodeId = `node-${Date.now()}`;
+      const newNodeId = String(Math.floor(1000 + Math.random() * 9000));
       const newNode = createDefaultNode(
         newNodeId,
         "新节点",
@@ -2092,9 +2203,12 @@
       document.getElementById("closeNodeDrawer").addEventListener("click", closeNodeDrawerPanel);
       document.getElementById("saveNodeBtn").addEventListener("click", saveNode);
       document.getElementById("repullPromptBtn").addEventListener("click", repullPromptTemplate);
-      document.getElementById("drawerSelectKbBtn").addEventListener("click", () => {
-        if (editingNodeId) openKbSelect(editingNodeId);
-      });
+      const drawerSelectKbBtn = document.getElementById("drawerSelectKbBtn");
+      if (drawerSelectKbBtn) {
+        drawerSelectKbBtn.addEventListener("click", () => {
+          if (editingNodeId) openKbSelect(editingNodeId);
+        });
+      }
       nodeModelSelect.addEventListener("change", () => {
         const modelKey = nodeModelSelect.value;
         const config = window.ModelRegistryDemo?.buildModelConfig(modelKey);
@@ -2138,10 +2252,7 @@
 
       document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;
-        closeModal(kbSelectModal);
-        closeResourceModal();
-        closeBatchModelModal();
-        closeNodeDrawerPanel();
+        closeFloatingLayers();
       });
     }
 

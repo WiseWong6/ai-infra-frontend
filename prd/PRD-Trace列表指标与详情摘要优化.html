@@ -204,6 +204,20 @@
             border-left-color: var(--primary-500);
         }
 
+        .toc-link-sub {
+            padding-left: 32px;
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .toc-link-sub:hover {
+            color: var(--gray-700);
+        }
+
+        .toc-link-sub.active {
+            color: var(--primary-600);
+        }
+
         .content {
             min-width: 0;
         }
@@ -519,13 +533,12 @@
             <ul class="toc-list">
                 <li><a class="toc-link active" href="#history"><i class="fa-solid fa-clock-rotate-left"></i><span>修订记录</span></a></li>
                 <li><a class="toc-link" href="#background"><i class="fa-solid fa-circle-exclamation"></i><span>需求背景</span></a></li>
-                <li><a class="toc-link" href="#scope"><i class="fa-solid fa-bullseye"></i><span>范围界定</span></a></li>
-                <li><a class="toc-link" href="#trace-list"><i class="fa-solid fa-table-list"></i><span>Trace 列表指标增强</span></a></li>
-                <li><a class="toc-link" href="#summary-bar"><i class="fa-solid fa-grip-lines"></i><span>详情摘要重排</span></a></li>
-                <li><a class="toc-link" href="#node-metrics"><i class="fa-solid fa-wave-square"></i><span>节点头部指标增强</span></a></li>
-                <li><a class="toc-link" href="#expand-collapse"><i class="fa-solid fa-up-down"></i><span>展开收起交互优化</span></a></li>
-                <li><a class="toc-link" href="#acceptance"><i class="fa-solid fa-list-check"></i><span>验收标准</span></a></li>
-                <li><a class="toc-link" href="#appendix"><i class="fa-solid fa-paperclip"></i><span>附录</span></a></li>
+                <li><a class="toc-link" href="#requirements"><i class="fa-solid fa-list-ul"></i><span>需求详情</span></a></li>
+                <li><a class="toc-link toc-link-sub" href="#trace-list"><i class="fa-solid fa-table-list"></i><span>列表增加指标</span></a></li>
+                <li><a class="toc-link toc-link-sub" href="#summary-bar"><i class="fa-solid fa-grip-lines"></i><span>详情增加指标</span></a></li>
+                <li><a class="toc-link toc-link-sub" href="#node-metrics"><i class="fa-solid fa-wave-square"></i><span>节点增加指标</span></a></li>
+                <li><a class="toc-link toc-link-sub" href="#expand-collapse"><i class="fa-solid fa-up-down"></i><span>展开收起交互</span></a></li>
+                                <li><a class="toc-link" href="#appendix"><i class="fa-solid fa-paperclip"></i><span>附录</span></a></li>
             </ul>
         </aside>
 
@@ -536,13 +549,8 @@
                     Product Requirements Document
                 </div>
                 <h1 class="hero-title">Trace 列表指标与详情摘要优化</h1>
-                <p class="hero-subtitle">本 PRD 仅覆盖本轮 Trace 追踪新增的展示优化：列表指标列、详情摘要位置与样式、过程日志节点头部指标，以及长日志展开/收起交互。线上已有的过程日志基础逻辑不作为本次新增需求重复定义。</p>
-                <div class="meta-row">
-                    <div class="meta-chip"><i class="fa-solid fa-user"></i><span>负责人：@WiseWong</span></div>
-                    <div class="meta-chip"><i class="fa-solid fa-calendar"></i><span>发布日期：2026-03-27</span></div>
-                    <div class="meta-chip"><i class="fa-solid fa-tag"></i><span class="tag tag-green">Draft</span></div>
-                    <div class="meta-chip"><i class="fa-solid fa-diagram-project"></i><span class="tag tag-blue">增量 PRD</span></div>
-                </div>
+
+
             </section>
 
             <section class="section" id="history">
@@ -576,121 +584,52 @@
                 </div>
             </section>
 
-            <section class="section" id="background">
+                        <section class="section" id="background">
                 <div class="section-header">
                     <div class="section-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
                     <div>
                         <div class="section-number">Chapter 01</div>
                         <h2 class="section-title">需求背景与目标</h2>
-                        <p class="section-desc">本次只处理“新增展示优化”，不重做 Trace 全链路交互定义</p>
                     </div>
                 </div>
 
-                <div class="danger-box">
-                    <div class="box-title"><i class="fa-solid fa-triangle-exclamation"></i>当前痛点</div>
-                    <p>当前 Trace 列表对关键指标的呈现不够集中，TraceId、状态、耗时、Token、成本需要跨列扫读；详情弹窗顶部摘要区视觉过重，主视线容易被抢走；过程日志节点头部缺少一眼可扫的成本/耗时指标，长日志展开后收起入口不稳定，影响连续排障效率。</p>
-                </div>
+                <p><strong>需求背景</strong></p>
 
-                <div class="card-grid">
-                    <div class="card">
-                        <h4>列表更适合扫读</h4>
-                        <p>把状态、TraceId 与关键指标组织到更符合排障习惯的列顺序中，降低横向比对成本。</p>
-                    </div>
-                    <div class="card">
-                        <h4>详情头部降权</h4>
-                        <p>让摘要区服务信息获取，而不是压过详情正文与过程日志本身。</p>
-                    </div>
-                    <div class="card">
-                        <h4>节点级指标更直观</h4>
-                        <p>在节点标题区直接给出状态、耗时、Token 与成本，减少进出内容区的切换。</p>
-                    </div>
-                    <div class="card">
-                        <h4>长日志收放更稳定</h4>
-                        <p>让用户在任何滚动位置都能找到收起入口，避免超长日志带来的交互中断。</p>
-                    </div>
-                </div>
-            </section>
+                <p>1、当前 Trace 列表缺乏状态、耗时、Token、成本。耗时需要计算，状态无法选择。同时缺乏成本统计消耗价格。</p>
 
-            <section class="section" id="scope">
-                <div class="section-header">
-                    <div class="section-icon"><i class="fa-solid fa-bullseye"></i></div>
-                    <div>
-                        <div class="section-number">Chapter 02</div>
-                        <h2 class="section-title">范围界定</h2>
-                        <p class="section-desc">明确哪些是本轮新增，哪些只是沿用线上现状</p>
-                    </div>
-                </div>
+                <p>2、过程日志长日志场景，展开后收起不便</p>
 
-                <div class="info-box">
-                    <div class="box-title"><i class="fa-solid fa-check-circle"></i>本次纳入需求</div>
-                    <ul class="content-list">
-                        <li>Trace 列表字段顺序与展示方式调整。</li>
-                        <li>Trace 详情顶部摘要区的位置与视觉层级调整。</li>
-                        <li>过程日志节点头部指标展示增强。</li>
-                        <li>长日志展开/收起交互优化。</li>
-                    </ul>
-                </div>
+                <br>
 
-                <div class="warn-box">
-                    <div class="box-title"><i class="fa-solid fa-layer-group"></i>沿用既有逻辑，不在本次新增中展开</div>
-                    <ul class="content-list">
-                        <li>过程日志无目录/无树状链的线上主方案。</li>
-                        <li>扩展 ID 区与整体滚动结构。</li>
-                        <li>节点元信息行的真实日志字段规则。</li>
-                        <li>默认超过 3 行折叠的既有逻辑。</li>
-                        <li>自定义列能力，本轮暂不纳入。</li>
-                    </ul>
-                </div>
+                <p><strong>解决方案</strong></p>
+
+                <p>1）增加状态、耗时、Token、成本指标，区分端到端及单一模型节点。</p>
+
+                <p>2）过程日志增加最大展开行</p>
+            
 
                 <p><strong>涉及页面：</strong><code>frontend/pages/frontend-trace-prd-metrics.html</code></p>
                 <p><strong>历史基线：</strong><a href="./PRD-应用配置与Trace详情交互优化.html" target="_blank" rel="noopener noreferrer">PRD-应用配置与Trace详情交互优化.html</a></p>
-            </section>
+</section>
 
-            <section class="section" id="trace-list">
+            
+
+                        <section class="section" id="requirements">
                 <div class="section-header">
-                    <div class="section-icon"><i class="fa-solid fa-table-list"></i></div>
+                    <div class="section-icon"><i class="fa-solid fa-list-ul"></i></div>
                     <div>
-                        <div class="section-number">Chapter 03</div>
-                        <h2 class="section-title">Trace 列表指标增强</h2>
-                        <p class="section-desc">让列表更适合横向比对与快速定位异常记录</p>
+                        <div class="section-number">Chapter 02</div>
+                        <h2 class="section-title">需求详情</h2>
                     </div>
                 </div>
 
-                <div class="info-box">
-                    <div class="box-title"><i class="fa-solid fa-bolt"></i>核心变化</div>
-                    <p>状态 icon 与 TraceId 合并成同一列，时间列前置，端到端耗时、总 Token、总成本进入固定列结构，并按排障顺序排在输入/输出之后。</p>
-                </div>
-
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>模块</th>
-                                <th>规则</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>时间列</strong></td>
-                                <td>Trace 创建时间前置，成为列表最先扫读的关键信息列。</td>
-                            </tr>
-                            <tr>
-                                <td><strong>TraceId 列</strong></td>
-                                <td>成功/失败 icon 放在 TraceId 前，二者合并为一列；整列左对齐。</td>
-                            </tr>
-                            <tr>
-                                <td><strong>指标列顺序</strong></td>
-                                <td>输入、输出之后，固定展示端到端耗时、总 Token、总成本。</td>
-                            </tr>
-                            <tr>
-                                <td><strong>状态表达</strong></td>
-                                <td>列表状态不再额外占一列，通过 icon 直接在 TraceId 前表达成功/失败。</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="prototype-block">
+                <!-- 2.1 Trace 列表指标增强 -->
+                <h3 id="trace-list" style="margin-top: 32px; margin-bottom: 16px; color: var(--gray-900); font-size: 18px; font-weight: 600;">
+                    <i class="fa-solid fa-table-list" style="margin-right: 8px; color: var(--primary-500);"></i>
+                    Trace 列表增加状态、耗时、成本指标
+                </h3>
+                
+                <div class="prototype-block" style="margin-bottom: 20px;">
                     <div class="prototype-header">
                         <span class="prototype-label">原型预览：Trace 列表</span>
                         <a class="prototype-link" href="../frontend/pages/frontend-trace-prd-metrics.html" target="_blank" rel="noopener noreferrer">
@@ -700,28 +639,24 @@
                     </div>
                     <iframe class="prototype-frame" src="../frontend/pages/frontend-trace-prd-metrics.html" title="Trace列表指标增强原型"></iframe>
                 </div>
-            </section>
+                
+                <p>1、Traceid 列：增加状态 icon，代表端到端成功或失败。成功/失败 icon 放在 TraceId 前，二者合并为一列。</p>
+                
+                <p>2、时间列：前置，Trace 创建时间前置，成为列表最先扫读的关键信息列。</p>
+                
+                <p>3、指标列：在输入/输出列之后增加端到端耗时、总 Token、总成本。</p>
+                
+                <p>4、统计逻辑</p>
+                <p>1）Token 及成本，由 API 返回数据</p>
+                <p>2）端到端耗时，由末端输出完毕节点时间 - 首端节点请求时间</p>
 
-            <section class="section" id="summary-bar">
-                <div class="section-header">
-                    <div class="section-icon"><i class="fa-solid fa-grip-lines"></i></div>
-                    <div>
-                        <div class="section-number">Chapter 04</div>
-                        <h2 class="section-title">详情摘要重排</h2>
-                        <p class="section-desc">让摘要服务标题与正文，而不是成为第一视觉中心</p>
-                    </div>
-                </div>
-
-                <div class="info-box">
-                    <div class="box-title"><i class="fa-solid fa-layer-group"></i>交互规则</div>
-                    <ul class="content-list">
-                        <li>摘要信息带放在 <code>Trace追踪</code> 标题下方。</li>
-                        <li>摘要从独立重卡片，改为弱化视觉权重的信息带。</li>
-                        <li>“最终状态”与列表保持同一套成功/失败 icon 表达方式。</li>
-                    </ul>
-                </div>
-
-                <div class="prototype-block">
+                <!-- 2.2 详情摘要重排 -->
+                <h3 id="summary-bar" style="margin-top: 48px; margin-bottom: 16px; color: var(--gray-900); font-size: 18px; font-weight: 600;">
+                    <i class="fa-solid fa-grip-lines" style="margin-right: 8px; color: var(--primary-500);"></i>
+                    Trace 详情增加状态、耗时、成本指标
+                </h3>
+                
+                <div class="prototype-block" style="margin-bottom: 20px;">
                     <div class="prototype-header">
                         <span class="prototype-label">原型预览：详情摘要位置与样式</span>
                         <a class="prototype-link" href="../frontend/pages/frontend-trace-prd-metrics.html?openDetail=1&tab=processLog&traceId=1ab205da815e4de78f1bab88ef06a781" target="_blank" rel="noopener noreferrer">
@@ -731,49 +666,16 @@
                     </div>
                     <iframe class="prototype-frame" src="../frontend/pages/frontend-trace-prd-metrics.html?openDetail=1&amp;tab=processLog&amp;traceId=1ab205da815e4de78f1bab88ef06a781" title="Trace详情摘要重排原型"></iframe>
                 </div>
-            </section>
+                
+                <p>摘要信息放在 Trace追踪 标题下方，数据与端到端 Trace 一致。</p>
 
-            <section class="section" id="node-metrics">
-                <div class="section-header">
-                    <div class="section-icon"><i class="fa-solid fa-wave-square"></i></div>
-                    <div>
-                        <div class="section-number">Chapter 05</div>
-                        <h2 class="section-title">过程日志节点头部指标增强</h2>
-                        <p class="section-desc">在节点头部一行完成状态与关键指标扫读</p>
-                    </div>
-                </div>
-
-                <div class="info-box">
-                    <div class="box-title"><i class="fa-solid fa-gauge-high"></i>目标体验</div>
-                    <p>用户无需先展开正文或跨区域寻找指标，即可在节点头部直接读取状态、耗时、输入、输出、总 Token、成本。</p>
-                </div>
-
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>项</th>
-                                <th>交互规则</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>头部结构</strong></td>
-                                <td>节点标题、状态、耗时、输入、输出、总 Token、成本处于同一行阅读流。</td>
-                            </tr>
-                            <tr>
-                                <td><strong>指标顺序</strong></td>
-                                <td>状态之后固定展示：耗时、输入、输出、总 Token、成本。</td>
-                            </tr>
-                            <tr>
-                                <td><strong>复制操作</strong></td>
-                                <td>复制当前节点按钮仍保留在头部右侧，不影响指标扫读顺序。</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="prototype-block">
+                <!-- 2.3 节点头部指标增强 -->
+                <h3 id="node-metrics" style="margin-top: 48px; margin-bottom: 16px; color: var(--gray-900); font-size: 18px; font-weight: 600;">
+                    <i class="fa-solid fa-wave-square" style="margin-right: 8px; color: var(--primary-500);"></i>
+                    节点头部增加指标
+                </h3>
+                
+                <div class="prototype-block" style="margin-bottom: 20px;">
                     <div class="prototype-header">
                         <span class="prototype-label">原型预览：节点头部指标展示</span>
                         <a class="prototype-link" href="../frontend/pages/frontend-trace-prd-metrics.html?openDetail=1&tab=processLog&traceId=1ab205da815e4de78f1bab88ef06a781" target="_blank" rel="noopener noreferrer">
@@ -783,33 +685,21 @@
                     </div>
                     <iframe class="prototype-frame" src="../frontend/pages/frontend-trace-prd-metrics.html?openDetail=1&amp;tab=processLog&amp;traceId=1ab205da815e4de78f1bab88ef06a781" title="过程日志节点头部指标原型"></iframe>
                 </div>
-            </section>
+                
+                <p>1）所有节点头部具备状态、耗时</p>
+                <p>2）模型节点头部额外增加总 Token、成本</p>
+                <p>3）复制按钮交互优化：复制按钮调整至日志右上角</p>
+                <p>4）Token、成本，统计逻辑由模型 API 返回</p>
+                <p>5）耗时统计：已有 A 节点，下一节点为 B，A 节点耗时 = A 节点请求时间 - B 节点请求时间</p>
+                <p>6）首个节点、末端节点没有耗时字段</p>
 
-            <section class="section" id="expand-collapse">
-                <div class="section-header">
-                    <div class="section-icon"><i class="fa-solid fa-up-down"></i></div>
-                    <div>
-                        <div class="section-number">Chapter 06</div>
-                        <h2 class="section-title">长日志展开/收起交互优化</h2>
-                        <p class="section-desc">只优化交互稳定性，不重复定义折叠阈值本身</p>
-                    </div>
-                </div>
-
-                <div class="danger-box">
-                    <div class="box-title"><i class="fa-solid fa-person-walking-arrow-loop-left"></i>问题描述</div>
-                    <p>长日志展开后，用户继续滚动正文时，如果收起入口跟着正文一起离开可视区，会打断阅读与排障节奏。该问题在一条 Trace 中出现多个长日志节点时会被放大。</p>
-                </div>
-
-                <div class="info-box">
-                    <div class="box-title"><i class="fa-solid fa-sliders"></i>交互规则</div>
-                    <ul class="content-list">
-                        <li>展开和收起使用同一个固定位置，不随状态切换而跳位。</li>
-                        <li>按钮固定在日志块底部区域，正文单独滚动。</li>
-                        <li>多个日志块彼此独立控制，不共享展开/收起状态。</li>
-                    </ul>
-                </div>
-
-                <div class="prototype-block">
+                <!-- 2.4 展开收起交互优化 -->
+                <h3 id="expand-collapse" style="margin-top: 48px; margin-bottom: 16px; color: var(--gray-900); font-size: 18px; font-weight: 600;">
+                    <i class="fa-solid fa-up-down" style="margin-right: 8px; color: var(--primary-500);"></i>
+                    展开收起交互优化
+                </h3>
+                
+                <div class="prototype-block" style="margin-bottom: 20px;">
                     <div class="prototype-header">
                         <span class="prototype-label">原型预览：长日志收放</span>
                         <a class="prototype-link" href="../frontend/pages/frontend-trace-prd-metrics.html?openDetail=1&tab=processLog&traceId=1ab205da815e4de78f1bab88ef06a781&collapseLines=3" target="_blank" rel="noopener noreferrer">
@@ -819,34 +709,21 @@
                     </div>
                     <iframe class="prototype-frame" src="../frontend/pages/frontend-trace-prd-metrics.html?openDetail=1&amp;tab=processLog&amp;traceId=1ab205da815e4de78f1bab88ef06a781&amp;collapseLines=3" title="长日志展开收起交互原型"></iframe>
                 </div>
+                
+                <p>长日志展开后，用户继续滚动正文时，如果收起入口跟着正文一起离开可视区，会打断阅读与排障节奏。该问题在一条 Trace 中出现多个长日志节点时会被放大。</p>
+                
+                <p><strong>交互规则：</strong></p>
+                <p>1）展开默认最多展示 20 行，滑动仅在固定高度文本框内滚动，如超出该行日志区域，才触发全局滑动。</p>
+                <p>2）多个日志块彼此独立控制，不共享展开/收起状态。</p>
             </section>
 
-            <section class="section" id="acceptance">
-                <div class="section-header">
-                    <div class="section-icon"><i class="fa-solid fa-list-check"></i></div>
-                    <div>
-                        <div class="section-number">Chapter 07</div>
-                        <h2 class="section-title">验收标准</h2>
-                        <p class="section-desc">以评审和走查时可直接验证的行为为准</p>
-                    </div>
-                </div>
-
-                <ul class="content-list">
-                    <li>Trace 列表中，时间列前置；TraceId 前出现成功/失败 icon，且与 TraceId 位于同一列、同一对齐方式。</li>
-                    <li>输入、输出之后能稳定看到端到端耗时、总 Token、总成本列。</li>
-                    <li>详情弹窗中，摘要位于 <code>Trace追踪</code> 标题下方，视觉权重明显弱于原先四卡片方案。</li>
-                    <li>详情“最终状态”与列表使用相同的成功/失败 icon 风格。</li>
-                    <li>过程日志节点头部可在一行读取状态、耗时、输入、输出、总 Token、成本。</li>
-                    <li>长日志展开与收起使用同一个底部固定位置；用户滚动正文后仍可直接收起。</li>
-                    <li>一条 Trace 中多个长日志块可分别展开与收起，互不干扰。</li>
-                </ul>
-            </section>
+            
 
             <section class="section" id="appendix">
                 <div class="section-header">
                     <div class="section-icon"><i class="fa-solid fa-paperclip"></i></div>
                     <div>
-                        <div class="section-number">Chapter 08</div>
+                        <div class="section-number">Chapter 03</div>
                         <h2 class="section-title">附录</h2>
                         <p class="section-desc">与历史需求和原型的关系</p>
                     </div>

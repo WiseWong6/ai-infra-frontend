@@ -876,6 +876,223 @@
             color: var(--text);
         }
 
+        .drawer-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.32);
+            display: none;
+            justify-content: flex-end;
+            z-index: 1200;
+        }
+
+        .drawer-mask.is-open {
+            display: flex;
+        }
+
+        .drawer {
+            width: min(1200px, calc(100vw - 48px));
+            height: 100vh;
+            background: #fff;
+            box-shadow: -8px 0 24px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--line);
+        }
+
+        .drawer-top-nav {
+            height: 60px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border-bottom: 1px solid var(--line-strong);
+            flex-shrink: 0;
+        }
+
+        .drawer-breadcrumb {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .drawer-nav-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .drawer-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .drawer-pane-left {
+            width: 360px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border-right: 1px solid var(--line-strong);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .drawer-pane-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8fafc;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .drawer-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .drawer-field label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .drawer-field input,
+        .drawer-field select,
+        .drawer-field textarea {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            outline: none;
+            background: #fff;
+            color: var(--text);
+        }
+
+        .drawer-field input,
+        .drawer-field select {
+            height: 36px;
+            padding: 0 12px;
+        }
+
+        .drawer-field textarea {
+            min-height: 80px;
+            padding: 8px 12px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .drawer-divider {
+            border-top: 1px solid var(--line);
+            padding-top: 16px;
+            margin-top: 8px;
+        }
+
+        .drawer-section-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .drawer-subtitle {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .drawer-radio-group {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .drawer-radio {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .drawer-radio input {
+            width: auto;
+            height: auto;
+            accent-color: var(--blue);
+        }
+
+        .drawer-field-hint {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .drawer-prompt-stack {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .drawer-prompt-block {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 140px;
+        }
+
+        .drawer-prompt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .drawer-prompt-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .drawer-prompt-editor {
+            flex: 1;
+            background: #fff;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .drawer-prompt-editor textarea {
+            width: 100%;
+            height: 100%;
+            min-height: 140px;
+            border: 0;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            outline: none;
+            resize: vertical;
+            background: transparent;
+            color: var(--text);
+        }
+
+        @media (max-width: 1180px) {
+            .drawer {
+                width: 100vw;
+            }
+
+            .drawer-pane-left {
+                width: 320px;
+            }
+        }
+
         /* 模型选择弹窗 */
         .modal-overlay {
             position: fixed;
@@ -1968,6 +2185,158 @@ current_image:
         </div>
     </div>
 
+    <div class="drawer-mask" id="nodeDrawer">
+        <div class="drawer">
+            <div class="drawer-top-nav">
+                <div class="drawer-breadcrumb">
+                    <span id="drawerBreadcrumbText">编辑节点</span>
+                </div>
+                <div class="drawer-nav-actions">
+                    <button class="btn btn-secondary" type="button" id="closeNodeDrawer">取消</button>
+                    <button class="btn" type="button" id="saveNodeDrawerBtn">保存</button>
+                </div>
+            </div>
+
+            <div class="drawer-body">
+                <div class="drawer-pane-left">
+                    <div class="drawer-section-title">配置参数</div>
+
+                    <div class="drawer-field">
+                        <label for="nodeNameInput">节点名称</label>
+                        <input id="nodeNameInput" type="text" />
+                    </div>
+
+                    <div class="drawer-field">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                            <label for="nodePromptTemplateSelect">选择提示词</label>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <button id="repullNodePromptBtn" type="button"
+                                    style="height:24px;padding:0 8px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font-size:12px;cursor:pointer;">重新从模板拉取</button>
+                                <a href="./frontend-slides-guide.html"
+                                    style="font-size:12px;color:var(--blue);text-decoration:none;">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"
+                                        style="font-size:10px;margin-right:4px;"></i>去管理
+                                </a>
+                            </div>
+                        </div>
+                        <select id="nodePromptTemplateSelect"></select>
+                        <div class="drawer-field-hint">模板引用后即与提示词管理解耦存储，后续仅更新应用内快照；保存时会记录资源内部变更摘要。</div>
+                    </div>
+
+                    <div class="drawer-field drawer-divider">
+                        <label for="nodeModelSelect">模型选择</label>
+                        <select id="nodeModelSelect"></select>
+                        <div id="nodeModelHint" class="drawer-field-hint"></div>
+                    </div>
+
+                    <div class="drawer-divider">
+                        <div class="drawer-subtitle">模型参数</div>
+
+                        <div class="drawer-field">
+                            <label>深度思考</label>
+                            <div class="drawer-radio-group">
+                                <label class="drawer-radio">
+                                    <input type="radio" name="nodeDeepthink" value="disabled" checked />
+                                    <span>关闭</span>
+                                </label>
+                                <label class="drawer-radio">
+                                    <input type="radio" name="nodeDeepthink" value="enabled" />
+                                    <span>开启</span>
+                                </label>
+                                <label class="drawer-radio">
+                                    <input type="radio" name="nodeDeepthink" value="auto" />
+                                    <span>自动</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="drawer-field">
+                            <label for="nodeReasoningEffortSelect">思考强度</label>
+                            <select id="nodeReasoningEffortSelect"></select>
+                            <div class="drawer-field-hint">仅支持深度思考的模型可配置</div>
+                        </div>
+
+                        <div class="drawer-field">
+                            <label for="nodeStreamSelect">流式输出</label>
+                            <select id="nodeStreamSelect">
+                                <option value="false">关闭</option>
+                                <option value="true">开启</option>
+                            </select>
+                        </div>
+
+                        <div class="drawer-field">
+                            <label for="nodeJsonModeSelect">JSON结构化</label>
+                            <select id="nodeJsonModeSelect"></select>
+                            <div class="drawer-field-hint">根据模型能力自动提供可选输出模式</div>
+                        </div>
+
+                        <div class="drawer-field">
+                            <label for="nodeTemperatureInput"><span style="color:var(--danger);">*</span> 温度</label>
+                            <input id="nodeTemperatureInput" type="number" step="0.1" value="0.2" />
+                            <div class="drawer-field-hint">控制输出的随机性，0 为确定性输出，2 为最大随机性</div>
+                        </div>
+
+                        <div class="drawer-field">
+                            <label for="nodeSeedInput"><span style="color:var(--danger);">*</span> Seed</label>
+                            <input id="nodeSeedInput" type="number" value="42" />
+                            <div class="drawer-field-hint">随机种子，用于确保输出的可重现性</div>
+                        </div>
+
+                        <div class="drawer-field">
+                            <label for="nodeMaxTokensInput"><span style="color:var(--danger);">*</span> MaxTokens</label>
+                            <input id="nodeMaxTokensInput" type="number" value="131072" />
+                            <div class="drawer-field-hint">最大输出令牌数，取值范围: 0-131072</div>
+                        </div>
+
+                        <div class="drawer-field">
+                            <label for="nodeTimeoutInput"><span style="color:var(--danger);">*</span> Timeout</label>
+                            <input id="nodeTimeoutInput" type="number" value="300" />
+                            <div class="drawer-field-hint">模型调用超时时间，默认 300 秒</div>
+                        </div>
+
+                        <div class="drawer-field" style="margin-bottom:0;">
+                            <label for="nodeExtraBodyInput">Extra Body</label>
+                            <textarea id="nodeExtraBodyInput" placeholder='{"key": "value"}'></textarea>
+                            <div class="drawer-field-hint">额外的请求参数(JSON 格式)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="drawer-pane-right">
+                    <div class="drawer-prompt-stack">
+                        <div class="drawer-prompt-block">
+                            <div class="drawer-prompt-header">
+                                <div class="drawer-prompt-title">系统提示词</div>
+                            </div>
+                            <div class="drawer-prompt-editor">
+                                <textarea id="nodeSystemPromptTextarea" spellcheck="false"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="drawer-prompt-block">
+                            <div class="drawer-prompt-header">
+                                <div class="drawer-prompt-title">用户提示词</div>
+                            </div>
+                            <div class="drawer-prompt-editor">
+                                <textarea id="nodeUserPromptTextarea" spellcheck="false"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="drawer-prompt-block">
+                            <div class="drawer-prompt-header">
+                                <div class="drawer-prompt-title">Assistant 提示词</div>
+                            </div>
+                            <div class="drawer-prompt-editor">
+                                <textarea id="nodeAssistantPromptTextarea" spellcheck="false"
+                                    placeholder="如无 assistant 消息，可留空。"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         if (window.lucide?.createIcons) {
             window.lucide.createIcons();
@@ -1996,6 +2365,8 @@ current_image:
         let promptOptionsCache = [];
         let selectedPromptRow = null;
         let currentBindingMeta = { templatePromptId: "", templatePromptVersion: "" };
+        let editingNodeId = "";
+        let currentNodeBindingMeta = { templatePromptId: "", templatePromptVersion: "" };
 
         function ensureToast() {
             let toast = document.getElementById("toast");
@@ -2060,6 +2431,10 @@ current_image:
 
         // 选中的模型节点
         let selectedModelNodeIds = new Set();
+
+        function getNodeById(nodeId) {
+            return MODEL_NODE_DATA.find((node) => String(node.id) === String(nodeId)) || null;
+        }
 
         // 获取资源的当前模型
         function getResourceModel(resourceId) {
@@ -2171,7 +2546,7 @@ current_image:
                         <td>${node.updatedAt}</td>
                         <td>
                             <div class="action-links">
-                                <a class="edit-btn" data-resource-id="${node.id}" data-resource-name="${node.name}">编辑</a>
+                                <a class="edit-btn" data-node-id="${node.id}" data-resource-id="${node.id}" data-resource-name="${node.name}">编辑</a>
                                 <a>删除</a>
                             </div>
                         </td>
@@ -2214,11 +2589,19 @@ current_image:
         function bindModelNodeEvents() {
             // 行复选框
             document.querySelectorAll('.model-node-checkbox').forEach(cb => {
+                if (cb.dataset.bound === "1") return;
+                cb.dataset.bound = "1";
                 cb.addEventListener('change', handleModelNodeCheckboxChange);
             });
 
-            // 编辑按钮
-            document.querySelectorAll('#modelNodeTable .edit-btn, #resourceNodeTable .edit-btn').forEach(btn => {
+            document.querySelectorAll('#modelNodeTable .edit-btn').forEach((btn) => {
+                if (btn.dataset.bound === "1") return;
+                btn.dataset.bound = "1";
+                btn.addEventListener('click', handleNodeEditClick);
+            });
+            document.querySelectorAll('#resourceNodeTable .edit-btn').forEach((btn) => {
+                if (btn.dataset.bound === "1") return;
+                btn.dataset.bound = "1";
                 btn.addEventListener('click', handleEditClick);
             });
 
@@ -2365,6 +2748,12 @@ current_image:
             }
         }
 
+        function handleNodeEditClick(e) {
+            const btn = e.target;
+            const nodeId = btn.dataset.nodeId || btn.dataset.resourceId;
+            openNodeDrawerById(nodeId);
+        }
+
         // 打开模型选择弹窗
         function openModelSelectModal() {
             const modal = document.getElementById('modelSelectModal');
@@ -2408,6 +2797,7 @@ current_image:
         function initTables() {
             renderModelNodeTable();
             renderResourceNodeTable();
+            bindModelNodeEvents();
 
             // 绑定全选事件
             const selectAllModelNodes = document.getElementById('selectAllModelNodes');
@@ -2481,6 +2871,26 @@ current_image:
         const userPromptTextarea = document.getElementById("userPromptTextarea");
         const assistantPromptBlock = document.getElementById("assistantPromptBlock");
         const assistantPromptTextarea = document.getElementById("assistantPromptTextarea");
+        const nodeDrawer = document.getElementById("nodeDrawer");
+        const drawerBreadcrumbText = document.getElementById("drawerBreadcrumbText");
+        const closeNodeDrawerBtn = document.getElementById("closeNodeDrawer");
+        const saveNodeDrawerBtn = document.getElementById("saveNodeDrawerBtn");
+        const nodeNameInput = document.getElementById("nodeNameInput");
+        const nodePromptTemplateSelect = document.getElementById("nodePromptTemplateSelect");
+        const repullNodePromptBtn = document.getElementById("repullNodePromptBtn");
+        const nodeModelSelect = document.getElementById("nodeModelSelect");
+        const nodeModelHint = document.getElementById("nodeModelHint");
+        const nodeReasoningEffortSelect = document.getElementById("nodeReasoningEffortSelect");
+        const nodeStreamSelect = document.getElementById("nodeStreamSelect");
+        const nodeJsonModeSelect = document.getElementById("nodeJsonModeSelect");
+        const nodeTemperatureInput = document.getElementById("nodeTemperatureInput");
+        const nodeSeedInput = document.getElementById("nodeSeedInput");
+        const nodeMaxTokensInput = document.getElementById("nodeMaxTokensInput");
+        const nodeTimeoutInput = document.getElementById("nodeTimeoutInput");
+        const nodeExtraBodyInput = document.getElementById("nodeExtraBodyInput");
+        const nodeSystemPromptTextarea = document.getElementById("nodeSystemPromptTextarea");
+        const nodeUserPromptTextarea = document.getElementById("nodeUserPromptTextarea");
+        const nodeAssistantPromptTextarea = document.getElementById("nodeAssistantPromptTextarea");
 
         function roleKey(role) {
             const text = String(role || "").toLowerCase();
@@ -2509,6 +2919,10 @@ current_image:
             renderModelOptions(document.getElementById("modalModelSelect"), { preferredKey });
         }
 
+        function renderNodeModelOptions(preferredKey) {
+            renderModelOptions(nodeModelSelect, { preferredKey });
+        }
+
         function getSelectedDeepthinkMode() {
             return document.querySelector("input[name='deepthink']:checked")?.value || "disabled";
         }
@@ -2518,6 +2932,369 @@ current_image:
             document.querySelectorAll("input[name='deepthink']").forEach((radio) => {
                 radio.checked = radio.value === uiMode;
             });
+        }
+
+        function getSelectedNodeThinkingMode() {
+            return document.querySelector("input[name='nodeDeepthink']:checked")?.value || "disabled";
+        }
+
+        function setSelectedNodeThinkingMode(mode) {
+            const uiMode = toUiThinkingMode(mode);
+            document.querySelectorAll("input[name='nodeDeepthink']").forEach((radio) => {
+                radio.checked = radio.value === uiMode;
+            });
+        }
+
+        function collectNodeDrawerConfigInput() {
+            return {
+                modelKey: nodeModelSelect?.value || "",
+                thinkingMode: fromUiThinkingMode(getSelectedNodeThinkingMode()),
+                reasoningEffort: nodeReasoningEffortSelect?.value || "",
+                streamEnabled: nodeStreamSelect?.value === "true",
+                jsonMode: nodeJsonModeSelect?.value || "none",
+                temperature: nodeTemperatureInput?.value || "",
+                seed: nodeSeedInput?.value || "",
+                maxTokens: nodeMaxTokensInput?.value || "",
+                timeout: nodeTimeoutInput?.value || "",
+                extraBody: nodeExtraBodyInput?.value || ""
+            };
+        }
+
+        function buildNodeSnapshotFromInput() {
+            const modelConfig = buildModelConfig(collectNodeDrawerConfigInput());
+            return {
+                supplierCode: modelConfig.supplierCode,
+                model: modelConfig.modelKey,
+                deepMode: toUiThinkingMode(modelConfig.thinkingMode),
+                reasoningEffort: modelConfig.reasoningEffort,
+                streamEnabled: modelConfig.streamEnabled,
+                jsonMode: modelConfig.jsonMode,
+                temp: modelConfig.temperature,
+                seed: modelConfig.seed,
+                maxTokens: modelConfig.maxTokens,
+                timeout: modelConfig.timeout,
+                extraBody: modelConfig.extraBody,
+                modelConfig,
+                messages: [
+                    { role: "System Prompt", content: nodeSystemPromptTextarea?.value || "" },
+                    { role: "User Prompt", content: nodeUserPromptTextarea?.value || "" },
+                    { role: "Assistant Prompt", content: nodeAssistantPromptTextarea?.value || "" }
+                ]
+            };
+        }
+
+        function applyNodeDrawerModelCapabilities(options = {}) {
+            const model = getModelByKey(nodeModelSelect?.value || "") || getDefaultModel();
+            if (!model) return;
+            if (nodeModelSelect) nodeModelSelect.value = model.modelKey;
+
+            if (nodeModelHint) {
+                const parts = [getModelPriceHint(model.modelKey) || "无价格提示"];
+                parts.push(model.supportsThinking ? "支持深度思考" : "不支持深度思考");
+                parts.push(model.jsonModes.includes("json_object") ? "支持 JSON Object" : "仅文本输出");
+                nodeModelHint.textContent = parts.join(" | ");
+            }
+
+            if (nodeJsonModeSelect) {
+                nodeJsonModeSelect.innerHTML = model.jsonModes
+                    .map((mode) => `<option value="${mode}">${mode === "json_object" ? "JSON Object" : "文本输出"}</option>`)
+                    .join("");
+            }
+            if (nodeReasoningEffortSelect) {
+                nodeReasoningEffortSelect.innerHTML = model.supportsThinking
+                    ? model.reasoningEfforts.map((item) => `<option value="${item}">${item}</option>`).join("")
+                    : '<option value="">无</option>';
+            }
+
+            const { config, warnings } = coerceModelConfig(model, collectNodeDrawerConfigInput());
+            setSelectedNodeThinkingMode(config.thinkingMode);
+            if (nodeReasoningEffortSelect) {
+                nodeReasoningEffortSelect.value = config.reasoningEffort || "";
+                nodeReasoningEffortSelect.disabled = !model.supportsThinking;
+            }
+            if (nodeStreamSelect) {
+                nodeStreamSelect.value = String(config.streamEnabled);
+                nodeStreamSelect.disabled = !model.supportsStreaming;
+            }
+            if (nodeJsonModeSelect) {
+                nodeJsonModeSelect.value = config.jsonMode;
+            }
+            if (nodeTemperatureInput) nodeTemperatureInput.value = config.temperature;
+            if (nodeSeedInput) nodeSeedInput.value = config.seed;
+            if (nodeMaxTokensInput) nodeMaxTokensInput.value = config.maxTokens;
+            if (nodeTimeoutInput) nodeTimeoutInput.value = config.timeout;
+            if (nodeExtraBodyInput) nodeExtraBodyInput.value = config.extraBody;
+
+            document.querySelectorAll("input[name='nodeDeepthink']").forEach((radio) => {
+                const disableThinking = !model.supportsThinking && radio.value !== "disabled";
+                radio.disabled = disableThinking;
+                const label = radio.closest("label");
+                if (label) label.style.opacity = disableThinking ? "0.45" : "1";
+            });
+
+            if (options.showWarnings) {
+                warnings.forEach((message) => showToast(message));
+            }
+        }
+
+        function findMatchingPromptRow(node) {
+            const rows = loadPromptRows();
+            const nodeName = String(node?.name || "").trim();
+            if (!nodeName) return null;
+            return rows.find((row) => String(row?.name || "").trim() === nodeName)
+                || rows.find((row) => String(row?.name || "").includes(nodeName))
+                || null;
+        }
+
+        function applyPromptRowToNodeDrawer(row, options = {}) {
+            if (!row || typeof row !== "object") return;
+
+            const modelConfig = buildModelConfig(row);
+            renderNodeModelOptions(modelConfig.modelKey);
+            setSelectValue(nodeModelSelect, modelConfig.modelKey);
+            setSelectedNodeThinkingMode(modelConfig.thinkingMode);
+            if (nodeReasoningEffortSelect) nodeReasoningEffortSelect.value = modelConfig.reasoningEffort || "";
+            if (nodeStreamSelect) nodeStreamSelect.value = String(modelConfig.streamEnabled);
+            if (nodeJsonModeSelect) nodeJsonModeSelect.value = modelConfig.jsonMode;
+            if (nodeTemperatureInput) nodeTemperatureInput.value = String(modelConfig.temperature);
+            if (nodeSeedInput) nodeSeedInput.value = String(modelConfig.seed);
+            if (nodeMaxTokensInput) nodeMaxTokensInput.value = String(modelConfig.maxTokens);
+            if (nodeTimeoutInput) nodeTimeoutInput.value = String(modelConfig.timeout);
+            if (nodeExtraBodyInput) nodeExtraBodyInput.value = String(modelConfig.extraBody);
+
+            if (nodeSystemPromptTextarea) nodeSystemPromptTextarea.value = collectRoleContent(row, "system");
+            if (nodeUserPromptTextarea) nodeUserPromptTextarea.value = collectRoleContent(row, "user");
+            if (nodeAssistantPromptTextarea) nodeAssistantPromptTextarea.value = collectRoleContent(row, "assistant");
+
+            if (options.fromTemplate) {
+                currentNodeBindingMeta = {
+                    templatePromptId: String(row.id || ""),
+                    templatePromptVersion: String(row.version || row.updated || "")
+                };
+                if (nodePromptTemplateSelect) {
+                    const targetOption = Array.from(nodePromptTemplateSelect.options).find((option) => option.value === currentNodeBindingMeta.templatePromptId);
+                    if (targetOption) nodePromptTemplateSelect.value = targetOption.value;
+                }
+            }
+
+            applyNodeDrawerModelCapabilities();
+        }
+
+        function restoreNodeBindingToDrawer(node) {
+            const bindings = loadJSON(APP_RESOURCE_BINDING_KEY, {});
+            const binding = bindings[`${appId}:${node.id}`];
+            const snapshot = binding?.resourcePromptSnapshot || null;
+            currentNodeBindingMeta = {
+                templatePromptId: binding?.templatePromptId || "",
+                templatePromptVersion: binding?.templatePromptVersion || ""
+            };
+
+            if (nodeNameInput) nodeNameInput.value = node.name;
+
+            if (snapshot) {
+                const modelConfig = buildModelConfig(snapshot);
+                renderNodeModelOptions(modelConfig.modelKey);
+                setSelectValue(nodeModelSelect, modelConfig.modelKey);
+                setSelectedNodeThinkingMode(modelConfig.thinkingMode);
+                if (nodeReasoningEffortSelect) nodeReasoningEffortSelect.value = modelConfig.reasoningEffort || "";
+                if (nodeStreamSelect) nodeStreamSelect.value = String(modelConfig.streamEnabled);
+                if (nodeJsonModeSelect) nodeJsonModeSelect.value = modelConfig.jsonMode;
+                if (nodeTemperatureInput) nodeTemperatureInput.value = String(modelConfig.temperature);
+                if (nodeSeedInput) nodeSeedInput.value = String(modelConfig.seed);
+                if (nodeMaxTokensInput) nodeMaxTokensInput.value = String(modelConfig.maxTokens);
+                if (nodeTimeoutInput) nodeTimeoutInput.value = String(modelConfig.timeout);
+                if (nodeExtraBodyInput) nodeExtraBodyInput.value = String(modelConfig.extraBody);
+
+                const msgMap = new Map((snapshot.messages || []).map((item) => [roleKey(item.role), item.content || ""]));
+                if (nodeSystemPromptTextarea) nodeSystemPromptTextarea.value = String(msgMap.get("system") || "");
+                if (nodeUserPromptTextarea) nodeUserPromptTextarea.value = String(msgMap.get("user") || "");
+                if (nodeAssistantPromptTextarea) nodeAssistantPromptTextarea.value = String(msgMap.get("assistant") || "");
+                applyNodeDrawerModelCapabilities();
+                return;
+            }
+
+            const matchedPrompt = findMatchingPromptRow(node);
+            if (matchedPrompt) {
+                applyPromptRowToNodeDrawer(matchedPrompt, { fromTemplate: true });
+                return;
+            }
+
+            renderNodeModelOptions(getDefaultModel()?.modelKey || "");
+            setSelectValue(nodeModelSelect, getDefaultModel()?.modelKey || "");
+            setSelectedNodeThinkingMode("disabled");
+            if (nodeReasoningEffortSelect) nodeReasoningEffortSelect.value = "";
+            if (nodeStreamSelect) nodeStreamSelect.value = "false";
+            if (nodeTemperatureInput) nodeTemperatureInput.value = "0.2";
+            if (nodeSeedInput) nodeSeedInput.value = "42";
+            if (nodeMaxTokensInput) nodeMaxTokensInput.value = "131072";
+            if (nodeTimeoutInput) nodeTimeoutInput.value = "300";
+            if (nodeExtraBodyInput) nodeExtraBodyInput.value = "";
+            if (nodeSystemPromptTextarea) nodeSystemPromptTextarea.value = "";
+            if (nodeUserPromptTextarea) nodeUserPromptTextarea.value = "";
+            if (nodeAssistantPromptTextarea) nodeAssistantPromptTextarea.value = "";
+            currentNodeBindingMeta = { templatePromptId: "", templatePromptVersion: "" };
+            applyNodeDrawerModelCapabilities();
+        }
+
+        function buildNodeFallbackPrompt(node) {
+            const modelConfig = buildModelConfig(collectNodeDrawerConfigInput());
+            return {
+                id: `node-${node.id}-current`,
+                name: `${node.name}（当前快照）`,
+                supplierCode: modelConfig.supplierCode,
+                model: modelConfig.modelKey,
+                deepMode: toUiThinkingMode(modelConfig.thinkingMode),
+                reasoningEffort: modelConfig.reasoningEffort,
+                streamEnabled: modelConfig.streamEnabled,
+                jsonMode: modelConfig.jsonMode,
+                temp: modelConfig.temperature,
+                seed: modelConfig.seed,
+                maxTokens: modelConfig.maxTokens,
+                timeout: modelConfig.timeout,
+                extraBody: modelConfig.extraBody,
+                modelConfig,
+                messages: [
+                    { role: "System Prompt", content: nodeSystemPromptTextarea?.value || "" },
+                    { role: "User Prompt", content: nodeUserPromptTextarea?.value || "" },
+                    { role: "Assistant Prompt", content: nodeAssistantPromptTextarea?.value || "" }
+                ]
+            };
+        }
+
+        function renderNodePromptOptions(node) {
+            if (!nodePromptTemplateSelect) return;
+
+            const fallbackPrompt = buildNodeFallbackPrompt(node);
+            const rows = loadPromptRows();
+            const merged = [fallbackPrompt, ...rows].filter(Boolean);
+            const deduped = [];
+            const seen = new Set();
+            merged.forEach((row, idx) => {
+                const key = String(row.id || row.name || idx).trim();
+                if (seen.has(key)) return;
+                seen.add(key);
+                deduped.push(row);
+            });
+
+            nodePromptTemplateSelect.innerHTML = "";
+            deduped.forEach((row, index) => {
+                const option = document.createElement("option");
+                option.value = String(row.id || `idx-${index}`);
+                option.textContent = `${row.name || `提示词-${index + 1}`}${row.version ? ` (${row.version})` : ""}`;
+                option.dataset.rowIndex = String(index);
+                nodePromptTemplateSelect.appendChild(option);
+            });
+
+            const targetIndex = deduped.findIndex((row) => String(row.id || "") === String(currentNodeBindingMeta.templatePromptId || ""));
+            nodePromptTemplateSelect.selectedIndex = targetIndex >= 0 ? targetIndex : 0;
+            const selectedRow = deduped[nodePromptTemplateSelect.selectedIndex];
+            if (!currentNodeBindingMeta.templatePromptId && selectedRow) {
+                currentNodeBindingMeta = {
+                    templatePromptId: String(selectedRow.id || ""),
+                    templatePromptVersion: String(selectedRow.version || selectedRow.updated || "")
+                };
+            }
+
+            nodePromptTemplateSelect.onchange = () => {
+                const idx = Number(nodePromptTemplateSelect.options[nodePromptTemplateSelect.selectedIndex]?.dataset.rowIndex || 0);
+                const row = deduped[idx];
+                currentNodeBindingMeta = {
+                    templatePromptId: String(row?.id || ""),
+                    templatePromptVersion: String(row?.version || row?.updated || "")
+                };
+            };
+        }
+
+        function repullNodePromptTemplate() {
+            const idx = Number(nodePromptTemplateSelect?.options[nodePromptTemplateSelect.selectedIndex]?.dataset.rowIndex || -1);
+            if (idx < 0) {
+                showToast("未找到可拉取的模板");
+                return;
+            }
+
+            const fallbackPrompt = buildNodeFallbackPrompt(getNodeById(editingNodeId) || { id: editingNodeId, name: nodeNameInput?.value || "当前节点" });
+            const rows = [fallbackPrompt, ...loadPromptRows()].filter(Boolean);
+            const deduped = [];
+            const seen = new Set();
+            rows.forEach((row, index) => {
+                const key = String(row.id || row.name || index).trim();
+                if (seen.has(key)) return;
+                seen.add(key);
+                deduped.push(row);
+            });
+            const row = deduped[idx];
+            if (!row) {
+                showToast("未找到可拉取的模板");
+                return;
+            }
+
+            applyPromptRowToNodeDrawer(row, { fromTemplate: true });
+            renderNodePromptOptions(getNodeById(editingNodeId) || { id: editingNodeId, name: nodeNameInput?.value || "当前节点" });
+            showToast("已重新从模板拉取提示词快照");
+        }
+
+        function openNodeDrawerById(nodeId) {
+            const node = getNodeById(nodeId);
+            if (!node || !nodeDrawer) return;
+
+            editingNodeId = String(node.id);
+            if (drawerBreadcrumbText) {
+                drawerBreadcrumbText.textContent = `编辑节点：${node.name}`;
+            }
+
+            restoreNodeBindingToDrawer(node);
+            renderNodePromptOptions(node);
+            nodeDrawer.classList.add("is-open");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeNodeDrawerPanel() {
+            editingNodeId = "";
+            if (nodeDrawer) {
+                nodeDrawer.classList.remove("is-open");
+            }
+            document.body.style.overflow = "";
+        }
+
+        function saveNodeDrawer() {
+            const node = getNodeById(editingNodeId);
+            if (!node) return;
+
+            const key = `${appId}:${node.id}`;
+            const bindings = loadJSON(APP_RESOURCE_BINDING_KEY, {});
+            const revisions = loadJSON(APP_RESOURCE_REVISION_KEY, {});
+            const before = bindings[key]?.resourcePromptSnapshot || null;
+            const snapshot = buildNodeSnapshotFromInput();
+            const summary = getRevisionSummary(before, snapshot);
+            const now = new Date();
+            const isoTimestamp = now.toISOString();
+            const tableTimestamp = isoTimestamp.slice(0, 19).replace("T", " ");
+
+            node.name = nodeNameInput?.value.trim() || node.name;
+            node.updatedAt = tableTimestamp;
+            node.updatedBy = "wisewong";
+
+            bindings[key] = {
+                appId,
+                resourceId: String(node.id),
+                templatePromptId: currentNodeBindingMeta.templatePromptId || "",
+                templatePromptVersion: currentNodeBindingMeta.templatePromptVersion || "",
+                reason: "节点配置保存",
+                updatedAt: isoTimestamp,
+                resourcePromptSnapshot: snapshot
+            };
+            revisions[key] = Array.isArray(revisions[key]) ? revisions[key] : [];
+            revisions[key].push({
+                at: isoTimestamp,
+                reason: "节点配置保存",
+                summary
+            });
+
+            saveJSON(APP_RESOURCE_BINDING_KEY, bindings);
+            saveJSON(APP_RESOURCE_REVISION_KEY, revisions);
+            renderModelNodeTable();
+            closeNodeDrawerPanel();
+            showToast("节点配置已保存");
         }
 
         function collectCurrentModelConfigInput() {
@@ -2934,9 +3711,9 @@ current_image:
             overlayNode.addEventListener("click", (e) => { if (e.target === overlayNode) close(); });
             document.addEventListener("keydown", (e) => { if (e.key === "Escape" && overlayNode.style.display === "flex") close(); });
 
-            document.querySelectorAll(".editor-section .editor-box textarea").forEach((area) => {
+            document.querySelectorAll(".editor-section .editor-box textarea, .drawer-prompt-editor textarea").forEach((area) => {
                 area.addEventListener("dblclick", () => {
-                    const title = area.closest("div[style*='flex-direction: column']")?.querySelector(".editor-title")?.textContent?.trim() || "提示词放大查看";
+                    const title = area.closest("div[style*='flex-direction: column']")?.querySelector(".editor-title, .drawer-prompt-title")?.textContent?.trim() || "提示词放大查看";
                     if (zoomTitle) zoomTitle.textContent = title;
                     if (zoomTextarea) zoomTextarea.value = area.value;
                     overlayNode.style.display = "flex";
@@ -2970,6 +3747,51 @@ current_image:
             radio.addEventListener("change", () => {
                 applyAppModelCapabilities();
             });
+        });
+
+        if (closeNodeDrawerBtn) {
+            closeNodeDrawerBtn.addEventListener("click", closeNodeDrawerPanel);
+        }
+        if (saveNodeDrawerBtn) {
+            saveNodeDrawerBtn.addEventListener("click", saveNodeDrawer);
+        }
+        if (nodeDrawer) {
+            nodeDrawer.addEventListener("click", (event) => {
+                if (event.target === nodeDrawer) closeNodeDrawerPanel();
+            });
+        }
+        if (repullNodePromptBtn) {
+            repullNodePromptBtn.addEventListener("click", repullNodePromptTemplate);
+        }
+        if (nodeModelSelect) {
+            nodeModelSelect.addEventListener("change", () => {
+                applyNodeDrawerModelCapabilities({ showWarnings: true });
+            });
+        }
+        if (nodeReasoningEffortSelect) {
+            nodeReasoningEffortSelect.addEventListener("change", () => {
+                applyNodeDrawerModelCapabilities();
+            });
+        }
+        if (nodeStreamSelect) {
+            nodeStreamSelect.addEventListener("change", () => {
+                applyNodeDrawerModelCapabilities();
+            });
+        }
+        if (nodeJsonModeSelect) {
+            nodeJsonModeSelect.addEventListener("change", () => {
+                applyNodeDrawerModelCapabilities();
+            });
+        }
+        document.querySelectorAll("input[name='nodeDeepthink']").forEach((radio) => {
+            radio.addEventListener("change", () => {
+                applyNodeDrawerModelCapabilities();
+            });
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && nodeDrawer?.classList.contains("is-open")) {
+                closeNodeDrawerPanel();
+            }
         });
 
         if (repullTemplateBtn) {

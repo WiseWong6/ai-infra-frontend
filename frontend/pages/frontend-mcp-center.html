@@ -1,0 +1,1349 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP 中心</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --line: #e2e8f0;
+      --line-soft: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --green: #059669;
+      --green-soft: #ecfdf5;
+      --orange: #d97706;
+      --orange-soft: #fff7ed;
+      --red: #dc2626;
+      --red-soft: #fef2f2;
+      --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 24px;
+    }
+
+    .shell {
+      max-width: 1640px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .btn {
+      height: 38px;
+      border: 0;
+      border-radius: 12px;
+      padding: 0 16px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn.primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn.secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px dashed rgba(100, 116, 139, 0.35);
+    }
+
+    .toolbar {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .toolbar .field {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .toolbar .field label {
+      font-size: 13px;
+      margin: 0;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      min-height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: none;
+      background: #fff;
+    }
+
+    .field textarea {
+      min-height: 96px;
+      resize: vertical;
+      padding: 10px 12px;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .table-card {
+      padding: 20px;
+    }
+
+    .table-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .table-head h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .table-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1120px;
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line-soft);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    td strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .muted {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .stack {
+      display: grid;
+      gap: 4px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag,
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tag.blue,
+    .status.active {
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .tag.green,
+    .status.healthy {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .tag.orange,
+    .status.inactive {
+      color: var(--orange);
+      background: var(--orange-soft);
+    }
+
+    .tag.red,
+    .status.failed {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .row-btn {
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 0 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .row-btn.primary {
+      border-color: rgba(37, 99, 235, 0.22);
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .row-btn.danger {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: rgba(220, 38, 38, 0.12);
+    }
+
+    .empty {
+      padding: 52px 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .panel-backdrop,
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background: rgba(15, 23, 42, 0.28);
+      backdrop-filter: blur(4px);
+      z-index: 9998;
+    }
+
+    .panel-backdrop.show,
+    .drawer-backdrop.show {
+      display: block;
+    }
+
+    .panel {
+      position: fixed;
+      inset: 24px auto 24px 50%;
+      transform: translateX(-50%) scale(0.96);
+      width: min(1320px, calc(100vw - 32px));
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      display: none;
+      background: #fff;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      box-shadow: 0 32px 96px rgba(15, 23, 42, 0.24);
+      z-index: 9999;
+      opacity: 0;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    }
+
+    .panel.show {
+      display: block;
+      transform: translateX(-50%) scale(1);
+      opacity: 1;
+    }
+
+    .panel-backdrop {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .panel-backdrop.show {
+      opacity: 1;
+    }
+
+    .panel-head .close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s ease;
+    }
+
+    .panel-head .close-btn:hover {
+      background: var(--line-soft);
+      color: var(--text);
+    }
+
+    .field.readonly input,
+    .field.readonly select,
+    .field.readonly textarea {
+      background: var(--line-soft);
+      border-color: var(--line);
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+
+    .status-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      margin-bottom: 8px;
+    }
+
+    .status-banner.healthy {
+      background: var(--green-soft);
+      border: 1px solid rgba(5, 150, 105, 0.15);
+    }
+
+    .status-banner.failed {
+      background: var(--red-soft);
+      border: 1px solid rgba(220, 38, 38, 0.12);
+    }
+
+    .status-banner .banner-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .status-banner.healthy .banner-icon {
+      background: #fff;
+      color: var(--green);
+    }
+
+    .status-banner.failed .banner-icon {
+      background: #fff;
+      color: var(--red);
+    }
+
+    .status-banner .banner-content {
+      flex: 1;
+    }
+
+    .status-banner .banner-title {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .status-banner.healthy .banner-title {
+      color: var(--green);
+    }
+
+    .status-banner.failed .banner-title {
+      color: var(--red);
+    }
+
+    .status-tag {
+      height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .status-tag.active {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .status-tag.inactive {
+      color: var(--orange);
+      background: var(--orange-soft);
+    }
+
+    .status-banner .banner-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* 弹窗表单优化 */
+    .section-block {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .section-block:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .form-row .field {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .form-row.two-col .field {
+      flex: 1 1 calc(50% - 8px);
+    }
+
+    .form-row.three-col .field {
+      flex: 1 1 calc(33.333% - 11px);
+    }
+
+    .required {
+      color: var(--red);
+    }
+
+    .btn-sm {
+      height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    /* 测试区域 */
+    .test-section {
+      background: #0f172a;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .test-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .test-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .test-log {
+      padding: 16px 18px;
+      font: 13px/1.8 SFMono-Regular, Monaco, Consolas, monospace;
+      color: #94a3b8;
+      min-height: 100px;
+      max-height: 200px;
+      overflow: auto;
+    }
+
+    /* 移除旧的测试日志样式 */
+    .test-log:empty::before {
+      content: "点击运行测试检查连通性";
+      color: #64748b;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(560px, 100vw);
+      height: 100vh;
+      background: #fff;
+      border-left: 1px solid var(--line);
+      box-shadow: -20px 0 60px rgba(15, 23, 42, 0.12);
+      display: none;
+      z-index: 9999;
+      overflow: auto;
+    }
+
+    .drawer.show {
+      display: block;
+    }
+
+    .panel-head,
+    .panel-foot {
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-foot {
+      padding: 16px 20px;
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+      justify-content: flex-end;
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+      gap: 12px;
+    }
+
+    .panel-head strong {
+      font-size: 18px;
+    }
+
+    .panel-body {
+      padding: 24px;
+      background: var(--bg);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .inline-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px 16px;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 2;
+    }
+
+    .tab {
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 0 14px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .tab.active {
+      color: var(--blue);
+      border-color: rgba(37, 99, 235, 0.2);
+      background: var(--blue-soft);
+    }
+
+    .tab-panel {
+      display: none;
+      gap: 16px;
+    }
+
+    .tab-panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 108px minmax(0, 1fr);
+      gap: 10px;
+      font-size: 13px;
+      align-items: start;
+    }
+
+    .kv-label {
+      color: var(--muted);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .mini-stat {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .mini-stat strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 22px;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .list-item {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .list-item-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .code {
+      font-family: SFMono-Regular, Monaco, Consolas, monospace;
+      font-size: 12px;
+      color: #334155;
+      word-break: break-all;
+    }
+
+    .toast {
+      position: fixed;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: rgba(15, 23, 42, 0.96);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s ease;
+      z-index: 10000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 1280px) {
+      .toolbar,
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        flex-direction: column;
+      }
+
+      .form-row .field {
+        min-width: 100%;
+      }
+
+      .main {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <script src="../js/sidebar.js"></script>
+    <main class="main">
+      <div class="shell">
+        <section class="card">
+          <div class="toolbar">
+            <div class="field">
+              <label>搜索</label>
+              <input id="keywordInput" placeholder="按名称、endpoint、负责人、应用搜索" />
+            </div>
+            <div class="field">
+              <label>状态</label>
+              <select id="statusFilter">
+                <option value="">全部</option>
+                <option value="active">已上架</option>
+                <option value="inactive">已下架</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>认证方式</label>
+              <select id="authFilter">
+                <option value="">全部</option>
+                <option value="none">无认证</option>
+                <option value="bearer">Bearer Token</option>
+                <option value="oauth2">OAuth 2.0</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>测试状态</label>
+              <select id="healthFilter">
+                <option value="">全部</option>
+                <option value="healthy">通过</option>
+                <option value="failed">失败</option>
+              </select>
+            </div>
+            <div class="inline-actions">
+              <button class="btn secondary" id="resetBtn">重置</button>
+              <button class="btn secondary" id="searchBtn">查询</button>
+              <button class="btn primary" id="createBtn">
+                <i data-lucide="plus"></i>
+                新增
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card table-card">
+          <div class="table-head">
+            <div></div>
+            <div class="hint" id="resultHint">共 0 条</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>名称</th>
+                  <th>摘要</th>
+                  <th>测试状态</th>
+                  <th>关联应用数</th>
+                  <th>调用次数</th>
+                  <th>状态</th>
+                  <th>负责人</th>
+                  <th>更新时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+            <div id="emptyState" class="empty" hidden>暂无符合条件的 MCP 连接</div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="panel-backdrop" id="panelBackdrop"></div>
+  <section class="panel" id="editorPanel">
+    <div class="panel-head">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <strong id="panelTitle">新建 MCP</strong>
+        <span id="panelStatusTag" class="status-tag" style="display:none;"></span>
+      </div>
+      <button class="close-btn" id="closePanelBtn" title="关闭">
+        <i data-lucide="x" style="width:18px;height:18px;"></i>
+      </button>
+    </div>
+    <div class="tabs" id="panelTabs">
+      <button class="tab active" data-tab="basic">基本信息</button>
+      <button class="tab" data-tab="usage">应用统计</button>
+    </div>
+    <div class="panel-body">
+      <section class="tab-panel active" data-panel="basic">
+        <!-- 基本配置 -->
+        <div class="section-block">
+          <div class="section-title">基本配置</div>
+          <div class="form-row three-col">
+            <div class="field">
+              <label>MCP 名称 <span class="required">*</span></label>
+              <input id="nameInput" placeholder="如 Browser Automation" />
+            </div>
+            <div class="field">
+              <label>负责人 <span class="required">*</span></label>
+              <input id="ownerInput" placeholder="如 wisewong" />
+            </div>
+            <div class="field">
+              <label>默认审批</label>
+              <select id="approvalInput">
+                <option value="always">始终审批</option>
+                <option value="never">无需审批</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 连接配置 -->
+        <div class="section-block">
+          <div class="section-title">连接配置</div>
+          <div class="form-row">
+            <div class="field" style="flex:2;">
+              <label>Server URL <span class="required">*</span></label>
+              <input id="urlInput" placeholder="https://mcp.example.com/mcp" />
+            </div>
+            <div class="field" style="flex:1;">
+              <label>Transport</label>
+              <select id="transportInput">
+                <option value="streamable_http">streamable_http</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 认证配置 -->
+        <div class="section-block">
+          <div class="section-title">认证配置</div>
+          <div class="form-row two-col">
+            <div class="field">
+              <label>认证方式</label>
+              <select id="authInput">
+                <option value="none">无认证</option>
+                <option value="bearer">Bearer Token</option>
+                <option value="oauth2">OAuth 2.0</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>凭据引用</label>
+              <input id="credentialInput" placeholder="如 secrets/mcp/browser-prod" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 备注 -->
+        <div class="section-block">
+          <div class="section-title">备注说明</div>
+          <div class="field">
+            <textarea id="noteInput" placeholder="说明适用场景、风险和接入约束" rows="3"></textarea>
+          </div>
+        </div>
+
+        <!-- 连接测试 -->
+        <div class="test-section">
+          <div class="test-header">
+            <div class="test-title">
+              <i data-lucide="activity" style="width:16px;height:16px;"></i>
+              连接测试
+            </div>
+            <button class="btn secondary btn-sm" id="runTestBtn">
+              <i data-lucide="play" style="width:14px;height:14px;"></i>
+              运行测试
+            </button>
+          </div>
+          <div class="test-log" id="testLog">点击"运行测试"检查连通性、认证和服务发现</div>
+        </div>
+      </section>
+
+      <section class="tab-panel" data-panel="usage" id="usagePanel"></section>
+    </div>
+    <div class="panel-foot">
+      <button class="btn primary" id="saveBtn">保存原型</button>
+      <button class="btn secondary" id="deleteBtn">删除</button>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const keywordInput = document.getElementById("keywordInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const authFilter = document.getElementById("authFilter");
+    const healthFilter = document.getElementById("healthFilter");
+    const resultHint = document.getElementById("resultHint");
+    const tableBody = document.getElementById("tableBody");
+    const emptyState = document.getElementById("emptyState");
+    const toast = document.getElementById("toast");
+
+    const panelBackdrop = document.getElementById("panelBackdrop");
+    const editorPanel = document.getElementById("editorPanel");
+    const panelTitle = document.getElementById("panelTitle");
+    const panelStatusTag = document.getElementById("panelStatusTag");
+    const saveBtn = document.getElementById("saveBtn");
+    const deleteBtn = document.getElementById("deleteBtn");
+    const usagePanel = document.getElementById("usagePanel");
+
+    const inputs = {
+      name: document.getElementById("nameInput"),
+      approval: document.getElementById("approvalInput"),
+      url: document.getElementById("urlInput"),
+      transport: document.getElementById("transportInput"),
+      auth: document.getElementById("authInput"),
+      credential: document.getElementById("credentialInput"),
+      owner: document.getElementById("ownerInput"),
+      note: document.getElementById("noteInput")
+    };
+
+    let panelMode = "create"; // 'create' | 'view' | 'edit'
+
+    const testLog = document.getElementById("testLog");
+
+    const servers = [
+      {
+        id: "mcp_browser_01",
+        name: "Browser Automation",
+        endpoint: "https://mcp.browserhub.internal/v1",
+        authMode: "oauth2",
+        credentialRef: "oauth/browserhub-prod",
+        owner: "wisewong",
+        note: "提供浏览器导航、页面抓取与截图能力。包含高风险动作，默认强制审批。",
+        scopeType: "public",
+        approvalMode: "always",
+        status: "active",
+        health: "healthy",
+        lastTestAt: "2026-03-26 14:20",
+        lastTestSummary: "连接、授权、tools/list 全通过",
+        toolCount: 6,
+        tools: [
+          { name: "browser.navigate", summary: "打开目标网址并等待页面稳定", approval: "always" },
+          { name: "browser.snapshot", summary: "抓取当前页面文本快照", approval: "always" },
+          { name: "browser.click", summary: "执行页面点击", approval: "always" },
+          { name: "browser.type", summary: "在页面输入内容", approval: "always" },
+          { name: "browser.network_requests", summary: "查看当前页面请求", approval: "never" },
+          { name: "browser.take_screenshot", summary: "截取页面或元素截图", approval: "always" }
+        ],
+        references: [
+          { app: "投保助手", project: "咔嚓保", mode: "启用中", calls7d: 3120, successRate: "99.2%" },
+          { app: "营销分析", project: "增长项目", mode: "启用中", calls7d: 986, successRate: "97.8%" }
+        ],
+        usage7d: 4106,
+        successRate: 98.9,
+        p95: 1220,
+        lastCalledAt: "2026-03-26 15:08",
+        updatedBy: "wisewong",
+        updatedAt: "2026-03-26 14:25"
+      },
+      {
+        id: "mcp_search_02",
+        name: "Web Search Prime",
+        endpoint: "https://mcp.search-prime.internal/mcp",
+        authMode: "bearer",
+        credentialRef: "secrets/search-prime-prod",
+        owner: "martin",
+        note: "提供 Web 搜索与正文抓取，适用于信息补全与最新事实查询。",
+        scopeType: "public",
+        approvalMode: "never",
+        status: "active",
+        health: "failed",
+        lastTestAt: "2026-03-26 13:42",
+        lastTestSummary: "认证通过，但 tools/list 失败",
+        toolCount: 4,
+        tools: [
+          { name: "search_google", summary: "按关键词检索互联网内容", approval: "never" },
+          { name: "fetch_content", summary: "提取页面正文", approval: "never" },
+          { name: "visit_page", summary: "访问页面并提取主要内容", approval: "never" },
+          { name: "take_screenshot", summary: "获取页面截图", approval: "always" }
+        ],
+        references: [
+          { app: "智能客服", project: "服务中台", mode: "启用中", calls7d: 2310, successRate: "96.4%" },
+          { app: "投保助手", project: "咔嚓保", mode: "启用中", calls7d: 1388, successRate: "94.8%" },
+          { app: "外呼助手", project: "增长项目", mode: "灰度中", calls7d: 722, successRate: "92.0%" }
+        ],
+        usage7d: 4420,
+        successRate: 94.9,
+        p95: 1680,
+        lastCalledAt: "2026-03-26 15:05",
+        updatedBy: "martin",
+        updatedAt: "2026-03-26 13:43"
+      },
+      {
+        id: "mcp_quote_03",
+        name: "Quote Lookup",
+        endpoint: "https://quote-mcp.insure.local/mcp",
+        authMode: "none",
+        credentialRef: "-",
+        owner: "sally",
+        note: "查询保司报价、产品版本和投保入口，计划只对保险域应用开放，当前仍按 public 原型展示。",
+        scopeType: "public",
+        approvalMode: "never",
+        status: "inactive",
+        health: "failed",
+        lastTestAt: "2026-03-26 11:18",
+        lastTestSummary: "tools/list 超时，建议检查网关白名单",
+        toolCount: 3,
+        tools: [
+          { name: "quote.lookup", summary: "按产品或版本查询报价", approval: "never" },
+          { name: "quote.channel_rules", summary: "获取渠道投保约束", approval: "never" },
+          { name: "quote.entry_link", summary: "返回投保入口", approval: "never" }
+        ],
+        references: [
+          { app: "投保助手", project: "咔嚓保", mode: "已阻断", calls7d: 0, successRate: "-" }
+        ],
+        usage7d: 0,
+        successRate: 0,
+        p95: 0,
+        lastCalledAt: "-",
+        updatedBy: "sally",
+        updatedAt: "2026-03-26 11:20"
+      }
+    ];
+
+    let editingId = "";
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function authLabel(mode) {
+      if (mode === "oauth2") return "OAuth 2.0";
+      if (mode === "bearer") return "Bearer Token";
+      return "无认证";
+    }
+
+    function healthLabel(mode) {
+      if (mode === "healthy") return "通过";
+      return "失败";
+    }
+
+    function statusLabel(mode) {
+      return mode === "active" ? "已上架" : "已下架";
+    }
+
+    function numberFormat(value) {
+      return new Intl.NumberFormat("zh-CN").format(value);
+    }
+
+    function getFilteredServers() {
+      const keyword = keywordInput.value.trim().toLowerCase();
+      return servers.filter((item) => {
+        if (statusFilter.value && item.status !== statusFilter.value) return false;
+        if (authFilter.value && item.authMode !== authFilter.value) return false;
+        if (healthFilter.value && item.health !== healthFilter.value) return false;
+        if (!keyword) return true;
+        return [
+          item.name,
+          item.endpoint,
+          item.owner,
+          item.references.map((ref) => `${ref.project}${ref.app}`).join(" ")
+        ].some((text) => String(text || "").toLowerCase().includes(keyword));
+      });
+    }
+
+    function renderTable() {
+      const rows = getFilteredServers();
+      resultHint.textContent = `共 ${rows.length} 条`;
+      emptyState.hidden = rows.length > 0;
+      tableBody.innerHTML = rows.map((item) => `
+        <tr>
+          <td>
+            <div class="stack">
+              <strong>${item.name}</strong>
+            </div>
+          </td>
+          <td>
+            <div class="stack">
+              <strong>${item.note}</strong>
+            </div>
+          </td>
+          <td>
+            <div class="stack">
+              <span class="status ${item.health}">${healthLabel(item.health)}</span>
+              <span class="muted">${item.lastTestAt}</span>
+            </div>
+          </td>
+          <td>
+            <div class="stack">
+              <strong>${item.references.length}</strong>
+            </div>
+          </td>
+          <td>
+            <div class="stack">
+              <strong>${numberFormat(item.usage7d)}</strong>
+            </div>
+          </td>
+          <td>
+            <div class="stack">
+              <span class="status ${item.status}">${statusLabel(item.status)}</span>
+            </div>
+          </td>
+          <td>
+            <div class="stack">
+              <strong>${item.owner}</strong>
+            </div>
+          </td>
+          <td>
+            <div class="stack">
+              <strong>${item.updatedAt}</strong>
+            </div>
+          </td>
+          <td>
+            <div class="row-actions">
+              <button class="row-btn primary" data-action="view" data-id="${item.id}">查看</button>
+              <button class="row-btn" data-action="toggle" data-id="${item.id}">${item.status === "active" ? "下架" : "上架"}</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+      if (window.lucide?.createIcons) window.lucide.createIcons();
+    }
+
+    function getServer(id) {
+      return servers.find((item) => item.id === id);
+    }
+
+    function setPanelTab(tab = "basic") {
+      document.querySelectorAll("#panelTabs .tab").forEach((node) => {
+        node.classList.toggle("active", node.dataset.tab === tab);
+      });
+      document.querySelectorAll("#editorPanel .tab-panel").forEach((node) => {
+        node.classList.toggle("active", node.dataset.panel === tab);
+      });
+    }
+
+    function renderPanelMeta(server) {
+      if (!server) {
+        usagePanel.innerHTML = `
+          <div class="subcard">
+            <h3>应用统计</h3>
+            <div class="hint">创建后可查看关联应用和调用统计。</div>
+          </div>
+        `;
+        return;
+      }
+
+      usagePanel.innerHTML = `
+        <div class="subcard">
+          <h3>应用统计</h3>
+          <div class="list">
+            ${server.references.map((ref) => `
+              <div class="list-item">
+                <div class="list-item-head">
+                  <div>
+                    <strong>${ref.project} / ${ref.app}</strong>
+                    <div class="muted" style="margin-top:4px;">7 天 ${numberFormat(ref.calls7d)} 次调用，成功率 ${ref.successRate}</div>
+                  </div>
+                  <span class="status ${ref.mode === "已阻断" ? "failed" : "active"}">${ref.mode}</span>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+        <div class="subcard">
+          <h3>统计</h3>
+          <div class="stat-grid">
+            <div class="mini-stat"><div class="muted">7 天调用</div><strong>${numberFormat(server.usage7d)}</strong></div>
+            <div class="mini-stat"><div class="muted">成功率</div><strong>${server.successRate ? `${server.successRate.toFixed(1)}%` : "-"}</strong></div>
+            <div class="mini-stat"><div class="muted">P95</div><strong>${server.p95 ? `${server.p95}ms` : "-"}</strong></div>
+          </div>
+          <div class="hint" style="margin-top:12px;">最近测试：${server.lastTestAt}，${server.lastTestSummary}</div>
+        </div>
+      `;
+    }
+
+    function fillEditor(server) {
+      inputs.name.value = server?.name || "";
+      inputs.approval.value = server?.approvalMode || "always";
+      inputs.url.value = server?.endpoint || "";
+      inputs.transport.value = "streamable_http";
+      inputs.auth.value = server?.authMode || "none";
+      inputs.credential.value = server?.credentialRef === "-" ? "" : (server?.credentialRef || "");
+      inputs.owner.value = server?.owner || "";
+      inputs.note.value = server?.note || "";
+      testLog.textContent = '点击"运行测试"检查连通性、认证和服务发现';
+      renderPanelMeta(server);
+    }
+
+    function openEditor(mode, id = "", tab = "basic") {
+      panelMode = mode;
+      editingId = id;
+      const server = id ? getServer(id) : null;
+
+      if (mode === "create") {
+        panelTitle.textContent = "新建 MCP";
+        panelStatusTag.style.display = "none";
+        saveBtn.textContent = "保存原型";
+        deleteBtn.style.display = "none";
+      } else {
+        panelTitle.textContent = server.name;
+        panelStatusTag.textContent = statusLabel(server.status);
+        panelStatusTag.className = `status-tag status ${server.status}`;
+        panelStatusTag.style.display = "inline-flex";
+        saveBtn.textContent = "保存更新";
+        deleteBtn.style.display = "inline-flex";
+      }
+
+      fillEditor(server);
+      setPanelTab(tab);
+      panelBackdrop.classList.add("show");
+      editorPanel.classList.add("show");
+      if (window.lucide?.createIcons) window.lucide.createIcons();
+    }
+
+    function closeEditor() {
+      panelBackdrop.classList.remove("show");
+      editorPanel.classList.remove("show");
+    }
+
+    function runFakeTest() {
+      const name = inputs.name.value.trim() || "未命名 MCP";
+      const authMode = inputs.auth.value;
+      testLog.textContent = [
+        `> Testing ${name}`,
+        `1. DNS / TLS handshake: ok`,
+        `2. Auth (${authLabel(authMode)}): ok`,
+        `3. tools/list discovery: ok`,
+        `4. Snapshot stored at 2026-03-26 15:20`
+      ].join("\n");
+      showToast("测试通过");
+    }
+
+    function toggleServer(id) {
+      const item = getServer(id);
+      item.status = item.status === "active" ? "inactive" : "active";
+      if (item.status === "inactive") {
+        item.references = item.references.map((ref) => ({
+          ...ref,
+          mode: "已阻断"
+        }));
+      } else {
+        item.references = item.references.map((ref) => ({
+          ...ref,
+          mode: "启用中"
+        }));
+      }
+      renderTable();
+      if (editorPanel.classList.contains("show") && editingId === id) openEditor("edit", id, "basic");
+      showToast(item.status === "active" ? "MCP 已上架，可被应用绑定" : "MCP 已下架，应用侧将不可调用");
+    }
+
+    document.getElementById("createBtn").addEventListener("click", () => openEditor("create"));
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      keywordInput.value = "";
+      statusFilter.value = "";
+      authFilter.value = "";
+      healthFilter.value = "";
+      renderTable();
+    });
+    document.getElementById("searchBtn").addEventListener("click", renderTable);
+
+    [statusFilter, authFilter, healthFilter].forEach((node) => {
+      node.addEventListener("change", renderTable);
+    });
+
+    tableBody.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const id = button.dataset.id;
+      const action = button.dataset.action;
+      if (action === "view") openEditor("edit", id, "basic");
+      if (action === "toggle") toggleServer(id);
+    });
+
+    panelBackdrop.addEventListener("click", closeEditor);
+    document.getElementById("closePanelBtn").addEventListener("click", closeEditor);
+    document.getElementById("runTestBtn").addEventListener("click", runFakeTest);
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      showToast(editingId ? "原型已更新，后续可接真实接口" : "原型已保存，后续可接真实接口");
+      closeEditor();
+    });
+    deleteBtn.addEventListener("click", () => {
+      showToast("删除逻辑待接真实接口");
+    });
+
+    document.querySelectorAll("#panelTabs .tab").forEach((node) => {
+      node.addEventListener("click", () => setPanelTab(node.dataset.tab));
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      closeEditor();
+    });
+
+    renderTable();
+    if (window.lucide?.createIcons) window.lucide.createIcons();
+  </script>
+</body>
+
+</html>

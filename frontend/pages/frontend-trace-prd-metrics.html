@@ -389,6 +389,18 @@
       height: 14px;
     }
 
+    .time-label .trace-status-icon {
+      width: 16px;
+      height: 16px;
+      margin-right: 6px;
+      flex-shrink: 0;
+    }
+
+    .time-label .trace-status-icon i {
+      width: 10px;
+      height: 10px;
+    }
+
     .metric-muted {
       color: var(--muted);
     }
@@ -1069,6 +1081,38 @@
       margin-bottom: 6px;
       font-family: monospace;
       font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .time-label-text {
+      flex: 1;
+    }
+
+    .btn-copy-node-inline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 22px;
+      padding: 0 8px;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      border-radius: 4px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: var(--transition);
+      margin-left: 8px;
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .btn-copy-node-inline:hover {
+      background: var(--active);
+      color: var(--blue);
+      border-color: var(--blue);
     }
 
     .t-card {
@@ -1174,6 +1218,32 @@
 
     .t-card-body {
       padding: 12px 16px;
+      position: relative;
+    }
+
+    .btn-copy-node-body {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .btn-copy-node-body:hover {
+      background: var(--active);
+      color: var(--blue);
+      border-color: var(--blue);
     }
 
     .code-block {
@@ -1214,15 +1284,16 @@
       position: absolute;
       left: 0;
       right: 0;
-      bottom: 56px;
-      height: 40px;
-      background: linear-gradient(to bottom, rgba(248, 250, 252, 0), #f8fafc 72%);
+      bottom: 32px;
+      height: 20px;
+      background: linear-gradient(to bottom, rgba(248, 250, 252, 0), #f8fafc 100%);
       pointer-events: none;
     }
 
     .code-block.expanded {
-      max-height: min(60vh, 640px);
+      max-height: calc(20 * 1.6em + 52px);
       overflow: hidden;
+      position: relative;
     }
 
     .expand-btn {
@@ -1255,7 +1326,7 @@
     }
 
     .code-block.expanded .code-block-content {
-      max-height: calc(min(60vh, 640px) - 68px);
+      max-height: calc(20 * 1.6em + 24px);
       overflow-y: auto;
       padding-right: 4px;
     }
@@ -1540,9 +1611,11 @@
               </select>
             </div>
             <div class="filter-item">
-              <label>用户反馈</label>
+              <label>状态</label>
               <select class="input-box">
-                <option>全部</option>
+                <option value="">全部</option>
+                <option value="success">成功</option>
+                <option value="failed">失败</option>
               </select>
             </div>
 
@@ -1570,10 +1643,16 @@
                 <option value="">请选择</option>
               </select>
             </div>
+            <div class="filter-item">
+              <label>请求主体类型</label>
+              <select class="input-box">
+                <option value="">请选择</option>
+              </select>
+            </div>
 
             <div class="filter-item">
-              <label>唯一id</label>
-              <input type="text" class="input-box" placeholder="请输入用户唯一标识值" />
+              <label>主体唯一id</label>
+              <input type="text" class="input-box" placeholder="请输入主体唯一标识值" />
             </div>
             <div class="filter-item">
               <label>扩展id类型</label>
@@ -1763,7 +1842,7 @@
             </div>
             <div class="log-actions" style="display: flex; gap: 8px;">
               <button class="btn-action" onclick="copyAllNodes()">
-                <i data-lucide="layers"></i> 复制全部过程日志
+                <i data-lucide="layers"></i> 复制全部日志
               </button>
             </div>
           </div>
@@ -2817,7 +2896,7 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
       const byLogicalLines = lineCount > lineLimit;
       const byContentLength = text.length > lineLimit * 120;
       const needsCollapse = byLogicalLines || byContentLength;
-      return `<div class="code-block ${needsCollapse ? "collapsed is-scrollable" : ""}" data-line-count="${lineCount}" style="--collapse-lines:${lineLimit};">${needsCollapse ? '<div class="expand-btn" onclick="toggleExpand(this.parentElement)">展开内容</div>' : ""}<div class="code-block-content">${escapeHtml(text)}</div></div>`;
+      return `<div class="code-block ${needsCollapse ? "collapsed" : ""}" data-line-count="${lineCount}" style="--collapse-lines:${lineLimit};">${needsCollapse ? '<div class="expand-btn" onclick="toggleExpand(this.parentElement)">展开内容</div>' : ""}<div class="code-block-content">${escapeHtml(text)}</div></div>`;
     }
 
     function detectFormat(content) {
@@ -3070,9 +3149,12 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
       return trace.processNodes?.length ? trace.processNodes : buildGenericNodes(trace);
     }
 
-    function getNodeMetaItems(node) {
+    function getNodeMetaItems(node, index, totalCount) {
       const items = [];
-      if (Number.isFinite(node.durationMs)) {
+      // 首个节点和末端节点不显示耗时
+      const isFirstNode = index === 0;
+      const isLastNode = index === totalCount - 1;
+      if (!isFirstNode && !isLastNode && Number.isFinite(node.durationMs)) {
         items.push({ text: `耗时 ${formatDuration(node.durationMs)}`, highlight: true });
       }
       if (node.tokenUsage) {
@@ -3138,24 +3220,25 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
       data.forEach((node, index) => {
         const statusMeta = TRACE_STATUS_META[node.status] || TRACE_STATUS_META.success;
         const contentHtml = renderNodeContent(node, collapseLines);
-        const metaItems = getNodeMetaItems(node);
+        const metaItems = getNodeMetaItems(node, index, data.length);
 
         streamHtml += `
           <div class="timeline-item" id="${node.id}">
             ${simpleMode ? "" : `<div class="timeline-icon icon-${node.color}"><i data-lucide="${node.icon}"></i></div>`}
-            <div class="time-label">${escapeHtml(getNodeLogMetaLine(trace, node))}</div>
+            <div class="time-label">
+              ${renderStatusIcon(node.status)}
+              <span class="time-label-text">${escapeHtml(getNodeLogMetaLine(trace, node))}</span>
+              <button class="btn-copy-node-inline" onclick="copyNodeById('${node.id}')" title="复制当前节点">
+                <i data-lucide="copy" style="width: 12px; height: 12px;"></i>
+              </button>
+            </div>
             <div class="t-card">
               <div class="t-card-header">
                 <div class="t-card-header-main">
                   <div class="t-card-title-row">
-                    <div class="t-card-title">${escapeHtml(node.title)}</div>
-                    ${renderStatusPill(node.status)}
                     ${metaItems.length ? `<div class="t-card-meta">${metaItems.map((item) => `<span class="${item.highlight ? "meta-highlight" : ""}">${escapeHtml(item.text)}</span>`).join("")}</div>` : ""}
                   </div>
                 </div>
-                <button class="btn-copy-node" onclick="copyNodeById('${node.id}')" title="复制当前节点">
-                  <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
-                </button>
               </div>
               <div class="t-card-body">${contentHtml}</div>
             </div>
@@ -3260,17 +3343,19 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
     function toggleExpand(el) {
       const expandBtn = el?.querySelector(".expand-btn");
       const contentEl = el?.querySelector(".code-block-content");
-      if (!expandBtn || !el.classList.contains("is-scrollable")) return;
+      if (!expandBtn) return;
 
       if (el.classList.contains("collapsed")) {
         el.classList.remove("collapsed");
         el.classList.add("expanded");
+        el.classList.add("is-scrollable");
         expandBtn.innerText = "收起内容";
         return;
       }
 
       el.classList.add("collapsed");
       el.classList.remove("expanded");
+      el.classList.remove("is-scrollable");
       if (contentEl) contentEl.scrollTop = 0;
       expandBtn.innerText = "展开内容";
     }

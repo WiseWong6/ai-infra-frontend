@@ -59,13 +59,105 @@
     }
     .field { display: flex; flex-direction: column; gap: 8px; }
     .field label { font-size: 13px; color: var(--muted); font-weight: 500; }
-    .field input, .field select, .field textarea {
+    .field input:not([type="radio"]):not([type="checkbox"]), .field select, .field textarea {
       width: 100%; min-height: 36px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 4px; outline: none; background: #fff;
     }
-    .field textarea { min-height: 88px; resize: vertical; padding: 10px 12px; }
-    .field input:focus, .field select:focus, .field textarea:focus {
+    .field textarea {
+      min-height: 88px;
+      height: 88px;
+      resize: vertical;
+      padding: 10px 12px;
+    }
+    .field input:not([type="radio"]):not([type="checkbox"]):focus, .field select:focus, .field textarea:focus {
       border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* 自定义下拉框样式 */
+    .custom-select {
+      position: relative;
+      width: 100%;
+      min-height: 36px;
+    }
+    .custom-select-trigger {
+      width: 100%;
+      min-height: 36px;
+      padding: 0 32px 0 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      color: var(--text);
+      transition: all 0.15s ease;
+    }
+    .custom-select-trigger:hover {
+      border-color: var(--blue);
+    }
+    .custom-select.open .custom-select-trigger {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .custom-select-trigger::after {
+      content: '';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 4px solid transparent;
+      border-top-color: var(--muted);
+      transition: transform 0.15s ease;
+    }
+    .custom-select.open .custom-select-trigger::after {
+      transform: translateY(-50%) rotate(180deg);
+    }
+    .custom-select-trigger .placeholder {
+      color: var(--muted);
+    }
+    .custom-select-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      z-index: 1000;
+      max-height: 240px;
+      overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.15s ease;
+    }
+    .custom-select.open .custom-select-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .custom-select-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: background 0.1s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .custom-select-option:hover {
+      background: var(--blue-soft);
+    }
+    .custom-select-option.selected {
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 500;
+    }
+    .custom-select-option.selected::before {
+      content: '✓';
+      font-weight: 700;
     }
     .filter-actions {
       display: flex;
@@ -93,6 +185,9 @@
     .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
     table { width: 100%; border-collapse: collapse; min-width: 1240px; }
     th, td { padding: 14px 16px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
+    /* 关联节点弹窗表格自适应 */
+    #nodesModal table { min-width: auto; }
+    #nodesModal th, #nodesModal td { white-space: nowrap; }
     th { font-size: 12px; font-weight: 600; color: var(--muted); background: #f8fafc; }
     td strong { display: block; }
     .muted { color: var(--muted); font-size: 12px; }
@@ -123,35 +218,120 @@
       padding: 0 12px; cursor: pointer; font-size: 12px; font-weight: 600;
     }
     .empty { padding: 48px 24px; text-align: center; color: var(--muted); }
+    body.modal-open { overflow: hidden; }
     .modal {
-      position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px;
-      background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 9999;
+      position: fixed; inset: 0; display: flex; align-items: stretch; justify-content: flex-end; padding: 0;
+      background: rgba(15, 23, 42, 0.36); backdrop-filter: blur(4px); z-index: 9999;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
     }
-    .modal.show { display: flex; }
+    .modal.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
     .panel {
-      width: min(1040px, 100%); max-height: calc(100vh - 48px); overflow: auto; background: #fff;
-      border-radius: 20px; border: 1px solid var(--line); box-shadow: 0 32px 96px rgba(15, 23, 42, 0.24);
+      width: min(960px, 100vw); height: 100vh; background: #fff; display: flex; flex-direction: column;
+      border-left: 1px solid var(--line); box-shadow: -24px 0 64px rgba(15, 23, 42, 0.18);
+      transform: translateX(100%); transition: transform 0.24s ease;
     }
+    .modal.show .panel { transform: translateX(0); }
     .panel-head, .panel-foot {
       padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
       border-bottom: 1px solid var(--line);
     }
     .panel-foot { border-bottom: 0; border-top: 1px solid var(--line); justify-content: flex-end; }
-    .panel-body { padding: 20px; display: grid; gap: 18px; }
-    .grid-2, .grid-3 { display: grid; gap: 16px; }
+    .panel-body { padding: 20px; display: grid; gap: 18px; flex: 1; overflow: auto; }
+    .grid-2, .grid-3, .grid-4 { display: grid; gap: 16px; }
     .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .stack-1 { grid-template-columns: 1fr; }
+    .form-list {
+      display: grid;
+      gap: 16px;
+    }
+    .form-list .field {
+      flex-direction: row;
+      align-items: center;
+      gap: 16px;
+    }
+    .form-list .field label {
+      width: 104px;
+      flex: 0 0 104px;
+      margin: 0;
+    }
+    .form-list .field input:not([type="radio"]):not([type="checkbox"]),
+    .form-list .field select,
+    .form-list .field textarea,
+    .form-list .field .custom-select {
+      flex: 1;
+      width: auto;
+      min-width: 0;
+    }
+    .status-options, .choice-options {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .status-radio, .choice-radio {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: var(--text);
+      white-space: nowrap;
+      font-size: 13px;
+    }
+    .status-radio input, .choice-radio input {
+      margin: 0;
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      padding: 0;
+      flex: 0 0 18px;
+      box-sizing: border-box;
+      appearance: none;
+      -webkit-appearance: none;
+      border: 1px solid #94a3b8;
+      border-radius: 50%;
+      background: #fff;
+      position: relative;
+      cursor: pointer;
+    }
+    .status-radio input:checked, .choice-radio input:checked {
+      border-color: var(--blue);
+    }
+    .status-radio input:checked::after, .choice-radio input:checked::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: var(--blue);
+    }
     .subcard {
       border: 1px solid var(--line); border-radius: 16px; padding: 16px; background: #fbfdff;
     }
     .subcard h3 { margin: 0 0 14px; font-size: 15px; }
-    .checks { display: flex; flex-wrap: wrap; gap: 10px 14px; }
-    .checks label { display: inline-flex; align-items: center; gap: 8px; color: var(--text); font-size: 13px; }
-    .toggle-row { display: flex; gap: 12px; flex-wrap: wrap; }
-    .toggle-chip {
-      display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--line);
-      border-radius: 12px; background: #fff;
+    .toggle-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 24px;
     }
+    .toggle-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .toggle-inline input {
+      margin: 0;
+    }
+    [hidden] { display: none !important; }
     .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
     .toast {
       position: fixed; top: 28px; left: 50%; transform: translateX(-50%) translateY(-8px);
@@ -160,8 +340,21 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     @media (max-width: 1180px) {
-      .filter-grid, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .filter-grid, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
       .filter-actions { justify-content: flex-start; }
+    }
+    @media (max-width: 760px) {
+      .panel {
+        width: 100vw;
+      }
+      .panel-head, .panel-body, .panel-foot {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .form-list .field label {
+        width: 88px;
+        flex-basis: 88px;
+      }
     }
   </style>
 </head>
@@ -241,6 +434,7 @@
                   <th>多模态</th>
                   <th>Json输出</th>
                   <th>状态</th>
+                  <th>关联节点</th>
                   <th>操作</th>
                 </tr>
               </thead>
@@ -257,134 +451,99 @@
     <div class="panel">
       <div class="panel-head">
         <div>
-          <strong id="modalTitle">新建模型</strong>
-          <div class="muted" style="margin-top:4px;">一条模型记录代表一个当前封装层可直接调用的模型。</div>
+          <strong id="modalTitle">添加模型</strong>
+          <div class="muted" style="margin-top:4px;">维护模型基础信息、价格、能力和默认参数。</div>
         </div>
         <button class="row-btn" id="closeModalBtn">关闭</button>
       </div>
       <div class="panel-body">
-        <div class="grid-3">
-          <div class="field">
-            <label>模型键</label>
-            <input id="modelKeyInput" placeholder="如 volc-doubao-seed-2-0-pro" />
-          </div>
-          <div class="field">
-            <label>展示名称</label>
-            <input id="displayNameInput" placeholder="如 Doubao Seed 2.0 Pro" />
-          </div>
-          <div class="field">
-            <label>供应商</label>
-            <select id="supplierInput"></select>
-          </div>
-        </div>
-        <div class="grid-3">
-          <div class="field">
-            <label>模型 ID</label>
-            <input id="providerModelIdInput" placeholder="如 doubao-seed-2-0-pro-250415" />
-          </div>
-          <div class="field">
-            <label>状态</label>
-            <select id="statusInput">
-              <option value="active">启用</option>
-              <option value="disabled">下架</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>价格提示</label>
-            <input id="pricingHintInput" placeholder="如 输入 0.0032 / 输出 0.0160 元/千tokens" />
+        <div class="subcard">
+          <h3>基础信息</h3>
+          <div class="form-list">
+            <div class="field">
+              <label>供应商</label>
+              <select id="supplierInput"></select>
+            </div>
+            <div class="field">
+              <label>模型 ID</label>
+              <input id="providerModelIdInput" placeholder="如 doubao-seed-2-0-pro-250415" />
+            </div>
+            <div class="field">
+              <label>模型名称</label>
+              <input id="displayNameInput" placeholder="如 Doubao Seed 2.0 Pro" />
+            </div>
+            <div class="field">
+              <label>状态</label>
+              <div class="status-options" id="statusInput">
+                <label class="status-radio"><input type="radio" name="modelStatus" value="active" checked /> 启用</label>
+                <label class="status-radio"><input type="radio" name="modelStatus" value="disabled" /> 不启用</label>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="subcard">
-          <h3>能力矩阵</h3>
+          <h3>能力支持</h3>
           <div class="toggle-row">
-            <label class="toggle-chip"><input type="checkbox" id="supportsThinkingInput" /> 支持深度思考</label>
-            <label class="toggle-chip"><input type="checkbox" id="supportsImageInput" /> 支持图片输入</label>
-            <label class="toggle-chip"><input type="checkbox" id="supportsStreamingInput" checked /> 支持流式输出</label>
+            <label class="toggle-inline"><input type="checkbox" id="supportsImageInput" /> 多模态</label>
+            <label class="toggle-inline"><input type="checkbox" id="supportsThinkingInput" /> 深度思考</label>
+            <label class="toggle-inline"><input type="checkbox" id="supportsJsonInput" /> Json格式化</label>
+            <label class="toggle-inline"><input type="checkbox" id="supportsStreamingInput" checked /> 流式输出</label>
           </div>
-          <div class="grid-2" style="margin-top:16px;">
-            <div class="field">
-              <label>JSON 模式</label>
-              <div class="checks">
-                <label><input type="checkbox" value="none" data-json-mode checked disabled /> 文本输出</label>
-                <label><input type="checkbox" value="json_object" data-json-mode /> JSON Object</label>
-              </div>
-            </div>
-            <div class="field">
-              <label>思考强度</label>
-              <div class="checks" id="reasoningChecks">
-                <label><input type="checkbox" value="minimal" data-reasoning-effort /> minimal</label>
-                <label><input type="checkbox" value="low" data-reasoning-effort /> low</label>
-                <label><input type="checkbox" value="medium" data-reasoning-effort checked /> medium</label>
-                <label><input type="checkbox" value="high" data-reasoning-effort /> high</label>
-              </div>
-            </div>
+        </div>
+
+        <div class="subcard">
+          <h3>模型价格</h3>
+          <div class="field">
+            <label>价格说明</label>
+            <textarea id="pricingNoteInput" placeholder="如 输入¥0.003/千tokens，输出¥0.015/千tokens"></textarea>
+            <div class="hint">填写模型的价格信息，支持自由格式</div>
           </div>
         </div>
 
         <div class="subcard">
           <h3>默认配置</h3>
-          <div class="grid-3">
-            <div class="field">
+          <div class="form-list">
+            <div class="field" id="defaultThinkingField">
               <label>思考模式</label>
-              <select id="defaultThinkingModeInput">
-                <option value="disabled">关闭</option>
-                <option value="enabled">开启</option>
-                <option value="auto">自动</option>
-              </select>
+              <div class="choice-options" id="defaultThinkingModeInput">
+                <label class="choice-radio"><input type="radio" name="defaultThinkingMode" value="disabled" checked /> 关闭</label>
+                <label class="choice-radio"><input type="radio" name="defaultThinkingMode" value="enabled" /> 开启</label>
+                <label class="choice-radio"><input type="radio" name="defaultThinkingMode" value="auto" /> 自动</label>
+              </div>
             </div>
-            <div class="field">
-              <label>默认流式</label>
-              <select id="defaultStreamInput">
-                <option value="false">关闭</option>
-                <option value="true">开启</option>
-              </select>
+            <div class="field" id="defaultStreamField">
+              <label>流式输出</label>
+              <div class="choice-options" id="defaultStreamInput">
+                <label class="choice-radio"><input type="radio" name="defaultStream" value="false" checked /> 关闭</label>
+                <label class="choice-radio"><input type="radio" name="defaultStream" value="true" /> 开启</label>
+              </div>
             </div>
-            <div class="field">
-              <label>默认 JSON 模式</label>
-              <select id="defaultJsonModeInput">
-                <option value="none">文本输出</option>
-                <option value="json_object">JSON Object</option>
-              </select>
+            <div class="field" id="defaultJsonField">
+              <label>Json格式化</label>
+              <div class="choice-options" id="defaultJsonModeInput">
+                <label class="choice-radio"><input type="radio" name="defaultJsonMode" value="none" checked /> 关闭</label>
+                <label class="choice-radio"><input type="radio" name="defaultJsonMode" value="json_object" /> 开启</label>
+              </div>
             </div>
           </div>
-          <div class="grid-3" style="margin-top:16px;">
-            <div class="field">
-              <label>默认思考强度</label>
-              <select id="defaultReasoningEffortInput">
-                <option value="">无</option>
-                <option value="minimal">minimal</option>
-                <option value="low">low</option>
-                <option value="medium">medium</option>
-                <option value="high">high</option>
-              </select>
-            </div>
+          <div class="form-list" style="margin-top:16px;">
             <div class="field">
               <label>温度</label>
-              <input id="temperatureInput" value="0.3" />
+              <input id="temperatureInput" value="0.3" placeholder="控制输出的随机性，0为确定性输出，2为最大随机性" />
             </div>
             <div class="field">
-              <label>Seed</label>
-              <input id="seedInput" value="42" />
-            </div>
-          </div>
-          <div class="grid-3" style="margin-top:16px;">
-            <div class="field">
-              <label>Max Tokens</label>
-              <input id="maxTokensInput" value="32000" />
+              <label>MaxToken</label>
+              <input id="maxTokensInput" value="32000" placeholder="最大输出令牌数，取值范围：0-32000" />
             </div>
             <div class="field">
-              <label>Timeout</label>
-              <input id="timeoutInput" value="300" />
+              <label>超时</label>
+              <input id="timeoutInput" value="300" placeholder="模型调用超时时间，默认300秒" />
             </div>
             <div class="field">
-              <label>Extra Body</label>
-              <input id="extraBodyInput" placeholder='{"key":"value"}' />
+              <label>ExtraBody</label>
+              <textarea id="extraBodyInput" placeholder='额外的请求参数（JSON格式），{"key": "value"}'></textarea>
             </div>
-          </div>
-          <div class="field" style="margin-top:16px;">
-            <label>描述</label>
-            <textarea id="descriptionInput" placeholder="说明这个模型适合什么场景、有哪些约束"></textarea>
           </div>
         </div>
       </div>
@@ -395,9 +554,322 @@
     </div>
   </div>
 
+  <div class="modal" id="nodesModal">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <strong id="nodesModalTitle">关联节点</strong>
+          <div class="muted" style="margin-top:4px;">查看当前模型关联的所有节点信息。</div>
+        </div>
+        <button class="row-btn" id="closeNodesModalBtn">关闭</button>
+      </div>
+      <div class="panel-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>应用 ID</th>
+                <th>应用名称</th>
+                <th>节点名称</th>
+                <th>最近编辑用户</th>
+                <th>最近编辑时间</th>
+              </tr>
+            </thead>
+            <tbody id="nodesTableBody"></tbody>
+          </table>
+          <div id="nodesEmptyState" class="empty" hidden>暂无关联节点</div>
+        </div>
+      </div>
+      <div class="panel-foot">
+        <button class="btn ghost" id="closeNodesBtn">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="testModal">
+    <div class="panel" style="width: min(800px, 100vw);">
+      <div class="panel-head">
+        <div>
+          <strong id="testModalTitle">模型测试</strong>
+          <div class="muted" style="margin-top:4px;">测试模型各项能力表现。</div>
+        </div>
+        <button class="row-btn" id="closeTestModalBtn">关闭</button>
+      </div>
+      <div class="panel-body" id="testPanelBody">
+        <!-- 基础测试 -->
+        <div class="subcard test-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0; font-size:15px;">基础测试</h3>
+            <button class="row-btn test-run-btn" data-test="basic">运行</button>
+          </div>
+          <div class="form-list">
+            <div class="field">
+              <label>输入</label>
+              <textarea class="test-input" data-test="basic" placeholder="请输入测试内容">你好，请介绍一下自己</textarea>
+            </div>
+            <div class="field test-reasoning-field" data-test="basic" style="display:none;">
+              <label>推理</label>
+              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);"></div>
+            </div>
+            <div class="field test-output-field" data-test="basic" style="display:none;">
+              <label>输出</label>
+              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 多模态测试 -->
+        <div class="subcard test-card" id="multimodalTestCard">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0; font-size:15px;">多模态测试</h3>
+            <button class="row-btn test-run-btn" data-test="multimodal">运行</button>
+          </div>
+          <div class="form-list">
+            <div class="field">
+              <label>输入</label>
+              <textarea class="test-input" data-test="multimodal" placeholder="请输入测试内容">请告诉我图片上有什么信息</textarea>
+            </div>
+            <div class="field">
+              <label>图片</label>
+              <div style="flex:1; display:flex; align-items:center; gap:12px;">
+                <div class="image-preview" style="width:120px; height:120px; border:2px dashed var(--line-strong); border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px;">图片预览</div>
+                <button class="row-btn" style="height:32px;">选择图片</button>
+              </div>
+            </div>
+            <div class="field test-reasoning-field" data-test="multimodal" style="display:none;">
+              <label>推理</label>
+              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);"></div>
+            </div>
+            <div class="field test-output-field" data-test="multimodal" style="display:none;">
+              <label>输出</label>
+              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- JSON格式化测试 -->
+        <div class="subcard test-card" id="jsonTestCard">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0; font-size:15px;">JSON格式化测试</h3>
+            <button class="row-btn test-run-btn" data-test="json">运行</button>
+          </div>
+          <div class="form-list">
+            <div class="field">
+              <label>输入</label>
+              <textarea class="test-input" data-test="json" placeholder="请输入测试内容">请以JSON格式返回一个用户信息，包含name和age字段</textarea>
+            </div>
+            <div class="field test-reasoning-field" data-test="json" style="display:none;">
+              <label>推理</label>
+              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);"></div>
+            </div>
+            <div class="field test-output-field" data-test="json" style="display:none;">
+              <label>输出</label>
+              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 深度思考测试 -->
+        <div class="subcard test-card" id="thinkingTestCard">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:16px;">
+              <h3 style="margin:0; font-size:15px;">深度思考测试</h3>
+              <div class="choice-options" style="flex-wrap:nowrap;">
+                <span style="font-size:13px; color:var(--muted);">流式输出:</span>
+                <label class="choice-radio" style="font-size:13px;"><input type="radio" name="thinkingStream" value="false" checked /> 关闭</label>
+                <label class="choice-radio" style="font-size:13px;"><input type="radio" name="thinkingStream" value="true" /> 开启</label>
+              </div>
+            </div>
+            <button class="row-btn test-run-btn" data-test="thinking">运行</button>
+          </div>
+          <div class="form-list">
+            <div class="field">
+              <label>输入</label>
+              <textarea class="test-input" data-test="thinking" placeholder="请输入测试内容">分析人工智能的优缺点，并给出实际应用建议</textarea>
+            </div>
+            <div class="field test-reasoning-field" data-test="thinking" style="display:none;">
+              <label>推理</label>
+              <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);"></div>
+            </div>
+            <div class="field test-output-field" data-test="thinking" style="display:none;">
+              <label>输出</label>
+              <div class="test-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:80px; font-size:13px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-foot">
+        <button class="btn ghost" id="closeTestBtn">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
+    // 自定义下拉框组件
+    class CustomSelect {
+      constructor(originalSelect, options = {}) {
+        this.originalSelect = originalSelect;
+        this.options = options;
+        this.isOpen = false;
+        this.selectedValue = originalSelect.value;
+        this.selectedText = '';
+
+        this.init();
+      }
+
+      init() {
+        // 隐藏原生 select
+        this.originalSelect.style.display = 'none';
+
+        // 创建自定义组件容器
+        this.container = document.createElement('div');
+        this.container.className = 'custom-select';
+        this.originalSelect.parentNode.insertBefore(this.container, this.originalSelect.nextSibling);
+
+        // 创建触发器
+        this.trigger = document.createElement('div');
+        this.trigger.className = 'custom-select-trigger';
+        this.container.appendChild(this.trigger);
+
+        // 创建下拉列表
+        this.dropdown = document.createElement('div');
+        this.dropdown.className = 'custom-select-dropdown';
+        this.container.appendChild(this.dropdown);
+
+        // 渲染选项
+        this.renderOptions();
+
+        // 绑定事件
+        this.bindEvents();
+
+        // 初始化显示
+        this.updateDisplay();
+      }
+
+      renderOptions() {
+        this.dropdown.innerHTML = '';
+        const options = this.originalSelect.options;
+
+        for (let i = 0; i < options.length; i++) {
+          const option = options[i];
+          const item = document.createElement('div');
+          item.className = 'custom-select-option';
+          item.dataset.value = option.value;
+          item.textContent = option.textContent;
+
+          if (option.value === this.selectedValue) {
+            item.classList.add('selected');
+            this.selectedText = option.textContent;
+          }
+
+          this.dropdown.appendChild(item);
+        }
+      }
+
+      updateDisplay() {
+        const selectedOption = this.originalSelect.options[this.originalSelect.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+          this.trigger.innerHTML = `<span>${selectedOption.textContent}</span>`;
+          this.selectedText = selectedOption.textContent;
+        } else {
+          this.trigger.innerHTML = `<span class="placeholder">${this.options.placeholder || '请选择'}</span>`;
+        }
+
+        // 更新选中状态
+        const items = this.dropdown.querySelectorAll('.custom-select-option');
+        items.forEach(item => {
+          item.classList.toggle('selected', item.dataset.value === this.selectedValue);
+        });
+      }
+
+      bindEvents() {
+        // 点击触发器
+        this.trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggle();
+        });
+
+        // 点击选项
+        this.dropdown.addEventListener('click', (e) => {
+          const option = e.target.closest('.custom-select-option');
+          if (option) {
+            this.select(option.dataset.value);
+          }
+        });
+
+        // 监听原生 select 的变化（外部程序修改 value 时）
+        const observer = new MutationObserver(() => {
+          if (this.originalSelect.value !== this.selectedValue) {
+            this.selectedValue = this.originalSelect.value;
+            this.updateDisplay();
+          }
+        });
+
+        // 监听 options 变化
+        const optionsObserver = new MutationObserver(() => {
+          this.renderOptions();
+          this.updateDisplay();
+        });
+        optionsObserver.observe(this.originalSelect, { childList: true, subtree: true });
+
+        // 定期检查 value 变化（兼容直接设置 value 的情况）
+        setInterval(() => {
+          if (this.originalSelect.value !== this.selectedValue) {
+            this.selectedValue = this.originalSelect.value;
+            this.updateDisplay();
+          }
+        }, 50);
+      }
+
+      toggle() {
+        this.isOpen = !this.isOpen;
+        this.container.classList.toggle('open', this.isOpen);
+
+        if (this.isOpen) {
+          // 关闭其他下拉框
+          document.querySelectorAll('.custom-select.open').forEach(el => {
+            if (el !== this.container) {
+              el.classList.remove('open');
+            }
+          });
+        }
+      }
+
+      close() {
+        this.isOpen = false;
+        this.container.classList.remove('open');
+      }
+
+      select(value) {
+        this.selectedValue = value;
+        this.originalSelect.value = value;
+        this.updateDisplay();
+        this.close();
+
+        // 触发 change 事件
+        const event = new Event('change', { bubbles: true });
+        this.originalSelect.dispatchEvent(event);
+      }
+
+      // 外部刷新选项
+      refresh() {
+        this.renderOptions();
+        this.updateDisplay();
+      }
+    }
+
+    // 全局存储自定义下拉框实例
+    const customSelects = {};
+
+    // 点击其他区域关闭下拉框
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.custom-select.open').forEach(el => {
+        el.classList.remove('open');
+      });
+    });
+
     const {
       STORAGE_KEYS,
       getSuppliers,
@@ -420,25 +892,56 @@
     const modalTitle = document.getElementById("modalTitle");
     const toast = document.getElementById("toast");
 
-    const modelKeyInput = document.getElementById("modelKeyInput");
     const displayNameInput = document.getElementById("displayNameInput");
     const supplierInput = document.getElementById("supplierInput");
     const providerModelIdInput = document.getElementById("providerModelIdInput");
-    const statusInput = document.getElementById("statusInput");
-    const pricingHintInput = document.getElementById("pricingHintInput");
+    const statusInputs = Array.from(document.querySelectorAll('input[name="modelStatus"]'));
+    const pricingNoteInput = document.getElementById("pricingNoteInput");
     const supportsThinkingInput = document.getElementById("supportsThinkingInput");
     const supportsImageInput = document.getElementById("supportsImageInput");
+    const supportsJsonInput = document.getElementById("supportsJsonInput");
     const supportsStreamingInput = document.getElementById("supportsStreamingInput");
-    const defaultThinkingModeInput = document.getElementById("defaultThinkingModeInput");
-    const defaultStreamInput = document.getElementById("defaultStreamInput");
-    const defaultJsonModeInput = document.getElementById("defaultJsonModeInput");
-    const defaultReasoningEffortInput = document.getElementById("defaultReasoningEffortInput");
+    const defaultThinkingField = document.getElementById("defaultThinkingField");
+    const defaultStreamField = document.getElementById("defaultStreamField");
+    const defaultJsonField = document.getElementById("defaultJsonField");
+    const defaultThinkingModeInputs = Array.from(document.querySelectorAll('input[name="defaultThinkingMode"]'));
+    const defaultStreamInputs = Array.from(document.querySelectorAll('input[name="defaultStream"]'));
+    const defaultJsonModeInputs = Array.from(document.querySelectorAll('input[name="defaultJsonMode"]'));
     const temperatureInput = document.getElementById("temperatureInput");
-    const seedInput = document.getElementById("seedInput");
     const maxTokensInput = document.getElementById("maxTokensInput");
     const timeoutInput = document.getElementById("timeoutInput");
     const extraBodyInput = document.getElementById("extraBodyInput");
-    const descriptionInput = document.getElementById("descriptionInput");
+
+    // 关联节点弹窗元素
+    const nodesModal = document.getElementById("nodesModal");
+    const nodesModalTitle = document.getElementById("nodesModalTitle");
+    const nodesTableBody = document.getElementById("nodesTableBody");
+    const nodesEmptyState = document.getElementById("nodesEmptyState");
+
+    // Mock 关联节点数据 - key 与 model-registry.js 中的 modelKey 对应
+    const mockNodesData = {
+      "volc-doubao-seed-2-0-pro": [
+        { appId: "app_001", appName: "智能客服系统", nodeName: "意图识别节点", editor: "张三", editTime: "2025-03-26 14:30:00" },
+        { appId: "app_002", appName: "文档生成助手", nodeName: "内容生成节点", editor: "李四", editTime: "2025-03-25 09:15:00" },
+        { appId: "app_003", appName: "代码审查工具", nodeName: "代码分析节点", editor: "王五", editTime: "2025-03-24 16:45:00" }
+      ],
+      "volc-doubao-seed-1-6-flash": [
+        { appId: "app_004", appName: "快速问答系统", nodeName: "问答节点", editor: "赵六", editTime: "2025-03-27 08:20:00" },
+        { appId: "app_005", appName: "文本摘要工具", nodeName: "摘要生成节点", editor: "钱七", editTime: "2025-03-26 11:00:00" }
+      ],
+      "aliyun-qwen-3-5-plus": [],
+      "aliyun-qwen-3-5-flash": [],
+      "deepseek-v3-2": [
+        { appId: "app_006", appName: "数据分析平台", nodeName: "数据清洗节点", editor: "孙八", editTime: "2025-03-27 10:30:00" },
+        { appId: "app_007", appName: "营销文案生成", nodeName: "文案生成节点", editor: "周九", editTime: "2025-03-26 15:00:00" },
+        { appId: "app_008", appName: "知识问答系统", nodeName: "问答匹配节点", editor: "吴十", editTime: "2025-03-25 11:30:00" },
+        { appId: "app_009", appName: "内容审核系统", nodeName: "敏感词检测节点", editor: "张三", editTime: "2025-03-24 09:45:00" },
+        { appId: "app_010", appName: "翻译助手", nodeName: "翻译节点", editor: "李四", editTime: "2025-03-23 14:20:00" }
+      ],
+      "openai-gpt-4o-mini": [
+        { appId: "app_011", appName: "AI绘画助手", nodeName: "图像生成节点", editor: "王五", editTime: "2025-03-27 10:30:00" }
+      ]
+    };
 
     let editingModelKey = "";
 
@@ -449,12 +952,26 @@
       showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
-    function getJsonModesFromInputs() {
-      return Array.from(document.querySelectorAll("[data-json-mode]:checked")).map((node) => node.value);
+    function sanitizeModelKeyPart(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
     }
 
-    function getReasoningEffortsFromInputs() {
-      return Array.from(document.querySelectorAll("[data-reasoning-effort]:checked")).map((node) => node.value);
+    function buildModelKey(supplierCode, providerModelId) {
+      const supplier = sanitizeModelKeyPart(supplierCode);
+      const provider = sanitizeModelKeyPart(providerModelId);
+      return [supplier, provider].filter(Boolean).join("-") || "";
+    }
+
+    function hasProviderConflict(rows, supplierCode, providerModelId, currentModelKey) {
+      return rows.some((item) =>
+        item.modelKey !== currentModelKey &&
+        item.supplierCode === supplierCode &&
+        item.providerModelId === providerModelId
+      );
     }
 
     function renderSupplierOptions() {
@@ -523,10 +1040,13 @@
               </span>
             </td>
             <td><span class="status ${item.status === "disabled" ? "disabled" : ""}">${item.status === "active" ? "启用" : "下架"}</span></td>
+            <td><strong>${item.linkedNodes ?? (mockNodesData[item.modelKey]?.length || 0)}</strong></td>
             <td>
               <div class="row-actions">
                 <button class="row-btn" data-action="edit" data-key="${item.modelKey}">编辑</button>
                 <button class="row-btn" data-action="toggle" data-key="${item.modelKey}">${item.status === "active" ? "下架" : "启用"}</button>
+                <button class="row-btn" data-action="nodes" data-key="${item.modelKey}">关联节点</button>
+                <button class="row-btn" data-action="test" data-key="${item.modelKey}">测试</button>
               </div>
             </td>
           </tr>
@@ -535,117 +1055,138 @@
       if (window.lucide?.createIcons) window.lucide.createIcons();
     }
 
-    function syncCapabilityDependencies() {
-      const supportsThinking = supportsThinkingInput.checked;
-      document.querySelectorAll("[data-reasoning-effort]").forEach((node) => {
-        node.disabled = !supportsThinking;
-        if (!supportsThinking) node.checked = false;
-      });
-      defaultThinkingModeInput.disabled = !supportsThinking;
-      defaultReasoningEffortInput.disabled = !supportsThinking;
-      if (!supportsThinking) {
-        defaultThinkingModeInput.value = "disabled";
-        defaultReasoningEffortInput.value = "";
-      } else if (!getReasoningEffortsFromInputs().length) {
-        document.querySelector('[data-reasoning-effort="medium"]').checked = true;
-        defaultReasoningEffortInput.value = "medium";
+    function refreshCustomSelect(id) {
+      if (customSelects[id]) {
+        customSelects[id].refresh();
       }
-
-      const supportsStreaming = supportsStreamingInput.checked;
-      if (!supportsStreaming) defaultStreamInput.value = "false";
-      defaultStreamInput.disabled = !supportsStreaming;
-
-      const jsonModes = getJsonModesFromInputs();
-      if (!jsonModes.includes("json_object")) defaultJsonModeInput.value = "none";
-      defaultJsonModeInput.querySelector('option[value="json_object"]').disabled = !jsonModes.includes("json_object");
     }
 
-    function setCheckboxes(selector, values) {
-      const selected = new Set(values || []);
-      document.querySelectorAll(selector).forEach((node) => {
-        node.checked = selected.has(node.value);
+    function getSelectedStatus() {
+      return statusInputs.find((input) => input.checked)?.value === "disabled" ? "disabled" : "active";
+    }
+
+    function setSelectedStatus(value) {
+      const nextValue = value === "disabled" ? "disabled" : "active";
+      statusInputs.forEach((input) => {
+        input.checked = input.value === nextValue;
       });
+    }
+
+    function getCheckedValue(inputs, fallback) {
+      return inputs.find((input) => input.checked)?.value || fallback;
+    }
+
+    function setCheckedValue(inputs, value, fallback) {
+      const nextValue = inputs.some((input) => input.value === value) ? value : fallback;
+      inputs.forEach((input) => {
+        input.checked = input.value === nextValue;
+      });
+    }
+
+    function syncDefaultFieldVisibility() {
+      const supportsThinking = supportsThinkingInput.checked;
+      const supportsStreaming = supportsStreamingInput.checked;
+      const supportsJson = supportsJsonInput.checked;
+
+      defaultThinkingField.hidden = !supportsThinking;
+      defaultStreamField.hidden = !supportsStreaming;
+      defaultJsonField.hidden = !supportsJson;
+
+      if (!supportsThinking) {
+        setCheckedValue(defaultThinkingModeInputs, "disabled", "disabled");
+      }
+      if (!supportsStreaming) {
+        setCheckedValue(defaultStreamInputs, "false", "false");
+      }
+      if (!supportsJson) {
+        setCheckedValue(defaultJsonModeInputs, "none", "none");
+      }
     }
 
     function openModal(row) {
       editingModelKey = row?.modelKey || "";
-      modalTitle.textContent = editingModelKey ? "编辑模型" : "新建模型";
-      modelKeyInput.value = row?.modelKey || "";
+      modalTitle.textContent = editingModelKey ? "编辑模型" : "添加模型";
       displayNameInput.value = row?.displayName || "";
       supplierInput.value = row?.supplierCode || supplierInput.options[0]?.value || "";
       providerModelIdInput.value = row?.providerModelId || "";
-      statusInput.value = row?.status || "active";
-      pricingHintInput.value = row?.pricingHint || "";
+      setSelectedStatus(row?.status || "active");
+      pricingNoteInput.value = row?.pricingNote || "";
       supportsThinkingInput.checked = Boolean(row?.supportsThinking);
       supportsImageInput.checked = Boolean(row?.supportsImageInput);
+      supportsJsonInput.checked = Boolean(row?.supportsJson || row?.jsonModes?.includes?.("json_object"));
       supportsStreamingInput.checked = row?.supportsStreaming !== false;
-      setCheckboxes("[data-json-mode]", row?.jsonModes || ["none"]);
-      setCheckboxes("[data-reasoning-effort]", row?.reasoningEfforts || []);
-      defaultThinkingModeInput.value = row?.defaultConfig?.thinkingMode || "disabled";
-      defaultStreamInput.value = String(Boolean(row?.defaultConfig?.streamEnabled));
-      defaultJsonModeInput.value = row?.defaultConfig?.jsonMode || "none";
-      defaultReasoningEffortInput.value = row?.defaultConfig?.reasoningEffort || "";
+      setCheckedValue(defaultThinkingModeInputs, row?.defaultConfig?.thinkingMode || "disabled", "disabled");
+      setCheckedValue(defaultStreamInputs, String(Boolean(row?.defaultConfig?.streamEnabled)), "false");
+      setCheckedValue(defaultJsonModeInputs, row?.defaultConfig?.jsonMode || "none", "none");
       temperatureInput.value = row?.defaultConfig?.temperature || "0.3";
-      seedInput.value = row?.defaultConfig?.seed || "42";
       maxTokensInput.value = row?.defaultConfig?.maxTokens || "32000";
       timeoutInput.value = row?.defaultConfig?.timeout || "300";
       extraBodyInput.value = row?.defaultConfig?.extraBody || "";
-      descriptionInput.value = row?.description || "";
-      modelKeyInput.disabled = Boolean(editingModelKey);
-      syncCapabilityDependencies();
+      syncDefaultFieldVisibility();
+      refreshCustomSelect("supplierInput");
+      document.body.classList.add("modal-open");
       modal.classList.add("show");
     }
 
     function closeModal() {
       modal.classList.remove("show");
+      document.body.classList.remove("modal-open");
     }
 
     function persistModel() {
-      const modelKey = modelKeyInput.value.trim();
       const displayName = displayNameInput.value.trim();
       const supplierCode = supplierInput.value;
       const providerModelId = providerModelIdInput.value.trim();
-      if (!modelKey || !displayName || !supplierCode || !providerModelId) {
-        showToast("请先填写模型键、展示名称、供应商和模型 ID");
+      if (!displayName || !supplierCode || !providerModelId) {
+        showToast("请先填写供应商、模型 ID 和模型名称");
         return;
       }
-      const reasoningEfforts = supportsThinkingInput.checked ? getReasoningEffortsFromInputs() : [];
-      const jsonModes = Array.from(new Set(["none"].concat(getJsonModesFromInputs())));
+      const nextModelKey = editingModelKey || buildModelKey(supplierCode, providerModelId);
+      if (!nextModelKey) {
+        showToast("模型 ID 不合法，请检查后重试");
+        return;
+      }
+
+      const jsonModes = supportsJsonInput.checked ? ["none", "json_object"] : ["none"];
       const row = {
-        modelKey,
+        modelKey: nextModelKey,
         supplierCode,
         displayName,
         providerModelId,
-        status: statusInput.value === "disabled" ? "disabled" : "active",
+        status: getSelectedStatus(),
         supportsThinking: supportsThinkingInput.checked,
         supportsImageInput: supportsImageInput.checked,
+        supportsJson: supportsJsonInput.checked,
         supportsStreaming: supportsStreamingInput.checked,
         jsonModes,
-        reasoningEfforts,
-        pricingHint: pricingHintInput.value.trim(),
-        description: descriptionInput.value.trim(),
+        pricingNote: pricingNoteInput.value.trim(),
         defaultConfig: {
-          thinkingMode: defaultThinkingModeInput.value,
-          reasoningEffort: defaultReasoningEffortInput.value,
-          streamEnabled: defaultStreamInput.value === "true",
-          jsonMode: defaultJsonModeInput.value,
+          thinkingMode: supportsThinkingInput.checked ? getCheckedValue(defaultThinkingModeInputs, "disabled") : "disabled",
+          streamEnabled: supportsStreamingInput.checked && getCheckedValue(defaultStreamInputs, "false") === "true",
+          jsonMode: supportsJsonInput.checked ? getCheckedValue(defaultJsonModeInputs, "none") : "none",
           temperature: temperatureInput.value.trim(),
-          seed: seedInput.value.trim(),
           maxTokens: maxTokensInput.value.trim(),
           timeout: timeoutInput.value.trim(),
           extraBody: extraBodyInput.value.trim()
         }
       };
-      const coerced = coerceModelConfig(row, row.defaultConfig);
-      row.defaultConfig = coerced.config;
+
       const rows = getModels({ includeDisabled: true });
+      if (rows.some((item) => item.modelKey === nextModelKey && item.modelKey !== editingModelKey)) {
+        showToast("该供应商下的模型 ID 已存在");
+        return;
+      }
+      if (hasProviderConflict(rows, supplierCode, providerModelId, editingModelKey)) {
+        showToast("该供应商下的模型 ID 已存在");
+        return;
+      }
       const nextRows = editingModelKey
         ? rows.map((item) => item.modelKey === editingModelKey ? row : item)
         : rows.concat(row);
       saveModels(nextRows);
       closeModal();
       renderTable();
-      showToast(editingModelKey ? "模型已更新" : "模型已创建");
+      showToast(editingModelKey ? "模型已更新" : "模型已添加");
     }
 
     function toggleStatus(modelKey) {
@@ -661,7 +1202,111 @@
     document.getElementById("createBtn").addEventListener("click", () => openModal(null));
     document.getElementById("closeModalBtn").addEventListener("click", closeModal);
     document.getElementById("cancelBtn").addEventListener("click", closeModal);
+    document.getElementById("closeNodesModalBtn").addEventListener("click", closeNodesModal);
+    document.getElementById("closeNodesBtn").addEventListener("click", closeNodesModal);
+    document.getElementById("closeTestModalBtn").addEventListener("click", closeTestModal);
+    document.getElementById("closeTestBtn").addEventListener("click", closeTestModal);
     document.getElementById("saveBtn").addEventListener("click", persistModel);
+
+    // 测试弹窗元素
+    const testModal = document.getElementById("testModal");
+    const testModalTitle = document.getElementById("testModalTitle");
+    const testPanelBody = document.getElementById("testPanelBody");
+    let currentTestModel = null;
+
+    function openTestModal(row) {
+      if (!row) return;
+      currentTestModel = row;
+      testModalTitle.textContent = `模型测试 - ${row.displayName}`;
+      
+      // 根据模型能力显示/隐藏测试卡片
+      const multimodalCard = document.getElementById("multimodalTestCard");
+      const jsonCard = document.getElementById("jsonTestCard");
+      const thinkingCard = document.getElementById("thinkingTestCard");
+      
+      multimodalCard.hidden = !row.supportsImageInput;
+      jsonCard.hidden = !row.jsonModes.includes("json_object");
+      thinkingCard.hidden = !row.supportsThinking;
+      
+      // 重置所有测试状态
+      document.querySelectorAll(".test-reasoning-field, .test-output-field").forEach(el => {
+        el.style.display = "none";
+      });
+      document.querySelectorAll(".test-reasoning-output, .test-output").forEach(el => {
+        el.textContent = "";
+      });
+      
+      document.body.classList.add("modal-open");
+      testModal.classList.add("show");
+    }
+
+    function closeTestModal() {
+      testModal.classList.remove("show");
+      document.body.classList.remove("modal-open");
+      currentTestModel = null;
+    }
+
+    // 测试运行逻辑
+    function getTestResponse(testType) {
+      const responses = {
+        basic: {
+          reasoning: "用户询问自我介绍，这是一个简单的问候场景，需要友好回应。",
+          output: `你好！我是 ${currentTestModel?.displayName || "AI助手"}，很高兴为你服务。我可以帮助你回答问题、生成内容、进行对话等。有什么我可以帮你的吗？`
+        },
+        multimodal: {
+          reasoning: "用户上传了图片并询问内容，需要分析图片中的视觉信息。",
+          output: "图片中有一只橘色的猫咪，它正躺在沙发上，看起来很舒服。背景是一个温馨的客厅，有窗户透进来的阳光。"
+        },
+        json: {
+          reasoning: "用户要求返回JSON格式，需要构造符合要求的数据结构。",
+          output: '{\n  "name": "张三",\n  "age": 25\n}'
+        },
+        thinking: {
+          reasoning: "用户要求分析AI优缺点，这是一个需要深度思考的复杂问题。我需要从多个维度分析：技术能力、应用场景、局限性、伦理问题等。",
+          output: "人工智能的优点包括：\n1. 高效处理大量数据\n2. 24小时不间断工作\n3. 减少人为错误\n\n缺点包括：\n1. 缺乏真正的理解和创造力\n2. 可能存在偏见\n3. 隐私和安全风险\n\n应用建议：在数据处理、重复性工作等场景优先使用AI，在需要情感交流、创造性工作的场景辅助使用。"
+        }
+      };
+      return responses[testType];
+    }
+
+    document.querySelectorAll(".test-run-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const testType = btn.dataset.test;
+        const reasoningField = document.querySelector(`.test-reasoning-field[data-test="${testType}"]`);
+        const outputField = document.querySelector(`.test-output-field[data-test="${testType}"]`);
+        const reasoningOutput = reasoningField.querySelector(".test-reasoning-output");
+        const output = outputField.querySelector(".test-output");
+        
+        btn.disabled = true;
+        btn.textContent = "运行中...";
+        
+        // 模拟延迟
+        await new Promise(r => setTimeout(r, 1500));
+        
+        // 显示结果
+        reasoningField.style.display = "flex";
+        outputField.style.display = "flex";
+        
+        const isStream = testType === "thinking" && document.querySelector('input[name="thinkingStream"]:checked').value === "true";
+        
+        if (isStream) {
+          // 流式输出效果
+          reasoningOutput.textContent = testResponses.thinking.reasoning;
+          output.textContent = "";
+          const text = testResponses.thinking.output;
+          for (let i = 0; i < text.length; i++) {
+            output.textContent += text[i];
+            await new Promise(r => setTimeout(r, 20));
+          }
+        } else {
+          reasoningOutput.textContent = testResponses[testType].reasoning;
+          output.textContent = testResponses[testType].output;
+        }
+        
+        btn.disabled = false;
+        btn.textContent = "重新运行";
+      });
+    });
     document.getElementById("resetBtn").addEventListener("click", () => {
       keywordInput.value = "";
       supplierFilter.value = "";
@@ -675,11 +1320,8 @@
       node.addEventListener("input", renderTable);
       node.addEventListener("change", renderTable);
     });
-    [supportsThinkingInput, supportsStreamingInput].forEach((node) => {
-      node.addEventListener("change", syncCapabilityDependencies);
-    });
-    document.querySelectorAll("[data-json-mode], [data-reasoning-effort]").forEach((node) => {
-      node.addEventListener("change", syncCapabilityDependencies);
+    [supportsThinkingInput, supportsStreamingInput, supportsJsonInput].forEach((node) => {
+      node.addEventListener("change", syncDefaultFieldVisibility);
     });
     tableBody.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-action]");
@@ -689,17 +1331,85 @@
         openModal(getModelByKey(modelKey));
       } else if (button.dataset.action === "toggle") {
         toggleStatus(modelKey);
+      } else if (button.dataset.action === "nodes") {
+        openNodesModal(getModelByKey(modelKey));
+      } else if (button.dataset.action === "test") {
+        openTestModal(getModelByKey(modelKey));
       }
     });
     modal.addEventListener("click", (event) => {
       if (event.target === modal) closeModal();
     });
+    nodesModal.addEventListener("click", (event) => {
+      if (event.target === nodesModal) closeNodesModal();
+    });
+    testModal.addEventListener("click", (event) => {
+      if (event.target === testModal) closeTestModal();
+    });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && modal.classList.contains("show")) closeModal();
+      if (event.key === "Escape" && nodesModal.classList.contains("show")) closeNodesModal();
+      if (event.key === "Escape" && testModal.classList.contains("show")) closeTestModal();
     });
+
+    function openNodesModal(row) {
+      if (!row) return;
+      nodesModalTitle.textContent = `关联节点 - ${row.displayName}`;
+      
+      // 优先使用 mockNodesData 中的数据，确保与列表显示的数量一致
+      const nodes = mockNodesData[row.modelKey] || [];
+      
+      if (nodes.length === 0) {
+        nodesEmptyState.hidden = false;
+        nodesTableBody.innerHTML = "";
+      } else {
+        nodesEmptyState.hidden = true;
+        nodesTableBody.innerHTML = nodes.map(node => `
+          <tr>
+            <td><strong>${node.appId}</strong></td>
+            <td>${node.appName}</td>
+            <td>${node.nodeName}</td>
+            <td>${node.editor}</td>
+            <td>${node.editTime}</td>
+          </tr>
+        `).join("");
+      }
+      
+      document.body.classList.add("modal-open");
+      nodesModal.classList.add("show");
+    }
+
+    function closeNodesModal() {
+      nodesModal.classList.remove("show");
+      document.body.classList.remove("modal-open");
+    }
 
     renderSupplierOptions();
     renderTable();
+    syncDefaultFieldVisibility();
+
+    // 初始化弹窗内的自定义下拉框
+    function initCustomSelects() {
+      const modalSelects = [
+        { id: 'supplierInput', placeholder: '请选择供应商' }
+      ];
+
+      modalSelects.forEach(({ id, placeholder }) => {
+        const select = document.getElementById(id);
+        if (select && !customSelects[id]) {
+          customSelects[id] = new CustomSelect(select, { placeholder });
+        }
+      });
+    }
+
+    initCustomSelects();
+
+    // 在供应商选项更新后刷新自定义下拉框
+    const originalRenderSupplierOptions = renderSupplierOptions;
+    renderSupplierOptions = function() {
+      originalRenderSupplierOptions();
+      refreshCustomSelect("supplierInput");
+    };
   </script>
 </body>
 

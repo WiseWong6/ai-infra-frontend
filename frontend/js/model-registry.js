@@ -48,22 +48,30 @@
       status: "active",
       supportsThinking: true,
       supportsImageInput: true,
+      supportsJson: true,
       supportsStreaming: true,
-      jsonModes: ["none", "json_object"],
       reasoningEfforts: ["low", "medium", "high"],
+      pricing: {
+        mode: "tiered",
+        flat: { input: "", output: "" },
+        tiered: {
+          threshold: "32000",
+          tier1: { input: "0.0032", output: "0.0160" },
+          tier2: { input: "0.0048", output: "0.0240" }
+        }
+      },
       defaultConfig: {
         thinkingMode: "auto",
         reasoningEffort: "medium",
         streamEnabled: false,
         jsonMode: "none",
         temperature: "0.2",
-        seed: "42",
         maxTokens: "131072",
         timeout: "300",
         extraBody: ""
       },
-      pricingHint: "输入 0.0032 / 输出 0.0160 元/千tokens",
-      description: "通用旗舰模型，支持图像、流式与 JSON Object。"
+      pricingHint: "阶梯模式",
+      linkedNodes: 3
     },
     {
       modelKey: "volc-doubao-seed-1-6-flash",
@@ -73,22 +81,30 @@
       status: "active",
       supportsThinking: false,
       supportsImageInput: false,
+      supportsJson: true,
       supportsStreaming: true,
-      jsonModes: ["none", "json_object"],
       reasoningEfforts: [],
+      pricing: {
+        mode: "flat",
+        flat: { input: "0.0008", output: "0.0024" },
+        tiered: {
+          threshold: "",
+          tier1: { input: "", output: "" },
+          tier2: { input: "", output: "" }
+        }
+      },
       defaultConfig: {
         thinkingMode: "disabled",
         reasoningEffort: "",
         streamEnabled: true,
         jsonMode: "none",
         temperature: "0.3",
-        seed: "42",
         maxTokens: "64000",
         timeout: "180",
         extraBody: ""
       },
-      pricingHint: "输入 0.0008 / 输出 0.0024 元/千tokens",
-      description: "轻量快速模型，适合高吞吐场景。"
+      pricingHint: "统一模式",
+      linkedNodes: 2
     },
     {
       modelKey: "aliyun-qwen-3-5-plus",
@@ -98,22 +114,30 @@
       status: "active",
       supportsThinking: true,
       supportsImageInput: false,
+      supportsJson: true,
       supportsStreaming: true,
-      jsonModes: ["none", "json_object"],
       reasoningEfforts: ["minimal", "low", "medium", "high"],
+      pricing: {
+        mode: "flat",
+        flat: { input: "", output: "" },
+        tiered: {
+          threshold: "",
+          tier1: { input: "", output: "" },
+          tier2: { input: "", output: "" }
+        }
+      },
       defaultConfig: {
         thinkingMode: "enabled",
         reasoningEffort: "medium",
         streamEnabled: false,
         jsonMode: "none",
         temperature: "0.3",
-        seed: "42",
         maxTokens: "32000",
         timeout: "300",
         extraBody: ""
       },
-      pricingHint: "支持 Responses / previous_response_id / Session Cache",
-      description: "适合兼容 OpenAI Responses 接口。"
+      pricingHint: "",
+      linkedNodes: 0
     },
     {
       modelKey: "aliyun-qwen-3-5-flash",
@@ -123,22 +147,30 @@
       status: "active",
       supportsThinking: false,
       supportsImageInput: false,
+      supportsJson: true,
       supportsStreaming: true,
-      jsonModes: ["none", "json_object"],
       reasoningEfforts: [],
+      pricing: {
+        mode: "flat",
+        flat: { input: "", output: "" },
+        tiered: {
+          threshold: "",
+          tier1: { input: "", output: "" },
+          tier2: { input: "", output: "" }
+        }
+      },
       defaultConfig: {
         thinkingMode: "disabled",
         reasoningEffort: "",
         streamEnabled: true,
         jsonMode: "none",
         temperature: "0.5",
-        seed: "42",
         maxTokens: "16000",
         timeout: "180",
         extraBody: ""
       },
-      pricingHint: "轻量推理，适合在线问答",
-      description: "高性价比模型。"
+      pricingHint: "",
+      linkedNodes: 5
     },
     {
       modelKey: "deepseek-v3-2",
@@ -148,22 +180,29 @@
       status: "active",
       supportsThinking: true,
       supportsImageInput: false,
+      supportsJson: false,
       supportsStreaming: true,
-      jsonModes: ["none"],
       reasoningEfforts: ["low", "medium", "high"],
+      pricing: {
+        mode: "flat",
+        flat: { input: "", output: "" },
+        tiered: {
+          threshold: "",
+          tier1: { input: "", output: "" },
+          tier2: { input: "", output: "" }
+        }
+      },
       defaultConfig: {
         thinkingMode: "enabled",
         reasoningEffort: "medium",
         streamEnabled: false,
         jsonMode: "none",
         temperature: "0.3",
-        seed: "42",
         maxTokens: "32000",
         timeout: "300",
         extraBody: ""
       },
-      pricingHint: "适合复杂文本推理",
-      description: "推理能力较强，不开放 JSON Object。"
+      pricingHint: ""
     },
     {
       modelKey: "openai-gpt-4o-mini",
@@ -173,22 +212,30 @@
       status: "active",
       supportsThinking: false,
       supportsImageInput: true,
+      supportsJson: true,
       supportsStreaming: true,
-      jsonModes: ["none", "json_object"],
       reasoningEfforts: [],
+      pricing: {
+        mode: "flat",
+        flat: { input: "", output: "" },
+        tiered: {
+          threshold: "",
+          tier1: { input: "", output: "" },
+          tier2: { input: "", output: "" }
+        }
+      },
       defaultConfig: {
         thinkingMode: "disabled",
         reasoningEffort: "",
         streamEnabled: true,
         jsonMode: "none",
         temperature: "0.3",
-        seed: "42",
         maxTokens: "16000",
         timeout: "180",
         extraBody: ""
       },
-      pricingHint: "支持图片输入与 JSON Object",
-      description: "适合低成本多模态调用。"
+      pricingHint: "",
+      linkedNodes: 1
     }
   ];
 
@@ -249,23 +296,50 @@
       streamEnabled: Boolean(defaults.streamEnabled ?? rawModel?.streamEnabled ?? false),
       jsonMode: normalizeJsonMode(defaults.jsonMode || rawModel?.jsonMode || rawModel?.supportsJson && "json_object"),
       temperature: String(defaults.temperature ?? rawModel?.temp ?? rawModel?.temperature ?? "0.3"),
-      seed: String(defaults.seed ?? rawModel?.seed ?? "42"),
+      seed: String(defaults.seed ?? rawModel?.seed ?? ""),
       maxTokens: String(defaults.maxTokens ?? rawModel?.maxTokens ?? "32000"),
       timeout: String(defaults.timeout ?? rawModel?.timeout ?? "300"),
       extraBody: String(defaults.extraBody ?? rawModel?.extraBody ?? "")
     };
   }
 
+  function normalizePricing(rawPricing, rawModel) {
+    const pricing = rawPricing && typeof rawPricing === "object" ? rawPricing : {};
+    const legacyMode = String(rawModel?.pricingMode || pricing.mode || "flat").toLowerCase();
+    const mode = legacyMode === "tiered" ? "tiered" : "flat";
+    const flat = pricing.flat && typeof pricing.flat === "object" ? pricing.flat : {};
+    const tiered = pricing.tiered && typeof pricing.tiered === "object" ? pricing.tiered : {};
+    const tier1 = tiered.tier1 && typeof tiered.tier1 === "object" ? tiered.tier1 : {};
+    const tier2 = tiered.tier2 && typeof tiered.tier2 === "object" ? tiered.tier2 : {};
+    return {
+      mode,
+      flat: {
+        input: String(flat.input ?? rawModel?.flatInputPrice ?? ""),
+        output: String(flat.output ?? rawModel?.flatOutputPrice ?? "")
+      },
+      tiered: {
+        threshold: String(tiered.threshold ?? rawModel?.tieredThreshold ?? ""),
+        tier1: {
+          input: String(tier1.input ?? rawModel?.tier1InputPrice ?? ""),
+          output: String(tier1.output ?? rawModel?.tier1OutputPrice ?? "")
+        },
+        tier2: {
+          input: String(tier2.input ?? rawModel?.tier2InputPrice ?? ""),
+          output: String(tier2.output ?? rawModel?.tier2OutputPrice ?? "")
+        }
+      }
+    };
+  }
+
   function normalizeModel(raw, index) {
     const supportsThinking = Boolean(raw?.supportsThinking || raw?.reasoningEfforts?.length);
-    const jsonModes = sanitizeEnumList(
-      raw?.jsonModes || (raw?.supportsJson ? ["none", "json_object"] : ["none"]),
-      JSON_MODES
-    );
+    const supportsJson = Boolean(raw?.supportsJson || raw?.jsonModes?.includes?.("json_object"));
+    const jsonModes = sanitizeEnumList(raw?.jsonModes || (supportsJson ? ["none", "json_object"] : ["none"]), JSON_MODES);
     const reasoningEfforts = supportsThinking
-      ? sanitizeEnumList(raw?.reasoningEfforts || ["medium"], REASONING_EFFORTS)
+      ? sanitizeEnumList(raw?.reasoningEfforts || ["low", "medium", "high"], REASONING_EFFORTS)
       : [];
     const defaultConfig = normalizeDefaultConfig(raw?.defaultConfig, raw);
+    const pricing = normalizePricing(raw?.pricing, raw);
     const normalized = {
       modelKey: String(raw?.modelKey || raw?.id || `model-${index + 1}`).trim(),
       supplierCode: String(raw?.supplierCode || raw?.provider || "unknown").trim(),
@@ -274,9 +348,11 @@
       status: raw?.status === "disabled" ? "disabled" : "active",
       supportsThinking,
       supportsImageInput: Boolean(raw?.supportsImageInput || raw?.supportsImage),
+      supportsJson,
       supportsStreaming: raw?.supportsStreaming !== false,
       jsonModes: jsonModes.length ? jsonModes : ["none"],
       reasoningEfforts,
+      pricing,
       defaultConfig,
       pricingHint: String(raw?.pricingHint || "").trim(),
       description: String(raw?.description || "").trim()
@@ -402,7 +478,7 @@
       streamEnabled: Boolean(rawConfig.streamEnabled ?? rawConfig.stream ?? seededDefaults.streamEnabled),
       jsonMode: normalizeJsonMode(rawConfig.jsonMode || rawConfig.jsonOutput || seededDefaults.jsonMode),
       temperature: String(rawConfig.temperature ?? rawConfig.temp ?? seededDefaults.temperature),
-      seed: String(rawConfig.seed ?? seededDefaults.seed),
+      seed: String(rawConfig.seed ?? seededDefaults.seed ?? ""),
       maxTokens: String(rawConfig.maxTokens ?? seededDefaults.maxTokens),
       timeout: String(rawConfig.timeout ?? seededDefaults.timeout),
       extraBody: String(rawConfig.extraBody ?? seededDefaults.extraBody ?? "")
@@ -421,7 +497,7 @@
       streamEnabled: Boolean(rawConfig.streamEnabled),
       jsonMode: normalizeJsonMode(rawConfig.jsonMode),
       temperature: String(rawConfig.temperature ?? targetModel?.defaultConfig?.temperature ?? "0.3"),
-      seed: String(rawConfig.seed ?? targetModel?.defaultConfig?.seed ?? "42"),
+      seed: String(rawConfig.seed ?? targetModel?.defaultConfig?.seed ?? ""),
       maxTokens: String(rawConfig.maxTokens ?? targetModel?.defaultConfig?.maxTokens ?? "32000"),
       timeout: String(rawConfig.timeout ?? targetModel?.defaultConfig?.timeout ?? "300"),
       extraBody: String(rawConfig.extraBody ?? targetModel?.defaultConfig?.extraBody ?? "")
@@ -480,7 +556,21 @@
   }
 
   function getModelPriceHint(modelKey) {
-    return getModelByKey(modelKey)?.pricingHint || "";
+    const model = getModelByKey(modelKey);
+    if (!model) return "";
+    if (model.pricing?.mode === "tiered") {
+      const { threshold, tier1, tier2 } = model.pricing.tiered || {};
+      if (threshold || tier1?.input || tier1?.output || tier2?.input || tier2?.output) {
+        return `阶梯模式 | <=${threshold || "-"} 输入 ${tier1?.input || "-"} / 输出 ${tier1?.output || "-"}，>${threshold || "-"} 输入 ${tier2?.input || "-"} / 输出 ${tier2?.output || "-"}`;
+      }
+    }
+    if (model.pricing?.mode === "flat") {
+      const { input, output } = model.pricing.flat || {};
+      if (input || output) {
+        return `统一模式 | 输入 ${input || "-"} / 输出 ${output || "-"}`;
+      }
+    }
+    return model.pricingHint || "";
   }
 
   window.ModelRegistryDemo = {

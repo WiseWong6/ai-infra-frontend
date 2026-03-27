@@ -552,9 +552,17 @@
                 <!-- 左侧：参数配置区 -->
                 <div class="pane-left">
                     <div class="settings-section">
-                        <div style="font-weight:600; font-size:16px;">配置参数</div>
+                        <!-- Tab 切换 -->
+                        <div class="tab-nav" style="display:flex; border-bottom:1px solid var(--line); margin-bottom:16px;">
+                            <button class="tab-btn active" data-tab="params" style="flex:1; height:40px; background:transparent; border:none; border-bottom:2px solid var(--blue); color:var(--text); font-size:14px; font-weight:600; cursor:pointer;">模型参数</button>
+                            <button class="tab-btn" data-tab="resources" style="flex:1; height:40px; background:transparent; border:none; border-bottom:2px solid transparent; color:var(--muted); font-size:14px; font-weight:500; cursor:pointer;">资源绑定</button>
+                        </div>
+                        
+                        <!-- Tab 1: 模型参数 -->
+                        <div id="tab-params" class="tab-content">
+                        <div style="font-weight:600; font-size:16px; margin-bottom:16px;">配置参数</div>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <label style="font-size:13px; font-weight:500;">资源名称</label>
+                            <label style="font-size:13px; font-weight:500;">节点名称</label>
                             <input id="resourceNameInput" type="text"
                                 style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none;"
                                 value="意图分流（有产品检索）" />
@@ -585,7 +593,7 @@
 
                         <div
                             style="display:flex; flex-direction:column; gap:8px; border-top: 1px solid var(--line); padding-top: 16px;">
-                            <label style="font-size:13px; font-weight:500;">模型选择</label>
+                            <label style="font-size:13px; font-weight:500;">模型</label>
                             <select id="modelSelect"
                                 style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none; background:#fff; appearance:none; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;">
                             </select>
@@ -632,21 +640,30 @@
                                 </div>
                                 <div style="display:flex; flex-direction:column; gap:8px;">
                                     <label style="font-size:13px; font-weight:500;">流式输出</label>
-                                    <div>
-                                        <select id="streamSelect"
-                                            style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;">
-                                            <option value="false">关闭</option>
-                                            <option value="true">开启</option>
-                                        </select>
+                                    <div style="display:flex; gap:16px; align-items:center;">
+                                        <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                                            <input type="radio" name="streamMode" value="false" checked style="accent-color:var(--blue);" />
+                                            <span style="color:var(--text); white-space:nowrap;">关闭</span>
+                                        </label>
+                                        <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                                            <input type="radio" name="streamMode" value="true" style="accent-color:var(--blue);" />
+                                            <span style="color:var(--text); white-space:nowrap;">开启</span>
+                                        </label>
                                     </div>
                                 </div>
                                 <div style="display:flex; flex-direction:column; gap:8px;">
-                                    <label style="font-size:13px; font-weight:500;">JSON结构化</label>
-                                    <div>
-                                        <select id="jsonModeSelect"
-                                            style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;"></select>
-                                        <div style="font-size:12px; color:var(--muted); margin-top:6px;">根据模型能力自动提供可选输出模式
-                                        </div>
+                                    <label style="font-size:13px; font-weight:500;">JSON输出</label>
+                                    <div style="display:flex; gap:16px; align-items:center;">
+                                        <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                                            <input type="radio" name="jsonMode" value="none" checked style="accent-color:var(--blue);" />
+                                            <span style="color:var(--text); white-space:nowrap;">关闭</span>
+                                        </label>
+                                        <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                                            <input type="radio" name="jsonMode" value="json_object" style="accent-color:var(--blue);" />
+                                            <span style="color:var(--text); white-space:nowrap;">开启</span>
+                                        </label>
+                                    </div>
+                                    <div style="font-size:12px; color:var(--muted); margin-top:6px;">根据模型能力自动提供可选输出模式
                                     </div>
                                 </div>
                                 <!-- 温度 -->
@@ -705,6 +722,41 @@
                                 </div>
                             </div>
                         </div>
+                        </div><!-- /tab-params -->
+                        
+                        <!-- Tab 2: 资源绑定 -->
+                        <div id="tab-resources" class="tab-content" style="display:none;">
+                            <div style="font-weight:600; font-size:16px; margin-bottom:16px;">资源绑定</div>
+                            
+                            <!-- 知识库 -->
+                            <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <label style="font-size:13px; font-weight:500;">知识库</label>
+                                    <button id="selectKbBtn" type="button" class="btn btn-secondary btn-small">选择知识库</button>
+                                </div>
+                                <div id="selectedKbList" style="display:flex; flex-wrap:wrap; gap:8px;">
+                                    <!-- 已选知识库标签将渲染在这里 -->
+                                </div>
+                            </div>
+                            
+                            <!-- MCP -->
+                            <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px; opacity:0.6;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <label style="font-size:13px; font-weight:500;">MCP</label>
+                                    <span class="placeholder-tag" style="display:inline-flex; align-items:center; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:600; background:#fff7ed; color:#d97706;">暂未开放</span>
+                                </div>
+                                <div style="font-size:12px; color:var(--muted);">MCP 将在下一版接入，不参与当前节点绑定流程。</div>
+                            </div>
+                            
+                            <!-- Skills -->
+                            <div style="display:flex; flex-direction:column; gap:12px; opacity:0.6;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <label style="font-size:13px; font-weight:500;">Skills</label>
+                                    <span class="placeholder-tag" style="display:inline-flex; align-items:center; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:600; background:#fff7ed; color:#d97706;">暂未开放</span>
+                                </div>
+                                <div style="font-size:12px; color:var(--muted);">Skill 暂不纳入本版应用配置交互。</div>
+                            </div>
+                        </div><!-- /tab-resources -->
                     </div>
                 </div>
 
@@ -1321,6 +1373,31 @@ current_image:
         </main>
     </div>
 
+    <!-- 知识库选择弹窗 -->
+    <div class="modal-mask" id="kbSelectModal" style="position:fixed; inset:0; background:rgba(15,23,42,0.32); display:none; align-items:center; justify-content:center; z-index:2000; padding:24px;">
+        <div class="modal" style="width:min(480px, calc(100vw - 48px)); max-height:calc(100vh - 48px); overflow:auto; background:#fff; border-radius:8px; box-shadow:0 10px 30px rgba(15,23,42,0.08); border:1px solid var(--line-strong);">
+            <div class="modal-header" style="padding:18px 20px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:16px; font-weight:600;">选择知识库</div>
+                    <div style="font-size:12px; color:var(--muted); margin-top:4px;">可选范围仅限当前应用资源配置中已有的知识库</div>
+                </div>
+                <button class="close-btn" type="button" onclick="closeKbModal()" style="width:32px; height:32px; border-radius:4px; border:1px solid var(--line-strong); background:#fff; color:var(--muted); cursor:pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding:20px;">
+                <div id="kbSelectEmpty" class="empty-state" style="display:none; padding:24px; border:1px dashed var(--line-strong); border-radius:6px; text-align:center; color:var(--muted);">
+                    当前应用还没有可选知识库
+                </div>
+                <div id="kbSelectList" class="checkbox-list" style="display:flex; flex-direction:column; gap:10px; max-height:320px; overflow:auto;"></div>
+            </div>
+            <div class="modal-footer" style="padding:16px 20px 20px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn btn-secondary" type="button" onclick="closeKbModal()">取消</button>
+                <button class="btn" id="confirmKbSelection" type="button">确认绑定</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         if (window.lucide?.createIcons) {
             window.lucide.createIcons();
@@ -1423,8 +1500,6 @@ current_image:
         const modelSelect = document.getElementById("modelSelect");
         const modelHint = document.getElementById("modelHint");
         const reasoningEffortSelect = document.getElementById("reasoningEffortSelect");
-        const streamSelect = document.getElementById("streamSelect");
-        const jsonModeSelect = document.getElementById("jsonModeSelect");
         const temperatureInput = document.getElementById("temperatureInput");
         const seedInput = document.getElementById("seedInput");
         const maxTokensInput = document.getElementById("maxTokensInput");
@@ -1434,6 +1509,224 @@ current_image:
         const userPromptTextarea = document.getElementById("userPromptTextarea");
         const assistantPromptBlock = document.getElementById("assistantPromptBlock");
         const assistantPromptTextarea = document.getElementById("assistantPromptTextarea");
+
+        // 资源绑定相关元素
+        const kbSelectModal = document.getElementById("kbSelectModal");
+        const kbSelectList = document.getElementById("kbSelectList");
+        const kbSelectEmpty = document.getElementById("kbSelectEmpty");
+        const selectedKbList = document.getElementById("selectedKbList");
+        const selectKbBtn = document.getElementById("selectKbBtn");
+        
+        // 节点资源绑定数据（模拟从 node-binding 页传递的数据结构）
+        const APP_CONFIG_KEY = "app_config_node_binding_demo_v1";
+        let currentNodeResourceIds = [];
+
+        // Tab 切换
+        function initResourceBindingTab() {
+            // Tab 切换事件
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.dataset.tab;
+                    // 切换按钮样式
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.style.borderBottom = '2px solid transparent';
+                        b.style.color = 'var(--muted)';
+                        b.style.fontWeight = '500';
+                    });
+                    btn.classList.add('active');
+                    btn.style.borderBottom = '2px solid var(--blue)';
+                    btn.style.color = 'var(--text)';
+                    btn.style.fontWeight = '600';
+                    
+                    // 切换内容
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    document.getElementById(`tab-${tabId}`).style.display = 'block';
+                });
+            });
+            
+            // 加载当前节点的资源绑定
+            loadNodeResourceBindings();
+            
+            // 知识库选择按钮
+            if (selectKbBtn) {
+                selectKbBtn.addEventListener('click', openKbModal);
+            }
+            
+            // 确认知识库选择
+            const confirmBtn = document.getElementById("confirmKbSelection");
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', saveKbSelection);
+            }
+            
+            // 弹窗遮罩点击关闭
+            if (kbSelectModal) {
+                kbSelectModal.addEventListener('click', (e) => {
+                    if (e.target === kbSelectModal) closeKbModal();
+                });
+            }
+        }
+
+        // 从 localStorage 加载节点资源绑定
+        function loadNodeResourceBindings() {
+            try {
+                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+                const appState = allState[appId] || {};
+                const nodes = appState.nodes || [];
+                // resourceId 实际上就是 nodeId
+                const node = nodes.find(n => n.id === resourceId);
+                if (node && node.resourceIds) {
+                    currentNodeResourceIds = node.resourceIds.slice();
+                }
+                renderSelectedKbList();
+            } catch (e) {
+                console.error('加载节点资源绑定失败:', e);
+            }
+        }
+
+        // 保存节点资源绑定
+        function saveNodeResourceBindings() {
+            try {
+                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+                if (!allState[appId]) {
+                    allState[appId] = { nodes: [] };
+                }
+                const appState = allState[appId];
+                const nodes = appState.nodes || [];
+                const nodeIndex = nodes.findIndex(n => n.id === resourceId);
+                
+                const now = new Date().toISOString().slice(0, 19).replace("T", " ");
+                if (nodeIndex >= 0) {
+                    nodes[nodeIndex].resourceIds = currentNodeResourceIds.slice();
+                    nodes[nodeIndex].updatedAt = now;
+                    nodes[nodeIndex].updatedBy = "admin";
+                } else {
+                    // 如果节点不存在，创建一个新节点条目
+                    nodes.push({
+                        id: resourceId,
+                        resourceIds: currentNodeResourceIds.slice(),
+                        name: resourceNameInput?.value || '未命名节点',
+                        updatedAt: now,
+                        updatedBy: "admin"
+                    });
+                }
+                
+                localStorage.setItem(APP_CONFIG_KEY, JSON.stringify(allState));
+            } catch (e) {
+                console.error('保存节点资源绑定失败:', e);
+            }
+        }
+
+        // 渲染已选知识库列表
+        function renderSelectedKbList() {
+            if (!selectedKbList) return;
+            
+            try {
+                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+                const appState = allState[appId] || {};
+                const resources = appState.resources || [];
+                
+                const kbResources = resources.filter(r => 
+                    currentNodeResourceIds.includes(r.id) && r.type === 'knowledge_base'
+                );
+                
+                if (kbResources.length === 0) {
+                    selectedKbList.innerHTML = '<span style="color:var(--muted); font-size:13px;">暂未绑定知识库</span>';
+                    return;
+                }
+                
+                selectedKbList.innerHTML = kbResources.map(kb => `
+                    <span class="resource-tag" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:var(--active); color:var(--blue); font-size:12px; border:1px solid #bfdbfe;">
+                        ${kb.name}
+                        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="removeKb('${kb.id}')"></i>
+                    </span>
+                `).join('');
+            } catch (e) {
+                console.error('渲染知识库列表失败:', e);
+            }
+        }
+
+        // 移除知识库
+        window.removeKb = function(kbId) {
+            currentNodeResourceIds = currentNodeResourceIds.filter(id => id !== kbId);
+            saveNodeResourceBindings();
+            renderSelectedKbList();
+            showToast('已移除知识库');
+        };
+
+        // 打开知识库选择弹窗
+        function openKbModal() {
+            if (!kbSelectList) return;
+            
+            try {
+                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+                const appState = allState[appId] || {};
+                const resources = appState.resources || [];
+                const kbResources = resources.filter(r => r.type === 'knowledge_base');
+                
+                kbSelectList.innerHTML = '';
+                
+                if (kbResources.length === 0) {
+                    kbSelectEmpty.style.display = 'block';
+                    kbSelectList.style.display = 'none';
+                } else {
+                    kbSelectEmpty.style.display = 'none';
+                    kbSelectList.style.display = 'flex';
+                    
+                    kbResources.forEach(kb => {
+                        const isChecked = currentNodeResourceIds.includes(kb.id) ? 'checked' : '';
+                        const item = document.createElement('label');
+                        item.className = 'checkbox-item';
+                        item.style.cssText = 'display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border-radius:6px; border:1px solid var(--line-strong); background:#fff; cursor:pointer;';
+                        item.innerHTML = `
+                            <input type="checkbox" value="${kb.id}" ${isChecked} style="margin-top:2px; accent-color:var(--blue);">
+                            <div>
+                                <div style="font-weight:600; font-size:14px;">${kb.name}</div>
+                            </div>
+                        `;
+                        kbSelectList.appendChild(item);
+                    });
+                }
+                
+                kbSelectModal.style.display = 'flex';
+            } catch (e) {
+                console.error('打开知识库弹窗失败:', e);
+            }
+        }
+
+        // 关闭知识库选择弹窗
+        window.closeKbModal = function() {
+            if (kbSelectModal) kbSelectModal.style.display = 'none';
+        };
+
+        // 保存知识库选择
+        function saveKbSelection() {
+            if (!kbSelectList) return;
+            
+            const checkedBoxes = kbSelectList.querySelectorAll('input[type="checkbox"]:checked');
+            const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+            
+            // 保留非知识库的资源ID
+            const nonKbIds = currentNodeResourceIds.filter(id => {
+                try {
+                    const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+                    const appState = allState[appId] || {};
+                    const resources = appState.resources || [];
+                    const resource = resources.find(r => r.id === id);
+                    return resource && resource.type !== 'knowledge_base';
+                } catch (e) {
+                    return false;
+                }
+            });
+            
+            currentNodeResourceIds = [...nonKbIds, ...selectedIds];
+            saveNodeResourceBindings();
+            renderSelectedKbList();
+            closeKbModal();
+            showToast('知识库绑定已更新');
+        }
 
         function roleKey(role) {
             const text = String(role || "").toLowerCase();
@@ -1477,8 +1770,8 @@ current_image:
                 modelKey: modelSelect?.value || "",
                 thinkingMode: fromUiThinkingMode(getSelectedDeepthinkMode()),
                 reasoningEffort: reasoningEffortSelect?.value || "",
-                streamEnabled: streamSelect?.value === "true",
-                jsonMode: jsonModeSelect?.value || "none",
+                streamEnabled: document.querySelector('input[name="streamMode"]:checked')?.value === "true",
+                jsonMode: document.querySelector('input[name="jsonMode"]:checked')?.value || "none",
                 temperature: temperatureInput?.value || "",
                 seed: seedInput?.value || "",
                 maxTokens: maxTokensInput?.value || "",
@@ -1499,11 +1792,6 @@ current_image:
                 modelHint.textContent = parts.join(" | ");
             }
 
-            if (jsonModeSelect) {
-                jsonModeSelect.innerHTML = model.jsonModes
-                    .map((mode) => `<option value="${mode}">${mode === "json_object" ? "JSON Object" : "文本输出"}</option>`)
-                    .join("");
-            }
             if (reasoningEffortSelect) {
                 reasoningEffortSelect.innerHTML = model.supportsThinking
                     ? model.reasoningEfforts.map((item) => `<option value="${item}">${item}</option>`).join("")
@@ -1516,14 +1804,12 @@ current_image:
                 reasoningEffortSelect.value = config.reasoningEffort || "";
                 reasoningEffortSelect.disabled = promptManagerOnline || !model.supportsThinking;
             }
-            if (streamSelect) {
-                streamSelect.value = String(config.streamEnabled);
-                streamSelect.disabled = promptManagerOnline || !model.supportsStreaming;
-            }
-            if (jsonModeSelect) {
-                jsonModeSelect.value = config.jsonMode;
-                jsonModeSelect.disabled = promptManagerOnline;
-            }
+            // 设置流式输出 radio
+            const streamRadio = document.querySelector(`input[name="streamMode"][value="${String(config.streamEnabled)}"]`);
+            if (streamRadio) streamRadio.checked = true;
+            // 设置 JSON 模式 radio
+            const jsonRadio = document.querySelector(`input[name="jsonMode"][value="${config.jsonMode}"]`);
+            if (jsonRadio) jsonRadio.checked = true;
             if (temperatureInput) temperatureInput.value = config.temperature;
             if (seedInput) seedInput.value = config.seed;
             if (maxTokensInput) maxTokensInput.value = config.maxTokens;
@@ -1625,6 +1911,8 @@ current_image:
             });
             saveJSON(APP_RESOURCE_BINDING_KEY, bindings);
             saveJSON(APP_RESOURCE_REVISION_KEY, revisions);
+            // 同时保存节点资源绑定
+            saveNodeResourceBindings();
             showToast(`配置保存成功（${summary}）`);
         }
 
@@ -1638,8 +1926,10 @@ current_image:
             setSelectValue(modelSelect, modelConfig.modelKey);
             setSelectedDeepthinkMode(modelConfig.thinkingMode);
             if (reasoningEffortSelect) reasoningEffortSelect.value = modelConfig.reasoningEffort || "";
-            if (streamSelect) streamSelect.value = String(modelConfig.streamEnabled);
-            if (jsonModeSelect) jsonModeSelect.value = modelConfig.jsonMode;
+            const streamRadio = document.querySelector(`input[name="streamMode"][value="${String(modelConfig.streamEnabled)}"]`);
+            if (streamRadio) streamRadio.checked = true;
+            const jsonRadio = document.querySelector(`input[name="jsonMode"][value="${modelConfig.jsonMode}"]`);
+            if (jsonRadio) jsonRadio.checked = true;
             if (temperatureInput) temperatureInput.value = String(modelConfig.temperature);
             if (seedInput) seedInput.value = String(modelConfig.seed);
             if (maxTokensInput) maxTokensInput.value = String(modelConfig.maxTokens);
@@ -1690,14 +1980,22 @@ current_image:
             });
             if (extraBodyInput) extraBodyInput.readOnly = isReadonly;
             if (reasoningEffortSelect) reasoningEffortSelect.disabled = isReadonly;
-            if (streamSelect) streamSelect.disabled = isReadonly;
-            if (jsonModeSelect) jsonModeSelect.disabled = isReadonly;
             document.querySelectorAll("input[name='deepthink']").forEach((radio) => {
                 radio.disabled = isReadonly;
                 const label = radio.closest("label");
                 if (label) label.style.opacity = isReadonly ? "0.6" : "1";
             });
-            [modelSelect, reasoningEffortSelect, streamSelect, jsonModeSelect, temperatureInput, seedInput, maxTokensInput, timeoutInput, extraBodyInput].forEach((field) => {
+            document.querySelectorAll("input[name='streamMode']").forEach((radio) => {
+                radio.disabled = isReadonly;
+                const label = radio.closest("label");
+                if (label) label.style.opacity = isReadonly ? "0.6" : "1";
+            });
+            document.querySelectorAll("input[name='jsonMode']").forEach((radio) => {
+                radio.disabled = isReadonly;
+                const label = radio.closest("label");
+                if (label) label.style.opacity = isReadonly ? "0.6" : "1";
+            });
+            [modelSelect, reasoningEffortSelect, temperatureInput, seedInput, maxTokensInput, timeoutInput, extraBodyInput].forEach((field) => {
                 setFieldStyle(field, isReadonly);
             });
             [systemPromptTextarea, userPromptTextarea].forEach((area) => {
@@ -1774,8 +2072,10 @@ current_image:
             setSelectValue(modelSelect, modelConfig.modelKey);
             setSelectedDeepthinkMode(modelConfig.thinkingMode);
             if (reasoningEffortSelect) reasoningEffortSelect.value = modelConfig.reasoningEffort || "";
-            if (streamSelect) streamSelect.value = String(modelConfig.streamEnabled);
-            if (jsonModeSelect) jsonModeSelect.value = modelConfig.jsonMode;
+            const streamRadio2 = document.querySelector(`input[name="streamMode"][value="${String(modelConfig.streamEnabled)}"]`);
+            if (streamRadio2) streamRadio2.checked = true;
+            const jsonRadio2 = document.querySelector(`input[name="jsonMode"][value="${modelConfig.jsonMode}"]`);
+            if (jsonRadio2) jsonRadio2.checked = true;
             if (temperatureInput) temperatureInput.value = String(modelConfig.temperature);
             if (seedInput) seedInput.value = String(modelConfig.seed);
             if (maxTokensInput) maxTokensInput.value = String(modelConfig.maxTokens);
@@ -1909,16 +2209,16 @@ current_image:
                 applyAppModelCapabilities();
             });
         }
-        if (streamSelect) {
-            streamSelect.addEventListener("change", () => {
+        document.querySelectorAll("input[name='streamMode']").forEach((radio) => {
+            radio.addEventListener("change", () => {
                 applyAppModelCapabilities();
             });
-        }
-        if (jsonModeSelect) {
-            jsonModeSelect.addEventListener("change", () => {
+        });
+        document.querySelectorAll("input[name='jsonMode']").forEach((radio) => {
+            radio.addEventListener("change", () => {
                 applyAppModelCapabilities();
             });
-        }
+        });
         document.querySelectorAll("input[name='deepthink']").forEach((radio) => {
             radio.addEventListener("change", () => {
                 applyAppModelCapabilities();
@@ -1928,6 +2228,7 @@ current_image:
         initPromptManagerToggle();
         restoreResourceBinding();
         initPromptZoom();
+        initResourceBindingTab();
 
         if (repullTemplateBtn) {
             repullTemplateBtn.addEventListener("click", () => {
@@ -1952,6 +2253,13 @@ current_image:
                 persistResourceBinding("手动保存");
             });
         }
+
+        // ESC 键返回
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                window.history.back();
+            }
+        });
     </script>
     <script>
         // 强制保持提示词可编辑：加载模板后依然允许在应用管理内继续修改

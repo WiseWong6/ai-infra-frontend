@@ -55,6 +55,10 @@
           <i data-lucide="database"></i>
           <span class="menu-text">知识库</span>
         </a>
+        <a class="menu-item ${isPage('frontend-mcp-center.html') ? 'active' : ''}" href="./frontend-mcp-center.html">
+          <i data-lucide="plug-zap"></i>
+          <span class="menu-text">MCP</span>
+        </a>
         
         <!-- Tools with sub-menu -->
         <div style="position: relative;">
@@ -85,7 +89,7 @@
 
       <div class="menu-group">
         <h2 class="menu-title">追踪</h2>
-        <a class="menu-item ${isPage('frontend-trace.html') ? 'active' : ''}" href="./frontend-trace.html">
+        <a class="menu-item ${isPage('frontend-trace-prd-metrics.html') ? 'active' : ''}" href="./frontend-trace-prd-metrics.html">
           <i data-lucide="activity"></i>
           <span class="menu-text">Trace追踪</span>
         </a>
@@ -97,10 +101,6 @@
 
       <div class="menu-group">
         <h2 class="menu-title">基础设施</h2>
-        <a class="menu-item ${isPage('frontend-mcp-center.html') ? 'active' : ''}" href="./frontend-mcp-center.html">
-          <i data-lucide="plug-zap"></i>
-          <span class="menu-text">MCP中心</span>
-        </a>
         <a class="menu-item ${isPage('frontend-models.html') ? 'active' : ''}" href="./frontend-models.html">
           <i data-lucide="cpu"></i>
           <span class="menu-text">模型管理</span>
