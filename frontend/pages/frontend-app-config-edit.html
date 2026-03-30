@@ -539,7 +539,7 @@
                     <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
                     <a href="#">投保助手</a>
                     <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
-                    <span>配置资源：意图分流（有产品检索）</span>
+                    <span>配置资源：</span>
                 </div>
                 <div class="nav-actions" style="display:flex; gap:12px;">
                     <button class="btn btn-secondary" onclick="window.history.back()">取消</button>
@@ -565,7 +565,7 @@
                             <label style="font-size:13px; font-weight:500;">节点名称</label>
                             <input id="resourceNameInput" type="text"
                                 style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none;"
-                                value="意图分流（有产品检索）" />
+                                value="" placeholder="请输入节点名称" />
                         </div>
 
                         <div id="promptSelectorBlock" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
@@ -576,9 +576,6 @@
                             </div>
                             <select id="promptSelect"
                                 style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none; background:#fff; appearance:none; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;">
-                                <option>意图分流（有产品检索）提示词 (v3.6.0)</option>
-                                <option>产品检索选品提示词 (v1.2.0)</option>
-                                <option>寒暄兜底提示词 (v1.0.0)</option>
                             </select>
                             <div style="font-size:12px; color:#64748b;">
                                 应用管理仅会加载选中提示词作为模版，后续提示词更新后请重新加载。
@@ -591,9 +588,7 @@
                             <select id="modelSelect"
                                 style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none; background:#fff; appearance:none; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2394a3b8\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;">
                             </select>
-                            <div id="modelHint" style="font-size:12px; color:var(--muted); line-height:1.6; margin-top:4px;">
-                                价格信息与能力说明将随模型切换刷新
-                            </div>
+                            <div id="modelHint" style="margin-top:8px;"></div>
                         </div>
 
                         <div style="border-top: 1px solid var(--line); padding-top: 16px;">
@@ -601,35 +596,22 @@
                             </div>
 
                             <div style="display:flex; flex-direction:column; gap:16px;">
-                                <!-- 深度思考 -->
+                                <!-- 输入格式 -->
                                 <div style="display:flex; flex-direction:column; gap:8px;">
-                                    <label style="font-size:13px; font-weight:500;">深度思考</label>
+                                    <label style="font-size:13px; font-weight:500;">输入格式</label>
                                     <div style="display:flex; gap:16px; align-items:center;">
-                                        <label
-                                            style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
-                                            <input type="radio" name="deepthink" value="disabled" checked
-                                                style="accent-color: var(--blue);" />
-                                            <span style="color:var(--text); white-space:nowrap;">关闭</span>
+                                        <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                                            <input type="checkbox" checked disabled style="accent-color:var(--blue);" />
+                                            <span style="color:var(--text);">文本</span>
                                         </label>
-                                        <label
-                                            style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
-                                            <input type="radio" name="deepthink" value="enabled" />
-                                            <span style="color:var(--text); white-space:nowrap;">开启</span>
+                                        <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                                            <input type="checkbox" id="nodeInputImage" disabled style="accent-color:var(--blue);" />
+                                            <span style="color:var(--text);">图片</span>
                                         </label>
-                                        <label
-                                            style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
-                                            <input type="radio" name="deepthink" value="auto" />
-                                            <span style="color:var(--text); white-space:nowrap;">自动</span>
+                                        <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
+                                            <input type="checkbox" id="nodeInputFile" disabled style="accent-color:var(--blue);" />
+                                            <span style="color:var(--text);">文件</span>
                                         </label>
-                                    </div>
-                                </div>
-                                <div style="display:flex; flex-direction:column; gap:8px;">
-                                    <label style="font-size:13px; font-weight:500;">思考强度</label>
-                                    <div>
-                                        <select id="reasoningEffortSelect"
-                                            style="width:100%; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:4px;"></select>
-                                        <div style="font-size:12px; color:var(--muted); margin-top:6px;">仅支持深度思考的模型可配置
-                                        </div>
                                     </div>
                                 </div>
                                 <div style="display:flex; flex-direction:column; gap:8px;">
@@ -848,6 +830,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const appId = (urlParams.get("appId") || "3").trim();
         const resourceId = (urlParams.get("resourceId") || "86").trim();
+        const isNewFromUrl = urlParams.get("isNew") === "1";
         let promptManagerOnline = true;
         let promptOptionsCache = [];
         let currentBindingMeta = { templatePromptId: "", templatePromptVersion: "" };
@@ -885,10 +868,27 @@
             }
         }
 
+        // 检查是否是已存在的节点（从 frontend-app-config-simple.html 的存储中）
+        function checkNodeExistsInSimpleStorage(nodeId) {
+            try {
+                const APP_STORAGE_KEY = "app_config_demo_v1";
+                const allState = JSON.parse(localStorage.getItem(APP_STORAGE_KEY) || '{}');
+                const appState = allState[appId] || {};
+                const nodes = appState.nodes || [];
+                return nodes.find(n => n.id === nodeId) || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
         const appName = appNameMap[appId] || `应用${appId}`;
-        // 优先从 localStorage 获取节点名称，否则使用硬编码映射
-        const storageNodeName = getNodeNameFromStorage(resourceId);
-        const fallbackResourceName = storageNodeName || resourceNameMap[resourceId] || "新节点";
+        // 检查是否是已有节点（URL参数isNew=1优先，表示从添加节点跳转过来）
+        const existingNode = isNewFromUrl ? null : checkNodeExistsInSimpleStorage(resourceId);
+        const isNewNode = isNewFromUrl || !existingNode;
+
+        // 如果是已有节点，优先从 localStorage 获取节点名称，否则使用硬编码映射
+        const storageNodeName = isNewNode ? null : (getNodeNameFromStorage(resourceId) || existingNode?.name);
+        const fallbackResourceName = isNewNode ? "" : (storageNodeName || resourceNameMap[resourceId] || "");
 
         const breadcrumbLinks = document.querySelectorAll(".breadcrumb a");
         if (breadcrumbLinks[1]) {
@@ -898,11 +898,15 @@
 
         const breadcrumbResource = document.querySelector(".breadcrumb span");
         const resourceNameInput = document.getElementById("resourceNameInput");
-        if (resourceNameInput && !resourceNameInput.value.trim()) {
-            resourceNameInput.value = fallbackResourceName;
+        if (resourceNameInput) {
+            if (isNewNode) {
+                resourceNameInput.placeholder = "请输入节点名称";
+            } else if (!resourceNameInput.value.trim() && fallbackResourceName) {
+                resourceNameInput.value = fallbackResourceName;
+            }
         }
         if (breadcrumbResource) {
-            const currentName = (resourceNameInput?.value || fallbackResourceName).trim();
+            const currentName = (resourceNameInput?.value || fallbackResourceName || "新节点").trim();
             breadcrumbResource.textContent = `配置资源：${currentName}`;
         }
 
@@ -1291,11 +1295,30 @@
             });
         }
 
+        function renderModelPriceText(modelKey, container) {
+            const model = getModelByKey(modelKey);
+            if (!model) { container.innerHTML = ""; return; }
+            if (model.pricing?.mode === "tiered") {
+                const { threshold, tier1, tier2 } = model.pricing.tiered || {};
+                container.innerHTML = `<div style="font-size:12px; color:var(--muted); line-height:1.6;">
+                    <div>≤${threshold || "-"} tokens: 输入 ${tier1?.input || "-"} / 输出 ${tier1?.output || "-"} (元/千tokens)</div>
+                    <div>>${threshold || "-"} tokens: 输入 ${tier2?.input || "-"} / 输出 ${tier2?.output || "-"} (元/千tokens)</div>
+                </div>`;
+            } else if (model.pricing?.mode === "flat") {
+                const { input, output } = model.pricing.flat || {};
+                container.innerHTML = `<div style="font-size:12px; color:var(--muted); line-height:1.6;">
+                    <div>输入 ${input || "-"} / 输出 ${output || "-"} (元/千tokens)</div>
+                </div>`;
+            } else {
+                container.innerHTML = `<div style="font-size:12px; color:var(--muted);">未配置模型价格</div>`;
+            }
+        }
+
         function collectCurrentModelConfigInput() {
             return {
                 modelKey: modelSelect?.value || "",
-                thinkingMode: fromUiThinkingMode(getSelectedDeepthinkMode()),
-                reasoningEffort: reasoningEffortSelect?.value || "",
+                thinkingMode: "disabled",
+                reasoningEffort: "",
                 streamEnabled: document.querySelector('input[name="streamMode"]:checked')?.value === "true",
                 jsonMode: document.querySelector('input[name="jsonMode"]:checked')?.value || "none",
                 temperature: temperatureInput?.value || "",
@@ -1312,24 +1335,16 @@
             if (modelSelect) modelSelect.value = model.modelKey;
 
             if (modelHint) {
-                const parts = [getModelPriceHint(model.modelKey) || "无价格提示"];
-                parts.push(model.supportsThinking ? "支持深度思考" : "不支持深度思考");
-                parts.push(model.jsonModes.includes("json_object") ? "支持 JSON Object" : "仅文本输出");
-                modelHint.textContent = parts.join(" | ");
+                renderModelPriceText(model.modelKey, modelHint);
             }
 
-            if (reasoningEffortSelect) {
-                reasoningEffortSelect.innerHTML = model.supportsThinking
-                    ? model.reasoningEfforts.map((item) => `<option value="${item}">${item}</option>`).join("")
-                    : '<option value="">无</option>';
-            }
+            // 设置输入格式勾选框
+            const imageCheckbox = document.getElementById("nodeInputImage");
+            const fileCheckbox = document.getElementById("nodeInputFile");
+            if (imageCheckbox) imageCheckbox.checked = model?.supportsImageInput || false;
+            if (fileCheckbox) fileCheckbox.checked = model?.supportsFileInput || false;
 
             const { config, warnings } = coerceModelConfig(model, collectCurrentModelConfigInput());
-            setSelectedDeepthinkMode(config.thinkingMode);
-            if (reasoningEffortSelect) {
-                reasoningEffortSelect.value = config.reasoningEffort || "";
-                reasoningEffortSelect.disabled = !model.supportsThinking;
-            }
             // 设置流式输出 radio
             const streamRadio = document.querySelector(`input[name="streamMode"][value="${String(config.streamEnabled)}"]`);
             if (streamRadio) streamRadio.checked = true;
@@ -1341,13 +1356,6 @@
             if (maxTokensInput) maxTokensInput.value = config.maxTokens;
             if (timeoutInput) timeoutInput.value = config.timeout;
             if (extraBodyInput) extraBodyInput.value = config.extraBody;
-
-            document.querySelectorAll("input[name='deepthink']").forEach((radio) => {
-                const disableThinking = !model.supportsThinking && radio.value !== "off";
-                radio.disabled = disableThinking;
-                const label = radio.closest("label");
-                if (label) label.style.opacity = disableThinking ? "0.45" : (radio.disabled ? "0.6" : "1");
-            });
 
             if (options.showWarnings) {
                 warnings.forEach((message) => showToast(message));
@@ -1642,6 +1650,16 @@
 
             if (!promptSelect) return;
             promptSelect.innerHTML = "";
+
+            // 新节点时添加占位符选项
+            if (isNewNode) {
+                const placeholderOption = document.createElement("option");
+                placeholderOption.value = "";
+                placeholderOption.textContent = "请选择提示词";
+                placeholderOption.dataset.rowIndex = "-1";
+                promptSelect.appendChild(placeholderOption);
+            }
+
             deduped.forEach((row, index) => {
                 const option = document.createElement("option");
                 const rowId = String(row.id || `idx-${index}`);
@@ -1651,19 +1669,39 @@
                 promptSelect.appendChild(option);
             });
 
-            let selectedIndex = deduped.findIndex((row) => String(row?.id || "").trim() === String(currentBindingMeta.templatePromptId || ""));
-            if (selectedIndex < 0) {
-                const preferredName = (resourceNameInput?.value || fallbackResourceName).trim();
-                selectedIndex = deduped.findIndex((row) => String(row?.name || "").trim() === preferredName);
+            if (isNewNode) {
+                // 新节点：不自动选择，保持占位符
+                promptSelect.selectedIndex = 0;
+                clearPromptFields();
+            } else {
+                // 已有节点：正常选择逻辑
+                let selectedIndex = deduped.findIndex((row) => String(row?.id || "").trim() === String(currentBindingMeta.templatePromptId || ""));
+                if (selectedIndex < 0) {
+                    const preferredName = (resourceNameInput?.value || fallbackResourceName).trim();
+                    selectedIndex = deduped.findIndex((row) => String(row?.name || "").trim() === preferredName);
+                }
+                if (selectedIndex < 0) selectedIndex = 0;
+                promptSelect.selectedIndex = selectedIndex;
+                applyPromptRow(deduped[selectedIndex], { fromTemplate: true });
             }
-            if (selectedIndex < 0) selectedIndex = 0;
-            promptSelect.selectedIndex = selectedIndex;
-            applyPromptRow(deduped[selectedIndex], { fromTemplate: true });
 
             promptSelect.onchange = () => {
                 const idx = Number(promptSelect.options[promptSelect.selectedIndex]?.dataset.rowIndex || 0);
+                if (idx < 0) {
+                    clearPromptFields();
+                    return;
+                }
                 applyPromptRow(deduped[idx], { fromTemplate: true });
             };
+        }
+
+        function clearPromptFields() {
+            const systemPromptTextarea = document.getElementById("systemPromptTextarea");
+            const userPromptTextarea = document.getElementById("userPromptTextarea");
+            const assistantPromptTextarea = document.getElementById("assistantPromptTextarea");
+            if (systemPromptTextarea) systemPromptTextarea.value = "";
+            if (userPromptTextarea) userPromptTextarea.value = "";
+            if (assistantPromptTextarea) assistantPromptTextarea.value = "";
         }
 
         function parsePromptManagerOnline(rawValue) {

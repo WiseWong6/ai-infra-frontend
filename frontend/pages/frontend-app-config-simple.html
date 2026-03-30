@@ -970,10 +970,9 @@
                   <th style="text-align: left;">模型</th>
                   <th style="text-align: left;">深度思考</th>
                   <th style="text-align: left;">JSON输出</th>
-                  <th style="text-align: left;">多模态</th>
-                  <th style="text-align: left;">知识库</th>
-                  <th style="text-align: left;">MCP</th>
-                  <th style="text-align: left;">Skills</th>
+                  <th style="text-align: left; width: 120px;">知识库</th>
+                  <th style="text-align: left; width: 120px;">MCP</th>
+                  <th style="text-align: left; width: 120px;">Skills</th>
                   <th style="text-align: left;">最近更新人</th>
                   <th style="text-align: left;">最近更新时间</th>
                   <th style="text-align: left;">操作</th>
@@ -1067,7 +1066,7 @@
               <select id="nodeModelSelect"
                 style="width:100%; height:36px; padding:0 12px; border:1px solid #e2e8f0; border-radius:6px; outline:none; background:#fff;">
               </select>
-              <div id="nodeModelHint" style="font-size:12px; color:var(--muted); line-height:1.6; margin-top:4px;"></div>
+              <div id="nodeModelHint" style="margin-top:8px;"></div>
             </div>
 
             <!-- 模型参数 -->
@@ -1075,21 +1074,21 @@
               <div style="font-weight:600; font-size:14px; margin-bottom:16px; color:var(--text);">模型参数</div>
               
               <div style="display:flex; flex-direction:column; gap:16px;">
-                <!-- 深度思考 -->
+                <!-- 输入格式 -->
                 <div style="display:flex; flex-direction:column; gap:8px;">
-                  <label style="font-size:13px; font-weight:500;">深度思考</label>
+                  <label style="font-size:13px; font-weight:500;">输入格式</label>
                   <div style="display:flex; gap:16px; align-items:center;">
                     <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
-                      <input type="radio" name="nodeThinking" value="disabled" checked style="accent-color:var(--blue);" />
-                      <span style="color:var(--text); white-space:nowrap;">关闭</span>
+                      <input type="checkbox" checked disabled style="accent-color:var(--blue);" />
+                      <span style="color:var(--text);">文本</span>
                     </label>
                     <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
-                      <input type="radio" name="nodeThinking" value="enabled" style="accent-color:var(--blue);" />
-                      <span style="color:var(--text); white-space:nowrap;">开启</span>
+                      <input type="checkbox" id="nodeInputImage" disabled style="accent-color:var(--blue);" />
+                      <span style="color:var(--text);">图片</span>
                     </label>
                     <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;">
-                      <input type="radio" name="nodeThinking" value="auto" style="accent-color:var(--blue);" />
-                      <span style="color:var(--text); white-space:nowrap;">自动</span>
+                      <input type="checkbox" id="nodeInputFile" disabled style="accent-color:var(--blue);" />
+                      <span style="color:var(--text);">文件</span>
                     </label>
                   </div>
                 </div>
@@ -1571,14 +1570,11 @@
               </span>
             </td>
             <td>
-              <span class="toggle-switch ${node.jsonMode === 'json_object' ? 'on' : ''}" 
+              <span class="toggle-switch ${node.jsonMode === 'json_object' ? 'on' : ''}"
                     data-action="toggle-json" data-node-id="${node.id}" style="cursor:pointer;"
                     title="点击切换 JSON 输出">
                 <span class="switch"></span>
               </span>
-            </td>
-            <td>
-              ${model?.supportsImageInput ? '<i class="fa-solid fa-check icon-check"></i>' : '<i class="fa-solid fa-xmark icon-cross"></i>'}
             </td>
             <td>${renderResourceTags(kbResources, 2)}</td>
             <td>${renderResourceTags(mcpResources, 2)}</td>
@@ -1734,9 +1730,34 @@
       document.body.style.overflow = '';
     }
 
+    function renderModelPriceText(modelKey, container) {
+      const model = window.ModelRegistryDemo?.getModelByKey(modelKey);
+      if (!model) { container.innerHTML = ""; return; }
+      if (model.pricing?.mode === "tiered") {
+        const { threshold, tier1, tier2 } = model.pricing.tiered || {};
+        container.innerHTML = `<div style="font-size:12px; color:var(--muted); line-height:1.6;">
+          <div>≤${threshold || "-"} tokens: 输入 ${tier1?.input || "-"} / 输出 ${tier1?.output || "-"} (元/千tokens)</div>
+          <div>>${threshold || "-"} tokens: 输入 ${tier2?.input || "-"} / 输出 ${tier2?.output || "-"} (元/千tokens)</div>
+        </div>`;
+      } else if (model.pricing?.mode === "flat") {
+        const { input, output } = model.pricing.flat || {};
+        container.innerHTML = `<div style="font-size:12px; color:var(--muted); line-height:1.6;">
+          <div>输入 ${input || "-"} / 输出 ${output || "-"} (元/千tokens)</div>
+        </div>`;
+      } else {
+        container.innerHTML = `<div style="font-size:12px; color:var(--muted);">未配置模型价格</div>`;
+      }
+    }
+
     function refreshModelHint(modelKey) {
       const model = window.ModelRegistryDemo?.getModelByKey(modelKey);
-      nodeModelHint.textContent = model ? (window.ModelRegistryDemo?.getModelPriceHint(model.modelKey) || "未配置模型价格") : "";
+      renderModelPriceText(modelKey, nodeModelHint);
+
+      // 设置输入格式勾选框
+      const imageCheckbox = document.getElementById("nodeInputImage");
+      const fileCheckbox = document.getElementById("nodeInputFile");
+      if (imageCheckbox) imageCheckbox.checked = model?.supportsImageInput || false;
+      if (fileCheckbox) fileCheckbox.checked = model?.supportsFileInput || false;
     }
 
     function renderJsonModeOptions(modelKey, preferredValue) {
@@ -1994,44 +2015,10 @@
     }
 
     function addNode() {
-      const defaultModel = window.ModelRegistryDemo?.getDefaultModel();
-      const registry = window.ModelRegistryDemo;
-      const model = defaultModel || registry?.getDefaultModel();
-      const config = registry?.buildModelConfig(model?.modelKey) || {
-        thinkingMode: "disabled",
-        jsonMode: "none"
-      };
       const newNodeId = String(Math.floor(1000 + Math.random() * 9000));
-      const now = new Date().toISOString().slice(0, 19).replace("T", " ");
-      
-      // 创建空白节点，不预置提示词
-      const newNode = {
-        id: newNodeId,
-        name: "新节点",
-        modelKey: model?.modelKey || "volc-doubao-seed-2-0-pro",
-        thinkingMode: config.thinkingMode || "disabled",
-        jsonMode: config.jsonMode || "none",
-        streamEnabled: false,
-        temperature: "0.2",
-        maxTokens: "131072",
-        promptTemplateId: "",
-        promptSnapshot: {
-          system: "",
-          user: "",
-          assistant: ""
-        },
-        resourceIds: [],
-        updatedBy: "admin",
-        updatedAt: now
-      };
-      
-      state.nodes.unshift(newNode);
-      saveCurrentState();
-      renderNodeTable();
-      showToast("新节点已添加");
-      
-      // 自动跳转到编辑页
-      goToNodeEditPage(newNodeId);
+
+      // 直接跳转到空白编辑页，不保存任何数据
+      window.location.href = `./frontend-app-config-edit.html?appId=${encodeURIComponent(appId)}&resourceId=${encodeURIComponent(newNodeId)}&isNew=1`;
     }
 
     function bindEvents() {
