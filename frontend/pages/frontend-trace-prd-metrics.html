@@ -1611,6 +1611,14 @@
               </select>
             </div>
             <div class="filter-item">
+              <label>状态</label>
+              <select class="input-box">
+                <option value="">全部</option>
+                <option value="success">成功</option>
+                <option value="failed">失败</option>
+              </select>
+            </div>
+            <div class="filter-item">
               <label>问题类型</label>
               <select class="input-box">
                 <option value="">请选择</option>
@@ -1738,6 +1746,10 @@
             </div>
           </div>
           <div class="modal-summary" id="traceSummaryBar">
+            <div class="summary-chip summary-chip-status">
+              <span class="summary-label">最终状态</span>
+              <span id="summaryStatus"></span>
+            </div>
             <div class="summary-chip">
               <span class="summary-label">端到端耗时</span>
               <span class="summary-value" id="summaryDuration">-</span>
@@ -1823,6 +1835,10 @@
             <div class="process-log-extension-list" id="processExtensionIdList"></div>
           </div>
           <div class="process-log-toolbar">
+            <div class="process-log-overview">
+              <span>节点总数 <strong id="logNodeCount">0</strong></span>
+              <span>失败节点 <strong id="logFailureCount">0</strong></span>
+            </div>
             <div class="log-actions" style="display: flex; gap: 8px;">
               <button class="btn-action" onclick="copyAllNodes()">
                 <i data-lucide="layers"></i> 复制全部日志
@@ -1968,7 +1984,12 @@
         key: "traceId",
         label: "TraceId",
         className: "cell-id clickable-cell",
-        renderCell: (trace) => escapeHtml(trace.displayId),
+        renderCell: (trace) => `
+          <span class="trace-id-cell">
+            ${renderStatusIcon(trace.finalStatus)}
+            <span>${escapeHtml(trace.displayId)}</span>
+          </span>
+        `,
       },
       {
         key: "project",
@@ -2969,6 +2990,7 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
     }
 
     function renderModalSummary(trace) {
+      document.getElementById("summaryStatus").innerHTML = renderStatusInline(trace.finalStatus);
       document.getElementById("summaryDuration").innerText = formatDuration(trace.endToEndDurationMs);
       document.getElementById("summaryTokens").innerText = formatTokenCount(trace.totalModelTokens);
       document.getElementById("summaryCost").innerText = formatCost(trace.totalModelCost);
@@ -3149,6 +3171,9 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
     }
 
     function renderProcessLogHeader(nodes) {
+      const failedCount = nodes.filter((node) => node.status === "failed").length;
+      document.getElementById("logNodeCount").innerText = String(nodes.length);
+      document.getElementById("logFailureCount").innerText = String(failedCount);
     }
 
     function renderNodeContent(node, collapseLines) {
@@ -3200,6 +3225,7 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
           <div class="timeline-item" id="${node.id}">
             ${simpleMode ? "" : `<div class="timeline-icon icon-${node.color}"><i data-lucide="${node.icon}"></i></div>`}
             <div class="time-label">
+              ${renderStatusIcon(node.status)}
               <span class="time-label-text">${escapeHtml(getNodeLogMetaLine(trace, node))}</span>
               <button class="btn-copy-node-inline" onclick="copyNodeById('${node.id}')" title="复制当前节点">
                 <i data-lucide="copy" style="width: 12px; height: 12px;"></i>
