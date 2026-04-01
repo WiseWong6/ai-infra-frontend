@@ -249,7 +249,7 @@
       pointer-events: auto;
     }
     .panel {
-      width: min(960px, 100vw); height: 100vh; background: #fff; display: flex; flex-direction: column;
+      width: min(1180px, 100vw); height: 100vh; background: #fff; display: flex; flex-direction: column;
       border-left: 1px solid var(--line); box-shadow: -24px 0 64px rgba(15, 23, 42, 0.18);
       transform: translateX(100%); transition: transform 0.24s ease;
     }
@@ -356,6 +356,93 @@
       font-weight: 600;
       color: var(--muted);
     }
+    .pricing-section {
+      display: grid;
+      gap: 16px;
+    }
+    .pricing-block {
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      padding: 14px;
+      background: #fff;
+      display: grid;
+      gap: 12px;
+    }
+    .pricing-block-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 16px;
+    }
+    .pricing-mode {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      min-height: 36px;
+      align-items: center;
+    }
+    .pricing-tier-panel {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      background: #f8fafc;
+      display: grid;
+      gap: 12px;
+    }
+    .tier-list {
+      display: grid;
+      gap: 10px;
+    }
+    .tier-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.15fr) minmax(220px, 1fr) minmax(220px, 1fr) minmax(220px, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .tier-range {
+      padding: 8px 10px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .tier-row .row-btn {
+      white-space: nowrap;
+      align-self: end;
+    }
+    .tier-delete-btn {
+      width: 36px;
+      min-width: 36px;
+      height: 36px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--blue);
+      border-color: var(--line-strong);
+    }
+    .tier-delete-btn:disabled {
+      color: var(--muted);
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+    .pricing-summary {
+      padding: 10px 12px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
     .toggle-inline {
       display: inline-flex;
       align-items: center;
@@ -378,6 +465,7 @@
     @media (max-width: 1180px) {
       .filter-grid, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
       .filter-actions { justify-content: flex-start; }
+      .pricing-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 760px) {
       .panel {
@@ -390,6 +478,9 @@
       .form-list .field label {
         width: 88px;
         flex-basis: 88px;
+      }
+      .tier-row {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -485,10 +576,111 @@
 
         <div class="subcard">
           <h3>模型价格</h3>
-          <div class="field">
-            <label>价格说明</label>
-            <textarea id="pricingNoteInput" placeholder="如 输入¥0.003/千tokens，输出¥0.015/千tokens"></textarea>
-            <div class="hint">填写模型的价格信息，支持自由格式</div>
+          <div class="pricing-section">
+            <div class="pricing-block" id="thinkingPricingBlock">
+              <div class="pricing-block-title">思考 · 缓存命中</div>
+              <div class="pricing-mode">
+                <label class="choice-radio"><input type="radio" name="thinkingCacheHitMode" value="flat" checked /> 统一</label>
+                <label class="choice-radio"><input type="radio" name="thinkingCacheHitMode" value="tiered" /> 梯度</label>
+              </div>
+              <div class="pricing-grid" id="thinkingCacheHitFlatField">
+                <div class="field">
+                  <label>输入 token 单价</label>
+                  <input id="thinkingCacheHitFlatInputPriceInput" placeholder="如 0.0032" />
+                </div>
+                <div class="field">
+                  <label>输出 token 单价</label>
+                  <input id="thinkingCacheHitFlatOutputPriceInput" placeholder="如 0.0160" />
+                </div>
+              </div>
+              <div class="pricing-tier-panel" id="thinkingCacheHitTieredField" hidden>
+                <div class="tier-list" id="thinkingCacheHitTierList"></div>
+                <div style="display:flex; justify-content:flex-start;">
+                  <button type="button" class="row-btn" id="addThinkingCacheHitTierBtn">新增梯度</button>
+                </div>
+                <div class="hint">“至该档上限（含）”表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
+              </div>
+            </div>
+
+            <div class="pricing-block" id="thinkingCacheMissBlock">
+              <div class="pricing-block-title">思考 · 缓存未命中</div>
+              <div class="pricing-mode">
+                <label class="choice-radio"><input type="radio" name="thinkingCacheMissMode" value="flat" checked /> 统一</label>
+                <label class="choice-radio"><input type="radio" name="thinkingCacheMissMode" value="tiered" /> 梯度</label>
+              </div>
+              <div class="pricing-grid" id="thinkingCacheMissFlatField">
+                <div class="field">
+                  <label>输入 token 单价</label>
+                  <input id="thinkingCacheMissFlatInputPriceInput" placeholder="如 0.0032" />
+                </div>
+                <div class="field">
+                  <label>输出 token 单价</label>
+                  <input id="thinkingCacheMissFlatOutputPriceInput" placeholder="如 0.0160" />
+                </div>
+              </div>
+              <div class="pricing-tier-panel" id="thinkingCacheMissTieredField" hidden>
+                <div class="tier-list" id="thinkingCacheMissTierList"></div>
+                <div style="display:flex; justify-content:flex-start;">
+                  <button type="button" class="row-btn" id="addThinkingCacheMissTierBtn">新增梯度</button>
+                </div>
+                <div class="hint">“至该档上限（含）”表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
+              </div>
+            </div>
+
+            <div class="pricing-block">
+              <div class="pricing-block-title">非思考 · 缓存命中</div>
+              <div class="pricing-mode">
+                <label class="choice-radio"><input type="radio" name="nonThinkingCacheHitMode" value="flat" checked /> 统一</label>
+                <label class="choice-radio"><input type="radio" name="nonThinkingCacheHitMode" value="tiered" /> 梯度</label>
+              </div>
+              <div class="pricing-grid" id="nonThinkingCacheHitFlatField">
+                <div class="field">
+                  <label>输入 token 单价</label>
+                  <input id="nonThinkingCacheHitFlatInputPriceInput" placeholder="如 0.0004" />
+                </div>
+                <div class="field">
+                  <label>输出 token 单价</label>
+                  <input id="nonThinkingCacheHitFlatOutputPriceInput" placeholder="如 0.0012" />
+                </div>
+              </div>
+              <div class="pricing-tier-panel" id="nonThinkingCacheHitTieredField" hidden>
+                <div class="tier-list" id="nonThinkingCacheHitTierList"></div>
+                <div style="display:flex; justify-content:flex-start;">
+                  <button type="button" class="row-btn" id="addNonThinkingCacheHitTierBtn">新增梯度</button>
+                </div>
+                <div class="hint">“至该档上限（含）”表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
+              </div>
+            </div>
+
+            <div class="pricing-block">
+              <div class="pricing-block-title">非思考 · 缓存未命中</div>
+              <div class="pricing-mode">
+                <label class="choice-radio"><input type="radio" name="nonThinkingCacheMissMode" value="flat" checked /> 统一</label>
+                <label class="choice-radio"><input type="radio" name="nonThinkingCacheMissMode" value="tiered" /> 梯度</label>
+              </div>
+              <div class="pricing-grid" id="nonThinkingCacheMissFlatField">
+                <div class="field">
+                  <label>输入 token 单价</label>
+                  <input id="nonThinkingCacheMissFlatInputPriceInput" placeholder="如 0.0008" />
+                </div>
+                <div class="field">
+                  <label>输出 token 单价</label>
+                  <input id="nonThinkingCacheMissFlatOutputPriceInput" placeholder="如 0.0024" />
+                </div>
+              </div>
+              <div class="pricing-tier-panel" id="nonThinkingCacheMissTieredField" hidden>
+                <div class="tier-list" id="nonThinkingCacheMissTierList"></div>
+                <div style="display:flex; justify-content:flex-start;">
+                  <button type="button" class="row-btn" id="addNonThinkingCacheMissTierBtn">新增梯度</button>
+                </div>
+                <div class="hint">“至该档上限（含）”表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="hint">单位统一为元/千tokens。价格摘要将自动生成并用于其他页面展示。</div>
+              <div class="pricing-summary" id="pricingSummary">未配置模型价格</div>
+            </div>
           </div>
         </div>
 
@@ -505,7 +697,8 @@
             <div class="capability-group">
               <div class="capability-group-title">输出能力</div>
               <div class="toggle-row">
-                <label class="toggle-inline"><input type="checkbox" id="supportsThinkingInput" /> 深度思考</label>
+                <label class="toggle-inline"><input type="checkbox" id="supportsThinkingAutoInput" /> 深度思考(auto)</label>
+                <label class="toggle-inline"><input type="checkbox" id="supportsThinkingOnoffInput" /> 深度思考(on/off)</label>
                 <label class="toggle-inline"><input type="checkbox" id="supportsStreamingInput" checked /> 流式输出</label>
                 <label class="toggle-inline"><input type="checkbox" id="supportsJsonInput" /> Json格式化</label>
               </div>
@@ -518,10 +711,16 @@
           <div class="form-list">
             <div class="field" id="defaultThinkingField">
               <label>思考模式</label>
-              <div class="choice-options" id="defaultThinkingModeInput">
+              <!-- auto 类型：关闭/开启/自动 -->
+              <div class="choice-options" id="thinkingAutoOptions">
                 <label class="choice-radio"><input type="radio" name="defaultThinkingMode" value="disabled" checked /> 关闭</label>
                 <label class="choice-radio"><input type="radio" name="defaultThinkingMode" value="enabled" /> 开启</label>
                 <label class="choice-radio"><input type="radio" name="defaultThinkingMode" value="auto" /> 自动</label>
+              </div>
+              <!-- onoff 类型：关闭/开启 -->
+              <div class="choice-options" id="thinkingOnoffOptions" hidden>
+                <label class="choice-radio"><input type="radio" name="defaultThinkingModeOnoff" value="disabled" checked /> 关闭</label>
+                <label class="choice-radio"><input type="radio" name="defaultThinkingModeOnoff" value="enabled" /> 开启</label>
               </div>
             </div>
             <div class="field" id="defaultStreamField">
@@ -624,6 +823,15 @@
               <label>输入</label>
               <textarea class="test-input" data-test="basic" placeholder="请输入测试内容">你好，请介绍一下自己</textarea>
             </div>
+            <div class="field">
+              <label>文件</label>
+              <div class="test-file-upload" style="flex:1; display:flex; flex-direction:column; gap:8px;">
+                <div class="test-file-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+                <button type="button" class="row-btn test-add-file-btn" data-test="basic" style="height:32px; width:fit-content;">
+                  <i class="fa-solid fa-plus" style="margin-right:4px;"></i>上传文件
+                </button>
+              </div>
+            </div>
             <div class="field test-reasoning-field" data-test="basic">
               <label>推理</label>
               <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);">点击运行查看推理过程</div>
@@ -645,6 +853,15 @@
             <div class="field">
               <label>输入</label>
               <textarea class="test-input" data-test="image" placeholder="请输入测试内容">请告诉我图片上有什么信息</textarea>
+            </div>
+            <div class="field">
+              <label>文件</label>
+              <div class="test-file-upload" style="flex:1; display:flex; flex-direction:column; gap:8px;">
+                <div class="test-file-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+                <button type="button" class="row-btn test-add-file-btn" data-test="image" style="height:32px; width:fit-content;">
+                  <i class="fa-solid fa-plus" style="margin-right:4px;"></i>上传文件
+                </button>
+              </div>
             </div>
             <div class="field">
               <label>图片</label>
@@ -682,6 +899,15 @@
               <label>输入</label>
               <textarea class="test-input" data-test="json" placeholder="请输入测试内容">请告诉我什么是保险</textarea>
             </div>
+            <div class="field">
+              <label>文件</label>
+              <div class="test-file-upload" style="flex:1; display:flex; flex-direction:column; gap:8px;">
+                <div class="test-file-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+                <button type="button" class="row-btn test-add-file-btn" data-test="json" style="height:32px; width:fit-content;">
+                  <i class="fa-solid fa-plus" style="margin-right:4px;"></i>上传文件
+                </button>
+              </div>
+            </div>
             <div class="field test-reasoning-field" data-test="json">
               <label>推理</label>
               <div class="test-reasoning-output" style="flex:1; padding:10px 12px; border:1px solid var(--line-strong); border-radius:4px; background:#f8fafc; min-height:60px; font-size:13px; color:var(--muted);">点击运行查看推理过程</div>
@@ -707,9 +933,35 @@
                 <label class="choice-radio"><input type="radio" name="thinkingStream" value="true" /> 开启</label>
               </div>
             </div>
+            <!-- auto 类型：关闭/开启/自动 -->
+            <div class="field thinking-mode-field" id="testThinkingAutoField" hidden>
+              <label>思考模式</label>
+              <div class="choice-options">
+                <label class="choice-radio"><input type="radio" name="testThinkingMode" value="disabled" checked /> 关闭</label>
+                <label class="choice-radio"><input type="radio" name="testThinkingMode" value="enabled" /> 开启</label>
+                <label class="choice-radio"><input type="radio" name="testThinkingMode" value="auto" /> 自动</label>
+              </div>
+            </div>
+            <!-- onoff 类型：关闭/开启 -->
+            <div class="field thinking-mode-field" id="testThinkingOnoffField" hidden>
+              <label>思考模式</label>
+              <div class="choice-options">
+                <label class="choice-radio"><input type="radio" name="testThinkingModeOnoff" value="disabled" checked /> 关闭</label>
+                <label class="choice-radio"><input type="radio" name="testThinkingModeOnoff" value="enabled" /> 开启</label>
+              </div>
+            </div>
             <div class="field">
               <label>输入</label>
               <textarea class="test-input" data-test="thinking" placeholder="请输入测试内容">分析人工智能的优缺点，并给出实际应用建议</textarea>
+            </div>
+            <div class="field">
+              <label>文件</label>
+              <div class="test-file-upload" style="flex:1; display:flex; flex-direction:column; gap:8px;">
+                <div class="test-file-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+                <button type="button" class="row-btn test-add-file-btn" data-test="thinking" style="height:32px; width:fit-content;">
+                  <i class="fa-solid fa-plus" style="margin-right:4px;"></i>上传文件
+                </button>
+              </div>
             </div>
             <div class="field test-reasoning-field" data-test="thinking">
               <label>推理</label>
@@ -917,7 +1169,8 @@
       getModels,
       saveModels,
       getModelByKey,
-      coerceModelConfig
+      coerceModelConfig,
+      getModelPriceLines
     } = window.ModelRegistryDemo;
 
     const keywordInput = document.getElementById("keywordInput");
@@ -934,17 +1187,23 @@
     const supplierInput = document.getElementById("supplierInput");
     const providerModelIdInput = document.getElementById("providerModelIdInput");
 
-    const pricingNoteInput = document.getElementById("pricingNoteInput");
-    const supportsThinkingInput = document.getElementById("supportsThinkingInput");
+    const thinkingCacheHitBlock = document.getElementById("thinkingPricingBlock");
+    const thinkingCacheMissBlock = document.getElementById("thinkingCacheMissBlock");
+    const pricingSummary = document.getElementById("pricingSummary");
+    const supportsThinkingAutoInput = document.getElementById("supportsThinkingAutoInput");
+    const supportsThinkingOnoffInput = document.getElementById("supportsThinkingOnoffInput");
     const supportsTextInput = document.getElementById("supportsTextInput");
     const supportsImageInput = document.getElementById("supportsImageInput");
 
     const supportsJsonInput = document.getElementById("supportsJsonInput");
     const supportsStreamingInput = document.getElementById("supportsStreamingInput");
     const defaultThinkingField = document.getElementById("defaultThinkingField");
+    const thinkingAutoOptions = document.getElementById("thinkingAutoOptions");
+    const thinkingOnoffOptions = document.getElementById("thinkingOnoffOptions");
     const defaultStreamField = document.getElementById("defaultStreamField");
     const defaultJsonField = document.getElementById("defaultJsonField");
     const defaultThinkingModeInputs = Array.from(document.querySelectorAll('input[name="defaultThinkingMode"]'));
+    const defaultThinkingModeOnoffInputs = Array.from(document.querySelectorAll('input[name="defaultThinkingModeOnoff"]'));
     const defaultStreamInputs = Array.from(document.querySelectorAll('input[name="defaultStream"]'));
     const defaultJsonModeInputs = Array.from(document.querySelectorAll('input[name="defaultJsonMode"]'));
     const temperatureInput = document.getElementById("temperatureInput");
@@ -1056,9 +1315,10 @@
               <strong>${supplierLabel}</strong>
             </td>
             <td>
-              <span class="status icon-only ${item.supportsThinking ? "" : "disabled"}" aria-label="${item.supportsThinking ? "支持" : "不支持"}">
-                <i class="fa-solid ${item.supportsThinking ? "fa-check" : "fa-xmark"}"></i>
-              </span>
+              ${item.supportsThinking
+                ? `<span class="status" style="font-size:12px; font-weight:500;">${item.thinkingType === "auto" ? "Auto" : item.thinkingType === "onoff" ? "On/Off" : "✓"}</span>`
+                : `<span class="status icon-only disabled" aria-label="不支持"><i class="fa-solid fa-xmark"></i></span>`
+              }
             </td>
             <td>
               <span class="status icon-only ${item.jsonModes.includes("json_object") ? "" : "disabled"}" aria-label="${item.jsonModes.includes("json_object") ? "支持" : "不支持"}">
@@ -1103,17 +1363,310 @@
       });
     }
 
+    function getBucketEditor(modeName, flatFieldId, flatInputId, flatOutputId, tieredFieldId, tierListId, addTierBtnId) {
+      return {
+        modeInputs: Array.from(document.querySelectorAll(`input[name="${modeName}"]`)),
+        flatField: document.getElementById(flatFieldId),
+        flatInput: document.getElementById(flatInputId),
+        flatOutput: document.getElementById(flatOutputId),
+        tieredField: document.getElementById(tieredFieldId),
+        tierList: document.getElementById(tierListId),
+        addTierBtn: document.getElementById(addTierBtnId)
+      };
+    }
+
+    const bucketEditors = {
+      thinkingCacheHit: getBucketEditor(
+        "thinkingCacheHitMode",
+        "thinkingCacheHitFlatField",
+        "thinkingCacheHitFlatInputPriceInput",
+        "thinkingCacheHitFlatOutputPriceInput",
+        "thinkingCacheHitTieredField",
+        "thinkingCacheHitTierList",
+        "addThinkingCacheHitTierBtn"
+      ),
+      thinkingCacheMiss: getBucketEditor(
+        "thinkingCacheMissMode",
+        "thinkingCacheMissFlatField",
+        "thinkingCacheMissFlatInputPriceInput",
+        "thinkingCacheMissFlatOutputPriceInput",
+        "thinkingCacheMissTieredField",
+        "thinkingCacheMissTierList",
+        "addThinkingCacheMissTierBtn"
+      ),
+      nonThinkingCacheHit: getBucketEditor(
+        "nonThinkingCacheHitMode",
+        "nonThinkingCacheHitFlatField",
+        "nonThinkingCacheHitFlatInputPriceInput",
+        "nonThinkingCacheHitFlatOutputPriceInput",
+        "nonThinkingCacheHitTieredField",
+        "nonThinkingCacheHitTierList",
+        "addNonThinkingCacheHitTierBtn"
+      ),
+      nonThinkingCacheMiss: getBucketEditor(
+        "nonThinkingCacheMissMode",
+        "nonThinkingCacheMissFlatField",
+        "nonThinkingCacheMissFlatInputPriceInput",
+        "nonThinkingCacheMissFlatOutputPriceInput",
+        "nonThinkingCacheMissTieredField",
+        "nonThinkingCacheMissTierList",
+        "addNonThinkingCacheMissTierBtn"
+      )
+    };
+
+    function createEmptyPricing() {
+      return {
+        version: 4,
+        thinking: {
+          cacheHit: {
+            mode: "flat",
+            flat: { input: "", output: "" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          },
+          cacheMiss: {
+            mode: "flat",
+            flat: { input: "", output: "" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          }
+        },
+        nonThinking: {
+          cacheHit: {
+            mode: "flat",
+            flat: { input: "", output: "" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          },
+          cacheMiss: {
+            mode: "flat",
+            flat: { input: "", output: "" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          }
+        }
+      };
+    }
+
+    function isNonNegativeNumber(value) {
+      if (value === "") return true;
+      if (!/^\d+(\.\d+)?$/.test(value)) return false;
+      return Number(value) >= 0;
+    }
+
+    function clonePricing(pricing) {
+      return JSON.parse(JSON.stringify(pricing || createEmptyPricing()));
+    }
+
+    function renderTierRows(container, tiers) {
+      const nextTiers = Array.isArray(tiers) && tiers.length ? tiers : [{ upTo: "", input: "", output: "" }];
+      container.innerHTML = nextTiers.map((tier, index) => `
+        <div class="tier-row" data-tier-index="${index}">
+          <div class="tier-range" data-tier-range>
+            ${index === nextTiers.length - 1 ? "最后一档：x > 上一档上限" : `第 ${index + 1} 档：x ≤ ${tier?.upTo || "待填写"}（含）`}
+          </div>
+          <div class="field">
+            <label>至该档上限（含）</label>
+            <input data-tier-field="upTo" value="${String(tier?.upTo || "").replace(/"/g, "&quot;")}" placeholder="${index === nextTiers.length - 1 ? "最后一档可留空" : "如 32000"}" />
+          </div>
+          <div class="field">
+            <label>输入 token 单价</label>
+            <input data-tier-field="input" value="${String(tier?.input || "").replace(/"/g, "&quot;")}" placeholder="如 0.0032" />
+          </div>
+          <div class="field">
+            <label>输出 token 单价</label>
+            <input data-tier-field="output" value="${String(tier?.output || "").replace(/"/g, "&quot;")}" placeholder="如 0.0160" />
+          </div>
+          <div class="field" style="gap:0;">
+            <label style="visibility:hidden;">删除</label>
+            <button type="button" class="row-btn tier-delete-btn" data-tier-remove aria-label="删除该梯度" title="${nextTiers.length === 1 ? "至少保留一条梯度" : "删除该梯度"}" ${nextTiers.length === 1 ? "disabled" : ""}>
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join("");
+      updateTierRangeLabels(container);
+      if (window.lucide?.createIcons) window.lucide.createIcons();
+    }
+
+    function collectTierRows(container) {
+      return Array.from(container.querySelectorAll(".tier-row")).map((row) => ({
+        upTo: row.querySelector('[data-tier-field="upTo"]').value.trim(),
+        input: row.querySelector('[data-tier-field="input"]').value.trim(),
+        output: row.querySelector('[data-tier-field="output"]').value.trim()
+      }));
+    }
+
+    function updateTierRangeLabels(container) {
+      const rows = Array.from(container.querySelectorAll(".tier-row"));
+      let previousUpTo = "";
+      rows.forEach((row, index) => {
+        const upTo = row.querySelector('[data-tier-field="upTo"]').value.trim();
+        const label = row.querySelector("[data-tier-range]");
+        const isLast = index === rows.length - 1;
+        if (!label) return;
+        if (index === 0) {
+          label.textContent = isLast && !upTo
+            ? "唯一一档：全部 token"
+            : `第 1 档：x ≤ ${upTo || "待填写"}（含）`;
+        } else if (isLast && !upTo) {
+          label.textContent = `第 ${index + 1} 档：${previousUpTo || "上一档上限"} < x`;
+        } else {
+          label.textContent = `第 ${index + 1} 档：${previousUpTo || "上一档上限"} < x ≤ ${upTo || "待填写"}（含）`;
+        }
+        if (upTo) previousUpTo = upTo;
+      });
+    }
+
+    function setBucketFormValue(editor, bucket) {
+      const nextBucket = bucket && typeof bucket === "object" ? bucket : createEmptyPricing().thinking.cacheHit;
+      setCheckedValue(editor.modeInputs, nextBucket.mode || "flat", "flat");
+      editor.flatInput.value = nextBucket.flat?.input || "";
+      editor.flatOutput.value = nextBucket.flat?.output || "";
+      renderTierRows(editor.tierList, nextBucket.tiers || [{ upTo: "", input: "", output: "" }]);
+      syncBucketVisibility(editor);
+    }
+
+    function readBucketFormValue(editor) {
+      return {
+        mode: getCheckedValue(editor.modeInputs, "flat"),
+        flat: {
+          input: editor.flatInput.value.trim(),
+          output: editor.flatOutput.value.trim()
+        },
+        tiers: collectTierRows(editor.tierList)
+      };
+    }
+
+    function syncBucketVisibility(editor) {
+      const mode = getCheckedValue(editor.modeInputs, "flat");
+      editor.flatField.hidden = mode !== "flat";
+      editor.tieredField.hidden = mode !== "tiered";
+    }
+
+    function setPricingFormValue(pricing) {
+      const nextPricing = clonePricing(pricing);
+      setBucketFormValue(bucketEditors.thinkingCacheHit, nextPricing.thinking?.cacheHit);
+      setBucketFormValue(bucketEditors.thinkingCacheMiss, nextPricing.thinking?.cacheMiss);
+      setBucketFormValue(bucketEditors.nonThinkingCacheHit, nextPricing.nonThinking?.cacheHit);
+      setBucketFormValue(bucketEditors.nonThinkingCacheMiss, nextPricing.nonThinking?.cacheMiss);
+      syncPricingFieldVisibility();
+      refreshPricingSummary();
+    }
+
+    function buildPriceLinesForSummary(pricing, supportsThinking) {
+      return getModelPriceLines({
+        pricing,
+        supportsThinking,
+        pricingHint: ""
+      });
+    }
+
+    function refreshPricingSummary() {
+      const pricing = buildPricingFromForm();
+      const supportsThinking = supportsThinkingAutoInput.checked || supportsThinkingOnoffInput.checked;
+      if (!supportsThinking) {
+        pricing.thinking = createEmptyPricing().thinking;
+      }
+      const lines = buildPriceLinesForSummary(pricing, supportsThinking);
+      pricingSummary.textContent = lines.length
+        ? lines.map((line) => `${line} (元/千tokens)`).join("\n")
+        : "未配置模型价格";
+    }
+
+    function buildPricingFromForm() {
+      return {
+        version: 4,
+        thinking: {
+          cacheHit: readBucketFormValue(bucketEditors.thinkingCacheHit),
+          cacheMiss: readBucketFormValue(bucketEditors.thinkingCacheMiss)
+        },
+        nonThinking: {
+          cacheHit: readBucketFormValue(bucketEditors.nonThinkingCacheHit),
+          cacheMiss: readBucketFormValue(bucketEditors.nonThinkingCacheMiss)
+        }
+      };
+    }
+
+    function syncPricingFieldVisibility() {
+      const supportsThinking = supportsThinkingAutoInput.checked || supportsThinkingOnoffInput.checked;
+      thinkingCacheHitBlock.hidden = !supportsThinking;
+      thinkingCacheMissBlock.hidden = !supportsThinking;
+      Object.values(bucketEditors).forEach(syncBucketVisibility);
+    }
+
+    function validatePricingForm(supportsThinking) {
+      const pricing = buildPricingFromForm();
+
+      function validateBucket(labelPrefix, bucket) {
+        if (bucket.mode === "flat") {
+          if (!isNonNegativeNumber(bucket.flat.input)) return { error: `${labelPrefix}输入 token 单价需填写非负数字` };
+          if (!isNonNegativeNumber(bucket.flat.output)) return { error: `${labelPrefix}输出 token 单价需填写非负数字` };
+          return null;
+        }
+        let previousLimit = -Infinity;
+        const tiers = bucket.tiers;
+        for (let index = 0; index < tiers.length; index += 1) {
+          const tier = tiers[index];
+          const isLast = index === tiers.length - 1;
+          const hasAnyValue = tier.upTo || tier.input || tier.output;
+          if (!hasAnyValue && tiers.length === 1) continue;
+          if (!tier.input || !isNonNegativeNumber(tier.input)) {
+            return { error: `${labelPrefix}第 ${index + 1} 档输入 token 单价需填写非负数字` };
+          }
+          if (!tier.output || !isNonNegativeNumber(tier.output)) {
+            return { error: `${labelPrefix}第 ${index + 1} 档输出 token 单价需填写非负数字` };
+          }
+          if (!isLast && !tier.upTo) {
+            return { error: `${labelPrefix}第 ${index + 1} 档必须填写“至该档上限（含）”` };
+          }
+          if (tier.upTo) {
+            if (!/^\d+(\.\d+)?$/.test(tier.upTo)) {
+              return { error: `${labelPrefix}第 ${index + 1} 档上限需填写非负数字` };
+            }
+            const currentLimit = Number(tier.upTo);
+            if (currentLimit <= previousLimit) {
+              return { error: `${labelPrefix}阶梯上限需按从小到大填写` };
+            }
+            previousLimit = currentLimit;
+          } else if (!isLast) {
+            return { error: `${labelPrefix}第 ${index + 1} 档必须填写“至该档上限（含）”` };
+          }
+        }
+        return null;
+      }
+
+      const bucketsToValidate = [
+        { enabled: supportsThinking, label: "思考缓存命中", bucket: pricing.thinking.cacheHit },
+        { enabled: supportsThinking, label: "思考缓存未命中", bucket: pricing.thinking.cacheMiss },
+        { enabled: true, label: "非思考缓存命中", bucket: pricing.nonThinking.cacheHit },
+        { enabled: true, label: "非思考缓存未命中", bucket: pricing.nonThinking.cacheMiss }
+      ];
+      for (const item of bucketsToValidate) {
+        if (!item.enabled) continue;
+        const result = validateBucket(item.label, item.bucket);
+        if (result) return result;
+      }
+
+      if (!supportsThinking) {
+        pricing.thinking = createEmptyPricing().thinking;
+      }
+
+      return { pricing };
+    }
+
     function syncDefaultFieldVisibility() {
-      const supportsThinking = supportsThinkingInput.checked;
+      const isAuto = supportsThinkingAutoInput.checked;
+      const isOnoff = supportsThinkingOnoffInput.checked;
+      const supportsThinking = isAuto || isOnoff;
       const supportsStreaming = supportsStreamingInput.checked;
       const supportsJson = supportsJsonInput.checked;
 
       defaultThinkingField.hidden = !supportsThinking;
+      thinkingAutoOptions.hidden = !isAuto;
+      thinkingOnoffOptions.hidden = !isOnoff;
       defaultStreamField.hidden = !supportsStreaming;
       defaultJsonField.hidden = !supportsJson;
 
       if (!supportsThinking) {
         setCheckedValue(defaultThinkingModeInputs, "disabled", "disabled");
+        setCheckedValue(defaultThinkingModeOnoffInputs, "disabled", "disabled");
       }
       if (!supportsStreaming) {
         setCheckedValue(defaultStreamInputs, "false", "false");
@@ -1121,6 +1674,8 @@
       if (!supportsJson) {
         setCheckedValue(defaultJsonModeInputs, "none", "none");
       }
+      syncPricingFieldVisibility();
+      refreshPricingSummary();
     }
 
     function openModal(row) {
@@ -1129,19 +1684,25 @@
       displayNameInput.value = row?.displayName || "";
       supplierInput.value = row?.supplierCode || supplierInput.options[0]?.value || "";
       providerModelIdInput.value = row?.providerModelId || "";
-      pricingNoteInput.value = row?.pricingNote || "";
-      supportsThinkingInput.checked = Boolean(row?.supportsThinking);
+      supportsThinkingAutoInput.checked = row?.thinkingType === "auto";
+      supportsThinkingOnoffInput.checked = row?.thinkingType === "onoff";
       supportsTextInput.checked = row?.supportsTextInput !== false;
       supportsImageInput.checked = Boolean(row?.supportsImageInput);
       supportsJsonInput.checked = Boolean(row?.supportsJson || row?.jsonModes?.includes?.("json_object"));
       supportsStreamingInput.checked = row?.supportsStreaming !== false;
-      setCheckedValue(defaultThinkingModeInputs, row?.defaultConfig?.thinkingMode || "disabled", "disabled");
+      const thinkingType = row?.thinkingType;
+      if (thinkingType === "auto") {
+        setCheckedValue(defaultThinkingModeInputs, row?.defaultConfig?.thinkingMode || "disabled", "disabled");
+      } else if (thinkingType === "onoff") {
+        setCheckedValue(defaultThinkingModeOnoffInputs, row?.defaultConfig?.thinkingMode || "disabled", "disabled");
+      }
       setCheckedValue(defaultStreamInputs, String(Boolean(row?.defaultConfig?.streamEnabled)), "false");
       setCheckedValue(defaultJsonModeInputs, row?.defaultConfig?.jsonMode || "none", "none");
       temperatureInput.value = row?.defaultConfig?.temperature || "0.3";
       maxTokensInput.value = row?.defaultConfig?.maxTokens || "32000";
       timeoutInput.value = row?.defaultConfig?.timeout || "300";
       extraBodyInput.value = row?.defaultConfig?.extraBody || "";
+      setPricingFormValue(row?.pricing || createEmptyPricing());
       syncDefaultFieldVisibility();
       refreshCustomSelect("supplierInput");
       document.body.classList.add("modal-open");
@@ -1168,21 +1729,32 @@
       }
 
       const jsonModes = supportsJsonInput.checked ? ["none", "json_object"] : ["none"];
+      const isAuto = supportsThinkingAutoInput.checked;
+      const isOnoff = supportsThinkingOnoffInput.checked;
+      const thinkingType = isAuto ? "auto" : isOnoff ? "onoff" : undefined;
+      const activeThinkingInputs = isAuto ? defaultThinkingModeInputs : defaultThinkingModeOnoffInputs;
+      const pricingResult = validatePricingForm(isAuto || isOnoff);
+      if (pricingResult.error) {
+        showToast(pricingResult.error);
+        return;
+      }
       const row = {
         modelKey: nextModelKey,
         supplierCode,
         displayName,
         providerModelId,
         status: "active",
-        supportsThinking: supportsThinkingInput.checked,
+        supportsThinking: isAuto || isOnoff,
+        thinkingType,
         supportsTextInput: supportsTextInput.checked,
         supportsImageInput: supportsImageInput.checked,
         supportsJson: supportsJsonInput.checked,
         supportsStreaming: supportsStreamingInput.checked,
         jsonModes,
-        pricingNote: pricingNoteInput.value.trim(),
+        pricing: pricingResult.pricing,
+        pricingHint: "",
         defaultConfig: {
-          thinkingMode: supportsThinkingInput.checked ? getCheckedValue(defaultThinkingModeInputs, "disabled") : "disabled",
+          thinkingMode: (isAuto || isOnoff) ? getCheckedValue(activeThinkingInputs, "disabled") : "disabled",
           streamEnabled: supportsStreamingInput.checked && getCheckedValue(defaultStreamInputs, "false") === "true",
           jsonMode: supportsJsonInput.checked ? getCheckedValue(defaultJsonModeInputs, "none") : "none",
           temperature: temperatureInput.value.trim(),
@@ -1295,6 +1867,20 @@
 
       jsonCard.hidden = !row.jsonModes.includes("json_object");
       thinkingCard.hidden = !row.supportsThinking;
+
+      // 根据 thinkingType 显示对应的思考模式选项
+      const testThinkingAutoField = document.getElementById("testThinkingAutoField");
+      const testThinkingOnoffField = document.getElementById("testThinkingOnoffField");
+      if (row.supportsThinking) {
+        testThinkingAutoField.hidden = row.thinkingType !== "auto";
+        testThinkingOnoffField.hidden = row.thinkingType !== "onoff";
+      } else {
+        testThinkingAutoField.hidden = true;
+        testThinkingOnoffField.hidden = true;
+      }
+
+      // 重置所有测试文件列表
+      document.querySelectorAll(".test-file-list").forEach(el => { el.innerHTML = ""; });
       
       // 重置所有测试状态
       document.querySelectorAll(".test-reasoning-output").forEach(el => {
@@ -1329,6 +1915,33 @@
       document.body.classList.remove("modal-open");
       currentTestModel = null;
     }
+
+    // 测试卡片文件上传事件
+    document.querySelectorAll(".test-add-file-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const card = btn.closest(".test-card") || btn.closest(".subcard");
+        const fileList = card?.querySelector(".test-file-list");
+        if (!fileList) return;
+        const fileName = `file_${Math.random().toString(36).substring(2, 8)}.pdf`;
+        const fileItem = document.createElement("div");
+        fileItem.className = "test-file-item";
+        fileItem.style.cssText = "position:relative; display:flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid var(--line-strong); border-radius:6px; background:#f8fafc; font-size:13px;";
+        fileItem.innerHTML = `
+          <i class="fa-solid fa-file" style="color:var(--blue);"></i>
+          <span>${fileName}</span>
+          <button type="button" class="test-file-remove" style="margin-left:4px; border:none; background:none; color:var(--danger); cursor:pointer; font-size:14px;">×</button>
+        `;
+        fileList.appendChild(fileItem);
+      });
+    });
+
+    // 文件删除事件（事件委托）
+    testPanelBody.addEventListener("click", (e) => {
+      if (e.target.classList.contains("test-file-remove")) {
+        const item = e.target.closest(".test-file-item");
+        if (item) item.remove();
+      }
+    });
 
     // 测试运行逻辑
     function getTestResponse(testType) {
@@ -1457,8 +2070,50 @@
       node.addEventListener("input", renderTable);
       node.addEventListener("change", renderTable);
     });
-    [supportsThinkingInput, supportsStreamingInput, supportsJsonInput].forEach((node) => {
+    [supportsThinkingAutoInput, supportsThinkingOnoffInput, supportsStreamingInput, supportsJsonInput].forEach((node) => {
       node.addEventListener("change", syncDefaultFieldVisibility);
+    });
+    Object.values(bucketEditors).forEach((editor) => {
+      editor.modeInputs.forEach((node) => {
+        node.addEventListener("change", () => {
+          syncPricingFieldVisibility();
+          refreshPricingSummary();
+        });
+      });
+      [editor.flatInput, editor.flatOutput].forEach((node) => {
+        node.addEventListener("input", refreshPricingSummary);
+        node.addEventListener("change", refreshPricingSummary);
+      });
+      editor.addTierBtn.addEventListener("click", () => {
+        const tiers = collectTierRows(editor.tierList);
+        tiers.push({ upTo: "", input: "", output: "" });
+        renderTierRows(editor.tierList, tiers);
+        refreshPricingSummary();
+      });
+      editor.tierList.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-tier-remove]");
+        if (!button) return;
+        const rows = Array.from(editor.tierList.querySelectorAll(".tier-row"));
+        if (rows.length <= 1) return;
+        const targetRow = button.closest(".tier-row");
+        const tiers = collectTierRows(editor.tierList).filter((_, index) => rows[index] !== targetRow);
+        renderTierRows(editor.tierList, tiers);
+        refreshPricingSummary();
+      });
+      editor.tierList.addEventListener("input", refreshPricingSummary);
+      editor.tierList.addEventListener("change", refreshPricingSummary);
+      editor.tierList.addEventListener("input", () => updateTierRangeLabels(editor.tierList));
+      editor.tierList.addEventListener("change", () => updateTierRangeLabels(editor.tierList));
+    });
+
+    // 深度思考 checkbox 互斥逻辑
+    supportsThinkingAutoInput.addEventListener("change", () => {
+      if (supportsThinkingAutoInput.checked) supportsThinkingOnoffInput.checked = false;
+      syncDefaultFieldVisibility();
+    });
+    supportsThinkingOnoffInput.addEventListener("change", () => {
+      if (supportsThinkingOnoffInput.checked) supportsThinkingAutoInput.checked = false;
+      syncDefaultFieldVisibility();
     });
     tableBody.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-action]");
@@ -1545,6 +2200,7 @@
     });
 
     renderSupplierOptions();
+    setPricingFormValue(createEmptyPricing());
     renderTable();
     syncDefaultFieldVisibility();
 

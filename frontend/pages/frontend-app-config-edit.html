@@ -1298,20 +1298,7 @@
         function renderModelPriceText(modelKey, container) {
             const model = getModelByKey(modelKey);
             if (!model) { container.innerHTML = ""; return; }
-            if (model.pricing?.mode === "tiered") {
-                const { threshold, tier1, tier2 } = model.pricing.tiered || {};
-                container.innerHTML = `<div style="font-size:12px; color:var(--muted); line-height:1.6;">
-                    <div>≤${threshold || "-"} tokens: 输入 ${tier1?.input || "-"} / 输出 ${tier1?.output || "-"} (元/千tokens)</div>
-                    <div>>${threshold || "-"} tokens: 输入 ${tier2?.input || "-"} / 输出 ${tier2?.output || "-"} (元/千tokens)</div>
-                </div>`;
-            } else if (model.pricing?.mode === "flat") {
-                const { input, output } = model.pricing.flat || {};
-                container.innerHTML = `<div style="font-size:12px; color:var(--muted); line-height:1.6;">
-                    <div>输入 ${input || "-"} / 输出 ${output || "-"} (元/千tokens)</div>
-                </div>`;
-            } else {
-                container.innerHTML = `<div style="font-size:12px; color:var(--muted);">未配置模型价格</div>`;
-            }
+            container.innerHTML = window.ModelRegistryDemo?.renderModelPriceHtml(model, { color: "var(--muted)" }) || "";
         }
 
         function collectCurrentModelConfigInput() {

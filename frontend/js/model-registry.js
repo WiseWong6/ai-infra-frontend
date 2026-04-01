@@ -8,6 +8,36 @@
   const JSON_MODES = ["none", "json_object"];
   const REASONING_EFFORTS = ["minimal", "low", "medium", "high"];
 
+  function createEmptyPricing() {
+    return {
+      version: 4,
+      thinking: {
+        cacheHit: {
+          mode: "flat",
+          flat: { input: "", output: "" },
+          tiers: [{ upTo: "", input: "", output: "" }]
+        },
+        cacheMiss: {
+          mode: "flat",
+          flat: { input: "", output: "" },
+          tiers: [{ upTo: "", input: "", output: "" }]
+        }
+      },
+      nonThinking: {
+        cacheHit: {
+          mode: "flat",
+          flat: { input: "", output: "" },
+          tiers: [{ upTo: "", input: "", output: "" }]
+        },
+        cacheMiss: {
+          mode: "flat",
+          flat: { input: "", output: "" },
+          tiers: [{ upTo: "", input: "", output: "" }]
+        }
+      }
+    };
+  }
+
   const DEFAULT_SUPPLIERS = [
     {
       supplierCode: "volc",
@@ -47,18 +77,40 @@
       providerModelId: "doubao-seed-2-0-pro-250415",
       status: "active",
       supportsThinking: true,
+      thinkingType: "auto",
       supportsTextInput: true,
       supportsImageInput: true,
       supportsJson: true,
       supportsStreaming: true,
       reasoningEfforts: ["low", "medium", "high"],
       pricing: {
-        mode: "tiered",
-        flat: { input: "", output: "" },
-        tiered: {
-          threshold: "32000",
-          tier1: { input: "0.0032", output: "0.0160" },
-          tier2: { input: "0.0048", output: "0.0240" }
+        version: 4,
+        thinking: {
+          cacheHit: {
+            mode: "tiered",
+            flat: { input: "", output: "" },
+            tiers: [
+              { upTo: "32000", input: "0.0032", output: "0.0160" },
+              { upTo: "", input: "0.0048", output: "0.0240" }
+            ]
+          },
+          cacheMiss: {
+            mode: "flat",
+            flat: { input: "0.0032", output: "0.0160" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          }
+        },
+        nonThinking: {
+          cacheHit: {
+            mode: "flat",
+            flat: { input: "0.0032", output: "0.0160" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          },
+          cacheMiss: {
+            mode: "flat",
+            flat: { input: "0.0032", output: "0.0160" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          }
         }
       },
       defaultConfig: {
@@ -87,12 +139,30 @@
       supportsStreaming: true,
       reasoningEfforts: [],
       pricing: {
-        mode: "flat",
-        flat: { input: "0.0008", output: "0.0024" },
-        tiered: {
-          threshold: "",
-          tier1: { input: "", output: "" },
-          tier2: { input: "", output: "" }
+        version: 4,
+        thinking: {
+          cacheHit: {
+            mode: "flat",
+            flat: { input: "", output: "" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          },
+          cacheMiss: {
+            mode: "flat",
+            flat: { input: "", output: "" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          }
+        },
+        nonThinking: {
+          cacheHit: {
+            mode: "flat",
+            flat: { input: "0.0004", output: "0.0012" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          },
+          cacheMiss: {
+            mode: "flat",
+            flat: { input: "0.0008", output: "0.0024" },
+            tiers: [{ upTo: "", input: "", output: "" }]
+          }
         }
       },
       defaultConfig: {
@@ -115,20 +185,13 @@
       providerModelId: "qwen3.5-plus",
       status: "active",
       supportsThinking: true,
+      thinkingType: "onoff",
       supportsTextInput: true,
       supportsImageInput: false,
       supportsJson: true,
       supportsStreaming: true,
       reasoningEfforts: ["minimal", "low", "medium", "high"],
-      pricing: {
-        mode: "flat",
-        flat: { input: "", output: "" },
-        tiered: {
-          threshold: "",
-          tier1: { input: "", output: "" },
-          tier2: { input: "", output: "" }
-        }
-      },
+      pricing: createEmptyPricing(),
       defaultConfig: {
         thinkingMode: "enabled",
         reasoningEffort: "medium",
@@ -154,15 +217,7 @@
       supportsJson: true,
       supportsStreaming: true,
       reasoningEfforts: [],
-      pricing: {
-        mode: "flat",
-        flat: { input: "", output: "" },
-        tiered: {
-          threshold: "",
-          tier1: { input: "", output: "" },
-          tier2: { input: "", output: "" }
-        }
-      },
+      pricing: createEmptyPricing(),
       defaultConfig: {
         thinkingMode: "disabled",
         reasoningEffort: "",
@@ -183,20 +238,13 @@
       providerModelId: "deepseek-v3.2",
       status: "active",
       supportsThinking: true,
+      thinkingType: "onoff",
       supportsTextInput: true,
       supportsImageInput: false,
       supportsJson: false,
       supportsStreaming: true,
       reasoningEfforts: ["low", "medium", "high"],
-      pricing: {
-        mode: "flat",
-        flat: { input: "", output: "" },
-        tiered: {
-          threshold: "",
-          tier1: { input: "", output: "" },
-          tier2: { input: "", output: "" }
-        }
-      },
+      pricing: createEmptyPricing(),
       defaultConfig: {
         thinkingMode: "enabled",
         reasoningEffort: "medium",
@@ -221,15 +269,7 @@
       supportsJson: true,
       supportsStreaming: true,
       reasoningEfforts: [],
-      pricing: {
-        mode: "flat",
-        flat: { input: "", output: "" },
-        tiered: {
-          threshold: "",
-          tier1: { input: "", output: "" },
-          tier2: { input: "", output: "" }
-        }
-      },
+      pricing: createEmptyPricing(),
       defaultConfig: {
         thinkingMode: "disabled",
         reasoningEffort: "",
@@ -288,6 +328,169 @@
     return REASONING_EFFORTS.includes(normalized) ? normalized : "";
   }
 
+  function normalizePriceValue(value) {
+    return String(value ?? "").trim();
+  }
+
+  function normalizeTierMode(value) {
+    return String(value || "").toLowerCase() === "tiered" ? "tiered" : "flat";
+  }
+
+  function normalizeTierList(list) {
+    const source = Array.isArray(list) ? list : [];
+    const tiers = source.map((item) => ({
+      upTo: normalizePriceValue(item?.upTo),
+      input: normalizePriceValue(item?.input),
+      output: normalizePriceValue(item?.output)
+    }));
+    return tiers.length ? tiers : [{ upTo: "", input: "", output: "" }];
+  }
+
+  function normalizeFlatPair(rawFlat) {
+    const flat = rawFlat && typeof rawFlat === "object" ? rawFlat : {};
+    return {
+      input: normalizePriceValue(flat.input),
+      output: normalizePriceValue(flat.output)
+    };
+  }
+
+  function normalizeBucket(rawBucket) {
+    const bucket = rawBucket && typeof rawBucket === "object" ? rawBucket : {};
+    return {
+      mode: normalizeTierMode(bucket.mode),
+      flat: normalizeFlatPair(bucket.flat),
+      tiers: normalizeTierList(bucket.tiers)
+    };
+  }
+
+  function normalizePricingV4(rawPricing) {
+    const pricing = rawPricing && typeof rawPricing === "object" ? rawPricing : {};
+    const thinking = pricing.thinking && typeof pricing.thinking === "object" ? pricing.thinking : {};
+    const nonThinking = pricing.nonThinking && typeof pricing.nonThinking === "object" ? pricing.nonThinking : {};
+    return {
+      version: 4,
+      thinking: {
+        cacheHit: normalizeBucket(thinking.cacheHit),
+        cacheMiss: normalizeBucket(thinking.cacheMiss)
+      },
+      nonThinking: {
+        cacheHit: normalizeBucket(nonThinking.cacheHit),
+        cacheMiss: normalizeBucket(nonThinking.cacheMiss)
+      }
+    };
+  }
+
+  function isPricingV4(rawPricing) {
+    return Boolean(
+      rawPricing &&
+      typeof rawPricing === "object" &&
+      (rawPricing.version === 4 || rawPricing.thinking?.cacheHit?.flat || rawPricing.nonThinking?.cacheMiss?.flat)
+    );
+  }
+
+  function isPricingV3(rawPricing) {
+    return Boolean(
+      rawPricing &&
+      typeof rawPricing === "object" &&
+      (rawPricing.version === 3 || rawPricing.thinking?.cacheMissInput !== undefined || rawPricing.nonThinking?.cacheHitInput)
+    );
+  }
+
+  function isPricingV2(rawPricing) {
+    return Boolean(
+      rawPricing &&
+      typeof rawPricing === "object" &&
+      rawPricing.version === 2 &&
+      rawPricing.thinking &&
+      !rawPricing.thinking.cacheMissInput
+    );
+  }
+
+  function normalizeLegacyPricingV2(rawPricing) {
+    const pricing = rawPricing && typeof rawPricing === "object" ? rawPricing : {};
+    const v2Thinking = pricing.thinking && typeof pricing.thinking === "object" ? pricing.thinking : {};
+    const v2NonThinking = pricing.nonThinking && typeof pricing.nonThinking === "object" ? pricing.nonThinking : {};
+    const nextPricing = createEmptyPricing();
+    nextPricing.thinking.cacheHit = {
+      mode: normalizeTierMode(v2Thinking.cacheHitInput?.mode),
+      flat: {
+        input: normalizePriceValue(v2Thinking.cacheHitInput?.flatPrice),
+        output: normalizePriceValue(v2Thinking.cacheMiss?.output)
+      },
+      tiers: normalizeTierList((v2Thinking.cacheHitInput?.tiers || []).map((item) => ({
+        upTo: item?.upTo,
+        input: item?.price,
+        output: v2Thinking.cacheMiss?.output
+      })))
+    };
+    nextPricing.thinking.cacheMiss = {
+      mode: "flat",
+      flat: {
+        input: normalizePriceValue(v2Thinking.cacheMiss?.input),
+        output: normalizePriceValue(v2Thinking.cacheMiss?.output)
+      },
+      tiers: [{ upTo: "", input: "", output: "" }]
+    };
+    nextPricing.nonThinking.cacheMiss = {
+      mode: "flat",
+      flat: {
+        input: normalizePriceValue(v2NonThinking.input),
+        output: normalizePriceValue(v2NonThinking.output)
+      },
+      tiers: [{ upTo: "", input: "", output: "" }]
+    };
+    return nextPricing;
+  }
+
+  function normalizeLegacyPricingV3(rawPricing) {
+    const pricing = rawPricing && typeof rawPricing === "object" ? rawPricing : {};
+    const nextPricing = createEmptyPricing();
+    const thinking = pricing.thinking && typeof pricing.thinking === "object" ? pricing.thinking : {};
+    const nonThinking = pricing.nonThinking && typeof pricing.nonThinking === "object" ? pricing.nonThinking : {};
+
+    nextPricing.thinking.cacheHit = {
+      mode: normalizeTierMode(thinking.cacheHitInput?.mode),
+      flat: {
+        input: normalizePriceValue(thinking.cacheHitInput?.flatPrice),
+        output: normalizePriceValue(thinking.output)
+      },
+      tiers: normalizeTierList((thinking.cacheHitInput?.tiers || []).map((item) => ({
+        upTo: item?.upTo,
+        input: item?.price,
+        output: thinking.output
+      })))
+    };
+    nextPricing.thinking.cacheMiss = {
+      mode: "flat",
+      flat: {
+        input: normalizePriceValue(thinking.cacheMissInput),
+        output: normalizePriceValue(thinking.output)
+      },
+      tiers: [{ upTo: "", input: "", output: "" }]
+    };
+    nextPricing.nonThinking.cacheHit = {
+      mode: normalizeTierMode(nonThinking.cacheHitInput?.mode),
+      flat: {
+        input: normalizePriceValue(nonThinking.cacheHitInput?.flatPrice),
+        output: normalizePriceValue(nonThinking.output)
+      },
+      tiers: normalizeTierList((nonThinking.cacheHitInput?.tiers || []).map((item) => ({
+        upTo: item?.upTo,
+        input: item?.price,
+        output: nonThinking.output
+      })))
+    };
+    nextPricing.nonThinking.cacheMiss = {
+      mode: "flat",
+      flat: {
+        input: normalizePriceValue(nonThinking.cacheMissInput),
+        output: normalizePriceValue(nonThinking.output)
+      },
+      tiers: [{ upTo: "", input: "", output: "" }]
+    };
+    return nextPricing;
+  }
+
   function sanitizeEnumList(list, allowed) {
     const result = Array.isArray(list) ? list.map((item) => String(item || "").toLowerCase()) : [];
     const filtered = result.filter((item) => allowed.includes(item));
@@ -310,6 +513,16 @@
   }
 
   function normalizePricing(rawPricing, rawModel) {
+    if (isPricingV4(rawPricing)) {
+      return normalizePricingV4(rawPricing);
+    }
+    if (isPricingV3(rawPricing)) {
+      return normalizePricingV4(normalizeLegacyPricingV3(rawPricing));
+    }
+    if (isPricingV2(rawPricing)) {
+      return normalizePricingV4(normalizeLegacyPricingV2(rawPricing));
+    }
+
     const pricing = rawPricing && typeof rawPricing === "object" ? rawPricing : {};
     const legacyMode = String(rawModel?.pricingMode || pricing.mode || "flat").toLowerCase();
     const mode = legacyMode === "tiered" ? "tiered" : "flat";
@@ -317,28 +530,48 @@
     const tiered = pricing.tiered && typeof pricing.tiered === "object" ? pricing.tiered : {};
     const tier1 = tiered.tier1 && typeof tiered.tier1 === "object" ? tiered.tier1 : {};
     const tier2 = tiered.tier2 && typeof tiered.tier2 === "object" ? tiered.tier2 : {};
-    return {
-      mode,
-      flat: {
-        input: String(flat.input ?? rawModel?.flatInputPrice ?? ""),
-        output: String(flat.output ?? rawModel?.flatOutputPrice ?? "")
-      },
-      tiered: {
-        threshold: String(tiered.threshold ?? rawModel?.tieredThreshold ?? ""),
-        tier1: {
-          input: String(tier1.input ?? rawModel?.tier1InputPrice ?? ""),
-          output: String(tier1.output ?? rawModel?.tier1OutputPrice ?? "")
+    const nextPricing = createEmptyPricing();
+
+    if (mode === "tiered") {
+      nextPricing.thinking.cacheHit.mode = "tiered";
+      nextPricing.thinking.cacheHit.tiers = normalizeTierList([
+        {
+          upTo: tiered.threshold ?? rawModel?.tieredThreshold ?? "",
+          input: tier1.input ?? rawModel?.tier1InputPrice ?? "",
+          output: tier1.output ?? rawModel?.tier1OutputPrice ?? ""
         },
-        tier2: {
-          input: String(tier2.input ?? rawModel?.tier2InputPrice ?? ""),
-          output: String(tier2.output ?? rawModel?.tier2OutputPrice ?? "")
+        {
+          upTo: "",
+          input: tier2.input ?? rawModel?.tier2InputPrice ?? "",
+          output: tier2.output ?? rawModel?.tier2OutputPrice ?? ""
         }
+      ]);
+      nextPricing.thinking.cacheMiss.flat = {
+        input: normalizePriceValue(tier1.input ?? rawModel?.tier1InputPrice ?? ""),
+        output: normalizePriceValue(tier1.output ?? rawModel?.tier1OutputPrice ?? "")
+      };
+      nextPricing.nonThinking.cacheMiss.flat = {
+        input: normalizePriceValue(tier1.input ?? rawModel?.tier1InputPrice ?? ""),
+        output: normalizePriceValue(tier1.output ?? rawModel?.tier1OutputPrice ?? "")
+      };
+    } else {
+      const inputPrice = normalizePriceValue(flat.input ?? rawModel?.flatInputPrice ?? "");
+      const outputPrice = normalizePriceValue(flat.output ?? rawModel?.flatOutputPrice ?? "");
+      nextPricing.nonThinking.cacheMiss.flat = { input: inputPrice, output: outputPrice };
+      if (rawModel?.supportsThinking || rawModel?.thinkingType) {
+        nextPricing.thinking.cacheMiss.flat = { input: inputPrice, output: outputPrice };
       }
-    };
+    }
+
+    return normalizePricingV4(nextPricing);
   }
 
   function normalizeModel(raw, index) {
-    const supportsThinking = Boolean(raw?.supportsThinking || raw?.reasoningEfforts?.length);
+    const inferredThinkingType = raw?.supportsThinking ? "auto" : undefined;
+    const thinkingType = (raw?.thinkingType === "auto" || raw?.thinkingType === "onoff")
+      ? raw.thinkingType
+      : inferredThinkingType;
+    const supportsThinking = Boolean(raw?.supportsThinking || thinkingType || raw?.reasoningEfforts?.length);
     const supportsJson = Boolean(raw?.supportsJson || raw?.jsonModes?.includes?.("json_object"));
     const jsonModes = sanitizeEnumList(raw?.jsonModes || (supportsJson ? ["none", "json_object"] : ["none"]), JSON_MODES);
     const reasoningEfforts = supportsThinking
@@ -353,6 +586,7 @@
       providerModelId: String(raw?.providerModelId || raw?.modelId || raw?.id || `model-${index + 1}`).trim(),
       status: raw?.status === "disabled" ? "disabled" : "active",
       supportsThinking,
+      thinkingType,
       supportsTextInput: Boolean(raw?.supportsTextInput ?? raw?.supportsText ?? true),
       supportsImageInput: Boolean(raw?.supportsImageInput || raw?.supportsImage),
 
@@ -362,7 +596,7 @@
       reasoningEfforts,
       pricing,
       defaultConfig,
-      pricingHint: String(raw?.pricingHint || "").trim(),
+      pricingHint: String(raw?.pricingHint || raw?.pricingNote || "").trim(),
       description: String(raw?.description || "").trim()
     };
 
@@ -519,7 +753,10 @@
       config.thinkingMode = "disabled";
       config.reasoningEffort = "";
     } else {
-      if (!THINKING_MODES.includes(config.thinkingMode)) {
+      const allowedModes = targetModel.thinkingType === "onoff"
+        ? ["disabled", "enabled"]
+        : THINKING_MODES;
+      if (!allowedModes.includes(config.thinkingMode)) {
         config.thinkingMode = targetModel.defaultConfig.thinkingMode;
       }
       if (!targetModel.reasoningEfforts.includes(config.reasoningEffort)) {
@@ -563,22 +800,93 @@
     return models;
   }
 
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function buildTierSummary(tiers = []) {
+    const normalized = normalizeTierList(tiers).filter((item) => item.upTo || item.input || item.output);
+    if (!normalized.length) return "-";
+    let previous = "";
+    return normalized.map((item, index) => {
+      const range = item.upTo
+        ? (index === 0 ? `≤${item.upTo}（含）` : `${previous || "-"} ~ ${item.upTo}（含）`)
+        : (previous ? `>${previous}` : "最后一档");
+      previous = item.upTo || previous;
+      return `${range} 输入 ${item.input || "-"} / 输出 ${item.output || "-"}`;
+    }).join("，");
+  }
+
+  function getModelPriceLines(modelOrKey) {
+    const model = typeof modelOrKey === "string" ? getModelByKey(modelOrKey) : modelOrKey;
+    if (!model) return [];
+    const pricing = normalizePricing(model.pricing, model);
+    const lines = [];
+    const thinking = pricing.thinking || {};
+    const nonThinking = pricing.nonThinking || {};
+    const buckets = [
+      { label: "思考 · 缓存命中", key: thinking.cacheHit, enabled: model.supportsThinking },
+      { label: "思考 · 缓存未命中", key: thinking.cacheMiss, enabled: model.supportsThinking },
+      { label: "非思考 · 缓存命中", key: nonThinking.cacheHit, enabled: true },
+      { label: "非思考 · 缓存未命中", key: nonThinking.cacheMiss, enabled: true }
+    ];
+    const hasStructuredPricing = [
+      ...buckets.flatMap(({ key }) => {
+        const bucket = key || {};
+        const flat = bucket.flat || {};
+        return [
+          flat.input,
+          flat.output,
+          ...(bucket.tiers || []).filter((item) => item.upTo || item.input || item.output).map((item) => `${item.upTo}:${item.input}:${item.output}`)
+        ];
+      })
+    ].some((value) => String(value || "").trim());
+
+    if (!hasStructuredPricing) {
+      return model.pricingHint ? [model.pricingHint] : [];
+    }
+
+    buckets.forEach(({ label, key, enabled }) => {
+      const bucket = key || {};
+      const flat = bucket.flat || {};
+      const hasBucketPricing = Boolean(
+        flat.input ||
+        flat.output ||
+        (bucket.tiers || []).some((item) => item.upTo || item.input || item.output)
+      );
+      if (!enabled && !hasBucketPricing) return;
+      const summary = bucket.mode === "tiered"
+        ? `梯度 ${buildTierSummary(bucket.tiers)}`
+        : `统一 输入 ${flat.input || "-"} / 输出 ${flat.output || "-"}`;
+      lines.push(`${label} ${summary}`);
+    });
+    return lines;
+  }
+
   function getModelPriceHint(modelKey) {
-    const model = getModelByKey(modelKey);
-    if (!model) return "";
-    if (model.pricing?.mode === "tiered") {
-      const { threshold, tier1, tier2 } = model.pricing.tiered || {};
-      if (threshold || tier1?.input || tier1?.output || tier2?.input || tier2?.output) {
-        return `阶梯模式 | <=${threshold || "-"} 输入 ${tier1?.input || "-"} / 输出 ${tier1?.output || "-"}，>${threshold || "-"} 输入 ${tier2?.input || "-"} / 输出 ${tier2?.output || "-"}`;
-      }
+    const lines = getModelPriceLines(modelKey);
+    return lines.join(" | ");
+  }
+
+  function renderModelPriceHtml(modelOrKey, options = {}) {
+    const model = typeof modelOrKey === "string" ? getModelByKey(modelOrKey) : modelOrKey;
+    const lines = getModelPriceLines(modelOrKey);
+    if (!lines.length) {
+      return `<div style="font-size:12px; color:${options.color || "var(--muted)"};">未配置模型价格</div>`;
     }
-    if (model.pricing?.mode === "flat") {
-      const { input, output } = model.pricing.flat || {};
-      if (input || output) {
-        return `统一模式 | 输入 ${input || "-"} / 输出 ${output || "-"}`;
-      }
-    }
-    return model.pricingHint || "";
+    const hasFallbackOnly = lines.length === 1 && model?.pricingHint && lines[0] === model.pricingHint;
+    const color = options.color || "var(--muted)";
+    const lineHeight = options.lineHeight || "1.6";
+    const fontSize = options.fontSize || "12px";
+    return `<div style="font-size:${fontSize}; color:${color}; line-height:${lineHeight};">${lines.map((line) => {
+      const suffix = hasFallbackOnly ? "" : " (元/千tokens)";
+      return `<div>${escapeHtml(line)}${suffix}</div>`;
+    }).join("")}</div>`;
   }
 
   window.ModelRegistryDemo = {
@@ -599,7 +907,9 @@
     buildModelConfig,
     coerceModelConfig,
     renderModelOptions,
+    getModelPriceLines,
     getModelPriceHint,
+    renderModelPriceHtml,
     normalizeThinkingMode,
     normalizeJsonMode,
     normalizeReasoningEffort,
