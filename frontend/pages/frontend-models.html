@@ -577,103 +577,52 @@
         <div class="subcard">
           <h3>模型价格</h3>
           <div class="pricing-section">
+            <div class="pricing-block" style="background: transparent; border: none; padding: 0;">
+              <div class="pricing-mode" style="margin-bottom: 0;">
+                <label class="choice-radio"><input type="radio" name="pricingMode" value="flat" checked /> 统一</label>
+                <label class="choice-radio"><input type="radio" name="pricingMode" value="tiered" /> 梯度</label>
+              </div>
+            </div>
+
             <div class="pricing-block" id="thinkingPricingBlock">
-              <div class="pricing-block-title">思考 · 缓存命中</div>
-              <div class="pricing-mode">
-                <label class="choice-radio"><input type="radio" name="thinkingCacheHitMode" value="flat" checked /> 统一</label>
-                <label class="choice-radio"><input type="radio" name="thinkingCacheHitMode" value="tiered" /> 梯度</label>
-              </div>
-              <div class="pricing-grid" id="thinkingCacheHitFlatField">
+              <div class="pricing-block-title">思考</div>
+              <div class="pricing-grid" id="thinkingFlatField">
                 <div class="field">
                   <label>输入 token 单价</label>
-                  <input id="thinkingCacheHitFlatInputPriceInput" placeholder="如 0.0032" />
+                  <input id="thinkingFlatInputPriceInput" placeholder="如 0.0032" />
                 </div>
                 <div class="field">
                   <label>输出 token 单价</label>
-                  <input id="thinkingCacheHitFlatOutputPriceInput" placeholder="如 0.0160" />
+                  <input id="thinkingFlatOutputPriceInput" placeholder="如 0.0160" />
                 </div>
               </div>
-              <div class="pricing-tier-panel" id="thinkingCacheHitTieredField" hidden>
-                <div class="tier-list" id="thinkingCacheHitTierList"></div>
+              <div class="pricing-tier-panel" id="thinkingTieredField" hidden>
+                <div class="tier-list" id="thinkingTierList"></div>
                 <div style="display:flex; justify-content:flex-start;">
-                  <button type="button" class="row-btn" id="addThinkingCacheHitTierBtn">新增梯度</button>
+                  <button type="button" class="row-btn" id="addThinkingTierBtn">新增梯度</button>
                 </div>
-                <div class="hint">“至该档上限（含）”表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
-              </div>
-            </div>
-
-            <div class="pricing-block" id="thinkingCacheMissBlock">
-              <div class="pricing-block-title">思考 · 缓存未命中</div>
-              <div class="pricing-mode">
-                <label class="choice-radio"><input type="radio" name="thinkingCacheMissMode" value="flat" checked /> 统一</label>
-                <label class="choice-radio"><input type="radio" name="thinkingCacheMissMode" value="tiered" /> 梯度</label>
-              </div>
-              <div class="pricing-grid" id="thinkingCacheMissFlatField">
-                <div class="field">
-                  <label>输入 token 单价</label>
-                  <input id="thinkingCacheMissFlatInputPriceInput" placeholder="如 0.0032" />
-                </div>
-                <div class="field">
-                  <label>输出 token 单价</label>
-                  <input id="thinkingCacheMissFlatOutputPriceInput" placeholder="如 0.0160" />
-                </div>
-              </div>
-              <div class="pricing-tier-panel" id="thinkingCacheMissTieredField" hidden>
-                <div class="tier-list" id="thinkingCacheMissTierList"></div>
-                <div style="display:flex; justify-content:flex-start;">
-                  <button type="button" class="row-btn" id="addThinkingCacheMissTierBtn">新增梯度</button>
-                </div>
-                <div class="hint">“至该档上限（含）”表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
+                <div class="hint">"至该档上限（含）"表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
               </div>
             </div>
 
             <div class="pricing-block">
-              <div class="pricing-block-title">非思考 · 缓存命中</div>
-              <div class="pricing-mode">
-                <label class="choice-radio"><input type="radio" name="nonThinkingCacheHitMode" value="flat" checked /> 统一</label>
-                <label class="choice-radio"><input type="radio" name="nonThinkingCacheHitMode" value="tiered" /> 梯度</label>
-              </div>
-              <div class="pricing-grid" id="nonThinkingCacheHitFlatField">
+              <div class="pricing-block-title">非思考</div>
+              <div class="pricing-grid" id="nonThinkingFlatField">
                 <div class="field">
                   <label>输入 token 单价</label>
-                  <input id="nonThinkingCacheHitFlatInputPriceInput" placeholder="如 0.0004" />
+                  <input id="nonThinkingFlatInputPriceInput" placeholder="如 0.0004" />
                 </div>
                 <div class="field">
                   <label>输出 token 单价</label>
-                  <input id="nonThinkingCacheHitFlatOutputPriceInput" placeholder="如 0.0012" />
+                  <input id="nonThinkingFlatOutputPriceInput" placeholder="如 0.0012" />
                 </div>
               </div>
-              <div class="pricing-tier-panel" id="nonThinkingCacheHitTieredField" hidden>
-                <div class="tier-list" id="nonThinkingCacheHitTierList"></div>
+              <div class="pricing-tier-panel" id="nonThinkingTieredField" hidden>
+                <div class="tier-list" id="nonThinkingTierList"></div>
                 <div style="display:flex; justify-content:flex-start;">
-                  <button type="button" class="row-btn" id="addNonThinkingCacheHitTierBtn">新增梯度</button>
+                  <button type="button" class="row-btn" id="addNonThinkingTierBtn">新增梯度</button>
                 </div>
-                <div class="hint">“至该档上限（含）”表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
-              </div>
-            </div>
-
-            <div class="pricing-block">
-              <div class="pricing-block-title">非思考 · 缓存未命中</div>
-              <div class="pricing-mode">
-                <label class="choice-radio"><input type="radio" name="nonThinkingCacheMissMode" value="flat" checked /> 统一</label>
-                <label class="choice-radio"><input type="radio" name="nonThinkingCacheMissMode" value="tiered" /> 梯度</label>
-              </div>
-              <div class="pricing-grid" id="nonThinkingCacheMissFlatField">
-                <div class="field">
-                  <label>输入 token 单价</label>
-                  <input id="nonThinkingCacheMissFlatInputPriceInput" placeholder="如 0.0008" />
-                </div>
-                <div class="field">
-                  <label>输出 token 单价</label>
-                  <input id="nonThinkingCacheMissFlatOutputPriceInput" placeholder="如 0.0024" />
-                </div>
-              </div>
-              <div class="pricing-tier-panel" id="nonThinkingCacheMissTieredField" hidden>
-                <div class="tier-list" id="nonThinkingCacheMissTierList"></div>
-                <div style="display:flex; justify-content:flex-start;">
-                  <button type="button" class="row-btn" id="addNonThinkingCacheMissTierBtn">新增梯度</button>
-                </div>
-                <div class="hint">“至该档上限（含）”表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
+                <div class="hint">"至该档上限（含）"表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
               </div>
             </div>
 
@@ -1187,8 +1136,6 @@
     const supplierInput = document.getElementById("supplierInput");
     const providerModelIdInput = document.getElementById("providerModelIdInput");
 
-    const thinkingCacheHitBlock = document.getElementById("thinkingPricingBlock");
-    const thinkingCacheMissBlock = document.getElementById("thinkingCacheMissBlock");
     const pricingSummary = document.getElementById("pricingSummary");
     const supportsThinkingAutoInput = document.getElementById("supportsThinkingAutoInput");
     const supportsThinkingOnoffInput = document.getElementById("supportsThinkingOnoffInput");
@@ -1363,9 +1310,8 @@
       });
     }
 
-    function getBucketEditor(modeName, flatFieldId, flatInputId, flatOutputId, tieredFieldId, tierListId, addTierBtnId) {
+    function getBucketEditor(flatFieldId, flatInputId, flatOutputId, tieredFieldId, tierListId, addTierBtnId) {
       return {
-        modeInputs: Array.from(document.querySelectorAll(`input[name="${modeName}"]`)),
         flatField: document.getElementById(flatFieldId),
         flatInput: document.getElementById(flatInputId),
         flatOutput: document.getElementById(flatOutputId),
@@ -1375,71 +1321,36 @@
       };
     }
 
+    const globalPricingModeInputs = Array.from(document.querySelectorAll('input[name="pricingMode"]'));
+
     const bucketEditors = {
-      thinkingCacheHit: getBucketEditor(
-        "thinkingCacheHitMode",
-        "thinkingCacheHitFlatField",
-        "thinkingCacheHitFlatInputPriceInput",
-        "thinkingCacheHitFlatOutputPriceInput",
-        "thinkingCacheHitTieredField",
-        "thinkingCacheHitTierList",
-        "addThinkingCacheHitTierBtn"
+      thinking: getBucketEditor(
+        "thinkingFlatField",
+        "thinkingFlatInputPriceInput",
+        "thinkingFlatOutputPriceInput",
+        "thinkingTieredField",
+        "thinkingTierList",
+        "addThinkingTierBtn"
       ),
-      thinkingCacheMiss: getBucketEditor(
-        "thinkingCacheMissMode",
-        "thinkingCacheMissFlatField",
-        "thinkingCacheMissFlatInputPriceInput",
-        "thinkingCacheMissFlatOutputPriceInput",
-        "thinkingCacheMissTieredField",
-        "thinkingCacheMissTierList",
-        "addThinkingCacheMissTierBtn"
-      ),
-      nonThinkingCacheHit: getBucketEditor(
-        "nonThinkingCacheHitMode",
-        "nonThinkingCacheHitFlatField",
-        "nonThinkingCacheHitFlatInputPriceInput",
-        "nonThinkingCacheHitFlatOutputPriceInput",
-        "nonThinkingCacheHitTieredField",
-        "nonThinkingCacheHitTierList",
-        "addNonThinkingCacheHitTierBtn"
-      ),
-      nonThinkingCacheMiss: getBucketEditor(
-        "nonThinkingCacheMissMode",
-        "nonThinkingCacheMissFlatField",
-        "nonThinkingCacheMissFlatInputPriceInput",
-        "nonThinkingCacheMissFlatOutputPriceInput",
-        "nonThinkingCacheMissTieredField",
-        "nonThinkingCacheMissTierList",
-        "addNonThinkingCacheMissTierBtn"
+      nonThinking: getBucketEditor(
+        "nonThinkingFlatField",
+        "nonThinkingFlatInputPriceInput",
+        "nonThinkingFlatOutputPriceInput",
+        "nonThinkingTieredField",
+        "nonThinkingTierList",
+        "addNonThinkingTierBtn"
       )
     };
 
     function createEmptyPricing() {
       return {
-        version: 4,
         thinking: {
-          cacheHit: {
-            mode: "flat",
-            flat: { input: "", output: "" },
-            tiers: [{ upTo: "", input: "", output: "" }]
-          },
-          cacheMiss: {
-            mode: "flat",
-            flat: { input: "", output: "" },
-            tiers: [{ upTo: "", input: "", output: "" }]
-          }
+          flat: { input: "", output: "" },
+          tiers: [{ upTo: "", input: "", output: "" }]
         },
         nonThinking: {
-          cacheHit: {
-            mode: "flat",
-            flat: { input: "", output: "" },
-            tiers: [{ upTo: "", input: "", output: "" }]
-          },
-          cacheMiss: {
-            mode: "flat",
-            flat: { input: "", output: "" },
-            tiers: [{ upTo: "", input: "", output: "" }]
-          }
+          flat: { input: "", output: "" },
+          tiers: [{ upTo: "", input: "", output: "" }]
         }
       };
     }
@@ -1515,8 +1426,8 @@
     }
 
     function setBucketFormValue(editor, bucket) {
-      const nextBucket = bucket && typeof bucket === "object" ? bucket : createEmptyPricing().thinking.cacheHit;
-      setCheckedValue(editor.modeInputs, nextBucket.mode || "flat", "flat");
+      const defaultBucket = { mode: "flat", flat: { input: "", output: "" }, tiers: [{ upTo: "", input: "", output: "" }] };
+      const nextBucket = bucket && typeof bucket === "object" ? bucket : defaultBucket;
       editor.flatInput.value = nextBucket.flat?.input || "";
       editor.flatOutput.value = nextBucket.flat?.output || "";
       renderTierRows(editor.tierList, nextBucket.tiers || [{ upTo: "", input: "", output: "" }]);
@@ -1525,7 +1436,7 @@
 
     function readBucketFormValue(editor) {
       return {
-        mode: getCheckedValue(editor.modeInputs, "flat"),
+        mode: getCheckedValue(globalPricingModeInputs, "flat"),
         flat: {
           input: editor.flatInput.value.trim(),
           output: editor.flatOutput.value.trim()
@@ -1535,17 +1446,31 @@
     }
 
     function syncBucketVisibility(editor) {
-      const mode = getCheckedValue(editor.modeInputs, "flat");
+      const mode = getCheckedValue(globalPricingModeInputs, "flat");
       editor.flatField.hidden = mode !== "flat";
       editor.tieredField.hidden = mode !== "tiered";
     }
 
+    function defineGlobalModeListeners() {
+      globalPricingModeInputs.forEach((node) => {
+        node.addEventListener("change", () => {
+          syncPricingFieldVisibility();
+          refreshPricingSummary();
+        });
+      });
+    }
+
     function setPricingFormValue(pricing) {
       const nextPricing = clonePricing(pricing);
-      setBucketFormValue(bucketEditors.thinkingCacheHit, nextPricing.thinking?.cacheHit);
-      setBucketFormValue(bucketEditors.thinkingCacheMiss, nextPricing.thinking?.cacheMiss);
-      setBucketFormValue(bucketEditors.nonThinkingCacheHit, nextPricing.nonThinking?.cacheHit);
-      setBucketFormValue(bucketEditors.nonThinkingCacheMiss, nextPricing.nonThinking?.cacheMiss);
+      // For backward compatibility, if pricing has nested cacheHit/cacheMiss structure,
+      // use cacheHit values; otherwise use the flat structure
+      const thinkingBucket = nextPricing.thinking?.cacheHit || nextPricing.thinking;
+      const nonThinkingBucket = nextPricing.nonThinking?.cacheHit || nextPricing.nonThinking;
+      // Set global mode (use thinking bucket mode as default, or flat if not set)
+      const mode = thinkingBucket?.mode || "flat";
+      setCheckedValue(globalPricingModeInputs, mode, "flat");
+      setBucketFormValue(bucketEditors.thinking, thinkingBucket);
+      setBucketFormValue(bucketEditors.nonThinking, nonThinkingBucket);
       syncPricingFieldVisibility();
       refreshPricingSummary();
     }
@@ -1559,35 +1484,42 @@
     }
 
     function refreshPricingSummary() {
-      const pricing = buildPricingFromForm();
+      const formPricing = buildPricingFromForm();
       const supportsThinking = supportsThinkingAutoInput.checked || supportsThinkingOnoffInput.checked;
+      // Build simplified pricing for display (2 buckets instead of 4)
+      const displayPricing = {
+        version: 4,
+        thinking: { cacheHit: formPricing.thinking.cacheHit, cacheMiss: formPricing.thinking.cacheMiss },
+        nonThinking: { cacheHit: formPricing.nonThinking.cacheHit, cacheMiss: formPricing.nonThinking.cacheMiss }
+      };
       if (!supportsThinking) {
-        pricing.thinking = createEmptyPricing().thinking;
+        displayPricing.thinking = { cacheHit: { mode: "flat", flat: {}, tiers: [] }, cacheMiss: { mode: "flat", flat: {}, tiers: [] } };
       }
-      const lines = buildPriceLinesForSummary(pricing, supportsThinking);
+      const lines = buildPriceLinesForSummary(displayPricing, supportsThinking);
       pricingSummary.textContent = lines.length
         ? lines.map((line) => `${line} (元/千tokens)`).join("\n")
         : "未配置模型价格";
     }
 
     function buildPricingFromForm() {
+      const thinkingBucket = readBucketFormValue(bucketEditors.thinking);
+      const nonThinkingBucket = readBucketFormValue(bucketEditors.nonThinking);
+      // For backward compatibility, duplicate values to both cacheHit and cacheMiss
       return {
         version: 4,
         thinking: {
-          cacheHit: readBucketFormValue(bucketEditors.thinkingCacheHit),
-          cacheMiss: readBucketFormValue(bucketEditors.thinkingCacheMiss)
+          cacheHit: thinkingBucket,
+          cacheMiss: clonePricing({ thinking: thinkingBucket, nonThinking: nonThinkingBucket }).thinking
         },
         nonThinking: {
-          cacheHit: readBucketFormValue(bucketEditors.nonThinkingCacheHit),
-          cacheMiss: readBucketFormValue(bucketEditors.nonThinkingCacheMiss)
+          cacheHit: nonThinkingBucket,
+          cacheMiss: clonePricing({ thinking: thinkingBucket, nonThinking: nonThinkingBucket }).nonThinking
         }
       };
     }
 
     function syncPricingFieldVisibility() {
-      const supportsThinking = supportsThinkingAutoInput.checked || supportsThinkingOnoffInput.checked;
-      thinkingCacheHitBlock.hidden = !supportsThinking;
-      thinkingCacheMissBlock.hidden = !supportsThinking;
+      // 价格和是否支持思考功能没有强关联，始终显示所有价格配置块
       Object.values(bucketEditors).forEach(syncBucketVisibility);
     }
 
@@ -1632,11 +1564,10 @@
         return null;
       }
 
+      const mode = getCheckedValue(globalPricingModeInputs, "flat");
       const bucketsToValidate = [
-        { enabled: supportsThinking, label: "思考缓存命中", bucket: pricing.thinking.cacheHit },
-        { enabled: supportsThinking, label: "思考缓存未命中", bucket: pricing.thinking.cacheMiss },
-        { enabled: true, label: "非思考缓存命中", bucket: pricing.nonThinking.cacheHit },
-        { enabled: true, label: "非思考缓存未命中", bucket: pricing.nonThinking.cacheMiss }
+        { enabled: supportsThinking, label: "思考", bucket: { ...pricing.thinking, mode } },
+        { enabled: true, label: "非思考", bucket: { ...pricing.nonThinking, mode } }
       ];
       for (const item of bucketsToValidate) {
         if (!item.enabled) continue;
@@ -1645,7 +1576,7 @@
       }
 
       if (!supportsThinking) {
-        pricing.thinking = createEmptyPricing().thinking;
+        pricing.thinking = { cacheHit: { mode: "flat", flat: {}, tiers: [] }, cacheMiss: { mode: "flat", flat: {}, tiers: [] } };
       }
 
       return { pricing };
@@ -1738,6 +1669,19 @@
         showToast(pricingResult.error);
         return;
       }
+      // Convert UI 2-bucket pricing to backend 4-bucket format
+      const uiPricing = pricingResult.pricing;
+      const backendPricing = {
+        version: 4,
+        thinking: {
+          cacheHit: uiPricing.thinking,
+          cacheMiss: JSON.parse(JSON.stringify(uiPricing.thinking))
+        },
+        nonThinking: {
+          cacheHit: uiPricing.nonThinking,
+          cacheMiss: JSON.parse(JSON.stringify(uiPricing.nonThinking))
+        }
+      };
       const row = {
         modelKey: nextModelKey,
         supplierCode,
@@ -1751,7 +1695,7 @@
         supportsJson: supportsJsonInput.checked,
         supportsStreaming: supportsStreamingInput.checked,
         jsonModes,
-        pricing: pricingResult.pricing,
+        pricing: backendPricing,
         pricingHint: "",
         defaultConfig: {
           thinkingMode: (isAuto || isOnoff) ? getCheckedValue(activeThinkingInputs, "disabled") : "disabled",
@@ -2073,13 +2017,10 @@
     [supportsThinkingAutoInput, supportsThinkingOnoffInput, supportsStreamingInput, supportsJsonInput].forEach((node) => {
       node.addEventListener("change", syncDefaultFieldVisibility);
     });
+    // Global pricing mode change listener
+defineGlobalModeListeners();
+
     Object.values(bucketEditors).forEach((editor) => {
-      editor.modeInputs.forEach((node) => {
-        node.addEventListener("change", () => {
-          syncPricingFieldVisibility();
-          refreshPricingSummary();
-        });
-      });
       [editor.flatInput, editor.flatOutput].forEach((node) => {
         node.addEventListener("input", refreshPricingSummary);
         node.addEventListener("change", refreshPricingSummary);
