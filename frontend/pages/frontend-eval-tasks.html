@@ -348,9 +348,14 @@
       width: 80px;
     }
 
+    .col-project {
+      width: 200px;
+      max-width: 200px;
+    }
+
     .col-object {
-      width: 280px;
-      max-width: 280px;
+      width: 200px;
+      max-width: 200px;
     }
 
     .col-name {
@@ -378,6 +383,7 @@
     }
 
     /* 文本截断 */
+    .col-project,
     .col-object,
     .col-desc,
     .col-owner {
@@ -786,7 +792,7 @@
 
     <main class="main">
       <header class="topbar">
-        <h1>评测/评测集</h1>
+        <h1>评测集列表</h1>
       </header>
 
       <section class="toolbar">
@@ -797,16 +803,21 @@
             <option value="提示词">提示词</option>
           </select>
 
+          <select id="projectFilter" class="filter">
+            <option value="">项目/应用</option>
+          </select>
+
           <select id="objectFilter" class="filter">
             <option value="">评测对象</option>
           </select>
 
-          <input id="nameFilter" class="filter" placeholder="搜索名称" />
-          <input id="ownerFilter" class="filter" placeholder="选择负责人" />
+          <input id="nameFilter" class="filter" placeholder="请输入评测集名称" />
+          <input id="ownerFilter" class="filter" placeholder="请输入负责人" />
         </div>
         <div class="btn-group">
+          <button id="searchBtn" class="btn btn-secondary" type="button">查询</button>
+          <button id="newSetBtn" class="btn" type="button">创建评测集</button>
           <button id="syncEnvBtn" class="btn btn-secondary" type="button">环境同步</button>
-          <button id="newSetBtn" class="btn" type="button">新建评测集</button>
         </div>
       </section>
 
@@ -817,6 +828,7 @@
               <tr>
                 <th class="col-check"><input id="headCheck" class="head-checkbox" type="checkbox" /></th>
                 <th class="col-type">类型</th>
+                <th class="col-project">项目/应用</th>
                 <th class="col-object">评测对象</th>
                 <th class="col-name">名称</th>
                 <th class="col-desc">描述</th>
@@ -832,11 +844,14 @@
       </section>
 
       <div class="pager">
-        <span class="pager-info">共 3 条</span>
+        <span class="pager-info">共 1 条</span>
+        <select class="pager-btn" style="border-radius: var(--radius-sm);">
+          <option>10条/页</option>
+          <option>20条/页</option>
+          <option>50条/页</option>
+        </select>
         <button class="pager-btn" disabled>&lt;</button>
         <button class="pager-btn active">1</button>
-        <button class="pager-btn">2</button>
-        <button class="pager-btn">3</button>
         <button class="pager-btn">&gt;</button>
         <span style="margin-left: 8px;">前往</span>
         <input type="text" class="pager-input" value="1" />
@@ -951,6 +966,7 @@
     ];
 
     const typeFilter = document.getElementById("typeFilter");
+    const projectFilter = document.getElementById("projectFilter");
     const objectFilter = document.getElementById("objectFilter");
     const nameFilter = document.getElementById("nameFilter");
     const ownerFilter = document.getElementById("ownerFilter");
@@ -1185,25 +1201,47 @@
       return type === "app" ? "应用" : "提示词";
     }
 
+    function refreshProjectOptions() {
+      const mappedType = typeFilter.value === "应用" ? "app" : typeFilter.value === "提示词" ? "prompt" : "";
+      const options = [...new Set(evaluationSets.filter((r) => !mappedType || r.type === mappedType).map((r) => `${r.project}/${r.app}`))];
+      const old = projectFilter.value;
+      projectFilter.innerHTML =
+        '<option value="">请选择项目/应用</option>' +
+        options.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+      if (options.includes(old)) projectFilter.value = old;
+    }
+
     function refreshObjectOptions() {
       const mappedType = typeFilter.value === "应用" ? "app" : typeFilter.value === "提示词" ? "prompt" : "";
-      const options = [...new Set(evaluationSets.filter((r) => !mappedType || r.type === mappedType).map((r) => r.objectLabel))];
+      const project = projectFilter.value;
+      let filtered = evaluationSets;
+      if (mappedType) filtered = filtered.filter((r) => r.type === mappedType);
+      if (project) {
+        const [proj, app] = project.split("/");
+        filtered = filtered.filter((r) => r.project === proj && r.app === app);
+      }
+      const options = [...new Set(filtered.map((r) => r.targetName))];
       const old = objectFilter.value;
       objectFilter.innerHTML =
-        '<option value="">评测对象</option>' +
+        '<option value="">请选择评测对象</option>' +
         options.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
       if (options.includes(old)) objectFilter.value = old;
     }
 
     function renderTable() {
       const type = typeFilter.value;
+      const project = projectFilter.value;
       const object = objectFilter.value;
       const nameKey = nameFilter.value.trim();
       const ownerKey = ownerFilter.value.trim();
 
       const rows = evaluationSets.filter((row) => {
         if (type && typeLabel(row.type) !== type) return false;
-        if (object && row.objectLabel !== object) return false;
+        if (project) {
+          const [proj, app] = project.split("/");
+          if (row.project !== proj || row.app !== app) return false;
+        }
+        if (object && row.targetName !== object) return false;
         if (nameKey && !row.name.includes(nameKey)) return false;
         if (ownerKey && !row.owners.includes(ownerKey)) return false;
         return true;
@@ -1211,7 +1249,7 @@
       pagerInfo.textContent = `共 ${rows.length} 条`;
 
       if (!rows.length) {
-        taskBody.innerHTML = '<tr><td colspan="9" class="empty"><span class="empty-icon">📭</span><span class="empty-text">暂无数据</span></td></tr>';
+        taskBody.innerHTML = '<tr><td colspan="10" class="empty"><span class="empty-icon">📭</span><span class="empty-text">暂无数据</span></td></tr>';
         return;
       }
 
@@ -1223,7 +1261,8 @@
               <td class="col-type"><span class="tag ${row.type === "app" ? "tag-green" : "tag-blue"}">${escapeHtml(
             typeLabel(row.type)
           )}</span></td>
-              <td class="col-object" title="${escapeHtml(row.objectLabel)}">${escapeHtml(row.objectLabel)}</td>
+              <td class="col-project" title="${escapeHtml(`${row.project}/${row.app}`)}">${escapeHtml(`${row.project}/${row.app}`)}</td>
+              <td class="col-object" title="${escapeHtml(row.targetName)}">${escapeHtml(row.targetName)}</td>
               <td class="col-name">${escapeHtml(row.name)}</td>
               <td class="col-desc" title="${escapeHtml(row.desc)}">${escapeHtml(row.desc || "-")}</td>
               <td class="col-time">${escapeHtml(row.updated)}</td>
@@ -1412,6 +1451,7 @@
       );
       evaluationSets.unshift(newSet);
       saveEvalSets();
+      refreshProjectOptions();
       refreshObjectOptions();
       renderTable();
       closeTargetPicker();
@@ -1421,6 +1461,11 @@
     }
 
     typeFilter.addEventListener("change", () => {
+      refreshProjectOptions();
+      refreshObjectOptions();
+      renderTable();
+    });
+    projectFilter.addEventListener("change", () => {
       refreshObjectOptions();
       renderTable();
     });
@@ -1489,6 +1534,7 @@
         );
         evaluationSets.unshift(clone);
         saveEvalSets();
+        refreshProjectOptions();
         refreshObjectOptions();
         renderTable();
         showToast(`已复制：${clone.id}`);
@@ -1498,6 +1544,7 @@
       if (btn.dataset.action === "delete") {
         evaluationSets = evaluationSets.filter((item) => item.id !== id);
         saveEvalSets();
+        refreshProjectOptions();
         refreshObjectOptions();
         renderTable();
         showToast(`已删除：${id}`);
@@ -1511,6 +1558,10 @@
       });
     });
 
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      renderTable();
+      showToast("查询完成");
+    });
     document.getElementById("syncEnvBtn").addEventListener("click", () => {
       showToast("环境同步完成（示例）");
     });
@@ -1568,8 +1619,9 @@
     }
 
     if (presetType) typeFilter.value = presetType;
+    refreshProjectOptions();
     refreshObjectOptions();
-    if (presetObject) objectFilter.value = `创信/投保助手/${presetObject}`;
+    if (presetObject) objectFilter.value = presetObject;
     renderTable();
   </script>
 </body>
