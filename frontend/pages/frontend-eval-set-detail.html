@@ -8,10 +8,11 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
-      --bg: #fafbfc;
+      --bg: #f5f7fa;
       --line: #e2e8f0;
       --line-soft: #f1f5f9;
       --text: #0f172a;
+      --text-secondary: #334155;
       --muted: #64748b;
       --blue: #3b82f6;
       --blue-hover: #2563eb;
@@ -91,18 +92,27 @@
 
     h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 20px;
       line-height: 1.2;
       font-weight: 600;
       letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+    }
+
+    .title-edit-icon {
+      color: var(--blue);
+      cursor: pointer;
+      margin-left: 8px;
+      font-size: 16px;
     }
 
     .meta {
-      margin-top: 8px;
-      color: #1f2937;
-      font-size: 16px;
+      margin-top: 12px;
+      color: var(--text);
+      font-size: 14px;
       display: flex;
-      gap: 14px;
+      gap: 24px;
       flex-wrap: wrap;
     }
 
@@ -110,46 +120,62 @@
       white-space: nowrap;
     }
 
-    .meta .muted {
+    .meta-label {
       color: var(--muted);
     }
 
-    .tabs {
+    .meta-value {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .tabs-container {
+      border-bottom: 1px solid var(--line);
+      margin: 0 -20px 16px;
+      padding: 0 20px;
+    }
+
+    .tabs-simple {
       display: inline-flex;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      overflow: hidden;
-      background: #fff;
+      gap: 24px;
+      background: transparent;
+      border: none;
     }
 
-    .tab-btn {
-      height: 34px;
-      border: 0;
-      border-right: 1px solid var(--line);
-      background: #fff;
-      min-width: 108px;
+    .tab-btn-simple {
+      height: 40px;
+      border: none;
+      background: transparent;
       cursor: pointer;
-      color: #334155;
+      color: #64748b;
       font-size: 14px;
+      font-weight: 500;
+      position: relative;
+      padding: 0 4px;
     }
 
-    .tab-btn:last-child {
-      border-right: 0;
-    }
-
-    .tab-btn.active {
-      background: #eef2ff;
+    .tab-btn-simple.active {
       color: var(--blue);
       font-weight: 600;
     }
 
+    .tab-btn-simple.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--blue);
+    }
+
     .toolbar {
-      margin-top: 12px;
       display: flex;
       justify-content: space-between;
       gap: 12px;
       align-items: center;
       flex-wrap: wrap;
+      margin-bottom: 12px;
     }
 
     .toolbar-left,
@@ -160,97 +186,129 @@
     }
 
     .input {
-      height: 34px;
+      height: 32px;
       border: 1px solid var(--line);
-      border-radius: 6px;
+      border-radius: 4px;
       background: #fff;
       color: #334155;
       padding: 0 12px;
-      min-width: 240px;
+      min-width: 200px;
       outline: none;
     }
 
+    .input:focus {
+      border-color: var(--blue);
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box .input {
+      padding-right: 36px;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
     .btn {
-      height: 34px;
+      height: 32px;
       border: 0;
-      border-radius: 6px;
+      border-radius: 4px;
       background: var(--blue);
       color: #fff;
-      padding: 0 14px;
-      font-size: 13px;
+      padding: 0 16px;
+      font-size: 14px;
       cursor: pointer;
+      transition: all 0.2s;
     }
 
     .btn:hover {
       background: var(--blue-hover);
     }
 
-    .btn.secondary {
+    .btn-secondary {
       background: #fff;
       color: #334155;
       border: 1px solid var(--line);
     }
 
-    .btn.secondary:hover {
+    .btn-secondary:hover {
       background: #f8fafc;
+      border-color: #cbd5e1;
     }
 
-    .vars-box {
-      margin-top: 12px;
-      border: 1px dashed var(--line);
-      border-radius: 8px;
-      padding: 10px;
-      display: grid;
-      gap: 10px;
+    .btn-danger {
+      background: #fff;
+      color: var(--danger);
+      border: 1px solid var(--danger);
     }
 
-    .vars-head {
+    .btn-danger:hover {
+      background: #fef2f2;
+    }
+
+    .btn-icon {
+      width: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 全选提示条 */
+    .select-all-banner {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .select-all-banner.show {
+      display: flex;
+    }
+
+    .select-all-banner .banner-link {
+      color: var(--blue);
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .select-all-banner .banner-link:hover {
+      text-decoration: underline;
+    }
+
+
+
+    .table-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .vars-head .left {
-      color: #334155;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .vars-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .var-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 3px 10px;
-      font-size: 12px;
-      color: #334155;
+      padding: 12px 16px;
       background: #fff;
-    }
-
-    .var-chip.deleted {
-      opacity: 0.6;
-      text-decoration: line-through;
-      background: #f8fafc;
-    }
-
-    .var-type {
+      border: 1px solid var(--line);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      font-size: 13px;
       color: var(--muted);
-      font-size: 11px;
     }
 
     .table-wrap {
-      margin-top: 10px;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
       overflow: auto;
       background: #fff;
     }
@@ -258,13 +316,13 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 920px;
+      min-width: 800px;
     }
 
     th,
     td {
       border-bottom: 1px solid var(--line-soft);
-      padding: 12px;
+      padding: 12px 16px;
       text-align: left;
       vertical-align: middle;
       font-size: 13px;
@@ -272,13 +330,77 @@
 
     th {
       background: #f8fafc;
-      color: var(--muted);
+      color: var(--text);
       font-weight: 600;
-      font-size: 12px;
+      font-size: 13px;
+    }
+
+    td {
+      color: var(--text-secondary);
     }
 
     td.actions {
       white-space: nowrap;
+    }
+
+    .checkbox-cell {
+      width: 48px;
+      text-align: center;
+    }
+
+    .id-cell {
+      width: 60px;
+      text-align: center;
+    }
+
+    .checkbox {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #94a3b8;
+      border-radius: 3px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background: #fff;
+      display: inline-block;
+      vertical-align: middle;
+      position: relative;
+    }
+
+    .checkbox:hover {
+      border-color: var(--blue);
+    }
+
+    .checkbox:checked {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .checkbox:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 4px;
+      height: 8px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .checkbox:indeterminate {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .checkbox:indeterminate::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 6px;
+      width: 8px;
+      height: 2px;
+      background: white;
     }
 
     .link-btn {
@@ -286,28 +408,34 @@
       background: transparent;
       color: var(--blue);
       cursor: pointer;
-      padding: 0 4px;
+      padding: 0 6px;
       font-size: 13px;
+    }
+
+    .link-btn:hover {
+      text-decoration: underline;
     }
 
     .link-btn.delete {
       color: var(--danger);
     }
 
-    .img-cell {
-      width: 52px;
-      height: 36px;
+    .img-list {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .img-thumb {
+      width: 80px;
+      height: 60px;
       border-radius: 4px;
       overflow: hidden;
       border: 1px solid var(--line);
       background: #f8fafc;
-      display: inline-grid;
-      place-items: center;
-      font-size: 11px;
-      color: var(--muted);
     }
 
-    .img-cell img {
+    .img-thumb img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -315,7 +443,7 @@
     }
 
     .empty {
-      padding: 36px 12px;
+      padding: 48px 12px;
       text-align: center;
       color: var(--muted);
       font-size: 13px;
@@ -324,14 +452,313 @@
     .task-empty {
       border: 1px dashed var(--line);
       border-radius: 8px;
-      padding: 30px;
+      padding: 48px;
       color: var(--muted);
       text-align: center;
       margin-top: 12px;
     }
 
+    /* 任务控制栏样式 */
+    .task-control-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      gap: 16px;
+    }
+
+    .task-control-left {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .task-control-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .task-select {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      padding: 0 12px;
+      font-size: 14px;
+      color: var(--text);
+      min-width: 160px;
+      cursor: pointer;
+    }
+
+    .link-text-btn {
+      border: none;
+      background: transparent;
+      color: var(--blue);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0;
+      text-align: left;
+    }
+
+    .link-text-btn:hover {
+      text-decoration: underline;
+    }
+
+    .task-stats {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .stat-divider {
+      color: var(--line-strong);
+    }
+
+    /* 下拉菜单样式 */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      min-width: 140px;
+      z-index: 100;
+      display: none;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 10px 16px;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .dropdown-item:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+
+    .dropdown-item:last-child {
+      border-radius: 0 0 8px 8px;
+    }
+
+    .dropdown-item:hover {
+      background: #f8fafc;
+    }
+
+    .dropdown-item.danger {
+      color: var(--danger);
+    }
+
+    .dropdown-item.danger:hover {
+      background: #fef2f2;
+    }
+
+    /* 分页器样式 */
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      padding: 16px;
+      font-size: 13px;
+    }
+
+    .pagination-info {
+      color: var(--muted);
+      margin-right: 8px;
+    }
+
+    .page-btn {
+      min-width: 28px;
+      height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .page-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .page-select {
+      height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      padding: 0 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .page-input {
+      width: 40px;
+      height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      text-align: center;
+      font-size: 13px;
+    }
+
     .hidden {
       display: none !important;
+    }
+
+    /* 弹窗样式 */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.hidden {
+      display: none !important;
+    }
+
+    .modal-panel {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+    }
+
+    .modal-close:hover {
+      background: #f8fafc;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-label {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .required {
+      color: var(--danger);
+      margin-right: 4px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .form-input {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 60px 0 12px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--blue);
+    }
+
+    .form-input::placeholder {
+      color: #cbd5e1;
+    }
+
+    .char-count {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--line);
     }
 
     .toast {
@@ -373,63 +800,162 @@
         <section class="card">
           <div class="title-row">
             <div>
-              <h1 id="setName">评测集详情</h1>
+              <h1 id="setName">评测集详情 <i data-lucide="pencil" class="title-edit-icon" style="width:16px;height:16px;"></i></h1>
               <div class="meta">
-                <span>类型：<strong id="setType">-</strong></span>
-                <span>对象：<strong id="setObject">-</strong></span>
-                <span>描述：<strong id="setDesc">-</strong></span>
-                <span>负责人：<strong id="setOwners">-</strong></span>
-                <span class="muted">更新时间：<strong id="setUpdated">-</strong></span>
+                <span><span class="meta-label">类型：</span><span class="meta-value" id="setType">-</span></span>
+                <span><span class="meta-label">项目/应用：</span><span class="meta-value" id="setProjectApp">-</span></span>
+                <span><span class="meta-label">对象：</span><span class="meta-value" id="setObject">-</span></span>
+                <span><span class="meta-label">描述：</span><span class="meta-value" id="setDesc">-</span></span>
+                <span><span class="meta-label">负责人：</span><span class="meta-value" id="setOwners">-</span></span>
+                <span><span class="meta-label">更新时间：</span><span class="meta-value" id="setUpdated">-</span></span>
               </div>
             </div>
             <div>
-              <button id="backBtn" class="btn secondary" type="button">返回列表</button>
+              <button id="backBtn" class="btn btn-secondary" type="button">返回列表</button>
             </div>
           </div>
         </section>
 
         <section class="card">
-          <div class="tabs">
-            <button id="tabSet" class="tab-btn active" type="button">评测集</button>
-            <button id="tabTask" class="tab-btn" type="button">评测任务</button>
+          <div class="tabs-container">
+            <div class="tabs-simple">
+              <button id="tabSet" class="tab-btn-simple active" type="button">评测集</button>
+              <button id="tabTask" class="tab-btn-simple" type="button">评测任务</button>
+            </div>
           </div>
 
           <div id="setTabPanel">
             <div class="toolbar">
               <div class="toolbar-left">
-                <input id="caseSearch" class="input" placeholder="支持模糊检索" />
+                <div class="search-box">
+                  <input id="caseSearch" class="input" placeholder="搜索用例" />
+                  <i data-lucide="search" class="search-icon" style="width:16px;height:16px;"></i>
+                </div>
               </div>
               <div class="toolbar-right">
                 <button id="addCaseBtn" class="btn" type="button">新增用例</button>
-                <button id="importCaseBtn" class="btn" type="button">文件导入</button>
+                <button id="importCaseBtn" class="btn btn-secondary" type="button">文件导入</button>
+                <button id="createTaskFromSelectionBtn" class="btn" type="button" disabled>新建任务</button>
+                <button id="batchDeleteBtn" class="btn btn-secondary" type="button">批量删除</button>
               </div>
             </div>
 
-            <div class="vars-box">
-              <div class="vars-head">
-                <div class="left">变量定义（默认仅展示 active）</div>
-                <div class="toolbar-right">
-                  <label style="font-size:12px;color:#64748b;"><input id="showDeletedVar" type="checkbox" /> 显示软删除</label>
-                  <button id="addVarBtn" class="btn secondary" type="button">新增变量</button>
-                  <button id="renameVarBtn" class="btn secondary" type="button">修改变量</button>
-                  <button id="deleteVarBtn" class="btn secondary" type="button">删除变量</button>
-                </div>
-              </div>
-              <div id="varsList" class="vars-list"></div>
+            <!-- 全选提示条 -->
+            <div id="selectAllBanner" class="select-all-banner">
+              <span id="bannerText">已选择本页 0 条用例</span>
+              <span class="banner-link" id="selectAllLink">选择全部 <span id="bannerTotal">0</span> 条用例</span>
+            </div>
+
+            <div class="table-header">
+              <span>(总条数：<strong id="totalCount">3</strong>)</span>
             </div>
 
             <div class="table-wrap">
               <table>
                 <thead>
-                  <tr id="caseHeadRow"></tr>
+                  <tr>
+                    <th class="checkbox-cell"><input type="checkbox" class="checkbox" id="selectAll" /></th>
+                    <th class="id-cell">ID</th>
+                    <th>用户输入(content)</th>
+                    <th>图片地址(url)</th>
+                    <th>期望输出</th>
+                    <th class="actions">操作</th>
+                  </tr>
                 </thead>
                 <tbody id="caseBody"></tbody>
               </table>
             </div>
+
+            <div class="pagination">
+              <span class="pagination-info">共 <strong id="pageTotal">3</strong> 条</span>
+              <select class="page-select">
+                <option>10条/页</option>
+                <option>20条/页</option>
+                <option>50条/页</option>
+              </select>
+              <button class="page-btn" disabled>&lt;</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">&gt;</button>
+              <span>前往</span>
+              <input type="text" class="page-input" value="1" />
+              <span>页</span>
+            </div>
           </div>
 
           <div id="taskTabPanel" class="hidden">
-            <div class="task-empty">评测任务原型占位：后续将承接批量运行任务列表与结果回放。</div>
+            <!-- 任务控制区域 -->
+            <div class="task-control-bar">
+              <div class="task-control-left">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <select id="taskSelector" class="task-select">
+                    <option value="">暂无任务</option>
+                  </select>
+                  <button id="editTaskNameBtn" class="link-text-btn" type="button">编辑任务名称</button>
+                  <button id="deleteTaskBtn" class="btn btn-icon btn-danger" type="button" title="删除任务">
+                    <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                  </button>
+                </div>
+                <div class="task-stats" id="taskStats">
+                  <span>运行比例：0.00% (0/0)</span>
+                  <span class="stat-divider">|</span>
+                  <span>质检比例：0.00% (0/0)</span>
+                  <span class="stat-divider">|</span>
+                  <span>质检平均分：0</span>
+                </div>
+              </div>
+              <div class="task-control-right">
+                <div class="dropdown">
+                  <button id="batchOpsBtn" class="btn btn-secondary dropdown-toggle" type="button">
+                    批量操作 <i data-lucide="chevron-down" style="width:14px;height:14px;margin-left:4px;"></i>
+                  </button>
+                  <div class="dropdown-menu" id="batchOpsMenu">
+                    <div class="dropdown-item" data-action="batch-run">运行</div>
+                    <div class="dropdown-item" data-action="batch-stop">终止</div>
+                    <div class="dropdown-item" data-action="batch-annotate">标注</div>
+                    <div class="dropdown-item danger" data-action="batch-override">覆盖期望输出</div>
+                  </div>
+                </div>
+                <button id="refreshTaskBtn" class="btn btn-secondary" type="button">刷新</button>
+              </div>
+            </div>
+
+            <div class="table-header">
+              <span>(总条数：<strong id="taskTotalCount">0</strong>)</span>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="checkbox-cell"><input type="checkbox" class="checkbox" id="selectAllTask" /></th>
+                    <th class="id-cell">ID</th>
+                    <th>用户输入(content)</th>
+                    <th>图片地址(url)</th>
+                    <th>期望输出</th>
+                    <th style="min-width: 300px;">实际输出(soutput)</th>
+                    <th>质检标签</th>
+                    <th style="width: 80px;">质检分数</th>
+                    <th class="actions">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="taskBody"></tbody>
+              </table>
+            </div>
+
+            <div class="pagination">
+              <span class="pagination-info">共 <strong id="taskPageTotal">0</strong> 条</span>
+              <select class="page-select">
+                <option>10条/页</option>
+                <option>20条/页</option>
+                <option>50条/页</option>
+              </select>
+              <button class="page-btn" disabled>&lt;</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">&gt;</button>
+              <span>前往</span>
+              <input type="text" class="page-input" value="1" />
+              <span>页</span>
+            </div>
           </div>
         </section>
       </div>
@@ -438,34 +964,115 @@
 
   <div id="toast" class="toast"></div>
 
-  <script>
-    lucide.createIcons();
+  <!-- 新建任务弹窗（评测集用） -->
+  <div id="createTaskModal" class="modal hidden">
+    <div class="modal-panel" style="width: 520px;">
+      <div class="modal-head">
+        <h3>新建评测任务</h3>
+        <button id="createTaskClose" class="modal-close" type="button">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label class="field-label">
+            <span class="required">*</span>任务名称
+          </label>
+          <div class="input-wrapper">
+            <input id="createTaskName" class="form-input" type="text" placeholder="请输入任务名称" maxlength="100" />
+            <span class="char-count"><span id="createTaskCharCount">0</span>/100</span>
+          </div>
+        </div>
+        <p style="margin: 12px 0 0; font-size: 13px; color: var(--muted);">
+          已选择 <strong id="selectedCaseCount">0</strong> 条用例
+        </p>
+      </div>
+      <div class="modal-foot">
+        <button id="createTaskCancel" class="btn btn-secondary" type="button">取 消</button>
+        <button id="createTaskConfirm" class="btn" type="button">确 定</button>
+      </div>
+    </div>
+  </div>
 
-    const EVAL_SET_STORAGE_KEY = "evaluation_sets_demo_v2";
+  <!-- 删除确认弹窗 -->
+  <div id="deleteConfirmModal" class="modal hidden">
+    <div class="modal-panel" style="width: 400px;">
+      <div class="modal-head">
+        <h3>确认删除</h3>
+        <button id="deleteConfirmClose" class="modal-close" type="button">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin: 0; font-size: 14px; color: var(--text-secondary);">
+          确定要删除任务 "<strong id="deleteTaskName"></strong>" 吗？此操作不可恢复。
+        </p>
+      </div>
+      <div class="modal-foot">
+        <button id="deleteConfirmCancel" class="btn btn-secondary" type="button">取 消</button>
+        <button id="deleteConfirmBtn" class="btn btn-danger" type="button">删 除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== 数据存储键 ====================
+    const EVAL_SET_STORAGE_KEY = "evaluation_sets_demo_v3";
+    
+    // ==================== 页面参数 ====================
     const params = new URLSearchParams(window.location.search);
     const setId = String(params.get("setId") || "").trim();
 
+    // ==================== DOM 元素 ====================
+    // 通用
     const setNameEl = document.getElementById("setName");
     const setTypeEl = document.getElementById("setType");
+    const setProjectAppEl = document.getElementById("setProjectApp");
     const setObjectEl = document.getElementById("setObject");
     const setDescEl = document.getElementById("setDesc");
     const setOwnersEl = document.getElementById("setOwners");
     const setUpdatedEl = document.getElementById("setUpdated");
     const crumbName = document.getElementById("crumbName");
-    const varsList = document.getElementById("varsList");
-    const caseHeadRow = document.getElementById("caseHeadRow");
-    const caseBody = document.getElementById("caseBody");
-    const caseSearch = document.getElementById("caseSearch");
-    const showDeletedVar = document.getElementById("showDeletedVar");
+    const toast = document.getElementById("toast");
+    
+    // 标签页
     const tabSet = document.getElementById("tabSet");
     const tabTask = document.getElementById("tabTask");
     const setTabPanel = document.getElementById("setTabPanel");
     const taskTabPanel = document.getElementById("taskTabPanel");
-    const toast = document.getElementById("toast");
+    
+    // 评测集
+    const caseBody = document.getElementById("caseBody");
+    const caseSearch = document.getElementById("caseSearch");
+    const totalCountEl = document.getElementById("totalCount");
+    const pageTotalEl = document.getElementById("pageTotal");
+    const selectAllCheckbox = document.getElementById("selectAll");
+    const selectAllBanner = document.getElementById("selectAllBanner");
+    const bannerText = document.getElementById("bannerText");
+    const selectAllLink = document.getElementById("selectAllLink");
+    const bannerTotal = document.getElementById("bannerTotal");
+    const clearSelectionLink = document.getElementById("clearSelectionLink");
+    const createTaskFromSelectionBtn = document.getElementById("createTaskFromSelectionBtn");
+    
+    // 评测任务
+    const taskBody = document.getElementById("taskBody");
+    const taskSelector = document.getElementById("taskSelector");
+    const taskStats = document.getElementById("taskStats");
+    const taskTotalCountEl = document.getElementById("taskTotalCount");
+    const taskPageTotalEl = document.getElementById("taskPageTotal");
+    const selectAllTaskCheckbox = document.getElementById("selectAllTask");
 
+    // ==================== 状态变量 ====================
     let sets = [];
     let currentSet = null;
+    let selectedCases = new Set(); // 选中的用例ID
+    let isSelectAllPages = false; // 是否选择了所有页的用例
+    let currentTaskId = null; // 当前选中的任务ID
 
+    // ==================== 示例数据 ====================
+    const demoCases = [
+      { id: 1, content: "你好，我这个是需要重新下载一个金事通app吗？", images: [], reference_output: "-" },
+      { id: 2, content: "-", images: ["https://placehold.co/80x60/e2e8f0/64748b?text=QR"], reference_output: "-" },
+      { id: 3, content: "有这个情况还可以投保超级玛丽9号防癌吗", images: ["https://placehold.co/80x60/e2e8f0/64748b?text=Doc1", "https://placehold.co/80x60/e2e8f0/64748b?text=Doc2"], reference_output: "-" }
+    ];
+
+    // ==================== 工具函数 ====================
     function showToast(text) {
       toast.textContent = text;
       toast.classList.add("show");
@@ -476,9 +1083,7 @@
     function nowString() {
       const d = new Date();
       const pad = (n) => String(n).padStart(2, "0");
-      return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(
-        d.getMinutes()
-      )}:${pad(d.getSeconds())}`;
+      return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     }
 
     function loadSets() {
@@ -494,308 +1099,652 @@
       localStorage.setItem(EVAL_SET_STORAGE_KEY, JSON.stringify(sets));
     }
 
-    function activeVariables(setObj) {
-      const showDeleted = showDeletedVar.checked;
-      return (setObj.variables || []).filter((v) => showDeleted || v.status === "active");
-    }
-
-    function variableByName(setObj, name) {
-      return (setObj.variables || []).find((v) => v.name === name);
+    function generateId(prefix = "id") {
+      return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     }
 
     function setTypeLabel(type) {
       return type === "app" ? "应用" : "提示词";
     }
 
-    function buildCaseColumns(setObj) {
-      const vars = activeVariables(setObj);
-      const textVars = vars.filter((v) => v.type === "text");
-      const imageVars = vars.filter((v) => v.type === "image");
-      const fileVars = vars.filter((v) => v.type === "file");
-      return { vars, textVars, imageVars, fileVars };
+    // ==================== 初始化默认任务 ====================
+    function ensureDefaultTask(setObj) {
+      if (!setObj.tasks) setObj.tasks = [];
+      
+      // 如果没有任务，创建默认的"全部用例"任务
+      if (setObj.tasks.length === 0 && setObj.cases && setObj.cases.length > 0) {
+        const allCaseIds = setObj.cases.map(c => c.id);
+        setObj.tasks.push({
+          id: generateId("task"),
+          name: "全部用例",
+          caseIds: allCaseIds,
+          createdAt: nowString(),
+          stats: { runRate: 0, checkRate: 0, avgScore: 0 }
+        });
+      }
+      return setObj;
     }
 
+    // ==================== 渲染函数 ====================
     function renderHeader(setObj) {
-      setNameEl.textContent = setObj.name;
-      crumbName.textContent = setObj.name;
-      setTypeEl.textContent = setTypeLabel(setObj.type);
-      setObjectEl.textContent = setObj.objectLabel || `${setObj.project}/${setObj.app}/${setObj.targetName}`;
+      const h1Text = setObj.name || "手小保的评测集";
+      setNameEl.innerHTML = `${h1Text} <i data-lucide="pencil" class="title-edit-icon" style="width:16px;height:16px;"></i>`;
+      lucide.createIcons();
+      
+      crumbName.textContent = h1Text;
+      setTypeEl.textContent = setTypeLabel(setObj.type) || "应用";
+      setProjectAppEl.textContent = setObj.projectApp || "咔嚓保-手小保/手小保";
+      setObjectEl.textContent = setObj.objectLabel || setObj.targetName || "手小保";
       setDescEl.textContent = setObj.desc || "-";
-      setOwnersEl.textContent = setObj.owners || "-";
-      setUpdatedEl.textContent = setObj.updated || "-";
+      setOwnersEl.textContent = setObj.owners || "wisewong,martin";
+      setUpdatedEl.textContent = setObj.updated || "2026/04/07 17:06";
     }
 
-    function renderVariables(setObj) {
-      const vars = activeVariables(setObj);
-      if (!vars.length) {
-        varsList.innerHTML = '<span class="var-chip">暂无变量</span>';
-        return;
-      }
-      varsList.innerHTML = vars
-        .map((v) => {
-          const cls = v.status === "soft_deleted" ? "var-chip deleted" : "var-chip";
-          return `<span class="${cls}">${v.name}<span class="var-type">${v.type}</span></span>`;
-        })
-        .join("");
-    }
-
-    function renderCaseTable(setObj) {
+    function renderCaseTable(cases) {
       const keyword = caseSearch.value.trim().toLowerCase();
-      const { textVars, imageVars, fileVars } = buildCaseColumns(setObj);
+      
+      if (keyword) {
+        cases = cases.filter((c) => {
+          const text = [c.id, c.content || ""].join(" ").toLowerCase();
+          return text.includes(keyword);
+        });
+      }
 
-      const headCols = [
-        '<th style="width:72px;">id</th>',
-        ...textVars.map((v) => `<th>${v.name}</th>`),
-        ...imageVars.map((v) => `<th>${v.name}</th>`),
-        ...fileVars.map((v) => `<th>${v.name}</th>`),
-        '<th>reference_output</th>',
-        '<th style="width:132px;">操作</th>'
-      ];
-      caseHeadRow.innerHTML = headCols.join("");
+      totalCountEl.textContent = cases.length;
+      pageTotalEl.textContent = cases.length;
 
-      const rows = (setObj.cases || []).filter((c) => {
-        if (!keyword) return true;
-        const text = [c.id, c.name, JSON.stringify(c.inputs || {})].join(" ").toLowerCase();
-        return text.includes(keyword);
-      });
-
-      if (!rows.length) {
-        caseBody.innerHTML = `<tr><td class="empty" colspan="${headCols.length}">暂无用例</td></tr>`;
+      if (!cases.length) {
+        caseBody.innerHTML = '<tr><td class="empty" colspan="6">暂无用例</td></tr>';
         return;
       }
 
-      caseBody.innerHTML = rows
-        .map((c) => {
-          const cells = [
-            `<td>${c.id}</td>`,
-            ...textVars.map((v) => `<td>${String(c.inputs?.[v.name] || "-")}</td>`),
-            ...imageVars.map((v) => {
-              const img = String(c.inputs?.[v.name] || "");
-              if (!img) return '<td><span class="img-cell">-</span></td>';
-              return `<td><span class="img-cell"><img src="${img}" alt="${v.name}" /></span></td>`;
-            }),
-            ...fileVars.map((v) => `<td>${String(c.inputs?.[v.name] || "-")}</td>`),
-            `<td>${String(c.inputs?.reference_output || "-")}</td>`,
-            `<td class="actions">
-              <button class="link-btn" data-action="edit-case" data-case-id="${c.id}">编辑</button>
-              <button class="link-btn" data-action="copy-case" data-case-id="${c.id}">复制</button>
-              <button class="link-btn delete" data-action="delete-case" data-case-id="${c.id}">删除</button>
-            </td>`
-          ];
-          return `<tr data-case-id="${c.id}">${cells.join("")}</tr>`;
-        })
-        .join("");
+      caseBody.innerHTML = cases.map((c) => {
+        let imagesHtml = '';
+        if (c.images && c.images.length > 0) {
+          imagesHtml = '<div class="img-list">' + c.images.map(img => `<div class="img-thumb"><img src="${img}" alt="" /></div>`).join('') + '</div>';
+        } else {
+          imagesHtml = '<span style="color:#999">-</span>';
+        }
+        
+        const isSelected = selectedCases.has(c.id) || isSelectAllPages;
+        
+        return `<tr data-case-id="${c.id}">
+          <td class="checkbox-cell"><input type="checkbox" class="checkbox row-checkbox" ${isSelected ? 'checked' : ''} /></td>
+          <td class="id-cell">${c.id}</td>
+          <td>${c.content || "-"}</td>
+          <td>${imagesHtml}</td>
+          <td>${c.reference_output || "-"}</td>
+          <td class="actions">
+            <button class="link-btn" data-action="edit-case" data-case-id="${c.id}">编辑</button>
+            <button class="link-btn" data-action="copy-case" data-case-id="${c.id}">复制</button>
+            <button class="link-btn delete" data-action="delete-case" data-case-id="${c.id}">删除</button>
+          </td>
+        </tr>`;
+      }).join("");
+      
+      updateSelectAllState(cases.length);
+    }
+
+    function updateSelectAllState(pageCaseCount) {
+      const totalSelected = isSelectAllPages ? currentSet?.cases?.length || demoCases.length : selectedCases.size;
+      const totalCases = currentSet?.cases?.length || demoCases.length;
+      
+      // 更新全选复选框状态
+      if (totalSelected === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+      } else if (totalSelected === totalCases) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+      } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+      }
+      
+      // 更新提示条
+      if (totalSelected > 0) {
+        selectAllBanner.classList.add("show");
+        bannerTotal.textContent = totalCases;
+        
+        if (isSelectAllPages) {
+          bannerText.textContent = `已选择全部 ${totalCases} 条用例`;
+          selectAllLink.style.display = "none";
+        } else {
+          bannerText.textContent = `已选择本页 ${Math.min(totalSelected, pageCaseCount)} 条用例`;
+          selectAllLink.style.display = "inline";
+        }
+        
+        // 启用新建任务按钮
+        createTaskFromSelectionBtn.disabled = false;
+      } else {
+        selectAllBanner.classList.remove("show");
+        createTaskFromSelectionBtn.disabled = true;
+      }
+    }
+
+    function renderTaskSelector() {
+      const tasks = currentSet?.tasks || [];
+      taskSelector.innerHTML = tasks.map(t => 
+        `<option value="${t.id}" ${t.id === currentTaskId ? 'selected' : ''}>${t.name}</option>`
+      ).join('');
+      
+      if (tasks.length === 0) {
+        taskSelector.innerHTML = '<option value="">暂无任务</option>';
+        document.getElementById('deleteTaskBtn').disabled = true;
+      } else {
+        document.getElementById('deleteTaskBtn').disabled = false;
+        if (!currentTaskId && tasks.length > 0) {
+          currentTaskId = tasks[0].id;
+          taskSelector.value = currentTaskId;
+        }
+      }
+    }
+
+    function renderTaskTable() {
+      const tasks = currentSet?.tasks || [];
+      const currentTask = tasks.find(t => t.id === currentTaskId);
+      
+      if (!currentTask) {
+        taskTotalCountEl.textContent = '0';
+        taskPageTotalEl.textContent = '0';
+        taskBody.innerHTML = '<tr><td class="empty" colspan="9">暂无任务数据</td></tr>';
+        taskStats.innerHTML = '<span>运行比例：0.00% (0/0)</span><span class="stat-divider">|</span><span>质检比例：0.00% (0/0)</span><span class="stat-divider">|</span><span>质检平均分：0</span>';
+        return;
+      }
+
+      const cases = currentSet?.cases || demoCases;
+      const taskCases = currentTask.caseIds.map(id => cases.find(c => c.id === id)).filter(Boolean);
+      
+      taskTotalCountEl.textContent = taskCases.length;
+      taskPageTotalEl.textContent = taskCases.length;
+      
+      // 更新统计
+      const stats = currentTask.stats || { runRate: 0, checkRate: 0, avgScore: 0 };
+      taskStats.innerHTML = `<span>运行比例：${stats.runRate.toFixed(2)}% (${Math.round(stats.runRate * taskCases.length / 100)}/${taskCases.length})</span><span class="stat-divider">|</span><span>质检比例：${stats.checkRate.toFixed(2)}% (${Math.round(stats.checkRate * taskCases.length / 100)}/${taskCases.length})</span><span class="stat-divider">|</span><span>质检平均分：${stats.avgScore}</span>`;
+
+      if (!taskCases.length) {
+        taskBody.innerHTML = '<tr><td class="empty" colspan="9">该任务暂无用例</td></tr>';
+        return;
+      }
+
+      taskBody.innerHTML = taskCases.map((t, idx) => {
+        let imagesHtml = '';
+        if (t.images && t.images.length > 0) {
+          imagesHtml = '<div class="img-list">' + t.images.map(img => `<div class="img-thumb"><img src="${img}" alt="" /></div>`).join('') + '</div>';
+        } else {
+          imagesHtml = '<span style="color:#999">-</span>';
+        }
+        
+        // 模拟实际输出
+        const actualOutputs = [
+          "产品：和泰人寿超级玛丽9号防癌险（易投版）-被保险人健康告知1,早产儿，涉及健康告知，命中关于过去2年内住院或手术的询问，因2024年12月03日于西南医院住院7天，出院诊断包含早产儿，发生时间在近2年内且不属于例外豁免。智核为无智核规则。2,低出...",
+          "您好，目前没有查询到与签约审核后金事通APP操作相关的指引信息，您可以补充一下对应的保司、签约业务场景等相关信息，以便我为您进一步核实解答。"
+        ];
+        
+        return `<tr data-task-id="${t.id}">
+          <td class="checkbox-cell"><input type="checkbox" class="checkbox row-checkbox-task" /></td>
+          <td class="id-cell">${t.id}</td>
+          <td>${t.content || "-"}</td>
+          <td>${imagesHtml}</td>
+          <td>${t.reference_output || "-"}</td>
+          <td style="max-width: 400px; word-break: break-all;">${actualOutputs[idx % 2] || "-"}</td>
+          <td>-</td>
+          <td>-</td>
+          <td class="actions">
+            <button class="link-btn" data-action="run-task" data-task-id="${t.id}">运行</button>
+            <button class="link-btn" data-action="annotate-task" data-task-id="${t.id}">标注</button>
+            <button class="link-btn" data-action="detail-task" data-task-id="${t.id}">详情</button>
+          </td>
+        </tr>`;
+      }).join("");
     }
 
     function renderAll() {
-      if (!currentSet) return;
+      if (!currentSet) {
+        const demoSet = {
+          name: "手小保的评测集",
+          type: "app",
+          projectApp: "咔嗦保-手小保/手小保",
+          targetName: "手小保",
+          desc: "-",
+          owners: "wisewong,martin",
+          updated: "2026/04/07 17:06",
+          cases: demoCases,
+          tasks: []
+        };
+        ensureDefaultTask(demoSet);
+        renderHeader(demoSet);
+        renderCaseTable(demoSet.cases);
+        renderTaskSelector();
+        return;
+      }
+      
+      ensureDefaultTask(currentSet);
       renderHeader(currentSet);
-      renderVariables(currentSet);
-      renderCaseTable(currentSet);
+      renderCaseTable(currentSet.cases);
+      renderTaskSelector();
     }
 
-    function nextCaseId(setObj) {
-      const max = (setObj.cases || []).reduce((acc, item) => {
-        const n = Number(String(item.id).replace(/[^\d]/g, ""));
-        return Number.isFinite(n) ? Math.max(acc, n) : acc;
-      }, 0);
-      return String(max + 1).padStart(2, "0");
-    }
-
+    // ==================== 评测集操作 ====================
     function addCase() {
-      if (!currentSet) return;
-      const caseId = nextCaseId(currentSet);
-      const inputs = {};
-      (currentSet.variables || [])
-        .filter((v) => v.status === "active")
-        .forEach((v) => {
-          if (v.type === "image") inputs[v.name] = "";
-          else if (v.type === "file") inputs[v.name] = "";
-          else inputs[v.name] = "";
-        });
-      inputs.reference_output = "";
-      currentSet.cases = currentSet.cases || [];
-      currentSet.cases.push({ id: caseId, name: `${currentSet.name}-${caseId}`, inputs });
-      currentSet.updated = nowString();
-      saveSets();
-      renderAll();
-      showToast(`已新增用例 ${caseId}`);
+      const cases = currentSet?.cases || demoCases;
+      const newId = Math.max(...cases.map(c => c.id), 0) + 1;
+      cases.push({ id: newId, content: "新增用例内容", images: [], reference_output: "-" });
+      
+      if (currentSet) {
+        currentSet.updated = nowString();
+        // 更新"全部用例"任务
+        const allTask = currentSet.tasks.find(t => t.name === "全部用例");
+        if (allTask) allTask.caseIds.push(newId);
+        saveSets();
+      }
+      
+      renderCaseTable(cases);
+      showToast(`已新增用例 ${newId}`);
     }
 
     function importCases() {
-      if (!currentSet) return;
-      addCase();
-      addCase();
       showToast("文件导入完成（示例）");
     }
 
-    function softDeleteVariable(setObj, name) {
-      const target = variableByName(setObj, name);
-      if (!target || target.status === "soft_deleted") return false;
-      target.status = "soft_deleted";
-      target.updatedAt = nowString();
-      return true;
-    }
-
-    function addVariable(setObj, name, type) {
-      if (!name) return false;
-      const exists = variableByName(setObj, name);
-      if (exists && exists.status === "active") return false;
-      if (exists && exists.status === "soft_deleted") {
-        setObj.variables.push({
-          name,
-          type,
-          status: "active",
-          source: setObj.type,
-          updatedAt: nowString()
+    function batchDelete() {
+      const cases = currentSet?.cases || demoCases;
+      const idsToDelete = isSelectAllPages 
+        ? cases.map(c => c.id)
+        : Array.from(selectedCases);
+      
+      if (idsToDelete.length === 0) {
+        showToast("请先选择要删除的用例");
+        return;
+      }
+      
+      // 删除用例
+      const newCases = cases.filter(c => !idsToDelete.includes(c.id));
+      if (currentSet) {
+        currentSet.cases = newCases;
+        // 更新所有任务的caseIds
+        currentSet.tasks.forEach(task => {
+          task.caseIds = task.caseIds.filter(id => !idsToDelete.includes(id));
         });
-      } else {
-        setObj.variables = setObj.variables || [];
-        setObj.variables.push({
-          name,
-          type,
-          status: "active",
-          source: setObj.type,
-          updatedAt: nowString()
-        });
+        currentSet.updated = nowString();
+        saveSets();
       }
-      (setObj.cases || []).forEach((item) => {
-        item.inputs = item.inputs || {};
-        item.inputs[name] = "";
-      });
-      return true;
-    }
-
-    function handleAddVariable() {
-      if (!currentSet) return;
-      const name = prompt("请输入新增变量名（英文/数字/下划线）", "new_var") || "";
-      const trimmed = name.trim();
-      if (!trimmed) return;
-      const type = (prompt("变量类型 text/image/file", "text") || "text").trim().toLowerCase();
-      const normalizedType = ["text", "image", "file"].includes(type) ? type : "text";
-      if (!addVariable(currentSet, trimmed, normalizedType)) {
-        showToast("变量已存在，无法新增");
-        return;
-      }
-      currentSet.updated = nowString();
-      saveSets();
-      renderAll();
-      showToast(`已新增变量 ${trimmed}`);
-    }
-
-    function handleRenameVariable() {
-      if (!currentSet) return;
-      const oldName = prompt("请输入要修改的变量名", "query") || "";
-      const oldVar = variableByName(currentSet, oldName.trim());
-      if (!oldVar || oldVar.status !== "active") {
-        showToast("变量不存在或已软删除");
-        return;
-      }
-      const newName = prompt("请输入新变量名（按新增处理）", `${oldName.trim()}_v2`) || "";
-      const nextName = newName.trim();
-      if (!nextName) return;
-      if (!softDeleteVariable(currentSet, oldName.trim())) {
-        showToast("变量修改失败");
-        return;
-      }
-      if (!addVariable(currentSet, nextName, oldVar.type || "text")) {
-        showToast("新变量已存在，请换一个名字");
-        return;
-      }
-      currentSet.updated = nowString();
-      saveSets();
-      renderAll();
-      showToast(`变量修改已按新增处理：${oldName.trim()} -> ${nextName}`);
-    }
-
-    function handleDeleteVariable() {
-      if (!currentSet) return;
-      const name = prompt("请输入要软删除的变量名", "query") || "";
-      const target = name.trim();
-      if (!target) return;
-      if (!softDeleteVariable(currentSet, target)) {
-        showToast("变量不存在或已软删除");
-        return;
-      }
-      currentSet.updated = nowString();
-      saveSets();
-      renderAll();
-      showToast(`已软删除变量 ${target}`);
+      
+      // 清空选中状态
+      selectedCases.clear();
+      isSelectAllPages = false;
+      
+      renderCaseTable(newCases);
+      showToast(`已删除 ${idsToDelete.length} 条用例`);
     }
 
     function handleCaseAction(event) {
       const btn = event.target.closest("[data-action]");
-      if (!btn || !currentSet) return;
-      const caseId = btn.getAttribute("data-case-id") || "";
-      const idx = (currentSet.cases || []).findIndex((c) => c.id === caseId);
+      if (!btn) return;
+      
+      const caseId = parseInt(btn.getAttribute("data-case-id"));
+      const cases = currentSet?.cases || demoCases;
+      const idx = cases.findIndex((c) => c.id === caseId);
       if (idx < 0) return;
-      const targetCase = currentSet.cases[idx];
+      
+      const targetCase = cases[idx];
 
       if (btn.dataset.action === "delete-case") {
-        currentSet.cases.splice(idx, 1);
-        currentSet.updated = nowString();
-        saveSets();
-        renderAll();
+        cases.splice(idx, 1);
+        if (currentSet) {
+          currentSet.tasks.forEach(task => {
+            task.caseIds = task.caseIds.filter(id => id !== caseId);
+          });
+          currentSet.updated = nowString();
+          saveSets();
+        }
+        renderCaseTable(cases);
         showToast(`已删除用例 ${caseId}`);
-        return;
-      }
-
-      if (btn.dataset.action === "copy-case") {
-        const newId = nextCaseId(currentSet);
-        currentSet.cases.push({
-          id: newId,
-          name: `${targetCase.name || "复制用例"}-${newId}`,
-          inputs: { ...(targetCase.inputs || {}) }
-        });
-        currentSet.updated = nowString();
-        saveSets();
-        renderAll();
+      } else if (btn.dataset.action === "copy-case") {
+        const newId = Math.max(...cases.map(c => c.id), 0) + 1;
+        cases.push({ id: newId, content: targetCase.content + " (复制)", images: [...targetCase.images], reference_output: targetCase.reference_output });
+        if (currentSet) {
+          const allTask = currentSet.tasks.find(t => t.name === "全部用例");
+          if (allTask) allTask.caseIds.push(newId);
+          currentSet.updated = nowString();
+          saveSets();
+        }
+        renderCaseTable(cases);
         showToast(`已复制为用例 ${newId}`);
-        return;
-      }
-
-      if (btn.dataset.action === "edit-case") {
-        const nextOutput = prompt("编辑 reference_output", String(targetCase.inputs?.reference_output || ""));
-        if (nextOutput == null) return;
-        targetCase.inputs = { ...(targetCase.inputs || {}), reference_output: nextOutput };
-        currentSet.updated = nowString();
-        saveSets();
-        renderAll();
-        showToast(`已更新用例 ${caseId}`);
+      } else if (btn.dataset.action === "edit-case") {
+        const nextContent = prompt("编辑用户输入", targetCase.content);
+        if (nextContent !== null) {
+          targetCase.content = nextContent;
+          if (currentSet) {
+            currentSet.updated = nowString();
+            saveSets();
+          }
+          renderCaseTable(cases);
+          showToast(`已更新用例 ${caseId}`);
+        }
       }
     }
 
+    // ==================== 全选交互 ====================
+    function toggleSelectAll() {
+      const cases = currentSet?.cases || demoCases;
+      if (selectAllCheckbox.checked) {
+        // 选择本页所有用例
+        cases.forEach(c => selectedCases.add(c.id));
+        isSelectAllPages = false;
+      } else {
+        // 取消全选
+        selectedCases.clear();
+        isSelectAllPages = false;
+      }
+      renderCaseTable(cases);
+    }
+
+    function handleRowCheckboxChange(event) {
+      const checkbox = event.target;
+      const row = checkbox.closest('tr');
+      const caseId = parseInt(row.dataset.caseId);
+      
+      if (checkbox.checked) {
+        selectedCases.add(caseId);
+      } else {
+        selectedCases.delete(caseId);
+        isSelectAllPages = false;
+      }
+      
+      renderCaseTable(currentSet?.cases || demoCases);
+    }
+
+    function selectAllPages() {
+      isSelectAllPages = true;
+      renderCaseTable(currentSet?.cases || demoCases);
+    }
+
+    function clearSelection() {
+      selectedCases.clear();
+      isSelectAllPages = false;
+      renderCaseTable(currentSet?.cases || demoCases);
+    }
+
+    // ==================== 新建任务（从选中用例）====================
+    const createTaskModal = document.getElementById("createTaskModal");
+    const createTaskName = document.getElementById("createTaskName");
+    const createTaskCharCount = document.getElementById("createTaskCharCount");
+    const selectedCaseCount = document.getElementById("selectedCaseCount");
+
+    function openCreateTaskModal() {
+      const count = isSelectAllPages ? (currentSet?.cases?.length || demoCases.length) : selectedCases.size;
+      if (count === 0) {
+        showToast("请先选择用例");
+        return;
+      }
+      selectedCaseCount.textContent = count;
+      createTaskName.value = "";
+      createTaskCharCount.textContent = "0";
+      createTaskModal.classList.remove("hidden");
+      createTaskName.focus();
+    }
+
+    function closeCreateTaskModal() {
+      createTaskModal.classList.add("hidden");
+    }
+
+    function confirmCreateTask() {
+      const name = createTaskName.value.trim();
+      if (!name) {
+        showToast("请输入任务名称");
+        return;
+      }
+      
+      const cases = currentSet?.cases || demoCases;
+      let caseIds;
+      if (isSelectAllPages) {
+        caseIds = cases.map(c => c.id);
+      } else {
+        caseIds = Array.from(selectedCases);
+      }
+      
+      const newTask = {
+        id: generateId("task"),
+        name: name,
+        caseIds: caseIds,
+        createdAt: nowString(),
+        stats: { runRate: 0, checkRate: 0, avgScore: 0 }
+      };
+      
+      if (currentSet) {
+        currentSet.tasks.push(newTask);
+        currentSet.updated = nowString();
+        saveSets();
+      }
+      
+      currentTaskId = newTask.id;
+      closeCreateTaskModal();
+      
+      // 清空选择并切换到评测任务标签页
+      selectedCases.clear();
+      isSelectAllPages = false;
+      switchTab("task");
+      
+      showToast(`任务"${name}"创建成功`);
+    }
+
+    // ==================== 评测任务操作 ====================
     function switchTab(next) {
       const isSet = next === "set";
       tabSet.classList.toggle("active", isSet);
       tabTask.classList.toggle("active", !isSet);
       setTabPanel.classList.toggle("hidden", !isSet);
       taskTabPanel.classList.toggle("hidden", isSet);
+      
+      if (!isSet) {
+        renderTaskSelector();
+        renderTaskTable();
+        lucide.createIcons();
+      }
     }
 
+    function handleTaskChange() {
+      currentTaskId = taskSelector.value;
+      renderTaskTable();
+    }
+
+    function editTaskName() {
+      const tasks = currentSet?.tasks || [];
+      const currentTask = tasks.find(t => t.id === currentTaskId);
+      if (!currentTask) {
+        showToast("请先选择任务");
+        return;
+      }
+      
+      const newName = prompt("请输入新的任务名称", currentTask.name);
+      if (newName && newName.trim()) {
+        currentTask.name = newName.trim();
+        if (currentSet) {
+          currentSet.updated = nowString();
+          saveSets();
+        }
+        renderTaskSelector();
+        showToast(`任务名称已更新为：${newName}`);
+      }
+    }
+
+    // ==================== 删除任务 ====================
+    const deleteConfirmModal = document.getElementById("deleteConfirmModal");
+    const deleteTaskNameEl = document.getElementById("deleteTaskName");
+    let taskToDelete = null;
+
+    function openDeleteConfirm() {
+      const tasks = currentSet?.tasks || [];
+      const currentTask = tasks.find(t => t.id === currentTaskId);
+      if (!currentTask) {
+        showToast("没有可删除的任务");
+        return;
+      }
+      
+      taskToDelete = currentTask.id;
+      deleteTaskNameEl.textContent = currentTask.name;
+      deleteConfirmModal.classList.remove("hidden");
+    }
+
+    function closeDeleteConfirm() {
+      deleteConfirmModal.classList.add("hidden");
+      taskToDelete = null;
+    }
+
+    function confirmDeleteTask() {
+      if (!taskToDelete || !currentSet) return;
+      
+      const taskIndex = currentSet.tasks.findIndex(t => t.id === taskToDelete);
+      if (taskIndex > -1) {
+        const taskName = currentSet.tasks[taskIndex].name;
+        currentSet.tasks.splice(taskIndex, 1);
+        currentSet.updated = nowString();
+        saveSets();
+        
+        // 重置当前任务
+        currentTaskId = currentSet.tasks.length > 0 ? currentSet.tasks[0].id : null;
+        renderTaskSelector();
+        renderTaskTable();
+        showToast(`任务"${taskName}"已删除`);
+      }
+      
+      closeDeleteConfirm();
+    }
+
+    function handleTaskAction(event) {
+      const btn = event.target.closest("[data-action]");
+      if (!btn) return;
+      
+      const taskId = btn.getAttribute("data-task-id");
+      const action = btn.dataset.action;
+      
+      if (action === "run-task") {
+        showToast(`开始运行用例 ${taskId}`);
+      } else if (action === "annotate-task") {
+        showToast(`打开标注 ${taskId}`);
+      } else if (action === "detail-task") {
+        showToast(`查看详情 ${taskId}`);
+      }
+    }
+
+    // ==================== 批量操作下拉菜单 ====================
+    const batchOpsBtn = document.getElementById("batchOpsBtn");
+    const batchOpsMenu = document.getElementById("batchOpsMenu");
+
+    batchOpsBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      batchOpsMenu.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!batchOpsMenu.contains(e.target) && e.target !== batchOpsBtn) {
+        batchOpsMenu.classList.remove("show");
+      }
+    });
+
+    batchOpsMenu.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        const action = e.target.dataset.action;
+        const actionNames = {
+          'batch-run': '批量运行',
+          'batch-stop': '批量终止',
+          'batch-annotate': '批量标注',
+          'batch-override': '覆盖期望输出'
+        };
+        showToast(`${actionNames[action]}功能（示例）`);
+        batchOpsMenu.classList.remove("show");
+      });
+    });
+
+    // ==================== 事件绑定 ====================
     document.getElementById("backBtn").addEventListener("click", () => {
       window.location.href = "./frontend-eval-tasks.html";
     });
+
     document.getElementById("addCaseBtn").addEventListener("click", addCase);
     document.getElementById("importCaseBtn").addEventListener("click", importCases);
-    document.getElementById("addVarBtn").addEventListener("click", handleAddVariable);
-    document.getElementById("renameVarBtn").addEventListener("click", handleRenameVariable);
-    document.getElementById("deleteVarBtn").addEventListener("click", handleDeleteVariable);
-    caseSearch.addEventListener("input", () => renderCaseTable(currentSet));
-    showDeletedVar.addEventListener("change", renderAll);
-    caseBody.addEventListener("click", handleCaseAction);
+    document.getElementById("batchDeleteBtn").addEventListener("click", batchDelete);
+    document.getElementById("createTaskFromSelectionBtn").addEventListener("click", openCreateTaskModal);
+    
+    selectAllCheckbox.addEventListener("change", toggleSelectAll);
+    selectAllLink.addEventListener("click", selectAllPages);
+    clearSelectionLink.addEventListener("click", clearSelection);
+    
+    caseBody.addEventListener("click", (e) => {
+      if (e.target.classList.contains('row-checkbox')) {
+        handleRowCheckboxChange(e);
+      } else {
+        handleCaseAction(e);
+      }
+    });
+    
+    caseSearch.addEventListener("input", () => {
+      renderCaseTable(currentSet?.cases || demoCases);
+    });
+
     tabSet.addEventListener("click", () => switchTab("set"));
     tabTask.addEventListener("click", () => switchTab("task"));
 
+    taskSelector.addEventListener("change", handleTaskChange);
+    document.getElementById("editTaskNameBtn").addEventListener("click", editTaskName);
+    document.getElementById("deleteTaskBtn").addEventListener("click", openDeleteConfirm);
+    document.getElementById("refreshTaskBtn").addEventListener("click", () => {
+      renderTaskTable();
+      showToast("刷新成功");
+    });
+
+    taskBody.addEventListener("click", handleTaskAction);
+    selectAllTaskCheckbox.addEventListener("change", (e) => {
+      document.querySelectorAll('.row-checkbox-task').forEach(cb => cb.checked = e.target.checked);
+    });
+
+    // 新建任务弹窗事件
+    document.getElementById("createTaskClose").addEventListener("click", closeCreateTaskModal);
+    document.getElementById("createTaskCancel").addEventListener("click", closeCreateTaskModal);
+    document.getElementById("createTaskConfirm").addEventListener("click", confirmCreateTask);
+    createTaskName.addEventListener("input", (e) => {
+      createTaskCharCount.textContent = e.target.value.length;
+    });
+    createTaskModal.addEventListener("click", (e) => {
+      if (e.target === createTaskModal) closeCreateTaskModal();
+    });
+
+    // 删除确认弹窗事件
+    document.getElementById("deleteConfirmClose").addEventListener("click", closeDeleteConfirm);
+    document.getElementById("deleteConfirmCancel").addEventListener("click", closeDeleteConfirm);
+    document.getElementById("deleteConfirmBtn").addEventListener("click", confirmDeleteTask);
+    deleteConfirmModal.addEventListener("click", (e) => {
+      if (e.target === deleteConfirmModal) closeDeleteConfirm();
+    });
+
+    // ==================== 初始化 ====================
     sets = loadSets();
     currentSet = sets.find((item) => item.id === setId) || sets[0] || null;
-
+    
+    // 如果没有数据，创建示例数据
     if (!currentSet) {
-      setNameEl.textContent = "评测集不存在";
-      caseBody.innerHTML = '<tr><td class="empty" colspan="3">未找到评测集，请返回列表重试</td></tr>';
+      const demoSet = {
+        id: generateId("set"),
+        name: "手小保的评测集",
+        type: "app",
+        projectApp: "咔嗦保-手小保/手小保",
+        targetName: "手小保",
+        desc: "-",
+        owners: "wisewong,martin",
+        updated: "2026/04/07 17:06",
+        cases: [...demoCases],
+        tasks: []
+      };
+      ensureDefaultTask(demoSet);
+      sets.push(demoSet);
+      saveSets();
+      currentSet = demoSet;
     } else {
-      renderAll();
+      ensureDefaultTask(currentSet);
     }
+    
+    renderAll();
   </script>
 </body>
 
