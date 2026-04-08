@@ -262,8 +262,41 @@
       justify-content: center;
     }
 
-    /* 全选提示条 */
-    .select-all-banner {
+    /* 批量操作栏 */
+    .batch-action-bar {
+      padding: 12px 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .batch-action-bar.hidden {
+      display: none;
+    }
+
+    .batch-action-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .batch-action-text {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .batch-count {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .batch-action-buttons {
+      display: flex;
+      gap: 10px;
+    }
       display: none;
       align-items: center;
       gap: 12px;
@@ -275,22 +308,6 @@
       font-size: 13px;
       color: var(--text-secondary);
     }
-
-    .select-all-banner.show {
-      display: flex;
-    }
-
-    .select-all-banner .banner-link {
-      color: var(--blue);
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .select-all-banner .banner-link:hover {
-      text-decoration: underline;
-    }
-
-
 
     .table-header {
       display: flex;
@@ -833,17 +850,9 @@
                 </div>
               </div>
               <div class="toolbar-right">
-                <button id="addCaseBtn" class="btn" type="button">新增用例</button>
                 <button id="importCaseBtn" class="btn btn-secondary" type="button">文件导入</button>
-                <button id="createTaskFromSelectionBtn" class="btn" type="button" disabled>新建任务</button>
-                <button id="batchDeleteBtn" class="btn btn-secondary" type="button">批量删除</button>
+                <button id="addCaseBtn" class="btn" type="button">新建用例</button>
               </div>
-            </div>
-
-            <!-- 全选提示条 -->
-            <div id="selectAllBanner" class="select-all-banner">
-              <span id="bannerText">已选择本页 0 条用例</span>
-              <span class="banner-link" id="selectAllLink">选择全部 <span id="bannerTotal">0</span> 条用例</span>
             </div>
 
             <div class="table-header">
@@ -864,6 +873,20 @@
                 </thead>
                 <tbody id="caseBody"></tbody>
               </table>
+            </div>
+
+            <!-- 批量操作栏 -->
+            <div id="batchActionBar" class="batch-action-bar hidden">
+              <div class="batch-action-content">
+                <div class="batch-action-text">
+                  <span class="batch-count">已选择 <strong id="batchCount">0</strong> 条用例</span>
+                  <button id="batchBarSelectAll" class="link-text-btn" type="button">选择全部 <span id="batchBarTotal">0</span> 条用例</button>
+                </div>
+                <div class="batch-action-buttons">
+                  <button id="batchBarCreateTask" class="btn" type="button">创建任务</button>
+                  <button id="batchBarDelete" class="btn btn-danger" type="button">批量删除</button>
+                </div>
+              </div>
             </div>
 
             <div class="pagination">
@@ -1013,7 +1036,7 @@
 
   <script>
     // ==================== 数据存储键 ====================
-    const EVAL_SET_STORAGE_KEY = "evaluation_sets_demo_v3";
+    const EVAL_SET_STORAGE_KEY = "evaluation_sets_demo_v4";
     
     // ==================== 页面参数 ====================
     const params = new URLSearchParams(window.location.search);
@@ -1043,12 +1066,13 @@
     const totalCountEl = document.getElementById("totalCount");
     const pageTotalEl = document.getElementById("pageTotal");
     const selectAllCheckbox = document.getElementById("selectAll");
-    const selectAllBanner = document.getElementById("selectAllBanner");
-    const bannerText = document.getElementById("bannerText");
-    const selectAllLink = document.getElementById("selectAllLink");
-    const bannerTotal = document.getElementById("bannerTotal");
-    const clearSelectionLink = document.getElementById("clearSelectionLink");
-    const createTaskFromSelectionBtn = document.getElementById("createTaskFromSelectionBtn");
+    // 批量操作栏
+    const batchActionBar = document.getElementById("batchActionBar");
+    const batchCount = document.getElementById("batchCount");
+    const batchBarTotal = document.getElementById("batchBarTotal");
+    const batchBarSelectAll = document.getElementById("batchBarSelectAll");
+    const batchBarCreateTask = document.getElementById("batchBarCreateTask");
+    const batchBarDelete = document.getElementById("batchBarDelete");
     
     // 评测任务
     const taskBody = document.getElementById("taskBody");
@@ -1201,24 +1225,21 @@
         selectAllCheckbox.indeterminate = true;
       }
       
-      // 更新提示条
+      // 更新批量操作栏
       if (totalSelected > 0) {
-        selectAllBanner.classList.add("show");
-        bannerTotal.textContent = totalCases;
+        // 显示批量操作栏
+        batchActionBar.classList.remove("hidden");
+        batchCount.textContent = totalSelected;
+        batchBarTotal.textContent = totalCases;
         
+        // 更新"选择全部"按钮文字
         if (isSelectAllPages) {
-          bannerText.textContent = `已选择全部 ${totalCases} 条用例`;
-          selectAllLink.style.display = "none";
+          batchBarSelectAll.innerHTML = "取消选择全部";
         } else {
-          bannerText.textContent = `已选择本页 ${Math.min(totalSelected, pageCaseCount)} 条用例`;
-          selectAllLink.style.display = "inline";
+          batchBarSelectAll.innerHTML = `选择全部 <span id="batchBarTotal">${totalCases}</span> 条用例`;
         }
-        
-        // 启用新建任务按钮
-        createTaskFromSelectionBtn.disabled = false;
       } else {
-        selectAllBanner.classList.remove("show");
-        createTaskFromSelectionBtn.disabled = true;
+        batchActionBar.classList.add("hidden");
       }
     }
 
@@ -1664,12 +1685,25 @@
 
     document.getElementById("addCaseBtn").addEventListener("click", addCase);
     document.getElementById("importCaseBtn").addEventListener("click", importCases);
-    document.getElementById("batchDeleteBtn").addEventListener("click", batchDelete);
-    document.getElementById("createTaskFromSelectionBtn").addEventListener("click", openCreateTaskModal);
+    
+    // 批量操作栏按钮
+    batchBarDelete.addEventListener("click", batchDelete);
+    batchBarCreateTask.addEventListener("click", openCreateTaskModal);
+    batchBarSelectAll.addEventListener("click", () => {
+      const cases = currentSet?.cases || demoCases;
+      if (isSelectAllPages) {
+        // 取消选择全部
+        selectedCases.clear();
+        isSelectAllPages = false;
+      } else {
+        // 选择全部数据
+        cases.forEach(c => selectedCases.add(c.id));
+        isSelectAllPages = true;
+      }
+      renderCaseTable(cases);
+    });
     
     selectAllCheckbox.addEventListener("change", toggleSelectAll);
-    selectAllLink.addEventListener("click", selectAllPages);
-    clearSelectionLink.addEventListener("click", clearSelection);
     
     caseBody.addEventListener("click", (e) => {
       if (e.target.classList.contains('row-checkbox')) {
@@ -1722,18 +1756,18 @@
     sets = loadSets();
     currentSet = sets.find((item) => item.id === setId) || sets[0] || null;
     
-    // 如果没有数据，创建示例数据
+    // 如果没有数据或数据格式不兼容，创建示例数据
     if (!currentSet) {
       const demoSet = {
         id: generateId("set"),
         name: "手小保的评测集",
         type: "app",
-        projectApp: "咔嗦保-手小保/手小保",
+        projectApp: "咔嚓保-手小保/手小保",
         targetName: "手小保",
         desc: "-",
         owners: "wisewong,martin",
         updated: "2026/04/07 17:06",
-        cases: [...demoCases],
+        cases: JSON.parse(JSON.stringify(demoCases)),
         tasks: []
       };
       ensureDefaultTask(demoSet);
@@ -1741,9 +1775,17 @@
       saveSets();
       currentSet = demoSet;
     } else {
+      // 确保cases存在
+      if (!currentSet.cases) currentSet.cases = [];
+      if (!currentSet.tasks) currentSet.tasks = [];
       ensureDefaultTask(currentSet);
     }
     
+    // 重置选择状态
+    selectedCases.clear();
+    isSelectAllPages = false;
+    
+    // 渲染页面
     renderAll();
   </script>
 </body>
