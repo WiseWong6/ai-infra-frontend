@@ -263,50 +263,29 @@
     }
 
     /* 批量操作栏 */
-    .batch-action-bar {
-      padding: 12px 16px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      margin-top: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    .batch-action-bar.hidden {
-      display: none;
-    }
-
-    .batch-action-content {
+    .batch-action-footer {
       display: flex;
       flex-direction: column;
       gap: 10px;
+      padding: 12px 0 0;
+      margin-top: 0;
     }
 
-    .batch-action-text {
+    .batch-action-footer.hidden {
+      display: none;
+    }
+
+    .batch-action-row {
       display: flex;
       align-items: center;
       gap: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
     }
 
     .batch-count {
-      font-size: 14px;
       color: var(--text);
-    }
-
-    .batch-action-buttons {
-      display: flex;
-      gap: 10px;
-    }
-      display: none;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 16px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 6px;
-      margin-bottom: 12px;
-      font-size: 13px;
-      color: var(--text-secondary);
+      font-weight: 500;
     }
 
     .table-header {
@@ -475,18 +454,29 @@
       margin-top: 12px;
     }
 
-    /* 任务列表样式 */
-    .task-list-container {
+    /* 任务左右分栏布局 */
+    .task-split-layout {
+      display: flex;
+      gap: 16px;
+      height: calc(100vh - 280px);
+      min-height: 500px;
+    }
+
+    .task-list-panel {
+      width: 320px;
+      flex-shrink: 0;
       background: #fff;
       border: 1px solid var(--line);
       border-radius: 8px;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     .task-list-header {
       display: grid;
-      grid-template-columns: 2fr 1fr 80px 100px 120px 120px 140px;
-      gap: 12px;
+      grid-template-columns: 1fr 70px 80px;
+      gap: 8px;
       padding: 12px 16px;
       background: #f8fafc;
       border-bottom: 1px solid var(--line);
@@ -495,48 +485,75 @@
       color: var(--text);
     }
 
+    .task-list-body {
+      overflow-y: auto;
+      flex: 1;
+    }
+
     .task-list-item {
       display: grid;
-      grid-template-columns: 2fr 1fr 80px 100px 120px 120px 140px;
-      gap: 12px;
-      padding: 16px;
+      grid-template-columns: 1fr 70px 80px;
+      gap: 8px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--line-soft);
-      align-items: center;
+      font-size: 13px;
+      color: var(--text-secondary);
       cursor: pointer;
       transition: background 0.15s;
+      align-items: center;
+      position: relative;
     }
 
     .task-list-item:hover {
       background: #f8fafc;
     }
 
+    .task-list-item:hover .task-item-actions {
+      opacity: 1;
+      visibility: visible;
+    }
+
     .task-list-item:last-child {
       border-bottom: none;
     }
 
-    .task-name-cell {
+    .task-list-item.active {
+      background: #eff6ff;
+      border-left: 3px solid var(--blue);
+      padding-left: 13px;
+    }
+
+    .task-name-wrap {
       display: flex;
       align-items: center;
       gap: 8px;
+      overflow: hidden;
+    }
+
+    .task-name-cell {
       font-weight: 500;
       color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
     }
 
-    .task-name-cell .icon {
-      color: var(--blue);
+    .task-item-actions {
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s;
     }
 
-    .task-desc-cell {
-      color: var(--muted);
-      font-size: 13px;
+    .task-item-actions .icon-btn {
+      width: 24px;
+      height: 24px;
     }
 
     .task-count-cell {
-      color: var(--text-secondary);
-      font-size: 13px;
-    }
-
-    .task-owner-cell {
+      text-align: center;
       color: var(--text-secondary);
       font-size: 13px;
     }
@@ -544,12 +561,33 @@
     .task-time-cell {
       color: var(--muted);
       font-size: 12px;
+      text-align: right;
     }
 
-    .task-actions-cell {
+    .task-detail-panel {
+      flex: 1;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
       display: flex;
-      gap: 8px;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .task-detail-panel .table-wrap {
+      flex: 1;
+      overflow: auto;
+      border: none;
+      border-radius: 0;
+    }
+
+    .task-detail-panel.empty {
+      display: flex;
       align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 14px;
     }
 
     .task-action-btn {
@@ -577,46 +615,93 @@
 
     /* 任务详情头部 */
     .task-detail-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
     }
 
-    .back-link {
+    .task-detail-title-row {
       display: flex;
       align-items: center;
-      gap: 6px;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 14px;
-      transition: color 0.2s;
-    }
-
-    .back-link:hover {
-      color: var(--blue);
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
     }
 
     .task-detail-title {
       font-size: 18px;
       font-weight: 600;
       color: var(--text);
+      line-height: 1.4;
     }
 
     .task-detail-actions {
-      margin-left: auto;
       display: flex;
-      gap: 10px;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: #f1f5f9;
+      color: var(--blue);
+    }
+
+    .icon-btn.danger {
+      color: var(--danger);
+    }
+
+    .icon-btn.danger:hover {
+      background: #fef2f2;
+      color: #dc2626;
     }
 
     .task-stats-bar {
       display: flex;
-      gap: 8px;
+      gap: 24px;
       align-items: center;
       font-size: 13px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-label {
       color: var(--muted);
-      margin-bottom: 16px;
+    }
+
+    .stat-value {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .task-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .task-count-text {
+      font-size: 13px;
+      color: var(--muted);
     }
 
     /* 下拉菜单样式 */
@@ -940,10 +1025,6 @@
               </div>
             </div>
 
-            <div class="table-header">
-              <span>(总条数：<strong id="totalCount">3</strong>)</span>
-            </div>
-
             <div class="table-wrap">
               <table>
                 <thead>
@@ -960,17 +1041,15 @@
               </table>
             </div>
 
-            <!-- 批量操作栏 -->
-            <div id="batchActionBar" class="batch-action-bar hidden">
-              <div class="batch-action-content">
-                <div class="batch-action-text">
-                  <span class="batch-count">已选择 <strong id="batchCount">0</strong> 条用例</span>
-                  <button id="batchBarSelectAll" class="link-text-btn" type="button">选择全部 <span id="batchBarTotal">0</span> 条用例</button>
-                </div>
-                <div class="batch-action-buttons">
-                  <button id="batchBarCreateTask" class="btn" type="button">创建任务</button>
-                  <button id="batchBarDelete" class="btn btn-danger" type="button">批量删除</button>
-                </div>
+            <!-- 批量操作栏（表格下方左侧）-->
+            <div id="batchActionFooter" class="batch-action-footer hidden">
+              <div class="batch-action-row">
+                <span class="batch-count">已选择 <strong id="batchCount">0</strong> 条用例</span>
+                <button id="batchBarSelectAll" class="link-text-btn" type="button">选择全部 <span id="batchBarTotal">0</span> 条用例</button>
+              </div>
+              <div class="batch-action-row">
+                <button id="batchBarCreateTask" class="btn" type="button">创建任务</button>
+                <button id="batchBarDelete" class="btn btn-danger" type="button">批量删除</button>
               </div>
             </div>
 
@@ -991,69 +1070,63 @@
           </div>
 
           <div id="taskTabPanel" class="hidden">
-            <!-- 任务列表视图 -->
-            <div id="taskListView">
-              <div class="task-list-container">
+            <!-- 任务左右分栏布局 -->
+            <div class="task-split-layout">
+              <!-- 左边：任务列表 -->
+              <div class="task-list-panel">
                 <div class="task-list-header">
                   <div>任务名称</div>
-                  <div>描述</div>
                   <div>用例数</div>
-                  <div>负责人</div>
-                  <div>更新时间</div>
-                  <div>运行时间</div>
-                  <div>操作</div>
+                  <div>最新运行</div>
                 </div>
-                <div id="taskListBody">
+                <div id="taskListBody" class="task-list-body">
                   <!-- 任务列表项由JS动态生成 -->
                 </div>
               </div>
-            </div>
 
-            <!-- 任务详情视图（默认隐藏） -->
-            <div id="taskDetailView" class="hidden">
-              <div class="task-detail-header">
-                <div class="back-link" id="backToTaskList">
-                  <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
-                  <span>返回任务列表</span>
-                </div>
-                <div class="task-detail-title" id="detailTaskName">任务详情</div>
-                <div class="task-detail-actions">
-                  <button id="detailEditTaskBtn" class="btn btn-secondary" type="button">编辑</button>
-                  <button id="detailDeleteTaskBtn" class="btn btn-danger" type="button">删除</button>
-                </div>
-              </div>
-
-              <div class="task-stats-bar" id="detailTaskStats">
-                <span>运行比例：0.00% (0/0)</span>
-                <span class="stat-divider">|</span>
-                <span>质检比例：0.00% (0/0)</span>
-                <span class="stat-divider">|</span>
-                <span>质检平均分：0</span>
-              </div>
-
-              <div class="toolbar">
-                <div class="toolbar-left"></div>
-                <div class="toolbar-right">
-                  <div class="dropdown">
-                    <button id="detailBatchOpsBtn" class="btn btn-secondary dropdown-toggle" type="button">
-                      批量操作 <i data-lucide="chevron-down" style="width:14px;height:14px;margin-left:4px;"></i>
-                    </button>
-                    <div class="dropdown-menu" id="detailBatchOpsMenu">
-                      <div class="dropdown-item" data-action="batch-run">运行</div>
-                      <div class="dropdown-item" data-action="batch-stop">终止</div>
-                      <div class="dropdown-item" data-action="batch-annotate">标注</div>
-                      <div class="dropdown-item danger" data-action="batch-override">覆盖期望输出</div>
+              <!-- 右边：任务详情 -->
+              <div id="taskDetailView" class="task-detail-panel">
+                <!-- 标题和统计信息区域 -->
+                <div class="task-detail-header">
+                  <div class="task-detail-title-row">
+                    <div class="task-detail-title" id="detailTaskName">任务详情</div>
+                    <div class="task-detail-actions">
+                      <button id="detailEditTaskBtn" class="icon-btn" type="button" title="编辑">
+                        <i data-lucide="pencil" style="width:16px;height:16px;"></i>
+                      </button>
+                      <button id="detailDeleteTaskBtn" class="icon-btn danger" type="button" title="删除">
+                        <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                      </button>
                     </div>
                   </div>
-                  <button id="detailRefreshBtn" class="btn btn-secondary" type="button">刷新</button>
+                  <div class="task-stats-bar" id="detailTaskStats">
+                    <span class="stat-item">
+                      <span class="stat-label">运行比例</span>
+                      <span class="stat-value">0.00%</span>
+                    </span>
+                    <span class="stat-item">
+                      <span class="stat-label">质检比例</span>
+                      <span class="stat-value">0.00%</span>
+                    </span>
+                    <span class="stat-item">
+                      <span class="stat-label">质检平均分</span>
+                      <span class="stat-value">0</span>
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div class="table-header">
-                <span>(总条数：<strong id="detailTotalCount">0</strong>)</span>
-              </div>
+                <!-- 工具栏 -->
+                <div class="task-toolbar">
+                  <div class="toolbar-left">
+                    <span class="task-count-text">(总条数：<strong id="detailTotalCount">0</strong>)</span>
+                  </div>
+                  <div class="toolbar-right">
+                    <button id="detailRefreshBtn" class="btn btn-secondary" type="button">刷新</button>
+                  </div>
+                </div>
 
-              <div class="table-wrap">
+                <!-- 表格区域 -->
+                <div class="table-wrap">
                 <table>
                   <thead>
                     <tr>
@@ -1070,21 +1143,6 @@
                   </thead>
                   <tbody id="detailTaskBody"></tbody>
                 </table>
-              </div>
-
-              <div class="pagination">
-                <span class="pagination-info">共 <strong id="detailPageTotal">0</strong> 条</span>
-                <select class="page-select">
-                  <option>10条/页</option>
-                  <option>20条/页</option>
-                  <option>50条/页</option>
-                </select>
-                <button class="page-btn" disabled>&lt;</button>
-                <button class="page-btn active">1</button>
-                <button class="page-btn">&gt;</button>
-                <span>前往</span>
-                <input type="text" class="page-input" value="1" />
-                <span>页</span>
               </div>
             </div>
           </div>
@@ -1171,28 +1229,24 @@
     // 评测集
     const caseBody = document.getElementById("caseBody");
     const caseSearch = document.getElementById("caseSearch");
-    const totalCountEl = document.getElementById("totalCount");
-    const pageTotalEl = document.getElementById("pageTotal");
+
     const selectAllCheckbox = document.getElementById("selectAll");
-    // 批量操作栏
-    const batchActionBar = document.getElementById("batchActionBar");
+    // 批量操作
+    const batchActionFooter = document.getElementById("batchActionFooter");
     const batchCount = document.getElementById("batchCount");
     const batchBarTotal = document.getElementById("batchBarTotal");
     const batchBarSelectAll = document.getElementById("batchBarSelectAll");
     const batchBarCreateTask = document.getElementById("batchBarCreateTask");
     const batchBarDelete = document.getElementById("batchBarDelete");
     
-    // 评测任务列表视图
-    const taskListView = document.getElementById("taskListView");
+    // 评测任务列表
     const taskListBody = document.getElementById("taskListBody");
     
     // 评测任务详情视图
     const taskDetailView = document.getElementById("taskDetailView");
-    const backToTaskList = document.getElementById("backToTaskList");
     const detailTaskName = document.getElementById("detailTaskName");
     const detailTaskStats = document.getElementById("detailTaskStats");
     const detailTotalCount = document.getElementById("detailTotalCount");
-    const detailPageTotal = document.getElementById("detailPageTotal");
     const detailTaskBody = document.getElementById("detailTaskBody");
     const selectAllDetail = document.getElementById("selectAllDetail");
 
@@ -1288,8 +1342,7 @@
         });
       }
 
-      totalCountEl.textContent = cases.length;
-      pageTotalEl.textContent = cases.length;
+
 
       if (!cases.length) {
         caseBody.innerHTML = '<tr><td class="empty" colspan="6">暂无用例</td></tr>';
@@ -1342,7 +1395,7 @@
       // 更新批量操作栏
       if (totalSelected > 0) {
         // 显示批量操作栏
-        batchActionBar.classList.remove("hidden");
+        batchActionFooter.classList.remove("hidden");
         batchCount.textContent = totalSelected;
         batchBarTotal.textContent = totalCases;
         
@@ -1353,7 +1406,7 @@
           batchBarSelectAll.innerHTML = `选择全部 <span id="batchBarTotal">${totalCases}</span> 条用例`;
         }
       } else {
-        batchActionBar.classList.add("hidden");
+        batchActionFooter.classList.add("hidden");
       }
     }
 
@@ -1373,28 +1426,22 @@
         const caseCount = taskCases.length;
         const stats = task.stats || { runRate: 0, checkRate: 0, avgScore: 0 };
         const hasRun = stats.runRate > 0;
+        const isActive = String(currentTaskId) === String(task.id);
         
-        return `<div class="task-list-item" data-task-id="${task.id}">
-          <div class="task-name-cell">
-            <i data-lucide="folder-open" class="icon" style="width:18px;height:18px;"></i>
-            <span>${task.name}</span>
+        return `<div class="task-list-item ${isActive ? 'active' : ''}" data-task-id="${task.id}">
+          <div class="task-name-wrap">
+            <div class="task-name-cell">${task.name}</div>
+            <div class="task-item-actions" onclick="event.stopPropagation()">
+              <button class="icon-btn" data-action="edit-task" data-task-id="${task.id}" title="编辑">
+                <i data-lucide="pencil" style="width:14px;height:14px;"></i>
+              </button>
+              <button class="icon-btn danger" data-action="delete-task" data-task-id="${task.id}" title="删除">
+                <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+              </button>
+            </div>
           </div>
-          <div class="task-desc-cell">${task.description || '-'}</div>
           <div class="task-count-cell">${caseCount}</div>
-          <div class="task-owner-cell">${task.owner || currentSet?.owners || '-'}</div>
-          <div class="task-time-cell">${formatDate(task.updatedAt)}</div>
-          <div class="task-time-cell ${hasRun ? '' : 'text-muted'}">${hasRun ? formatDate(task.lastRunAt) : '-'}</div>
-          <div class="task-actions-cell" onclick="event.stopPropagation()">
-            <button class="task-action-btn run" data-action="run-task" data-task-id="${task.id}" title="运行">
-              <i data-lucide="play" style="width:16px;height:16px;"></i>
-            </button>
-            <button class="task-action-btn" data-action="edit-task" data-task-id="${task.id}" title="编辑">
-              <i data-lucide="pencil" style="width:16px;height:16px;"></i>
-            </button>
-            <button class="task-action-btn delete" data-action="delete-task" data-task-id="${task.id}" title="删除">
-              <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
-            </button>
-          </div>
+          <div class="task-time-cell">${hasRun ? formatDate(task.lastRunAt) : '-'}</div>
         </div>`;
       }).join('');
       
@@ -1412,19 +1459,18 @@
     function showTaskDetail(taskId) {
       currentTaskId = taskId;
       const tasks = currentSet?.tasks || [];
-      const task = tasks.find(t => t.id === taskId);
+      const task = tasks.find(t => String(t.id) === String(taskId));
       
       if (!task) return;
-      
-      // 切换视图
-      taskListView.classList.add('hidden');
-      taskDetailView.classList.remove('hidden');
       
       // 更新标题
       detailTaskName.textContent = task.name;
       
       // 渲染详情表格
       renderTaskDetailTable(task);
+      
+      // 更新列表选中状态
+      renderTaskList();
     }
     
     function renderTaskDetailTable(task) {
@@ -1432,11 +1478,22 @@
       const taskCases = task.caseIds.map(id => cases.find(c => c.id === id)).filter(Boolean);
       
       detailTotalCount.textContent = taskCases.length;
-      detailPageTotal.textContent = taskCases.length;
       
       // 更新统计
       const stats = task.stats || { runRate: 0, checkRate: 0, avgScore: 0 };
-      detailTaskStats.innerHTML = `<span>运行比例：${stats.runRate.toFixed(2)}% (${Math.round(stats.runRate * taskCases.length / 100)}/${taskCases.length})</span><span class="stat-divider">|</span><span>质检比例：${stats.checkRate.toFixed(2)}% (${Math.round(stats.checkRate * taskCases.length / 100)}/${taskCases.length})</span><span class="stat-divider">|</span><span>质检平均分：${stats.avgScore}</span>`;
+      detailTaskStats.innerHTML = `
+        <span class="stat-item">
+          <span class="stat-label">运行比例</span>
+          <span class="stat-value">${stats.runRate.toFixed(2)}%</span>
+        </span>
+        <span class="stat-item">
+          <span class="stat-label">质检比例</span>
+          <span class="stat-value">${stats.checkRate.toFixed(2)}%</span>
+        </span>
+        <span class="stat-item">
+          <span class="stat-label">质检平均分</span>
+          <span class="stat-value">${stats.avgScore}</span>
+        </span>`;
       
       if (!taskCases.length) {
         detailTaskBody.innerHTML = '<tr><td class="empty" colspan="9">该任务暂无用例</td></tr>';
@@ -1474,12 +1531,6 @@
       }).join('');
     }
     
-    function hideTaskDetail() {
-      taskDetailView.classList.add('hidden');
-      taskListView.classList.remove('hidden');
-      currentTaskId = null;
-    }
-
     function renderAll() {
       if (!currentSet) {
         const demoSet = {
@@ -1719,63 +1770,84 @@
       taskTabPanel.classList.toggle("hidden", isSet);
       
       if (!isSet) {
-        // 重置到任务列表视图
-        hideTaskDetail();
+        // 切换到任务标签，渲染列表并默认选中第一个任务
         renderTaskList();
+        const tasks = currentSet?.tasks || [];
+        if (tasks.length > 0 && !currentTaskId) {
+          showTaskDetail(tasks[0].id);
+        } else if (currentTaskId) {
+          showTaskDetail(currentTaskId);
+        }
         lucide.createIcons();
       }
     }
 
     function handleTaskListAction(event) {
+      // 检查是否点击了操作按钮
       const btn = event.target.closest('[data-action]');
-      if (!btn) {
-        // 点击任务项本身，进入详情
-        const item = event.target.closest('.task-list-item');
-        if (item) {
-          const taskId = item.dataset.taskId;
-          showTaskDetail(taskId);
-        }
-        return;
-      }
-      
-      const action = btn.dataset.action;
-      const taskId = btn.dataset.taskId;
-      const tasks = currentSet?.tasks || [];
-      const task = tasks.find(t => t.id === taskId);
-      
-      if (action === 'run-task') {
-        showToast(`开始运行任务: ${task?.name || taskId}`);
-      } else if (action === 'edit-task') {
-        const newName = prompt('请输入新的任务名称', task?.name || '');
-        if (newName && newName.trim()) {
-          task.name = newName.trim();
-          task.updatedAt = nowString();
-          if (currentSet) {
-            currentSet.updated = nowString();
-            saveSets();
-          }
-          renderTaskList();
-          showToast('任务名称已更新');
-        }
-      } else if (action === 'delete-task') {
-        if (confirm(`确定要删除任务 "${task?.name || taskId}" 吗？`)) {
-          const idx = tasks.findIndex(t => t.id === taskId);
-          if (idx > -1) {
-            tasks.splice(idx, 1);
+      if (btn) {
+        const action = btn.dataset.action;
+        const taskId = btn.dataset.taskId;
+        const tasks = currentSet?.tasks || [];
+        const task = tasks.find(t => String(t.id) === String(taskId));
+        
+        if (action === 'edit-task') {
+          event.stopPropagation();
+          const newName = prompt('请输入新的任务名称', task?.name || '');
+          if (newName && newName.trim()) {
+            task.name = newName.trim();
+            task.updatedAt = nowString();
             if (currentSet) {
               currentSet.updated = nowString();
               saveSets();
             }
+            // 如果当前正在查看该任务，同步更新详情标题
+            if (String(currentTaskId) === String(taskId)) {
+              detailTaskName.textContent = newName;
+            }
             renderTaskList();
-            showToast('任务已删除');
+            lucide.createIcons();
+            showToast('任务名称已更新');
           }
+          return;
+        } else if (action === 'delete-task') {
+          event.stopPropagation();
+          if (confirm(`确定要删除任务 "${task?.name || taskId}" 吗？`)) {
+            const idx = tasks.findIndex(t => String(t.id) === String(taskId));
+            if (idx > -1) {
+              tasks.splice(idx, 1);
+              if (currentSet) {
+                currentSet.updated = nowString();
+                saveSets();
+              }
+              // 删除后选中第一个任务，如果没有则清空详情
+              if (tasks.length > 0) {
+                currentTaskId = tasks[0].id;
+                showTaskDetail(currentTaskId);
+              } else {
+                currentTaskId = null;
+                detailTaskName.textContent = '任务详情';
+                document.getElementById('detailTaskBody').innerHTML = '<tr><td class="empty" colspan="9">暂无任务</td></tr>';
+              }
+              renderTaskList();
+              showToast('任务已删除');
+            }
+          }
+          return;
         }
+      }
+      
+      // 点击任务项，显示详情
+      const item = event.target.closest('.task-list-item');
+      if (item) {
+        const taskId = item.dataset.taskId;
+        showTaskDetail(taskId);
       }
     }
 
     function editTaskName() {
       const tasks = currentSet?.tasks || [];
-      const currentTask = tasks.find(t => t.id === currentTaskId);
+      const currentTask = tasks.find(t => String(t.id) === String(currentTaskId));
       if (!currentTask) {
         showToast("请先选择任务");
         return;
@@ -1788,7 +1860,8 @@
           currentSet.updated = nowString();
           saveSets();
         }
-        renderTaskSelector();
+        detailTaskName.textContent = newName;
+        renderTaskList();
         showToast(`任务名称已更新为：${newName}`);
       }
     }
@@ -1819,17 +1892,23 @@
     function confirmDeleteTask() {
       if (!taskToDelete || !currentSet) return;
       
-      const taskIndex = currentSet.tasks.findIndex(t => t.id === taskToDelete);
+      const taskIndex = currentSet.tasks.findIndex(t => String(t.id) === String(taskToDelete));
       if (taskIndex > -1) {
         const taskName = currentSet.tasks[taskIndex].name;
         currentSet.tasks.splice(taskIndex, 1);
         currentSet.updated = nowString();
         saveSets();
         
-        // 重置当前任务
-        currentTaskId = currentSet.tasks.length > 0 ? currentSet.tasks[0].id : null;
-        renderTaskSelector();
-        renderTaskTable();
+        // 删除后选中第一个任务，如果没有则清空详情
+        if (currentSet.tasks.length > 0) {
+          currentTaskId = currentSet.tasks[0].id;
+          showTaskDetail(currentTaskId);
+        } else {
+          currentTaskId = null;
+          detailTaskName.textContent = '任务详情';
+          document.getElementById('detailTaskBody').innerHTML = '<tr><td class="empty" colspan="9">暂无任务</td></tr>';
+        }
+        renderTaskList();
         showToast(`任务"${taskName}"已删除`);
       }
       
@@ -1856,30 +1935,32 @@
     const batchOpsBtn = document.getElementById("batchOpsBtn");
     const batchOpsMenu = document.getElementById("batchOpsMenu");
 
-    batchOpsBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      batchOpsMenu.classList.toggle("show");
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!batchOpsMenu.contains(e.target) && e.target !== batchOpsBtn) {
-        batchOpsMenu.classList.remove("show");
-      }
-    });
-
-    batchOpsMenu.querySelectorAll('.dropdown-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        const action = e.target.dataset.action;
-        const actionNames = {
-          'batch-run': '批量运行',
-          'batch-stop': '批量终止',
-          'batch-annotate': '批量标注',
-          'batch-override': '覆盖期望输出'
-        };
-        showToast(`${actionNames[action]}功能（示例）`);
-        batchOpsMenu.classList.remove("show");
+    if (batchOpsBtn && batchOpsMenu) {
+      batchOpsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        batchOpsMenu.classList.toggle("show");
       });
-    });
+
+      document.addEventListener("click", (e) => {
+        if (!batchOpsMenu.contains(e.target) && e.target !== batchOpsBtn) {
+          batchOpsMenu.classList.remove("show");
+        }
+      });
+
+      batchOpsMenu.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          const action = e.target.dataset.action;
+          const actionNames = {
+            'batch-run': '批量运行',
+            'batch-stop': '批量终止',
+            'batch-annotate': '批量标注',
+            'batch-override': '覆盖期望输出'
+          };
+          showToast(`${actionNames[action]}功能（示例）`);
+          batchOpsMenu.classList.remove("show");
+        });
+      });
+    }
 
     // ==================== 事件绑定 ====================
     document.getElementById("backBtn").addEventListener("click", () => {
@@ -1906,6 +1987,24 @@
       renderCaseTable(cases);
     });
     
+    // 链式样式
+    const linkTextBtnStyle = document.createElement('style');
+    linkTextBtnStyle.textContent = `
+      .link-text-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        color: var(--blue);
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .link-text-btn:hover {
+        text-decoration: underline;
+      }
+    `;
+    document.head.appendChild(linkTextBtnStyle);
+    
     selectAllCheckbox.addEventListener("change", toggleSelectAll);
     
     caseBody.addEventListener("click", (e) => {
@@ -1926,13 +2025,11 @@
     // 任务列表事件
     taskListBody.addEventListener('click', handleTaskListAction);
     
-    // 任务详情返回
-    backToTaskList.addEventListener('click', hideTaskDetail);
-    
     // 详情页按钮
     document.getElementById('detailEditTaskBtn').addEventListener('click', () => {
+      if (!currentTaskId) return;
       const tasks = currentSet?.tasks || [];
-      const task = tasks.find(t => t.id === currentTaskId);
+      const task = tasks.find(t => String(t.id) === String(currentTaskId));
       if (!task) return;
       const newName = prompt('请输入新的任务名称', task.name);
       if (newName && newName.trim()) {
@@ -1943,23 +2040,35 @@
           saveSets();
         }
         detailTaskName.textContent = task.name;
+        renderTaskList();
+        lucide.createIcons();
         showToast('任务名称已更新');
       }
     });
     
     document.getElementById('detailDeleteTaskBtn').addEventListener('click', () => {
+      if (!currentTaskId) return;
       const tasks = currentSet?.tasks || [];
-      const task = tasks.find(t => t.id === currentTaskId);
+      const task = tasks.find(t => String(t.id) === String(currentTaskId));
       if (!task) return;
       if (confirm(`确定要删除任务 "${task.name}" 吗？`)) {
-        const idx = tasks.findIndex(t => t.id === currentTaskId);
+        const idx = tasks.findIndex(t => String(t.id) === String(currentTaskId));
         if (idx > -1) {
+          const deletedTaskId = currentTaskId;
           tasks.splice(idx, 1);
           if (currentSet) {
             currentSet.updated = nowString();
             saveSets();
           }
-          hideTaskDetail();
+          // 删除后选中第一个任务，如果没有则显示空状态
+          if (tasks.length > 0) {
+            currentTaskId = tasks[0].id;
+            showTaskDetail(currentTaskId);
+          } else {
+            currentTaskId = null;
+            document.getElementById('detailTaskBody').innerHTML = '<tr><td class="empty" colspan="9">暂无任务</td></tr>';
+            detailTaskName.textContent = '任务详情';
+          }
           renderTaskList();
           showToast('任务已删除');
         }
