@@ -1235,9 +1235,11 @@
     // ==================== 状态变量 ====================
     let sets = [];
     let currentSet = null;
-    let selectedCases = new Set(); // 选中的用例ID
-    let isSelectAllPages = false; // 是否选择了所有页的用例
+    let selectedCases = new Set(); // 评测集标签页选中的用例ID
+    let isSelectAllPages = false; // 评测集标签页是否选择了所有页的用例
     let currentTaskId = null; // 当前选中的任务ID
+    let selectedDetailCases = new Set(); // 评测任务详情中选中的用例ID
+    let isSelectAllDetailPages = false; // 评测任务详情中是否选择了所有用例
 
     // ==================== 示例数据 ====================
     const demoCases = [
