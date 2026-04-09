@@ -1092,18 +1092,6 @@
                   </div>
                 </div>
 
-                <!-- 批量操作栏（表格下方）-->
-                <div id="detailBatchActionFooter" class="batch-action-footer hidden">
-                  <div class="batch-action-row">
-                    <span class="batch-count">已选择 <strong id="detailBatchCount">0</strong> 条用例</span>
-                    <button id="detailBatchSelectAll" class="link-text-btn" type="button">选择全部 <span id="detailBatchTotal">0</span> 条用例</button>
-                  </div>
-                  <div class="batch-action-row">
-                    <button id="detailBatchRun" class="btn" type="button">批量运行</button>
-                    <button id="detailBatchAnnotate" class="btn btn-secondary" type="button">批量标注</button>
-                  </div>
-                </div>
-
                 <!-- 表格区域 -->
                 <div class="table-wrap">
                 <table>
@@ -1122,6 +1110,18 @@
                   </thead>
                   <tbody id="detailTaskBody"></tbody>
                 </table>
+              </div>
+
+              <!-- 批量操作栏（表格下方）-->
+              <div id="detailBatchActionFooter" class="batch-action-footer hidden">
+                <div class="batch-action-row">
+                  <span class="batch-count">已选择 <strong id="detailBatchCount">0</strong> 条用例</span>
+                  <button id="detailBatchSelectAll" class="link-text-btn" type="button">选择全部 <span id="detailBatchTotal">0</span> 条用例</button>
+                </div>
+                <div class="batch-action-row">
+                  <button id="detailBatchRun" class="btn" type="button">批量运行</button>
+                  <button id="detailBatchAnnotate" class="btn btn-secondary" type="button">批量标注</button>
+                </div>
               </div>
             </div>
           </div>
