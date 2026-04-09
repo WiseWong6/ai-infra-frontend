@@ -1009,6 +1009,7 @@
                   <tr>
                     <th class="checkbox-cell"><input type="checkbox" class="checkbox" id="selectAll" /></th>
                     <th class="id-cell">ID</th>
+                    <th style="min-width: 120px;">用例名称</th>
                     <th>用户输入(content)</th>
                     <th>图片地址(url)</th>
                     <th>期望输出</th>
@@ -1178,6 +1179,62 @@
     </div>
   </div>
 
+  <!-- 新增/编辑用例弹窗 -->
+  <div id="caseModal" class="modal hidden">
+    <div class="modal-panel" style="width: 600px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-head">
+        <h3 id="caseModalTitle">新增用例</h3>
+        <button id="caseModalClose" class="modal-close" type="button">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- 用例名称 -->
+        <div class="form-field" style="margin-bottom: 20px;">
+          <label class="field-label">用例名称</label>
+          <input id="caseName" class="form-input" type="text" placeholder="请输入用例名称（可为空）" style="padding-right: 12px;" />
+        </div>
+        
+        <!-- 当前图片 -->
+        <div class="form-field" style="margin-bottom: 20px;">
+          <label class="field-label">当前图片(image)</label>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <button id="uploadImageBtn" class="btn" type="button">上传文件</button>
+            <span id="imageFileName" style="font-size: 13px; color: var(--muted);"></span>
+          </div>
+          <p style="margin: 0; font-size: 12px; color: var(--muted);">支持 png、jpg、jpeg 格式，最大 10MB，可上传多张</p>
+          <div id="imagePreviewList" style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;"></div>
+        </div>
+        
+        <!-- 当前问题 -->
+        <div class="form-field" style="margin-bottom: 20px;">
+          <label class="field-label">当前问题(text)</label>
+          <textarea id="caseContent" class="form-input" style="height: 80px; padding: 12px; resize: vertical;" placeholder="请输入当前问题"></textarea>
+        </div>
+        
+        <!-- 候选产品 -->
+        <div class="form-field" style="margin-bottom: 20px;">
+          <label class="field-label">候选产品(text)</label>
+          <textarea id="caseProduct" class="form-input" style="height: 80px; padding: 12px; resize: vertical;" placeholder="请输入候选产品"></textarea>
+        </div>
+        
+        <!-- 近3轮历史 -->
+        <div class="form-field" style="margin-bottom: 20px;">
+          <label class="field-label">近3轮历史(text)</label>
+          <textarea id="caseHistory" class="form-input" style="height: 80px; padding: 12px; resize: vertical;" placeholder="请输入近3轮历史"></textarea>
+        </div>
+        
+        <!-- 期望输出 -->
+        <div class="form-field" style="margin-bottom: 20px;">
+          <label class="field-label">期望输出</label>
+          <textarea id="caseReference" class="form-input" style="height: 80px; padding: 12px; resize: vertical;" placeholder="请输入期望输出"></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button id="caseModalCancel" class="btn btn-secondary" type="button">取 消</button>
+        <button id="caseModalConfirm" class="btn" type="button">创 建</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ==================== 数据存储键 ====================
     const EVAL_SET_STORAGE_KEY = "evaluation_sets_demo_v4";
@@ -1243,9 +1300,9 @@
 
     // ==================== 示例数据 ====================
     const demoCases = [
-      { id: 1, content: "你好，我这个是需要重新下载一个金事通app吗？", images: [], reference_output: "-" },
-      { id: 2, content: "-", images: ["https://placehold.co/80x60/e2e8f0/64748b?text=QR"], reference_output: "-" },
-      { id: 3, content: "有这个情况还可以投保超级玛丽9号防癌吗", images: ["https://placehold.co/80x60/e2e8f0/64748b?text=Doc1", "https://placehold.co/80x60/e2e8f0/64748b?text=Doc2"], reference_output: "-" }
+      { id: 1, name: "金事通APP下载咨询", content: "你好，我这个是需要重新下载一个金事通app吗？", product: "", history: "", images: [], reference_output: "-" },
+      { id: 2, name: "二维码识别咨询", content: "-", product: "", history: "", images: ["https://placehold.co/80x60/e2e8f0/64748b?text=QR"], reference_output: "-" },
+      { id: 3, name: "超级玛丽9号投保咨询", content: "有这个情况还可以投保超级玛丽9号防癌吗", product: "超级玛丽9号防癌险", history: "已有2轮对话", images: ["https://placehold.co/80x60/e2e8f0/64748b?text=Doc1", "https://placehold.co/80x60/e2e8f0/64748b?text=Doc2"], reference_output: "-" }
     ];
 
     // ==================== 工具函数 ====================
@@ -1329,7 +1386,7 @@
 
 
       if (!cases.length) {
-        caseBody.innerHTML = '<tr><td class="empty" colspan="6">暂无用例</td></tr>';
+        caseBody.innerHTML = '<tr><td class="empty" colspan="7">暂无用例</td></tr>';
         return;
       }
 
@@ -1346,6 +1403,7 @@
         return `<tr data-case-id="${c.id}">
           <td class="checkbox-cell"><input type="checkbox" class="checkbox row-checkbox" ${isSelected ? 'checked' : ''} /></td>
           <td class="id-cell">${c.id}</td>
+          <td>${c.name || "-"}</td>
           <td>${c.content || "-"}</td>
           <td>${imagesHtml}</td>
           <td>${c.reference_output || "-"}</td>
@@ -1542,20 +1600,7 @@
 
     // ==================== 评测集操作 ====================
     function addCase() {
-      const cases = currentSet?.cases || demoCases;
-      const newId = Math.max(...cases.map(c => c.id), 0) + 1;
-      cases.push({ id: newId, content: "新增用例内容", images: [], reference_output: "-" });
-      
-      if (currentSet) {
-        currentSet.updated = nowString();
-        // 更新"全部用例"任务
-        const allTask = currentSet.tasks.find(t => t.name === "全部用例");
-        if (allTask) allTask.caseIds.push(newId);
-        saveSets();
-      }
-      
-      renderCaseTable(cases);
-      showToast(`已新增用例 ${newId}`);
+      openCaseModal(false);
     }
 
     function importCases() {
@@ -1617,7 +1662,15 @@
         showToast(`已删除用例 ${caseId}`);
       } else if (btn.dataset.action === "copy-case") {
         const newId = Math.max(...cases.map(c => c.id), 0) + 1;
-        cases.push({ id: newId, content: targetCase.content + " (复制)", images: [...targetCase.images], reference_output: targetCase.reference_output });
+        cases.push({ 
+          id: newId, 
+          name: (targetCase.name || "") + " (复制)", 
+          content: targetCase.content, 
+          product: targetCase.product || "",
+          history: targetCase.history || "",
+          images: [...(targetCase.images || [])], 
+          reference_output: targetCase.reference_output 
+        });
         if (currentSet) {
           const allTask = currentSet.tasks.find(t => t.name === "全部用例");
           if (allTask) allTask.caseIds.push(newId);
@@ -1627,16 +1680,7 @@
         renderCaseTable(cases);
         showToast(`已复制为用例 ${newId}`);
       } else if (btn.dataset.action === "edit-case") {
-        const nextContent = prompt("编辑用户输入", targetCase.content);
-        if (nextContent !== null) {
-          targetCase.content = nextContent;
-          if (currentSet) {
-            currentSet.updated = nowString();
-            saveSets();
-          }
-          renderCaseTable(cases);
-          showToast(`已更新用例 ${caseId}`);
-        }
+        openCaseModal(true, targetCase);
       }
     }
 
@@ -2136,6 +2180,141 @@
     document.getElementById("deleteConfirmBtn").addEventListener("click", confirmDeleteTask);
     deleteConfirmModal.addEventListener("click", (e) => {
       if (e.target === deleteConfirmModal) closeDeleteConfirm();
+    });
+
+    // 用例弹窗事件
+    const caseModal = document.getElementById("caseModal");
+    const caseModalTitle = document.getElementById("caseModalTitle");
+    const caseName = document.getElementById("caseName");
+    const caseContent = document.getElementById("caseContent");
+    const caseProduct = document.getElementById("caseProduct");
+    const caseHistory = document.getElementById("caseHistory");
+    const caseReference = document.getElementById("caseReference");
+    const imagePreviewList = document.getElementById("imagePreviewList");
+    const imageFileName = document.getElementById("imageFileName");
+    let currentCaseImages = [];
+    let editingCaseId = null;
+
+    function openCaseModal(isEdit = false, caseData = null) {
+      editingCaseId = isEdit && caseData ? caseData.id : null;
+      caseModalTitle.textContent = isEdit ? "编辑用例" : "新增用例";
+      document.getElementById("caseModalConfirm").textContent = isEdit ? "保 存" : "创 建";
+      
+      if (isEdit && caseData) {
+        caseName.value = caseData.name || "";
+        caseContent.value = caseData.content || "";
+        caseProduct.value = caseData.product || "";
+        caseHistory.value = caseData.history || "";
+        caseReference.value = caseData.reference_output || "";
+        currentCaseImages = caseData.images || [];
+      } else {
+        caseName.value = "";
+        caseContent.value = "";
+        caseProduct.value = "";
+        caseHistory.value = "";
+        caseReference.value = "";
+        currentCaseImages = [];
+      }
+      
+      updateImagePreview();
+      caseModal.classList.remove("hidden");
+    }
+
+    function closeCaseModal() {
+      caseModal.classList.add("hidden");
+      editingCaseId = null;
+      currentCaseImages = [];
+    }
+
+    function updateImagePreview() {
+      if (currentCaseImages.length === 0) {
+        imagePreviewList.innerHTML = "";
+        imageFileName.textContent = "";
+      } else {
+        imagePreviewList.innerHTML = currentCaseImages.map((img, idx) => `
+          <div style="position: relative; width: 60px; height: 60px; border-radius: 4px; overflow: hidden; border: 1px solid var(--line);">
+            <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;" />
+            <button type="button" class="remove-image-btn" data-idx="${idx}" style="position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border: none; background: rgba(0,0,0,0.5); color: #fff; border-radius: 50%; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center;">×</button>
+          </div>
+        `).join("");
+        imageFileName.textContent = `已选择 ${currentCaseImages.length} 张图片`;
+      }
+    }
+
+    function confirmCaseModal() {
+      const cases = currentSet?.cases || demoCases;
+      
+      const newCase = {
+        id: editingCaseId || Math.max(...cases.map(c => c.id), 0) + 1,
+        name: caseName.value.trim(),
+        content: caseContent.value.trim(),
+        product: caseProduct.value.trim(),
+        history: caseHistory.value.trim(),
+        reference_output: caseReference.value.trim(),
+        images: currentCaseImages
+      };
+      
+      if (editingCaseId) {
+        const idx = cases.findIndex(c => c.id === editingCaseId);
+        if (idx > -1) {
+          cases[idx] = newCase;
+          showToast(`用例 ${editingCaseId} 已更新`);
+        }
+      } else {
+        cases.push(newCase);
+        if (currentSet) {
+          const allTask = currentSet.tasks.find(t => t.name === "全部用例");
+          if (allTask) allTask.caseIds.push(newCase.id);
+        }
+        showToast(`新用例 ${newCase.id} 已创建`);
+      }
+      
+      if (currentSet) {
+        currentSet.updated = nowString();
+        saveSets();
+      }
+      
+      renderCaseTable(cases);
+      closeCaseModal();
+    }
+
+    document.getElementById("caseModalClose").addEventListener("click", closeCaseModal);
+    document.getElementById("caseModalCancel").addEventListener("click", closeCaseModal);
+    document.getElementById("caseModalConfirm").addEventListener("click", confirmCaseModal);
+    caseModal.addEventListener("click", (e) => {
+      if (e.target === caseModal) closeCaseModal();
+    });
+
+    // 图片上传处理
+    document.getElementById("uploadImageBtn").addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/png,image/jpg,image/jpeg";
+      input.multiple = true;
+      input.onchange = (e) => {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+          if (file.size > 10 * 1024 * 1024) {
+            showToast(`图片 ${file.name} 超过 10MB 限制`);
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            currentCaseImages.push(event.target.result);
+            updateImagePreview();
+          };
+          reader.readAsDataURL(file);
+        });
+      };
+      input.click();
+    });
+
+    imagePreviewList.addEventListener("click", (e) => {
+      if (e.target.classList.contains("remove-image-btn")) {
+        const idx = parseInt(e.target.dataset.idx);
+        currentCaseImages.splice(idx, 1);
+        updateImagePreview();
+      }
     });
 
     // ==================== 初始化 ====================
