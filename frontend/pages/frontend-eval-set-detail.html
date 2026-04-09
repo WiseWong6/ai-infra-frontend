@@ -463,7 +463,7 @@
     }
 
     .task-list-panel {
-      width: 320px;
+      width: 200px;
       flex-shrink: 0;
       background: #fff;
       border: 1px solid var(--line);
@@ -1064,14 +1064,6 @@
                 <div class="task-detail-header">
                   <div class="task-detail-title-row">
                     <div class="task-detail-title" id="detailTaskName">任务详情</div>
-                    <div class="task-detail-actions">
-                      <button id="detailEditTaskBtn" class="icon-btn" type="button" title="编辑">
-                        <i data-lucide="pencil" style="width:16px;height:16px;"></i>
-                      </button>
-                      <button id="detailDeleteTaskBtn" class="icon-btn danger" type="button" title="删除">
-                        <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
-                      </button>
-                    </div>
                   </div>
                   <div class="task-stats-bar" id="detailTaskStats">
                     <span class="stat-item">
@@ -1989,55 +1981,7 @@
     // 任务列表事件
     taskListBody.addEventListener('click', handleTaskListAction);
     
-    // 详情页按钮
-    document.getElementById('detailEditTaskBtn').addEventListener('click', () => {
-      if (!currentTaskId) return;
-      const tasks = currentSet?.tasks || [];
-      const task = tasks.find(t => String(t.id) === String(currentTaskId));
-      if (!task) return;
-      const newName = prompt('请输入新的任务名称', task.name);
-      if (newName && newName.trim()) {
-        task.name = newName.trim();
-        task.updatedAt = nowString();
-        if (currentSet) {
-          currentSet.updated = nowString();
-          saveSets();
-        }
-        detailTaskName.textContent = task.name;
-        renderTaskList();
-        lucide.createIcons();
-        showToast('任务名称已更新');
-      }
-    });
-    
-    document.getElementById('detailDeleteTaskBtn').addEventListener('click', () => {
-      if (!currentTaskId) return;
-      const tasks = currentSet?.tasks || [];
-      const task = tasks.find(t => String(t.id) === String(currentTaskId));
-      if (!task) return;
-      if (confirm(`确定要删除任务 "${task.name}" 吗？`)) {
-        const idx = tasks.findIndex(t => String(t.id) === String(currentTaskId));
-        if (idx > -1) {
-          const deletedTaskId = currentTaskId;
-          tasks.splice(idx, 1);
-          if (currentSet) {
-            currentSet.updated = nowString();
-            saveSets();
-          }
-          // 删除后选中第一个任务，如果没有则显示空状态
-          if (tasks.length > 0) {
-            currentTaskId = tasks[0].id;
-            showTaskDetail(currentTaskId);
-          } else {
-            currentTaskId = null;
-            document.getElementById('detailTaskBody').innerHTML = '<tr><td class="empty" colspan="9">暂无任务</td></tr>';
-            detailTaskName.textContent = '任务详情';
-          }
-          renderTaskList();
-          showToast('任务已删除');
-        }
-      }
-    });
+
     
     document.getElementById('detailRefreshBtn').addEventListener('click', () => {
       const tasks = currentSet?.tasks || [];
