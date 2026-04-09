@@ -554,10 +554,15 @@
     }
 
     .task-detail-panel .table-wrap {
-      flex: 1;
       overflow: auto;
       border: none;
       border-radius: 0;
+      max-height: calc(100vh - 380px);
+    }
+
+    .task-detail-panel .batch-action-footer {
+      padding: 8px 20px;
+      border-top: 1px solid var(--line-soft);
     }
 
     .task-detail-panel.empty {
