@@ -1091,6 +1091,18 @@
                   </div>
                 </div>
 
+                <!-- 批量操作栏（表格下方）-->
+                <div id="detailBatchActionFooter" class="batch-action-footer hidden">
+                  <div class="batch-action-row">
+                    <span class="batch-count">已选择 <strong id="detailBatchCount">0</strong> 条用例</span>
+                    <button id="detailBatchSelectAll" class="link-text-btn" type="button">选择全部 <span id="detailBatchTotal">0</span> 条用例</button>
+                  </div>
+                  <div class="batch-action-row">
+                    <button id="detailBatchRun" class="btn" type="button">批量运行</button>
+                    <button id="detailBatchAnnotate" class="btn btn-secondary" type="button">批量标注</button>
+                  </div>
+                </div>
+
                 <!-- 表格区域 -->
                 <div class="table-wrap">
                 <table>
@@ -1211,6 +1223,10 @@
     // 评测任务详情视图
     const taskDetailView = document.getElementById("taskDetailView");
     const detailTaskName = document.getElementById("detailTaskName");
+    const detailBatchActionFooter = document.getElementById("detailBatchActionFooter");
+    const detailBatchCount = document.getElementById("detailBatchCount");
+    const detailBatchTotal = document.getElementById("detailBatchTotal");
+    const detailBatchSelectAll = document.getElementById("detailBatchSelectAll");
     const detailTaskStats = document.getElementById("detailTaskStats");
     const detailTotalCount = document.getElementById("detailTotalCount");
     const detailTaskBody = document.getElementById("detailTaskBody");
@@ -1419,6 +1435,10 @@
       
       if (!task) return;
       
+      // 重置选中状态
+      selectedDetailCases.clear();
+      isSelectAllDetailPages = false;
+      
       // 更新标题
       detailTaskName.textContent = task.name;
       
@@ -1456,6 +1476,9 @@
         return;
       }
       
+      // 更新批量操作栏状态
+      updateDetailBatchActionBar(taskCases.length);
+      
       detailTaskBody.innerHTML = taskCases.map((t, idx) => {
         let imagesHtml = '';
         if (t.images && t.images.length > 0) {
@@ -1469,8 +1492,10 @@
           "您好，目前没有查询到与签约审核后金事通APP操作相关的指引信息，您可以补充一下对应的保司、签约业务场景等相关信息，以便我为您进一步核实解答。"
         ];
         
+        const isSelected = selectedDetailCases.has(t.id) || isSelectAllDetailPages;
+        
         return `<tr data-case-id="${t.id}">
-          <td class="checkbox-cell"><input type="checkbox" class="checkbox row-checkbox-detail" /></td>
+          <td class="checkbox-cell"><input type="checkbox" class="checkbox row-checkbox-detail" ${isSelected ? 'checked' : ''} /></td>
           <td class="id-cell">${t.id}</td>
           <td>${t.content || "-"}</td>
           <td>${imagesHtml}</td>
@@ -1991,8 +2016,105 @@
       }
     });
     
-    selectAllDetail.addEventListener('change', (e) => {
-      document.querySelectorAll('.row-checkbox-detail').forEach(cb => cb.checked = e.target.checked);
+    // 评测任务详情批量操作
+    function updateDetailBatchActionBar(totalCases) {
+      const totalSelected = isSelectAllDetailPages ? totalCases : selectedDetailCases.size;
+      
+      // 更新全选复选框状态
+      if (totalSelected === 0) {
+        selectAllDetail.checked = false;
+        selectAllDetail.indeterminate = false;
+      } else if (totalSelected === totalCases) {
+        selectAllDetail.checked = true;
+        selectAllDetail.indeterminate = false;
+      } else {
+        selectAllDetail.checked = false;
+        selectAllDetail.indeterminate = true;
+      }
+      
+      // 更新批量操作栏
+      if (totalSelected > 0) {
+        detailBatchActionFooter.classList.remove("hidden");
+        detailBatchCount.textContent = totalSelected;
+        detailBatchTotal.textContent = totalCases;
+        
+        // 更新"选择全部"按钮文字
+        if (isSelectAllDetailPages) {
+          detailBatchSelectAll.textContent = "取消选择全部";
+        } else {
+          detailBatchSelectAll.innerHTML = `选择全部 ${totalCases} 条用例`;
+        }
+      } else {
+        detailBatchActionFooter.classList.add("hidden");
+      }
+    }
+    
+    selectAllDetail.addEventListener('change', () => {
+      const tasks = currentSet?.tasks || [];
+      const task = tasks.find(t => String(t.id) === String(currentTaskId));
+      if (!task) return;
+      
+      const cases = currentSet?.cases || demoCases;
+      const taskCases = task.caseIds.map(id => cases.find(c => c.id === id)).filter(Boolean);
+      
+      if (selectAllDetail.checked) {
+        taskCases.forEach(c => selectedDetailCases.add(c.id));
+        isSelectAllDetailPages = false;
+      } else {
+        selectedDetailCases.clear();
+        isSelectAllDetailPages = false;
+      }
+      
+      renderTaskDetailTable(task);
+    });
+    
+    detailTaskBody.addEventListener('change', (e) => {
+      if (e.target.classList.contains('row-checkbox-detail')) {
+        const row = e.target.closest('tr');
+        const caseId = parseInt(row.dataset.caseId);
+        
+        if (e.target.checked) {
+          selectedDetailCases.add(caseId);
+        } else {
+          selectedDetailCases.delete(caseId);
+          isSelectAllDetailPages = false;
+        }
+        
+        const tasks = currentSet?.tasks || [];
+        const task = tasks.find(t => String(t.id) === String(currentTaskId));
+        if (task) {
+          renderTaskDetailTable(task);
+        }
+      }
+    });
+    
+    detailBatchSelectAll.addEventListener('click', () => {
+      const tasks = currentSet?.tasks || [];
+      const task = tasks.find(t => String(t.id) === String(currentTaskId));
+      if (!task) return;
+      
+      const cases = currentSet?.cases || demoCases;
+      const taskCases = task.caseIds.map(id => cases.find(c => c.id === id)).filter(Boolean);
+      
+      if (isSelectAllDetailPages) {
+        selectedDetailCases.clear();
+        isSelectAllDetailPages = false;
+      } else {
+        taskCases.forEach(c => selectedDetailCases.add(c.id));
+        isSelectAllDetailPages = true;
+      }
+      
+      renderTaskDetailTable(task);
+    });
+    
+    document.getElementById('detailBatchRun').addEventListener('click', () => {
+      const count = isSelectAllDetailPages ? detailBatchTotal.textContent : selectedDetailCases.size;
+      showToast(`开始批量运行 ${count} 条用例`);
+    });
+    
+    document.getElementById('detailBatchAnnotate').addEventListener('click', () => {
+      const count = isSelectAllDetailPages ? detailBatchTotal.textContent : selectedDetailCases.size;
+      showToast(`开始批量标注 ${count} 条用例`);
     });
 
     // 新建任务弹窗事件
