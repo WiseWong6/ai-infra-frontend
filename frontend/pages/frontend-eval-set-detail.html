@@ -1390,7 +1390,7 @@
         
         return `<div class="task-list-item ${isActive ? 'active' : ''}" data-task-id="${task.id}">
           <div class="task-name-cell">${task.name}</div>
-          <div class="task-item-actions" onclick="event.stopPropagation()">
+          <div class="task-item-actions">
             <button class="icon-btn" data-action="edit-task" data-task-id="${task.id}" title="编辑">
               <i data-lucide="pencil" style="width:14px;height:14px;"></i>
             </button>
@@ -1742,13 +1742,13 @@
       // 检查是否点击了操作按钮
       const btn = event.target.closest('[data-action]');
       if (btn) {
+        event.stopPropagation();
         const action = btn.dataset.action;
         const taskId = btn.dataset.taskId;
         const tasks = currentSet?.tasks || [];
         const task = tasks.find(t => String(t.id) === String(taskId));
         
         if (action === 'edit-task') {
-          event.stopPropagation();
           const newName = prompt('请输入新的任务名称', task?.name || '');
           if (newName && newName.trim()) {
             task.name = newName.trim();
@@ -1767,7 +1767,6 @@
           }
           return;
         } else if (action === 'delete-task') {
-          event.stopPropagation();
           if (confirm(`确定要删除任务 "${task?.name || taskId}" 吗？`)) {
             const idx = tasks.findIndex(t => String(t.id) === String(taskId));
             if (idx > -1) {
