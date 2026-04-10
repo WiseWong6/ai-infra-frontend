@@ -766,15 +766,14 @@
 
     .task-stats-bar {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      gap: 16px;
+      align-items: center;
       font-size: 13px;
+      flex-wrap: wrap;
     }
 
     .stat-item {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      display: inline;
     }
 
     .stat-label {
@@ -1193,18 +1192,11 @@
                     <div class="task-detail-title" id="detailTaskName">任务详情</div>
                   </div>
                   <div class="task-stats-bar" id="detailTaskStats">
-                    <div class="stat-item">
-                      <span class="stat-label">运行比例</span>
-                      <span class="stat-value">0.00%</span>
-                    </div>
-                    <div class="stat-item">
-                      <span class="stat-label">质检比例</span>
-                      <span class="stat-value">0.00%</span>
-                    </div>
-                    <div class="stat-item">
-                      <span class="stat-label">质检平均分</span>
-                      <span class="stat-value">0</span>
-                    </div>
+                    <span class="stat-item">运行比例：0.00% (0/17)</span>
+                    <span style="color: var(--line);">|</span>
+                    <span class="stat-item">质检比例：0.00% (0/0)</span>
+                    <span style="color: var(--line);">|</span>
+                    <span class="stat-item">质检平均分：0</span>
                   </div>
                 </div>
 
@@ -1647,19 +1639,15 @@
       
       // 更新统计
       const stats = task.stats || { runRate: 0, checkRate: 0, avgScore: 0 };
+      const totalCases = task.caseIds?.length || 0;
+      const runCount = Math.round(totalCases * stats.runRate / 100);
+      const checkCount = Math.round(totalCases * stats.checkRate / 100);
       detailTaskStats.innerHTML = `
-        <div class="stat-item">
-          <span class="stat-label">运行比例</span>
-          <span class="stat-value">${stats.runRate.toFixed(2)}%</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">质检比例</span>
-          <span class="stat-value">${stats.checkRate.toFixed(2)}%</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">质检平均分</span>
-          <span class="stat-value">${stats.avgScore}</span>
-        </div>`;
+        <span class="stat-item">运行比例：${stats.runRate.toFixed(2)}% (${runCount}/${totalCases})</span>
+        <span style="color: var(--line);">|</span>
+        <span class="stat-item">质检比例：${stats.checkRate.toFixed(2)}% (${checkCount}/${totalCases})</span>
+        <span style="color: var(--line);">|</span>
+        <span class="stat-item">质检平均分：${stats.avgScore}</span>`;
       
       if (!taskCases.length) {
         detailTaskBody.innerHTML = '<tr><td class="empty" colspan="9">该任务暂无用例</td></tr>';
