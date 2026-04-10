@@ -1067,10 +1067,23 @@
                 confirmBtn.addEventListener('click', saveKbSelection);
             }
             
+            // 确认 MCP 选择
+            const confirmMcpBtn = document.getElementById("confirmMcpSelection");
+            if (confirmMcpBtn) {
+                confirmMcpBtn.addEventListener('click', saveMcpSelection);
+            }
+            
             // 弹窗遮罩点击关闭
             if (kbSelectModal) {
                 kbSelectModal.addEventListener('click', (e) => {
                     if (e.target === kbSelectModal) closeKbModal();
+                });
+            }
+            
+            // MCP 弹窗遮罩点击关闭
+            if (mcpSelectModal) {
+                mcpSelectModal.addEventListener('click', (e) => {
+                    if (e.target === mcpSelectModal) closeMcpModal();
                 });
             }
         }

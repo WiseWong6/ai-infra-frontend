@@ -1189,7 +1189,10 @@
                 <!-- 标题和统计信息区域 -->
                 <div class="task-detail-header">
                   <div class="task-detail-title-row">
-                    <div class="task-detail-title" id="detailTaskName">任务详情</div>
+                    <div class="task-detail-title">
+                      <span id="detailTaskName">任务详情</span>
+                      <span id="detailTaskVersion" class="task-version-tag" style="margin-left: 8px; font-size: 12px; padding: 2px 8px; background: #e0f2fe; color: #0369a1; border-radius: 4px; font-weight: 500;">线上版本</span>
+                    </div>
                   </div>
                   <div class="task-stats-bar" id="detailTaskStats">
                     <span class="stat-item">运行比例：0.00% (0/17)</span>
@@ -1267,6 +1270,22 @@
             <span class="char-count"><span id="createTaskCharCount">0</span>/100</span>
           </div>
         </div>
+        <!-- 任务对象选择 -->
+        <div class="form-field" style="margin-top: 16px;">
+          <label class="field-label">
+            <span class="required">*</span>任务对象
+          </label>
+          <div class="radio-group" style="display: flex; gap: 24px; align-items: center; height: 40px;">
+            <label class="radio-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: var(--text-secondary);">
+              <input type="radio" name="taskTarget" value="online" checked style="width: 16px; height: 16px; cursor: pointer;" />
+              线上版本
+            </label>
+            <label class="radio-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: var(--text-secondary);">
+              <input type="radio" name="taskTarget" value="draft" style="width: 16px; height: 16px; cursor: pointer;" />
+              草稿版本
+            </label>
+          </div>
+        </div>
         <p style="margin: 12px 0 0; font-size: 13px; color: var(--muted);">
           已选择 <strong id="selectedCaseCount">0</strong> 条用例
         </p>
@@ -1274,6 +1293,47 @@
       <div class="modal-foot">
         <button id="createTaskCancel" class="btn btn-secondary" type="button">取 消</button>
         <button id="createTaskConfirm" class="btn" type="button">确 定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑任务弹窗 -->
+  <div id="editTaskModal" class="modal hidden">
+    <div class="modal-panel" style="width: 520px;">
+      <div class="modal-head">
+        <h3>编辑评测任务</h3>
+        <button id="editTaskClose" class="modal-close" type="button">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label class="field-label">
+            <span class="required">*</span>任务名称
+          </label>
+          <div class="input-wrapper">
+            <input id="editTaskName" class="form-input" type="text" placeholder="请输入任务名称" maxlength="100" />
+            <span class="char-count"><span id="editTaskCharCount">0</span>/100</span>
+          </div>
+        </div>
+        <!-- 任务对象选择 -->
+        <div class="form-field" style="margin-top: 16px;">
+          <label class="field-label">
+            <span class="required">*</span>任务对象
+          </label>
+          <div class="radio-group" style="display: flex; gap: 24px; align-items: center; height: 40px;">
+            <label class="radio-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: var(--text-secondary);">
+              <input type="radio" name="editTaskTarget" value="online" checked style="width: 16px; height: 16px; cursor: pointer;" />
+              线上版本
+            </label>
+            <label class="radio-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: var(--text-secondary);">
+              <input type="radio" name="editTaskTarget" value="draft" style="width: 16px; height: 16px; cursor: pointer;" />
+              草稿版本
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button id="editTaskCancel" class="btn btn-secondary" type="button">取 消</button>
+        <button id="editTaskConfirm" class="btn" type="button">保 存</button>
       </div>
     </div>
   </div>
@@ -1468,6 +1528,7 @@
         setObj.tasks.push({
           id: generateId("task"),
           name: "全部用例",
+          target: "online", // 默认线上版本
           caseIds: allCaseIds,
           createdAt: nowString(),
           stats: { runRate: 0, checkRate: 0, avgScore: 0 }
@@ -1621,8 +1682,9 @@
       selectedDetailCases.clear();
       isSelectAllDetailPages = false;
       
-      // 更新标题
+      // 更新标题和版本标签
       detailTaskName.textContent = task.name;
+      updateTaskVersionTag(task.target);
       
       // 渲染详情表格
       renderTaskDetailTable(task);
@@ -1849,6 +1911,12 @@
     const createTaskName = document.getElementById("createTaskName");
     const createTaskCharCount = document.getElementById("createTaskCharCount");
     const selectedCaseCount = document.getElementById("selectedCaseCount");
+    
+    // 编辑任务弹窗
+    const editTaskModal = document.getElementById("editTaskModal");
+    const editTaskName = document.getElementById("editTaskName");
+    const editTaskCharCount = document.getElementById("editTaskCharCount");
+    let editingTaskId = null;
 
     function openCreateTaskModal() {
       const count = isSelectAllPages ? (currentSet?.cases?.length || demoCases.length) : selectedCases.size;
@@ -1882,9 +1950,13 @@
         caseIds = Array.from(selectedCases);
       }
       
+      // 获取选中的任务对象
+      const taskTarget = document.querySelector('input[name="taskTarget"]:checked')?.value || 'online';
+      
       const newTask = {
         id: generateId("task"),
         name: name,
+        target: taskTarget, // 任务对象：online/线上版本，draft/草稿版本
         caseIds: caseIds,
         createdAt: nowString(),
         stats: { runRate: 0, checkRate: 0, avgScore: 0 }
@@ -1907,6 +1979,73 @@
       showToast(`任务"${name}"创建成功`);
     }
 
+    // ==================== 编辑任务弹窗操作 ====================
+    function openEditTaskModal(taskId) {
+      const tasks = currentSet?.tasks || [];
+      const task = tasks.find(t => String(t.id) === String(taskId));
+      if (!task) return;
+      
+      editingTaskId = taskId;
+      editTaskName.value = task.name || '';
+      editTaskCharCount.textContent = String(task.name || '').length;
+      
+      // 设置任务对象选中状态
+      const targetValue = task.target || 'online';
+      const targetRadio = document.querySelector(`input[name="editTaskTarget"][value="${targetValue}"]`);
+      if (targetRadio) targetRadio.checked = true;
+      
+      editTaskModal.classList.remove("hidden");
+      editTaskName.focus();
+    }
+    
+    function closeEditTaskModal() {
+      editTaskModal.classList.add("hidden");
+      editingTaskId = null;
+    }
+    
+    function confirmEditTask() {
+      if (!editingTaskId || !currentSet) return;
+      
+      const name = editTaskName.value.trim();
+      if (!name) {
+        showToast("请输入任务名称");
+        return;
+      }
+      
+      const task = currentSet.tasks.find(t => String(t.id) === String(editingTaskId));
+      if (!task) return;
+      
+      // 获取选中的任务对象
+      const taskTarget = document.querySelector('input[name="editTaskTarget"]:checked')?.value || 'online';
+      
+      task.name = name;
+      task.target = taskTarget;
+      task.updatedAt = nowString();
+      currentSet.updated = nowString();
+      saveSets();
+      
+      // 如果当前正在查看该任务，同步更新详情标题和版本标签
+      if (String(currentTaskId) === String(editingTaskId)) {
+        detailTaskName.textContent = name;
+        updateTaskVersionTag(taskTarget);
+      }
+      
+      renderTaskList();
+      lucide.createIcons();
+      closeEditTaskModal();
+      showToast("任务已更新");
+    }
+    
+    // 更新版本标签显示
+    function updateTaskVersionTag(target) {
+      const versionTag = document.getElementById("detailTaskVersion");
+      if (versionTag) {
+        versionTag.textContent = target === 'draft' ? '草稿版本' : '线上版本';
+        versionTag.style.background = target === 'draft' ? '#f3e8ff' : '#e0f2fe';
+        versionTag.style.color = target === 'draft' ? '#7c3aed' : '#0369a1';
+      }
+    }
+    
     // ==================== 评测任务操作 ====================
     function switchTab(next) {
       const isSet = next === "set";
@@ -1939,22 +2078,7 @@
         const task = tasks.find(t => String(t.id) === String(taskId));
         
         if (action === 'edit-task') {
-          const newName = prompt('请输入新的任务名称', task?.name || '');
-          if (newName && newName.trim()) {
-            task.name = newName.trim();
-            task.updatedAt = nowString();
-            if (currentSet) {
-              currentSet.updated = nowString();
-              saveSets();
-            }
-            // 如果当前正在查看该任务，同步更新详情标题
-            if (String(currentTaskId) === String(taskId)) {
-              detailTaskName.textContent = newName;
-            }
-            renderTaskList();
-            lucide.createIcons();
-            showToast('任务名称已更新');
-          }
+          openEditTaskModal(taskId);
           return;
         } else if (action === 'delete-task') {
           if (confirm(`确定要删除任务 "${task?.name || taskId}" 吗？`)) {
@@ -1991,24 +2115,11 @@
     }
 
     function editTaskName() {
-      const tasks = currentSet?.tasks || [];
-      const currentTask = tasks.find(t => String(t.id) === String(currentTaskId));
-      if (!currentTask) {
+      if (!currentTaskId) {
         showToast("请先选择任务");
         return;
       }
-      
-      const newName = prompt("请输入新的任务名称", currentTask.name);
-      if (newName && newName.trim()) {
-        currentTask.name = newName.trim();
-        if (currentSet) {
-          currentSet.updated = nowString();
-          saveSets();
-        }
-        detailTaskName.textContent = newName;
-        renderTaskList();
-        showToast(`任务名称已更新为：${newName}`);
-      }
+      openEditTaskModal(currentTaskId);
     }
 
     // ==================== 删除任务 ====================
@@ -2304,6 +2415,17 @@
     });
     createTaskModal.addEventListener("click", (e) => {
       if (e.target === createTaskModal) closeCreateTaskModal();
+    });
+    
+    // 编辑任务弹窗事件
+    document.getElementById("editTaskClose").addEventListener("click", closeEditTaskModal);
+    document.getElementById("editTaskCancel").addEventListener("click", closeEditTaskModal);
+    document.getElementById("editTaskConfirm").addEventListener("click", confirmEditTask);
+    editTaskName.addEventListener("input", (e) => {
+      editTaskCharCount.textContent = e.target.value.length;
+    });
+    editTaskModal.addEventListener("click", (e) => {
+      if (e.target === editTaskModal) closeEditTaskModal();
     });
 
     // 删除确认弹窗事件
