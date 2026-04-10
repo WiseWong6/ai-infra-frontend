@@ -9,18 +9,15 @@ const demoCases = [
   { id: 3, name: "超级玛丽9号投保咨询", content: "有这个情况还可以投保超级玛丽9号防癌吗", product: "超级玛丽9号防癌险", history: "已有2轮对话", images: ["https://placehold.co/80x60/e2e8f0/64748b?text=Doc1", "https://placehold.co/80x60/e2e8f0/64748b?text=Doc2"], reference_output: "-" }
 ];
 
-function generateId(prefix = "id") {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-}
-
 function nowString() {
   const d = new Date();
   const pad = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
+// 使用固定的 setId A-001 匹配 URL 参数
 const defaultEvalSet = {
-  id: generateId("set"),
+  id: "A-001",
   name: "手小保的评测集",
   type: "app",
   projectApp: "咔嚓保-手小保/手小保",
@@ -36,7 +33,7 @@ const defaultEvalSet = {
 // 创建默认任务
 const allCaseIds = defaultEvalSet.cases.map(c => c.id);
 defaultEvalSet.tasks.push({
-  id: generateId("task"),
+  id: "task-001",
   name: "全部用例",
   caseIds: allCaseIds,
   createdAt: nowString(),
@@ -48,6 +45,7 @@ const sets = [defaultEvalSet];
 localStorage.setItem(EVAL_SET_STORAGE_KEY, JSON.stringify(sets));
 
 console.log("✅ 评测集数据已恢复！");
+console.log("📊 评测集 ID:", defaultEvalSet.id);
 console.log("📊 评测集名称:", defaultEvalSet.name);
 console.log("📝 用例数量:", defaultEvalSet.cases.length);
 console.log("📋 任务数量:", defaultEvalSet.tasks.length);

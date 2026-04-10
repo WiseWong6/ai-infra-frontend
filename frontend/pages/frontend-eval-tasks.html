@@ -5,8 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>评测/评测集</title>
-  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     /* ============================================
          设计系统变量
@@ -783,7 +781,7 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="./ui-refresh.css" />
+  <link rel="stylesheet" href="../css/ui-refresh.css" />
 </head>
 
 <body>
@@ -945,7 +943,7 @@
   </div>
 
   <script>
-    lucide.createIcons();
+    if (window.lucide?.createIcons) window.lucide.createIcons();
 
     const EVAL_SET_STORAGE_KEY = "evaluation_sets_demo_v2";
     const PROMPT_STORAGE_KEY = "prompt_rows_demo";

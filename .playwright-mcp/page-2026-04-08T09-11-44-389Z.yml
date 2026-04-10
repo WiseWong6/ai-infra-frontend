@@ -1,0 +1,581 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - button "收起/展开菜单" [ref=e5] [cursor=pointer]:
+      - generic [ref=e6]: +
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - heading "应用" [level=2] [ref=e9]
+        - link "应用管理" [ref=e10] [cursor=pointer]:
+          - /url: ./frontend-app-management.html
+          - generic [ref=e11]: +
+          - generic [ref=e12]: 应用管理
+      - generic [ref=e13]:
+        - heading "资源" [level=2] [ref=e14]
+        - link "提示词" [ref=e15] [cursor=pointer]:
+          - /url: ./frontend-slides-guide.html
+          - generic [ref=e16]: TXT
+          - generic [ref=e17]: 提示词
+        - link "知识库" [ref=e18] [cursor=pointer]:
+          - /url: ./frontend-knowledge-base.html
+          - generic [ref=e19]: DB
+          - generic [ref=e20]: 知识库
+        - link "MCP" [ref=e21] [cursor=pointer]:
+          - /url: ./frontend-mcp-center.html
+          - generic [ref=e22]: +
+          - generic [ref=e23]: MCP
+        - generic [ref=e24]:
+          - link "工具" [ref=e25] [cursor=pointer]:
+            - /url: ./frontend-ocr-eval.html
+            - generic [ref=e26]: +
+            - generic [ref=e27]: 工具
+          - link "OCR 评测" [ref=e29] [cursor=pointer]:
+            - /url: ./frontend-ocr-eval.html
+            - generic [ref=e30]: +
+            - generic [ref=e31]: OCR 评测
+      - generic [ref=e32]:
+        - heading "评测" [level=2] [ref=e33]
+        - link "评测任务" [ref=e34] [cursor=pointer]:
+          - /url: ./frontend-eval-tasks.html
+          - generic [ref=e35]: +
+          - generic [ref=e36]: 评测任务
+        - link "评测指标" [ref=e37] [cursor=pointer]:
+          - /url: "#"
+          - generic [ref=e38]: +
+          - generic [ref=e39]: 评测指标
+      - generic [ref=e40]:
+        - heading "追踪" [level=2] [ref=e41]
+        - link "Trace追踪" [ref=e42] [cursor=pointer]:
+          - /url: ./frontend-trace-prd-metrics.html
+          - generic [ref=e43]: +
+          - generic [ref=e44]: Trace追踪
+        - link "应用指标" [ref=e45] [cursor=pointer]:
+          - /url: "#"
+          - generic [ref=e46]: +
+          - generic [ref=e47]: 应用指标
+      - generic [ref=e48]:
+        - heading "基础设施" [level=2] [ref=e49]
+        - link "模型管理" [ref=e50] [cursor=pointer]:
+          - /url: ./frontend-models.html
+          - generic [ref=e51]: CPU
+          - generic [ref=e52]: 模型管理
+      - generic [ref=e53]:
+        - heading "设置" [level=2] [ref=e54]
+        - link "标签管理" [ref=e55] [cursor=pointer]:
+          - /url: "#"
+          - generic [ref=e56]: +
+          - generic [ref=e57]: 标签管理
+  - main [ref=e58]:
+    - heading "Trace追踪指标增强" [level=1] [ref=e60]
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - generic [ref=e63]: Trace列表 PRD原型
+        - generic [ref=e64]:
+          - generic [ref=e65]:
+            - generic [ref=e66]: Trace创建时间
+            - generic [ref=e67]:
+              - generic [ref=e68]: o
+              - textbox [ref=e69]: 2026-02-01 00:00:00
+              - generic [ref=e70]: 至
+              - textbox [ref=e71]: 2026-03-02 23:59:59
+          - generic [ref=e72]:
+            - generic [ref=e73]: 企业
+            - combobox [ref=e74]:
+              - option "请选择企业" [selected]
+          - generic [ref=e75]:
+            - generic [ref=e76]: 搜索项目/应用
+            - combobox [ref=e77]:
+              - option "请选择项目/应用" [selected]
+          - generic [ref=e78]:
+            - generic [ref=e79]: 状态
+            - combobox [ref=e80]:
+              - option "全部" [selected]
+              - option "成功"
+              - option "失败"
+          - generic [ref=e81]:
+            - generic [ref=e82]: 问题类型
+            - combobox [ref=e83]:
+              - option "请选择" [selected]
+          - generic [ref=e84]:
+            - generic [ref=e85]: 质检人
+            - textbox "请搜索质检人" [ref=e86]
+          - generic [ref=e87]:
+            - generic [ref=e88]: 质检评价
+            - combobox [ref=e89]:
+              - option "请选择" [selected]
+              - option "未质检"
+              - option "1分"
+              - option "2分"
+              - option "3分"
+              - option "4分"
+              - option "5分"
+          - generic [ref=e90]:
+            - generic [ref=e91]: 质检标签
+            - combobox [ref=e92]:
+              - option "请选择" [selected]
+          - generic [ref=e93]:
+            - generic [ref=e94]: 请求主体
+            - combobox [ref=e95]:
+              - option "请选择" [selected]
+          - generic [ref=e96]:
+            - generic [ref=e97]: 请求主体类型
+            - combobox [ref=e98]:
+              - option "请选择" [selected]
+          - generic [ref=e99]:
+            - generic [ref=e100]: 主体唯一id
+            - textbox "请输入主体唯一标识值" [ref=e101]
+          - generic [ref=e102]:
+            - generic [ref=e103]: 扩展id类型
+            - combobox [ref=e104]:
+              - option "全部" [selected]
+          - generic [ref=e105]:
+            - generic [ref=e106]: 扩展id
+            - textbox "请输入扩展ID" [ref=e107]
+          - generic [ref=e108]:
+            - generic [ref=e109]: 输入
+            - textbox "请输入用户输入内容" [ref=e110]
+          - generic [ref=e111]:
+            - generic [ref=e112]: 输出
+            - textbox "请输入用户输出内容" [ref=e113]
+          - generic [ref=e114]:
+            - generic [ref=e115]: 日志
+            - textbox "请输入日志内容" [ref=e116]
+          - generic [ref=e117]:
+            - generic [ref=e118]: TraceId
+            - textbox "请输入TraceId" [ref=e119]
+        - generic [ref=e120]:
+          - button "重置" [ref=e121] [cursor=pointer]
+          - button "查询" [ref=e122] [cursor=pointer]
+          - button "导出 " [ref=e123] [cursor=pointer]:
+            - text: 导出
+            - generic [ref=e124]: 
+      - generic [ref=e125]:
+        - generic [ref=e126]:
+          - generic [ref=e127]: 搜索结果 (总条数：1858)
+          - button "批量标注" [ref=e128] [cursor=pointer]
+        - table [ref=e130]:
+          - rowgroup [ref=e131]:
+            - row "Trace创建时间 TraceId 项目 应用 输入 输出 端到端耗时 总Token 总成本 用户反馈 问题类型 问题反馈 质检评价 质检备注 质检标签 最近操作人 操作" [ref=e132]:
+              - columnheader [ref=e133]:
+                - checkbox [ref=e134]
+              - columnheader "Trace创建时间" [ref=e135] [cursor=pointer]
+              - columnheader "TraceId" [ref=e136] [cursor=pointer]
+              - columnheader "项目" [ref=e137] [cursor=pointer]
+              - columnheader "应用" [ref=e138] [cursor=pointer]
+              - columnheader "输入" [ref=e139]
+              - columnheader "输出" [ref=e140]
+              - columnheader "端到端耗时" [ref=e141] [cursor=pointer]
+              - columnheader "总Token" [ref=e142] [cursor=pointer]
+              - columnheader "总成本" [ref=e143] [cursor=pointer]
+              - columnheader "用户反馈" [ref=e144]
+              - columnheader "问题类型" [ref=e145] [cursor=pointer]
+              - columnheader "问题反馈" [ref=e146] [cursor=pointer]
+              - columnheader "质检评价" [ref=e147] [cursor=pointer]
+              - columnheader "质检备注" [ref=e148] [cursor=pointer]
+              - columnheader "质检标签" [ref=e149] [cursor=pointer]
+              - columnheader "最近操作人" [ref=e150] [cursor=pointer]
+              - columnheader "操作" [ref=e151]
+          - rowgroup [ref=e152]:
+            - row "2026-04-08 16:15:54 成功 9f4f24ad**** 咔嚓保-投保助手 投保助手 这个能买超级玛丽吗？ 请从以下在售产品候选中选择具体版本 22.0s 2,058 ¥0.023 - - - - - - - 运行结果 过程日志 反馈质检" [ref=e153]:
+              - cell [ref=e154]:
+                - checkbox [ref=e155]
+              - cell "2026-04-08 16:15:54" [ref=e156] [cursor=pointer]
+              - cell "成功 9f4f24ad****" [ref=e157] [cursor=pointer]:
+                - generic [ref=e158]:
+                  - generic "成功" [ref=e159]:
+                    - generic [ref=e160]: v
+                  - generic [ref=e161]: 9f4f24ad****
+              - cell "咔嚓保-投保助手" [ref=e162] [cursor=pointer]
+              - cell "投保助手" [ref=e163] [cursor=pointer]
+              - cell "这个能买超级玛丽吗？" [ref=e164] [cursor=pointer]:
+                - generic [ref=e165]: 这个能买超级玛丽吗？
+              - cell "请从以下在售产品候选中选择具体版本" [ref=e166] [cursor=pointer]:
+                - generic [ref=e167]: 请从以下在售产品候选中选择具体版本
+              - cell "22.0s" [ref=e168] [cursor=pointer]
+              - cell "2,058" [ref=e169] [cursor=pointer]
+              - cell "¥0.023" [ref=e170] [cursor=pointer]
+              - cell "-" [ref=e171]
+              - cell "-" [ref=e172] [cursor=pointer]
+              - cell "-" [ref=e173] [cursor=pointer]
+              - cell "-" [ref=e174] [cursor=pointer]
+              - cell "-" [ref=e175] [cursor=pointer]
+              - cell "-" [ref=e176] [cursor=pointer]
+              - cell "-" [ref=e177] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e178]:
+                - generic [ref=e179]:
+                  - button "运行结果" [ref=e180] [cursor=pointer]
+                  - button "过程日志" [ref=e181] [cursor=pointer]
+                  - button "反馈质检" [ref=e182] [cursor=pointer]
+            - row "2026-03-26 18:25:38 成功 1ab205da**** 咔嚓保-投保助手 投保助手 你能回答哪些内容？ 呀，你还没说具体要问什么呢～我现在能搞定条款解读、产品对比、核保咨询、投保报错这些事，有啥问题直接甩给我就行😉 7s 187 ¥0.004 满意 - - - - - - 运行结果 过程日志 反馈质检" [ref=e183]:
+              - cell [ref=e184]:
+                - checkbox [ref=e185]
+              - cell "2026-03-26 18:25:38" [ref=e186] [cursor=pointer]
+              - cell "成功 1ab205da****" [ref=e187] [cursor=pointer]:
+                - generic [ref=e188]:
+                  - generic "成功" [ref=e189]:
+                    - generic [ref=e190]: v
+                  - generic [ref=e191]: 1ab205da****
+              - cell "咔嚓保-投保助手" [ref=e192] [cursor=pointer]
+              - cell "投保助手" [ref=e193] [cursor=pointer]
+              - cell "你能回答哪些内容？" [ref=e194] [cursor=pointer]:
+                - generic [ref=e195]: 你能回答哪些内容？
+              - cell "呀，你还没说具体要问什么呢～我现在能搞定条款解读、产品对比、核保咨询、投保报错这些事，有啥问题直接甩给我就行😉" [ref=e196] [cursor=pointer]:
+                - generic [ref=e197]: 呀，你还没说具体要问什么呢～我现在能搞定条款解读、产品对比、核保咨询、投保报错这些事，有啥问题直接甩给我就行😉
+              - cell "7s" [ref=e198] [cursor=pointer]
+              - cell "187" [ref=e199] [cursor=pointer]
+              - cell "¥0.004" [ref=e200] [cursor=pointer]
+              - cell "满意" [ref=e201]
+              - cell "-" [ref=e202] [cursor=pointer]
+              - cell "-" [ref=e203] [cursor=pointer]
+              - cell "-" [ref=e204] [cursor=pointer]
+              - cell "-" [ref=e205] [cursor=pointer]
+              - cell "-" [ref=e206] [cursor=pointer]
+              - cell "-" [ref=e207] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e208]:
+                - generic [ref=e209]:
+                  - button "运行结果" [ref=e210] [cursor=pointer]
+                  - button "过程日志" [ref=e211] [cursor=pointer]
+                  - button "反馈质检" [ref=e212] [cursor=pointer]
+            - row "2026-03-02 10:55:55 成功 07081cde**** 咔嚓保-投保助手 投保助手 平安岁月那个产品优点 请从以下【平安岁月】在售产品候选中选择具体版本 32.6s 1,037 ¥0.024 - - - - - - - 运行结果 过程日志 反馈质检" [ref=e213]:
+              - cell [ref=e214]:
+                - checkbox [ref=e215]
+              - cell "2026-03-02 10:55:55" [ref=e216] [cursor=pointer]
+              - cell "成功 07081cde****" [ref=e217] [cursor=pointer]:
+                - generic [ref=e218]:
+                  - generic "成功" [ref=e219]:
+                    - generic [ref=e220]: v
+                  - generic [ref=e221]: 07081cde****
+              - cell "咔嚓保-投保助手" [ref=e222] [cursor=pointer]
+              - cell "投保助手" [ref=e223] [cursor=pointer]
+              - cell "平安岁月那个产品优点" [ref=e224] [cursor=pointer]:
+                - generic [ref=e225]: 平安岁月那个产品优点
+              - cell "请从以下【平安岁月】在售产品候选中选择具体版本" [ref=e226] [cursor=pointer]:
+                - generic [ref=e227]: 请从以下【平安岁月】在售产品候选中选择具体版本
+              - cell "32.6s" [ref=e228] [cursor=pointer]
+              - cell "1,037" [ref=e229] [cursor=pointer]
+              - cell "¥0.024" [ref=e230] [cursor=pointer]
+              - cell "-" [ref=e231]
+              - cell "-" [ref=e232] [cursor=pointer]
+              - cell "-" [ref=e233] [cursor=pointer]
+              - cell "-" [ref=e234] [cursor=pointer]
+              - cell "-" [ref=e235] [cursor=pointer]
+              - cell "-" [ref=e236] [cursor=pointer]
+              - cell "-" [ref=e237] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e238]:
+                - generic [ref=e239]:
+                  - button "运行结果" [ref=e240] [cursor=pointer]
+                  - button "过程日志" [ref=e241] [cursor=pointer]
+                  - button "反馈质检" [ref=e242] [cursor=pointer]
+            - 'row "2026-02-28 10:50:38 失败 ai-13ff**** 咔嚓保-保单托管 条款解析 /share_common_sh/PDFOCR/3b040a14... {\"result\": false, \"error\": \"OCR_TIMEOUT\", \"message\": \"条款解析超时\"} 4.8s - - - - - - - - - 运行结果 过程日志 反馈质检" [ref=e243]':
+              - cell [ref=e244]:
+                - checkbox [ref=e245]
+              - cell "2026-02-28 10:50:38" [ref=e246] [cursor=pointer]
+              - cell "失败 ai-13ff****" [ref=e247] [cursor=pointer]:
+                - generic [ref=e248]:
+                  - generic "失败" [ref=e249]:
+                    - generic [ref=e250]: x
+                  - generic [ref=e251]: ai-13ff****
+              - cell "咔嚓保-保单托管" [ref=e252] [cursor=pointer]
+              - cell "条款解析" [ref=e253] [cursor=pointer]
+              - cell "/share_common_sh/PDFOCR/3b040a14..." [ref=e254] [cursor=pointer]:
+                - generic [ref=e255]: /share_common_sh/PDFOCR/3b040a14...
+              - 'cell "{\"result\": false, \"error\": \"OCR_TIMEOUT\", \"message\": \"条款解析超时\"}" [ref=e256] [cursor=pointer]':
+                - generic [ref=e257]: "{\"result\": false, \"error\": \"OCR_TIMEOUT\", \"message\": \"条款解析超时\"}"
+              - cell "4.8s" [ref=e258] [cursor=pointer]
+              - cell "-" [ref=e259] [cursor=pointer]
+              - cell "-" [ref=e260] [cursor=pointer]
+              - cell "-" [ref=e261]
+              - cell "-" [ref=e262] [cursor=pointer]
+              - cell "-" [ref=e263] [cursor=pointer]
+              - cell "-" [ref=e264] [cursor=pointer]
+              - cell "-" [ref=e265] [cursor=pointer]
+              - cell "-" [ref=e266] [cursor=pointer]
+              - cell "-" [ref=e267] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e268]:
+                - generic [ref=e269]:
+                  - button "运行结果" [ref=e270] [cursor=pointer]
+                  - button "过程日志" [ref=e271] [cursor=pointer]
+                  - button "反馈质检" [ref=e272] [cursor=pointer]
+            - 'row "2026-02-28 10:01:21 成功 ai-1c7b**** 咔嚓保-保单托管 条款解析 /share_common_sh/PDFOCR/3b040a14... {\"result\": true, \"base\": {...}} 4.2s - - - - - - - - - 运行结果 过程日志 反馈质检" [ref=e273]':
+              - cell [ref=e274]:
+                - checkbox [ref=e275]
+              - cell "2026-02-28 10:01:21" [ref=e276] [cursor=pointer]
+              - cell "成功 ai-1c7b****" [ref=e277] [cursor=pointer]:
+                - generic [ref=e278]:
+                  - generic "成功" [ref=e279]:
+                    - generic [ref=e280]: v
+                  - generic [ref=e281]: ai-1c7b****
+              - cell "咔嚓保-保单托管" [ref=e282] [cursor=pointer]
+              - cell "条款解析" [ref=e283] [cursor=pointer]
+              - cell "/share_common_sh/PDFOCR/3b040a14..." [ref=e284] [cursor=pointer]:
+                - generic [ref=e285]: /share_common_sh/PDFOCR/3b040a14...
+              - 'cell "{\"result\": true, \"base\": {...}}" [ref=e286] [cursor=pointer]':
+                - generic [ref=e287]: "{\"result\": true, \"base\": {...}}"
+              - cell "4.2s" [ref=e288] [cursor=pointer]
+              - cell "-" [ref=e289] [cursor=pointer]
+              - cell "-" [ref=e290] [cursor=pointer]
+              - cell "-" [ref=e291]
+              - cell "-" [ref=e292] [cursor=pointer]
+              - cell "-" [ref=e293] [cursor=pointer]
+              - cell "-" [ref=e294] [cursor=pointer]
+              - cell "-" [ref=e295] [cursor=pointer]
+              - cell "-" [ref=e296] [cursor=pointer]
+              - cell "-" [ref=e297] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e298]:
+                - generic [ref=e299]:
+                  - button "运行结果" [ref=e300] [cursor=pointer]
+                  - button "过程日志" [ref=e301] [cursor=pointer]
+                  - button "反馈质检" [ref=e302] [cursor=pointer]
+            - row "2026-02-27 16:34:56 成功 07c8605f**** 咔嚓保-投保助手 投保助手 平安岁月那个产品优点 平安健康岁月长安特定疾病保险的产品优点... 8.4s 1,168 ¥0.026 - - - - - - - 运行结果 过程日志 反馈质检" [ref=e303]:
+              - cell [ref=e304]:
+                - checkbox [ref=e305]
+              - cell "2026-02-27 16:34:56" [ref=e306] [cursor=pointer]
+              - cell "成功 07c8605f****" [ref=e307] [cursor=pointer]:
+                - generic [ref=e308]:
+                  - generic "成功" [ref=e309]:
+                    - generic [ref=e310]: v
+                  - generic [ref=e311]: 07c8605f****
+              - cell "咔嚓保-投保助手" [ref=e312] [cursor=pointer]
+              - cell "投保助手" [ref=e313] [cursor=pointer]
+              - cell "平安岁月那个产品优点" [ref=e314] [cursor=pointer]:
+                - generic [ref=e315]: 平安岁月那个产品优点
+              - cell "平安健康岁月长安特定疾病保险的产品优点..." [ref=e316] [cursor=pointer]:
+                - generic [ref=e317]: 平安健康岁月长安特定疾病保险的产品优点...
+              - cell "8.4s" [ref=e318] [cursor=pointer]
+              - cell "1,168" [ref=e319] [cursor=pointer]
+              - cell "¥0.026" [ref=e320] [cursor=pointer]
+              - cell "-" [ref=e321]
+              - cell "-" [ref=e322] [cursor=pointer]
+              - cell "-" [ref=e323] [cursor=pointer]
+              - cell "-" [ref=e324] [cursor=pointer]
+              - cell "-" [ref=e325] [cursor=pointer]
+              - cell "-" [ref=e326] [cursor=pointer]
+              - cell "-" [ref=e327] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e328]:
+                - generic [ref=e329]:
+                  - button "运行结果" [ref=e330] [cursor=pointer]
+                  - button "过程日志" [ref=e331] [cursor=pointer]
+                  - button "反馈质检" [ref=e332] [cursor=pointer]
+            - row "2026-02-27 16:34:53 成功 5089a8ba**** 咔嚓保-投保助手 投保助手 /clear 会话已清空 180ms - - - - - - - - - 运行结果 过程日志 反馈质检" [ref=e333]:
+              - cell [ref=e334]:
+                - checkbox [ref=e335]
+              - cell "2026-02-27 16:34:53" [ref=e336] [cursor=pointer]
+              - cell "成功 5089a8ba****" [ref=e337] [cursor=pointer]:
+                - generic [ref=e338]:
+                  - generic "成功" [ref=e339]:
+                    - generic [ref=e340]: v
+                  - generic [ref=e341]: 5089a8ba****
+              - cell "咔嚓保-投保助手" [ref=e342] [cursor=pointer]
+              - cell "投保助手" [ref=e343] [cursor=pointer]
+              - cell "/clear" [ref=e344] [cursor=pointer]:
+                - generic [ref=e345]: /clear
+              - cell "会话已清空" [ref=e346] [cursor=pointer]:
+                - generic [ref=e347]: 会话已清空
+              - cell "180ms" [ref=e348] [cursor=pointer]
+              - cell "-" [ref=e349] [cursor=pointer]
+              - cell "-" [ref=e350] [cursor=pointer]
+              - cell "-" [ref=e351]
+              - cell "-" [ref=e352] [cursor=pointer]
+              - cell "-" [ref=e353] [cursor=pointer]
+              - cell "-" [ref=e354] [cursor=pointer]
+              - cell "-" [ref=e355] [cursor=pointer]
+              - cell "-" [ref=e356] [cursor=pointer]
+              - cell "-" [ref=e357] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e358]:
+                - generic [ref=e359]:
+                  - button "运行结果" [ref=e360] [cursor=pointer]
+                  - button "过程日志" [ref=e361] [cursor=pointer]
+                  - button "反馈质检" [ref=e362] [cursor=pointer]
+            - row "2026-02-27 16:32:50 成功 c06a524f**** 咔嚓保-投保助手 投保助手 /clear 会话已清空 160ms - - - - - - - - - 运行结果 过程日志 反馈质检" [ref=e363]:
+              - cell [ref=e364]:
+                - checkbox [ref=e365]
+              - cell "2026-02-27 16:32:50" [ref=e366] [cursor=pointer]
+              - cell "成功 c06a524f****" [ref=e367] [cursor=pointer]:
+                - generic [ref=e368]:
+                  - generic "成功" [ref=e369]:
+                    - generic [ref=e370]: v
+                  - generic [ref=e371]: c06a524f****
+              - cell "咔嚓保-投保助手" [ref=e372] [cursor=pointer]
+              - cell "投保助手" [ref=e373] [cursor=pointer]
+              - cell "/clear" [ref=e374] [cursor=pointer]:
+                - generic [ref=e375]: /clear
+              - cell "会话已清空" [ref=e376] [cursor=pointer]:
+                - generic [ref=e377]: 会话已清空
+              - cell "160ms" [ref=e378] [cursor=pointer]
+              - cell "-" [ref=e379] [cursor=pointer]
+              - cell "-" [ref=e380] [cursor=pointer]
+              - cell "-" [ref=e381]
+              - cell "-" [ref=e382] [cursor=pointer]
+              - cell "-" [ref=e383] [cursor=pointer]
+              - cell "-" [ref=e384] [cursor=pointer]
+              - cell "-" [ref=e385] [cursor=pointer]
+              - cell "-" [ref=e386] [cursor=pointer]
+              - cell "-" [ref=e387] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e388]:
+                - generic [ref=e389]:
+                  - button "运行结果" [ref=e390] [cursor=pointer]
+                  - button "过程日志" [ref=e391] [cursor=pointer]
+                  - button "反馈质检" [ref=e392] [cursor=pointer]
+            - row "2026-02-27 16:31:28 成功 d65dd3c6**** 咔嚓保-投保助手 投保助手 /clear 会话已清空 150ms - - - - - - - - - 运行结果 过程日志 反馈质检" [ref=e393]:
+              - cell [ref=e394]:
+                - checkbox [ref=e395]
+              - cell "2026-02-27 16:31:28" [ref=e396] [cursor=pointer]
+              - cell "成功 d65dd3c6****" [ref=e397] [cursor=pointer]:
+                - generic [ref=e398]:
+                  - generic "成功" [ref=e399]:
+                    - generic [ref=e400]: v
+                  - generic [ref=e401]: d65dd3c6****
+              - cell "咔嚓保-投保助手" [ref=e402] [cursor=pointer]
+              - cell "投保助手" [ref=e403] [cursor=pointer]
+              - cell "/clear" [ref=e404] [cursor=pointer]:
+                - generic [ref=e405]: /clear
+              - cell "会话已清空" [ref=e406] [cursor=pointer]:
+                - generic [ref=e407]: 会话已清空
+              - cell "150ms" [ref=e408] [cursor=pointer]
+              - cell "-" [ref=e409] [cursor=pointer]
+              - cell "-" [ref=e410] [cursor=pointer]
+              - cell "-" [ref=e411]
+              - cell "-" [ref=e412] [cursor=pointer]
+              - cell "-" [ref=e413] [cursor=pointer]
+              - cell "-" [ref=e414] [cursor=pointer]
+              - cell "-" [ref=e415] [cursor=pointer]
+              - cell "-" [ref=e416] [cursor=pointer]
+              - cell "-" [ref=e417] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e418]:
+                - generic [ref=e419]:
+                  - button "运行结果" [ref=e420] [cursor=pointer]
+                  - button "过程日志" [ref=e421] [cursor=pointer]
+                  - button "反馈质检" [ref=e422] [cursor=pointer]
+            - 'row "2026-02-27 16:17:02 成功 ai-ea0a**** AI核保 AI人核审核 {\"hcid\":\"7442204\", ...} {\"code\":0, \"msg\":\"ok\", ...} 2.6s 1,388 ¥0.031 - - - - - - - 运行结果 过程日志 反馈质检" [ref=e423]':
+              - cell [ref=e424]:
+                - checkbox [ref=e425]
+              - cell "2026-02-27 16:17:02" [ref=e426] [cursor=pointer]
+              - cell "成功 ai-ea0a****" [ref=e427] [cursor=pointer]:
+                - generic [ref=e428]:
+                  - generic "成功" [ref=e429]:
+                    - generic [ref=e430]: v
+                  - generic [ref=e431]: ai-ea0a****
+              - cell "AI核保" [ref=e432] [cursor=pointer]
+              - cell "AI人核审核" [ref=e433] [cursor=pointer]
+              - 'cell "{\"hcid\":\"7442204\", ...}" [ref=e434] [cursor=pointer]':
+                - generic [ref=e435]: "{\"hcid\":\"7442204\", ...}"
+              - 'cell "{\"code\":0, \"msg\":\"ok\", ...}" [ref=e436] [cursor=pointer]':
+                - generic [ref=e437]: "{\"code\":0, \"msg\":\"ok\", ...}"
+              - cell "2.6s" [ref=e438] [cursor=pointer]
+              - cell "1,388" [ref=e439] [cursor=pointer]
+              - cell "¥0.031" [ref=e440] [cursor=pointer]
+              - cell "-" [ref=e441]
+              - cell "-" [ref=e442] [cursor=pointer]
+              - cell "-" [ref=e443] [cursor=pointer]
+              - cell "-" [ref=e444] [cursor=pointer]
+              - cell "-" [ref=e445] [cursor=pointer]
+              - cell "-" [ref=e446] [cursor=pointer]
+              - cell "-" [ref=e447] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e448]:
+                - generic [ref=e449]:
+                  - button "运行结果" [ref=e450] [cursor=pointer]
+                  - button "过程日志" [ref=e451] [cursor=pointer]
+                  - button "反馈质检" [ref=e452] [cursor=pointer]
+            - row "2026-02-24 11:06:02 成功 730a8810**** 咔嚓保-投保助手 技能搜索 人力资源职业代码选哪一个呢？ 建议您搜索“人力资源管理师”... 7.4s 912 ¥0.021 满意 - - 5 搞定了，能通过 通过 wisewong 运行结果 过程日志 反馈质检" [ref=e453]:
+              - cell [ref=e454]:
+                - checkbox [ref=e455]
+              - cell "2026-02-24 11:06:02" [ref=e456] [cursor=pointer]
+              - cell "成功 730a8810****" [ref=e457] [cursor=pointer]:
+                - generic [ref=e458]:
+                  - generic "成功" [ref=e459]:
+                    - generic [ref=e460]: v
+                  - generic [ref=e461]: 730a8810****
+              - cell "咔嚓保-投保助手" [ref=e462] [cursor=pointer]
+              - cell "技能搜索" [ref=e463] [cursor=pointer]
+              - cell "人力资源职业代码选哪一个呢？" [ref=e464] [cursor=pointer]:
+                - generic [ref=e465]: 人力资源职业代码选哪一个呢？
+              - cell "建议您搜索“人力资源管理师”..." [ref=e466] [cursor=pointer]:
+                - generic [ref=e467]: 建议您搜索“人力资源管理师”...
+              - cell "7.4s" [ref=e468] [cursor=pointer]
+              - cell "912" [ref=e469] [cursor=pointer]
+              - cell "¥0.021" [ref=e470] [cursor=pointer]
+              - cell "满意" [ref=e471]
+              - cell "-" [ref=e472] [cursor=pointer]
+              - cell "-" [ref=e473] [cursor=pointer]
+              - cell "5" [ref=e474] [cursor=pointer]
+              - cell "搞定了，能通过" [ref=e475] [cursor=pointer]
+              - cell "通过" [ref=e476] [cursor=pointer]
+              - cell "wisewong" [ref=e477] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e478]:
+                - generic [ref=e479]:
+                  - button "运行结果" [ref=e480] [cursor=pointer]
+                  - button "过程日志" [ref=e481] [cursor=pointer]
+                  - button "反馈质检" [ref=e482] [cursor=pointer]
+            - 'row "2026-02-27 16:11:05 失败 ai-f480**** AI核保 AI人核审核 {\"hcid\":\"7442202\", ...} {\"code\":500, \"msg\":\"model timeout\", ...} 2.2s 1,205 ¥0.029 - - - - - - - 运行结果 过程日志 反馈质检" [ref=e483]':
+              - cell [ref=e484]:
+                - checkbox [ref=e485]
+              - cell "2026-02-27 16:11:05" [ref=e486] [cursor=pointer]
+              - cell "失败 ai-f480****" [ref=e487] [cursor=pointer]:
+                - generic [ref=e488]:
+                  - generic "失败" [ref=e489]:
+                    - generic [ref=e490]: x
+                  - generic [ref=e491]: ai-f480****
+              - cell "AI核保" [ref=e492] [cursor=pointer]
+              - cell "AI人核审核" [ref=e493] [cursor=pointer]
+              - 'cell "{\"hcid\":\"7442202\", ...}" [ref=e494] [cursor=pointer]':
+                - generic [ref=e495]: "{\"hcid\":\"7442202\", ...}"
+              - 'cell "{\"code\":500, \"msg\":\"model timeout\", ...}" [ref=e496] [cursor=pointer]':
+                - generic [ref=e497]: "{\"code\":500, \"msg\":\"model timeout\", ...}"
+              - cell "2.2s" [ref=e498] [cursor=pointer]
+              - cell "1,205" [ref=e499] [cursor=pointer]
+              - cell "¥0.029" [ref=e500] [cursor=pointer]
+              - cell "-" [ref=e501]
+              - cell "-" [ref=e502] [cursor=pointer]
+              - cell "-" [ref=e503] [cursor=pointer]
+              - cell "-" [ref=e504] [cursor=pointer]
+              - cell "-" [ref=e505] [cursor=pointer]
+              - cell "-" [ref=e506] [cursor=pointer]
+              - cell "-" [ref=e507] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e508]:
+                - generic [ref=e509]:
+                  - button "运行结果" [ref=e510] [cursor=pointer]
+                  - button "过程日志" [ref=e511] [cursor=pointer]
+                  - button "反馈质检" [ref=e512] [cursor=pointer]
+            - 'row "2026-02-27 16:05:09 成功 ai-8d84**** AI核保 AI人核审核 {\"hcid\":\"7442201\", ...} {\"code\":0, \"msg\":\"ok\", ...} 2.1s 1,188 ¥0.028 - - - - - - - 运行结果 过程日志 反馈质检" [ref=e513]':
+              - cell [ref=e514]:
+                - checkbox [ref=e515]
+              - cell "2026-02-27 16:05:09" [ref=e516] [cursor=pointer]
+              - cell "成功 ai-8d84****" [ref=e517] [cursor=pointer]:
+                - generic [ref=e518]:
+                  - generic "成功" [ref=e519]:
+                    - generic [ref=e520]: v
+                  - generic [ref=e521]: ai-8d84****
+              - cell "AI核保" [ref=e522] [cursor=pointer]
+              - cell "AI人核审核" [ref=e523] [cursor=pointer]
+              - 'cell "{\"hcid\":\"7442201\", ...}" [ref=e524] [cursor=pointer]':
+                - generic [ref=e525]: "{\"hcid\":\"7442201\", ...}"
+              - 'cell "{\"code\":0, \"msg\":\"ok\", ...}" [ref=e526] [cursor=pointer]':
+                - generic [ref=e527]: "{\"code\":0, \"msg\":\"ok\", ...}"
+              - cell "2.1s" [ref=e528] [cursor=pointer]
+              - cell "1,188" [ref=e529] [cursor=pointer]
+              - cell "¥0.028" [ref=e530] [cursor=pointer]
+              - cell "-" [ref=e531]
+              - cell "-" [ref=e532] [cursor=pointer]
+              - cell "-" [ref=e533] [cursor=pointer]
+              - cell "-" [ref=e534] [cursor=pointer]
+              - cell "-" [ref=e535] [cursor=pointer]
+              - cell "-" [ref=e536] [cursor=pointer]
+              - cell "-" [ref=e537] [cursor=pointer]
+              - cell "运行结果 过程日志 反馈质检" [ref=e538]:
+                - generic [ref=e539]:
+                  - button "运行结果" [ref=e540] [cursor=pointer]
+                  - button "过程日志" [ref=e541] [cursor=pointer]
+                  - button "反馈质检" [ref=e542] [cursor=pointer]
+        - generic [ref=e543]:
+          - generic [ref=e544]:
+            - text: 共 1858 条
+            - combobox [ref=e545]:
+              - option "10条/页" [selected]
+              - option "20条/页"
+          - generic [ref=e546]:
+            - generic [ref=e548] [cursor=pointer]: 
+            - generic [ref=e549] [cursor=pointer]: "1"
+            - generic [ref=e550] [cursor=pointer]: "2"
+            - generic [ref=e551] [cursor=pointer]: "3"
+            - generic [ref=e552] [cursor=pointer]: ...
+            - generic [ref=e553] [cursor=pointer]: "186"
+            - generic [ref=e555] [cursor=pointer]: 

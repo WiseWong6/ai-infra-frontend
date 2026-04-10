@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Trace追踪指标增强 - PRD原型</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
       --bg: #fafbfc;
@@ -50,11 +49,7 @@
       font-size: 14px;
     }
 
-    html.modal-open,
-    body.modal-open {
-      overflow: hidden;
-      height: 100%;
-    }
+
 
     .app {
       display: flex;
@@ -365,38 +360,40 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       border-radius: 999px;
-      border: 1px solid var(--line-strong);
-      background: #fff;
+      flex-shrink: 0;
+      font-weight: 700;
+      font-size: 11px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     .trace-status-icon.success {
-      color: var(--success-dark);
-      background: #f0fdf4;
-      border-color: #bbf7d0;
+      color: #fff;
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);
     }
 
     .trace-status-icon.failed {
-      color: var(--danger-dark);
-      background: #fef2f2;
-      border-color: #fecaca;
+      color: #fff;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
     }
 
-    .trace-status-icon i {
-      width: 14px;
-      height: 14px;
+    .trace-status-icon svg {
+      width: 12px;
+      height: 12px;
     }
 
     .time-label .trace-status-icon {
       width: 16px;
       height: 16px;
       margin-right: 6px;
-      flex-shrink: 0;
+      font-size: 9px;
     }
 
-    .time-label .trace-status-icon i {
+    .time-label .trace-status-icon svg {
       width: 10px;
       height: 10px;
     }
@@ -607,6 +604,17 @@
     .copy-icon {
       cursor: pointer;
       color: var(--blue);
+      width: 16px;
+      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .copy-icon svg {
+      width: 14px;
+      height: 14px;
     }
 
     .modal-tabs {
@@ -666,7 +674,7 @@
       height: 20px;
     }
 
-    .modal-summary .trace-status-icon i {
+    .modal-summary .trace-status-icon svg {
       width: 12px;
       height: 12px;
     }
@@ -1553,6 +1561,359 @@
         opacity: 1;
       }
     }
+
+    /* 同步到评测集弹窗样式 */
+    .sync-modal-content {
+      width: 1000px;
+      max-width: 95vw;
+      max-height: 80vh;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sync-modal-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sync-modal-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .sync-modal-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--muted);
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+
+    .sync-modal-close:hover {
+      background: var(--hover-bg);
+      color: var(--danger);
+    }
+
+    .sync-modal-body {
+      flex: 1;
+      padding: 20px 24px;
+      overflow: auto;
+    }
+
+    .sync-modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* 筛选表单 */
+    .sync-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .sync-filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sync-filter-item label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .sync-input {
+      height: 36px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+      width: 100%;
+    }
+
+    .sync-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .sync-filter-actions {
+      flex-direction: row;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .sync-filter-actions .btn {
+      height: 36px;
+      padding: 0 16px;
+    }
+
+    /* 表格样式 */
+    .sync-table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+
+    .sync-table {
+      width: 100%;
+      min-width: 860px;
+      border-collapse: collapse;
+      font-size: 13px;
+      table-layout: fixed;
+    }
+
+    .sync-table th {
+      background: #f8fafc;
+      height: 44px;
+      padding: 12px 16px;
+      text-align: left;
+      color: var(--muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    .sync-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--text);
+      height: 48px;
+    }
+
+    .sync-table tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .sync-table tbody tr.selected {
+      background: var(--active);
+    }
+
+    .sync-col-select {
+      width: 52px;
+      min-width: 52px;
+      text-align: center !important;
+    }
+
+    .sync-col-type {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .sync-col-project {
+      width: 180px;
+      min-width: 180px;
+    }
+
+    .sync-col-object {
+      width: 150px;
+      min-width: 150px;
+    }
+
+    .sync-col-name {
+      width: 160px;
+      min-width: 160px;
+    }
+
+    .sync-col-owner {
+      width: 110px;
+      min-width: 110px;
+    }
+
+    .sync-col-time {
+      width: 140px;
+      min-width: 140px;
+    }
+
+    .sync-table th,
+    .sync-table td {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      box-sizing: border-box;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .sync-checkbox {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      accent-color: var(--blue);
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    /* 分页样式 */
+    .sync-pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .sync-page-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .sync-page-btn {
+      min-width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text);
+      transition: var(--transition);
+    }
+
+    .sync-page-btn:hover:not(:disabled) {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .sync-page-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .sync-page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* 空状态 */
+    .sync-empty {
+      text-align: center;
+      padding: 48px 0;
+      color: var(--muted);
+    }
+
+    /* 标签样式 */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 999px;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
+    .tag-blue {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .tag-green {
+      background: #f0fdf4;
+      color: #22c55e;
+    }
+
+    /* 图片预览弹窗 */
+    .image-preview-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+      padding: 40px;
+    }
+
+    .image-preview-container {
+      position: relative;
+      max-width: 90%;
+      max-height: 90%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .image-preview-container img {
+      max-width: 100%;
+      max-height: calc(90vh - 60px);
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .image-preview-close {
+      position: absolute;
+      top: -50px;
+      right: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      transition: all 0.2s ease;
+    }
+
+    .image-preview-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
+    }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+      .sync-modal-content {
+        width: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0;
+      }
+
+      .sync-filter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .image-preview-overlay {
+        padding: 20px;
+      }
+
+      .image-preview-close {
+        top: -40px;
+        right: -10px;
+      }
+    }
   </style>
 </head>
 
@@ -1582,7 +1943,7 @@
                     height: 36px;
                     background: #fff;
                   ">
-                <i data-lucide="clock" style="width: 14px; color: var(--muted)"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 <input type="text" value="2026-02-01 00:00:00" style="
                       border: none;
                       outline: none;
@@ -1625,9 +1986,19 @@
               </select>
             </div>
             <div class="filter-item">
+              <label>质检人</label>
+              <input type="text" class="input-box" placeholder="请搜索质检人" />
+            </div>
+            <div class="filter-item">
               <label>质检评价</label>
               <select class="input-box">
                 <option value="">请选择</option>
+                <option value="0">未质检</option>
+                <option value="1">1分</option>
+                <option value="2">2分</option>
+                <option value="3">3分</option>
+                <option value="4">4分</option>
+                <option value="5">5分</option>
               </select>
             </div>
             <div class="filter-item">
@@ -1742,7 +2113,7 @@
             <span class="modal-header-title">Trace追踪</span>
             <div class="trace-id-badge">
               <span id="modalTraceId">--</span>
-              <i data-lucide="copy" class="copy-icon" onclick="copyToClipboard('modalTraceId')"></i>
+              <span class="copy-icon" onclick="copyToClipboard('modalTraceId')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span>
             </div>
           </div>
           <div class="modal-summary" id="traceSummaryBar">
@@ -1764,7 +2135,7 @@
             </div>
           </div>
         </div>
-        <i data-lucide="x" style="cursor: pointer; color: var(--muted)" onclick="closeModal()"></i>
+        <button class="btn-small btn-sync-eval" style="height: 32px; padding: 0 12px;" onclick="if(currentTrace) openSyncEvalSetModal(currentTrace)">同步到评测集</button>
       </header>
 
       <nav class="modal-tabs">
@@ -1798,7 +2169,7 @@
                   <option value="json">JSON格式</option>
                   <option value="markdown">MD格式</option>
                 </select>
-                <i data-lucide="copy" class="copy-icon" onclick="copyText('inputContent')"></i>
+                <span class="copy-icon" onclick="copyText('inputContent')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span>
               </div>
             </div>
             <div id="inputContent" class="section-body">
@@ -1821,7 +2192,7 @@
                   <option value="json">JSON格式</option>
                   <option value="markdown">MD格式</option>
                 </select>
-                <i data-lucide="copy" class="copy-icon" onclick="copyText('outputContent')"></i>
+                <span class="copy-icon" onclick="copyText('outputContent')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span>
               </div>
             </div>
             <div id="outputContent" class="section-body"></div>
@@ -1841,7 +2212,7 @@
             </div>
             <div class="log-actions" style="display: flex; gap: 8px;">
               <button class="btn-action" onclick="copyAllNodes()">
-                <i data-lucide="layers"></i> 复制全部日志
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg> 复制全部日志
               </button>
             </div>
           </div>
@@ -1858,14 +2229,14 @@
                 <div class="sp-header-right">
                   <div class="sp-actions">
                     <button class="btn-action" onclick="copyCurrentSlice()">
-                      <i data-lucide="copy"></i> 复制当前切片
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> 复制当前切片
                     </button>
                     <button class="btn-action" onclick="copyAllSlices()">
-                      <i data-lucide="layers"></i> 复制全部切片
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg> 复制全部切片
                     </button>
                   </div>
                   <div class="sp-close" onclick="closeSecondaryPanel()">
-                    <i data-lucide="x"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                   </div>
                 </div>
               </div>
@@ -1886,13 +2257,13 @@
                   ">
                     <div class="sp-meta-item"
                       style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted);">
-                      <i data-lucide="database" style="width: 14px; height: 14px;"></i>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
                       <span>知识库：</span>
                       <span id="spKbName" style="color: var(--text); font-weight: 500;">-</span>
                     </div>
                     <div class="sp-meta-item"
                       style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted);">
-                      <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
                       <span>内容字数：</span>
                       <span id="spWordCount" style="color: var(--text); font-weight: 500;">-</span>
                     </div>
@@ -1905,7 +2276,7 @@
                       text-decoration: none;
                       margin-left: auto;
                     ">
-                      <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                       查看源文件
                     </a>
                   </div>
@@ -1959,13 +2330,170 @@
       </div>
     </div>
   </div>
+
+  <!-- 同步到评测集弹窗 -->
+  <div class="modal-overlay" id="syncEvalSetModal" style="justify-content: center; align-items: center;">
+    <div class="sync-modal-content">
+      <header class="sync-modal-header">
+        <h3>选择评测集</h3>
+      </header>
+      
+      <div class="sync-modal-body">
+        <!-- 筛选区域 -->
+        <div class="sync-filter-grid">
+          <div class="sync-filter-item">
+            <label>类型</label>
+            <select id="syncFilterType" class="sync-input">
+              <option value="">请选择</option>
+              <option value="prompt">提示词</option>
+              <option value="app">应用</option>
+            </select>
+          </div>
+          <div class="sync-filter-item">
+            <label>项目/应用</label>
+            <select id="syncFilterProject" class="sync-input">
+              <option value="">请选择</option>
+            </select>
+          </div>
+          <div class="sync-filter-item">
+            <label>对象</label>
+            <select id="syncFilterObject" class="sync-input">
+              <option value="">请选择</option>
+            </select>
+          </div>
+          <div class="sync-filter-item">
+            <label>名称</label>
+            <input type="text" id="syncFilterName" class="sync-input" placeholder="搜索名称 / ID" />
+          </div>
+          <div class="sync-filter-item">
+            <label>负责人</label>
+            <input type="text" id="syncFilterOwner" class="sync-input" placeholder="请输入" />
+          </div>
+          <div class="sync-filter-item sync-filter-actions">
+            <button class="btn btn-primary" onclick="searchEvalSets()">查询</button>
+            <button class="btn btn-secondary" onclick="resetEvalSetFilters()">重置</button>
+          </div>
+        </div>
+        
+        <!-- 表格区域 -->
+        <div class="sync-table-wrap">
+          <table class="sync-table">
+            <thead>
+              <tr>
+                <th class="sync-col-select">
+                  <input
+                    type="checkbox"
+                    id="syncSelectAllCheckbox"
+                    class="sync-checkbox"
+                    aria-label="全选当前页评测集"
+                    onclick="event.stopPropagation()"
+                    onchange="toggleSelectAllEvalSets(this.checked)"
+                  />
+                </th>
+                <th class="sync-col-type">类型</th>
+                <th class="sync-col-project">项目应用</th>
+                <th class="sync-col-object">评测对象</th>
+                <th class="sync-col-name">名称</th>
+                <th class="sync-col-owner">负责人</th>
+                <th class="sync-col-time">更新时间</th>
+              </tr>
+            </thead>
+            <tbody id="syncEvalSetTableBody"></tbody>
+          </table>
+        </div>
+        
+        <!-- 分页 -->
+        <div class="sync-pagination" id="syncEvalSetPagination">
+          <span class="sync-page-info">共 <span id="syncTotalCount">0</span> 条</span>
+          <div class="sync-page-btns" id="syncPageBtns"></div>
+        </div>
+      </div>
+      
+      <footer class="sync-modal-footer">
+        <button class="btn btn-secondary" onclick="closeSyncEvalSetModal()">取消</button>
+        <button class="btn btn-primary" onclick="confirmSyncToEvalSet()">确定</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- 图片预览弹窗 -->
+  <div class="image-preview-overlay" id="imagePreviewModal" onclick="closeImagePreview()">
+    <div class="image-preview-container" onclick="event.stopPropagation()">
+      <div class="image-preview-close" onclick="closeImagePreview()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </div>
+      <img id="imagePreviewImg" src="" alt="预览图片" />
+    </div>
+  </div>
+
   <script>
     const COLLAPSE_LINE_LIMIT = 30;
     const PROCESS_LOG_COLLAPSE_LINE_LIMIT = 3;
+    const LUCIDE_FALLBACKS = {
+      clock: "o",
+      copy: "[]",
+      layers: "::",
+      x: "x",
+      database: "DB",
+      "file-text": "TXT",
+      "external-link": "->",
+      "circle-check-big": "v",
+      "circle-x": "x",
+      user: "U",
+      cpu: "CPU",
+      workflow: "<>",
+      "triangle-alert": "!",
+      "check-circle": "v",
+      "message-square": "MSG",
+      "wand-2": "**",
+    };
+
+    const NODE_ICON_SVGS = {
+      user: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      cpu: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v2"/><path d="M12 2v2"/><path d="M17 20v2"/><path d="M17 2v2"/><path d="M2 12h2"/><path d="M2 17h2"/><path d="M2 7h2"/><path d="M20 12h2"/><path d="M20 17h2"/><path d="M20 7h2"/><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
+      workflow: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg>',
+      database: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>',
+      "file-text": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>',
+      "check-circle": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+      "message-square": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+      "triangle-alert": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+      "wand-2": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg>',
+      copy: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>',
+      layers: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>',
+      x: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+      clock: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+      "external-link": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>',
+    };
+
+    function getNodeIconSvg(iconName) {
+      return NODE_ICON_SVGS[iconName] || NODE_ICON_SVGS.cpu;
+    }
     const TRACE_STATUS_META = {
       success: { label: "成功", className: "success" },
       failed: { label: "失败", className: "failed" },
     };
+
+    function renderIcons(root = document) {
+      if (window.lucide?.createIcons) {
+        window.lucide.createIcons();
+        return;
+      }
+
+      root.querySelectorAll("[data-lucide]").forEach((el) => {
+        const iconName = el.getAttribute("data-lucide") || "";
+        const fallback = LUCIDE_FALLBACKS[iconName] || "+";
+        el.textContent = fallback;
+        el.setAttribute("aria-hidden", "true");
+        el.style.display = "inline-flex";
+        el.style.alignItems = "center";
+        el.style.justifyContent = "center";
+        el.style.minWidth = el.style.minWidth || "1em";
+        el.style.fontSize = el.style.fontSize || "11px";
+        el.style.fontStyle = "normal";
+        el.style.fontWeight = "600";
+        el.style.lineHeight = "1";
+      });
+    }
 
     const TRACE_TABLE_COLUMNS = [
       {
@@ -2092,6 +2620,422 @@
     ];
 
     const TRACE_DATA = [
+      {
+        traceId: "darwin-underwrite-20260408150344",
+        displayId: "darwin-under****",
+        project: "咔嚓保-投保助手",
+        app: "核保咨询",
+        input: "达尔文12号重大疾病保险(互联网)",
+        output: "产品：达尔文 12 号重大疾病保险（互联网）-健康告知\n1,甲状腺右叶混合回声结节 甲状腺左叶结节，涉及健康告知，命中关于【甲状腺结节】及近 1 年内未明确性质结节的询问，因 2025 年 12 月超声提示结节且无病理报告明确性质。\n智核为无智核规则。\n2,以下内容【变应性鼻炎、窦性心律 胸导联低电压、胆囊附壁结晶】若不涉及近 1-2 年的不适症状，未被建议进一步检查、治疗，则不涉及健康告知。\n*本回复仅代表初步分析与建议，不构成正式核保结论。",
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-04-08 15:03:44",
+        finalStatus: "success",
+        endToEndDurationMs: 118000,
+        totalModelTokens: 2850,
+        totalModelCost: 0.045,
+        userId: "session_underwrite_darwin_1744095824001",
+        processNodes: [
+          {
+            id: "darwin-input",
+            time: "15:03:44.000",
+            occurredAt: "2026-04-08 15:03:44",
+            logId: "darwin-log-001",
+            label: "INPUT",
+            icon: "user",
+            color: "blue",
+            title: "用户输入",
+            status: "success",
+            durationMs: 28,
+            content: "【达尔文12号重大疾病保险(互联网)】",
+          },
+          {
+            id: "darwin-nlu",
+            time: "15:03:44.120",
+            occurredAt: "2026-04-08 15:03:44",
+            logId: "darwin-log-002",
+            label: "NLU",
+            icon: "cpu",
+            color: "orange",
+            title: "NLU首次识别",
+            status: "success",
+            durationMs: 14000,
+            tokenUsage: { input: 680, output: 420, total: 1100 },
+            cost: 0.018,
+            content: `2026-04-08 15:03:44
+[NLU]第1次迭代，NLU核心，节点输入：
+问题：
+【达尔文12号重大疾病保险(互联网)】，
+
+近几轮会话：
+【User: 客户在2025年12月份体检异常 麻烦老师看看 投保达尔文 12 号重疾哪些涉及健康告知
+
+[img:https://sslstatic.cxisc.com/chat_images/0173957b2c5c465389090ef5eb563958.jpeg]
+Assistant: 请从以下在售产品候选中选择具体版本】，
+
+候选产品id
+【】
+
+2026-04-08 15:03:44
+意图识别输入 - 用户消息: 达尔文12号重大疾病保险(互联网), 上下文长度: 2630, 参考信息长度: 0, node_id: 86, 图片数量: 0
+
+2026-04-08 15:03:58
+[NLU内容输出结束] {
+    "version": "3.18",
+    "current_query": "达尔文12号重大疾病保险(互联网)",
+    "action": {
+        "type": "route",
+        "parameters": {
+            "reply": null,
+            "clarify": null,
+            "route": ["核保咨询"],
+            "intent_meta": {
+                "rewritten_query": "王天一，女，有2025年12月体检异常：变应性鼻炎、窦性心律胸导联低电压、胆囊附壁结晶、甲状腺右叶混合回声结节（单发0.3cm×0.2cm）、甲状腺左叶多发囊性结节（最大0.3cm×0.2cm），咨询达尔文12号重大疾病保险(互联网)哪些涉及健康告知",
+                "origin_query": "客户在2025年12月份体检异常 麻烦老师看看 投保达尔文 12 号重疾哪些涉及健康告知\\n达尔文12号重大疾病保险(互联网)",
+                "history_images": ["https://sslstatic.cxisc.com/chat_images/0173957b2c5c465389090ef5eb563958.jpeg"],
+                "insurer": {
+                    "raw": null,
+                    "name": null
+                },
+                "scenario": ["核保"],
+                "search_conditions": [
+                    {
+                        "key": "详细条件",
+                        "val": "王天一，女，2025年12月体检异常：变应性鼻炎、窦性心律胸导联低电压、胆囊附壁结晶、甲状腺右叶混合回声结节（单发0.3cm×0.2cm）、甲状腺左叶多发囊性结节（最大0.3cm×0.2cm）"
+                    }
+                ],
+                "products": [
+                    {
+                        "raw": "达尔文12号重大疾病保险(互联网)",
+                        "itemname": "达尔文12号重大疾病保险(互联网)",
+                        "itemid": "178609",
+                        "productid": "345211",
+                        "insurer": {
+                            "raw": null,
+                            "name": null
+                        },
+                        "conditions": [
+                            {
+                                "key": "销售状态",
+                                "val": "销售中"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}
+
+2026-04-08 15:03:58
+[NLU] NLU核心，节点输出：type:route, canonical:, itemid:, route:核保咨询
+
+2026-04-08 15:03:58
+识别到意图: ['核保咨询']
+
+2026-04-08 15:03:58
+路由到 Agent: 核保咨询`,
+          },
+          {
+            id: "darwin-underwrite",
+            time: "15:03:58.000",
+            occurredAt: "2026-04-08 15:03:58",
+            logId: "darwin-log-003",
+            label: "UNDERWRITE",
+            icon: "check-circle",
+            color: "green",
+            title: "核保咨询",
+            status: "success",
+            durationMs: 104000,
+            content: `2026-04-08 15:03:58
+[核保咨询] 用户消息: 达尔文12号重大疾病保险(互联网)
+
+2026-04-08 15:03:58
+[核保咨询] 核保参数:
+{"bizType": 2, "bizId": "1775631838.192391", "itemIds": [178609], "health_disease": "客户在2025年12月份体检异常 麻烦老师看看 投保达尔文 12 号重疾哪些涉及健康告知\\n达尔文12号重大疾病保险(互联网)", "imgList": ["https://sslstatic.cxisc.com/chat_images/0173957b2c5c465389090ef5eb563958.jpeg"], "outputType": 2}
+
+2026-04-08 15:05:42
+[核保咨询] 核保结果:
+{"code": 0, "message": "success", "data": {"bizId": "1775631838.192391", "traceId": "9f4a6aff2f3e49a498721531e56cc4a5", "careeAiResult": null, "noticeAiResultList": null, "textAiResult": "产品：达尔文 12 号重大疾病保险（互联网）-健康告知\\n1,甲状腺右叶混合回声结节 甲状腺左叶结节，涉及健康告知，命中关于【甲状腺结节】及近 1 年内未明确性质结节的询问，因 2025 年 12 月超声提示结节且无病理报告明确性质。\\n智核为无智核规则。\\n2,以下内容【变应性鼻炎、窦性心律 胸导联低电压、胆囊附壁结晶】若不涉及近 1-2 年的不适症状，未被建议进一步检查、治疗，则不涉及健康告知。\\n*本回复仅代表初步分析与建议，不构成正式核保结论。"}}`,
+          },
+        ],
+      },
+      {
+        traceId: "9f4f24ad0a784cb5b3a0a1e64f840408",
+        displayId: "9f4f24ad****",
+        project: "咔嚓保-投保助手",
+        app: "投保助手",
+        input: "这个能买超级玛丽吗？",
+        output: "请从以下在售产品候选中选择具体版本",
+        userFeedback: "-",
+        problemType: "-",
+        problemFeedback: "-",
+        qcEvaluation: "-",
+        qcNotes: "-",
+        qcTags: "-",
+        lastOperator: "-",
+        createdAt: "2026-04-08 16:15:54",
+        finalStatus: "success",
+        endToEndDurationMs: 22000,
+        totalModelTokens: 2058,
+        totalModelCost: 0.0226,
+        userId: "session_underwrite_clarify_1744100154001",
+        processNodes: [
+          {
+            id: "clarify-input",
+            time: "16:15:54.000",
+            occurredAt: "2026-04-08 16:15:54",
+            logId: "clarify-log-001",
+            label: "INPUT",
+            icon: "user",
+            color: "blue",
+            title: "用户输入",
+            status: "success",
+            durationMs: 20,
+            content: "【这个能买超级玛丽吗？】",
+          },
+          {
+            id: "clarify-image",
+            time: "16:15:54.000",
+            occurredAt: "2026-04-08 16:15:54",
+            logId: "clarify-log-002",
+            label: "IMAGE",
+            icon: "file-text",
+            color: "blue",
+            title: "图片提取",
+            status: "success",
+            durationMs: 32,
+            content: "从消息中提取图片: https://quan-picture-1259287960.cos.ap-guangzhou.myqcloud.com/981/e772fc13a3b04c9496dfae9f74d9d9f7.jpeg",
+          },
+          {
+            id: "clarify-nlu-1",
+            time: "16:15:54.120",
+            occurredAt: "2026-04-08 16:15:54",
+            logId: "clarify-log-003",
+            label: "NLU",
+            icon: "cpu",
+            color: "orange",
+            title: "NLU首次识别",
+            status: "success",
+            durationMs: 10980,
+            tokenUsage: { input: 356, output: 402, total: 758 },
+            cost: 0.0084,
+            content: `2026-04-08 16:15:54
+[NLU]第1次迭代，NLU核心，节点输入：
+问题：
+【这个能买超级玛丽吗？】，
+
+近几轮会话：
+【】，
+
+候选产品id
+【】
+
+2026-04-08 16:15:54
+意图识别输入 - 用户消息: 这个能买超级玛丽吗？, 上下文长度: 0, 参考信息长度: 0, node_id: 86, 图片数量: 1
+
+2026-04-08 16:16:05
+[NLU内容输出结束] {
+  "version": "3.18",
+  "current_query": "这个能买超级玛丽吗？",
+  "action": {
+    "type": "lookup",
+    "parameters": {
+      "reply": null,
+      "clarify": null,
+      "route": [],
+      "intent_meta": {
+        "rewritten_query": "王智慧，女，25岁，甲状腺双侧叶结节样病灶拟C-TIRADS 2类，咨询超级玛丽相关产品是否可以投保",
+        "origin_query": "这个能买超级玛丽吗？",
+        "history_images": [],
+        "insurer": {
+          "raw": null,
+          "name": null
+        },
+        "scenario": ["核保"],
+        "search_conditions": [
+          {
+            "key": "详细条件",
+            "val": "王智慧，女，25岁，甲状腺双侧叶结节样病灶拟C-TIRADS 2类"
+          }
+        ],
+        "products": [
+          {
+            "raw": "超级玛丽",
+            "itemname": null,
+            "itemid": null,
+            "productid": null,
+            "insurer": {
+              "raw": null,
+              "name": null
+            },
+            "conditions": []
+          }
+        ]
+      }
+    }
+  }
+}
+
+2026-04-08 16:16:05
+[NLU] NLU核心，节点输出：type："lookup"，products：[产品id:None,商品id:None,产品名称:,保司名称:{'raw': None, 'name': None}]`,
+          },
+          {
+            id: "clarify-recall",
+            time: "16:16:05.180",
+            occurredAt: "2026-04-08 16:16:05",
+            logId: "clarify-log-004",
+            label: "RECALL",
+            icon: "database",
+            color: "purple",
+            title: "知识库检索",
+            status: "success",
+            durationMs: 420,
+            meta: ["候选数: 45", "查询词: 超级玛丽"],
+            isJson: true,
+            content: {
+              source: "kb",
+              targets: ["product_0"],
+              queries: { product_0: "超级玛丽" },
+              results: {
+                product_0: {
+                  query: "超级玛丽",
+                  found: true,
+                  total: 45,
+                  top_products: [
+                    {
+                      商品id: "179405",
+                      商品名称: "君龙人寿超级玛丽16号重大疾病保险",
+                      销售状态: "销售中",
+                      产品id: "345580",
+                    },
+                    {
+                      商品id: "179186",
+                      商品名称: "复星联合保险超级玛丽重疾险(医联有盟版)",
+                      销售状态: "销售中",
+                      产品id: "345486",
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          {
+            id: "clarify-nlu-2",
+            time: "16:16:05.600",
+            occurredAt: "2026-04-08 16:16:05",
+            logId: "clarify-log-005",
+            label: "NLU",
+            icon: "cpu",
+            color: "orange",
+            title: "NLU二次识别",
+            status: "success",
+            durationMs: 10400,
+            tokenUsage: { input: 980, output: 320, total: 1300 },
+            cost: 0.0142,
+            content: `2026-04-08 16:16:05
+[Lookup] 原始切片数量：45条，候选产品中在售结果包含：
+- 复星联合保险超级玛丽重疾险(医联有盟版) (产品ID: 345486, 商品ID: 179186)
+- 君龙人寿超级玛丽16号重大疾病保险 (产品ID: 345580, 商品ID: 179405)
+
+2026-04-08 16:16:05
+[NLU]第2次迭代，NLU核心，节点输入：
+问题：
+【这个能买超级玛丽吗？】，
+
+近几轮会话：
+【】，
+
+候选产品id
+【
+[第1轮检索结果]
+查询条件: product_0: 超级玛丽
+检索到 45 个产品，其中在售候选 2 个
+】
+
+2026-04-08 16:16:05
+意图识别输入 - 用户消息: 这个能买超级玛丽吗？, 上下文长度: 0, 参考信息长度: 3400, node_id: 86, 图片数量: 1
+
+2026-04-08 16:16:16
+[NLU内容输出结束] {
+  "version": "3.18",
+  "current_query": "这个能买超级玛丽吗？",
+  "action": {
+    "type": "clarify",
+    "parameters": {
+      "reply": null,
+      "clarify": "请从以下在售产品候选中选择具体版本",
+      "route": [],
+      "intent_meta": {
+        "rewritten_query": "王智慧，女，25岁，甲状腺双侧叶结节样病灶拟C-TIRADS 2类，咨询超级玛丽系列产品是否可以投保",
+        "origin_query": "这个能买超级玛丽吗？",
+        "history_images": [],
+        "insurer": {
+          "raw": null,
+          "name": null
+        },
+        "scenario": ["核保"],
+        "search_conditions": [
+          {
+            "key": "详细条件",
+            "val": "王智慧，女，25岁，甲状腺双侧叶结节样病灶拟C-TIRADS 2类"
+          }
+        ],
+        "products": [
+          {
+            "raw": "超级玛丽",
+            "itemname": "复星联合保险超级玛丽重疾险(医联有盟版)",
+            "itemid": "179186",
+            "productid": "345486",
+            "insurer": {
+              "raw": "复星联合保险",
+              "name": null
+            }
+          },
+          {
+            "raw": "超级玛丽",
+            "itemname": "君龙人寿超级玛丽16号重大疾病保险",
+            "itemid": "179405",
+            "productid": "345580",
+            "insurer": {
+              "raw": "君龙人寿",
+              "name": null
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+
+2026-04-08 16:16:16
+[NLU] NLU核心，节点输出：type:"clarify"
+
+2026-04-08 16:16:16
+需要用户澄清`,
+          },
+          {
+            id: "clarify-answer",
+            time: "16:16:16.000",
+            occurredAt: "2026-04-08 16:16:16",
+            logId: "clarify-log-006",
+            label: "ANSWER",
+            icon: "message-square",
+            color: "green",
+            title: "澄清回复",
+            status: "success",
+            durationMs: 168,
+            content: `请从以下在售产品候选中选择具体版本：
+1. 复星联合保险超级玛丽重疾险(医联有盟版)
+2. 君龙人寿超级玛丽16号重大疾病保险`,
+          },
+        ],
+      },
       {
         traceId: "1ab205da815e4de78f1bab88ef06a781",
         displayId: "1ab205da****",
@@ -2804,8 +3748,10 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
 
     function renderStatusIcon(status) {
       const meta = TRACE_STATUS_META[status] || TRACE_STATUS_META.success;
-      const iconName = meta.className === "failed" ? "circle-x" : "circle-check-big";
-      return `<span class="trace-status-icon ${meta.className}" title="${meta.label}" aria-label="${meta.label}"><i data-lucide="${iconName}"></i></span>`;
+      const iconSvg = meta.className === "failed" 
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      return `<span class="trace-status-icon ${meta.className}" title="${meta.label}" aria-label="${meta.label}">${iconSvg}</span>`;
     }
 
     function renderStatusInline(status) {
@@ -2889,13 +3835,74 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
       return normalized ? normalized.split("\n").length : 1;
     }
 
+    function renderImageHtml(url, isImgTag = false) {
+      const imagePreview = `<div class="inline-image-wrapper" style="margin: 8px 0; padding: 8px; background: #f8fafc; border: 1px solid var(--line); border-radius: 8px;"><img src="${url}" style="max-width: 100%; max-height: 300px; border-radius: 4px; display: block; cursor: zoom-in;" loading="lazy" onclick="openImagePreview('${url}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" /><div style="display: none; color: var(--muted); font-size: 12px; padding: 8px;">图片加载失败: ${url}</div></div>`;
+      const displayUrl = isImgTag ? `[img:${url}]` : url;
+      return `${displayUrl}${imagePreview}`;
+    }
+
+    function openImagePreview(url) {
+      const modal = document.getElementById('imagePreviewModal');
+      const img = document.getElementById('imagePreviewImg');
+      img.src = url;
+      modal.style.display = 'flex';
+      document.addEventListener('keydown', handleImagePreviewKeydown);
+    }
+
+    function closeImagePreview() {
+      const modal = document.getElementById('imagePreviewModal');
+      modal.style.display = 'none';
+      document.removeEventListener('keydown', handleImagePreviewKeydown);
+    }
+
+    function handleImagePreviewKeydown(e) {
+      if (e.key === 'Escape') {
+        closeImagePreview();
+      }
+    }
+
     function renderCodeBlock(content, lineLimit = COLLAPSE_LINE_LIMIT) {
       const text = (content ?? "").toString();
       const lineCount = countLines(text);
       const byLogicalLines = lineCount > lineLimit;
       const byContentLength = text.length > lineLimit * 120;
       const needsCollapse = byLogicalLines || byContentLength;
-      return `<div class="code-block ${needsCollapse ? "collapsed" : ""}" data-line-count="${lineCount}" style="--collapse-lines:${lineLimit};">${needsCollapse ? '<div class="expand-btn" onclick="toggleExpand(this.parentElement)">展开内容</div>' : ""}<div class="code-block-content">${escapeHtml(text)}</div></div>`;
+      
+      // Use placeholders to avoid escaping image URLs
+      const imagePlaceholders = [];
+      let placeholderIndex = 0;
+      
+      // First, extract and replace [img:url] tags with placeholders
+      let processedText = text.replace(
+        /\[img:([^\]]+\.(?:jpeg|jpg|png|gif|webp))\]/gi,
+        (match, url) => {
+          const placeholder = `__IMG_PLACEHOLDER_${placeholderIndex}__`;
+          imagePlaceholders.push({ placeholder, html: renderImageHtml(url, true) });
+          placeholderIndex++;
+          return placeholder;
+        }
+      );
+      
+      // Then, extract and replace direct image URLs with placeholders
+      processedText = processedText.replace(
+        /(https?:\/\/[^\s<>"]+\.(?:jpeg|jpg|png|gif|webp))(?=[\s<>]|$)/gi,
+        (match, url) => {
+          const placeholder = `__IMG_PLACEHOLDER_${placeholderIndex}__`;
+          imagePlaceholders.push({ placeholder, html: renderImageHtml(url, false) });
+          placeholderIndex++;
+          return placeholder;
+        }
+      );
+      
+      // Escape HTML
+      processedText = escapeHtml(processedText);
+      
+      // Replace placeholders with actual image HTML
+      imagePlaceholders.forEach(({ placeholder, html }) => {
+        processedText = processedText.replace(placeholder, html);
+      });
+      
+      return `<div class="code-block ${needsCollapse ? "collapsed" : ""}" data-line-count="${lineCount}" style="--collapse-lines:${lineLimit};">${needsCollapse ? '<div class="expand-btn" onclick="toggleExpand(this.parentElement)">展开内容</div>' : ""}<div class="code-block-content">${processedText}</div></div>`;
     }
 
     function detectFormat(content) {
@@ -2965,9 +3972,7 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
       document.getElementById("inputContent").innerHTML = inputResult.html;
       document.getElementById("outputContent").innerHTML = outputResult.html;
 
-      if (window.lucide) {
-        lucide.createIcons();
-      }
+      renderIcons();
     }
 
     function getProcessLogRenderOptions() {
@@ -3024,7 +4029,7 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
         <div class="extension-id-item">
           <span class="extension-id-item-label">${escapeHtml(item.label)}</span>
           <span class="extension-id-item-value" id="processExtensionIdValue${index}">${escapeHtml(item.value)}</span>
-          <i data-lucide="copy" class="copy-icon" onclick="copyToClipboard('processExtensionIdValue${index}')"></i>
+          <span class="copy-icon" onclick="copyToClipboard('processExtensionIdValue${index}')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span>
         </div>
       `).join("");
     }
@@ -3196,7 +4201,7 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
           <div class="kb-compact-grid">
             ${node.content.map((ref, index) => `
               <div class="ref-card-compact" onclick="openSecondaryPanel('${slicesKey}', ${index})" title="${escapeHtml(ref.title)}">
-                <i data-lucide="file-text"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
                 <span>${escapeHtml(ref.title)}</span>
               </div>
             `).join("")}
@@ -3223,12 +4228,12 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
 
         streamHtml += `
           <div class="timeline-item" id="${node.id}">
-            ${simpleMode ? "" : `<div class="timeline-icon icon-${node.color}"><i data-lucide="${node.icon}"></i></div>`}
+            ${simpleMode ? "" : `<div class="timeline-icon icon-${node.color}">${getNodeIconSvg(node.icon)}</div>`}
             <div class="time-label">
               ${renderStatusIcon(node.status)}
               <span class="time-label-text">${escapeHtml(getNodeLogMetaLine(trace, node))}</span>
               <button class="btn-copy-node-inline" onclick="copyNodeById('${node.id}')" title="复制当前节点">
-                <i data-lucide="copy" style="width: 12px; height: 12px;"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
               </button>
             </div>
             <div class="t-card">
@@ -3290,8 +4295,6 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
       renderTimeline(nodes, timelineStream, navContainer, { ...processLogOptions, trace });
 
       document.getElementById("detailModal").style.display = "flex";
-      document.documentElement.classList.add("modal-open");
-      document.body.classList.add("modal-open");
 
       const tabBtn = document.querySelector(`.tab-item[onclick*="${defaultTab}"]`);
       if (tabBtn) {
@@ -3301,7 +4304,7 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
       closeSecondaryPanel();
 
       setTimeout(() => {
-        lucide.createIcons();
+        renderIcons();
 
         const urlParams = new URLSearchParams(window.location.search);
         const selectedNodeId = urlParams.get("selectedNode");
@@ -3420,7 +4423,7 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
       renderCurrentSlice();
       document.getElementById("secondaryPanel").classList.add("open");
       document.querySelector(".sp-overlay").style.display = "block";
-      lucide.createIcons();
+      renderIcons();
     }
 
     function switchSlice(index) {
@@ -3452,7 +4455,7 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
         displayContent = JSON.stringify(JSON.parse(slice.content), null, 2);
       } catch (error) {}
       document.getElementById("spContent").innerText = displayContent;
-      lucide.createIcons();
+      renderIcons();
     }
 
     function copyCurrentSlice() {
@@ -3503,10 +4506,10 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
       document.querySelector(".sp-overlay").style.display = "none";
     }
 
+
+
     function closeModal() {
       document.getElementById("detailModal").style.display = "none";
-      document.documentElement.classList.remove("modal-open");
-      document.body.classList.remove("modal-open");
       closeSecondaryPanel();
     }
 
@@ -3629,6 +4632,10 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
     });
 
     document.addEventListener("keydown", (event) => {
+      // 如果同步评测集弹窗打开，先关闭它，不关闭 Trace 详情页
+      if (event.key === "Escape" && document.getElementById("syncEvalSetModal")?.style.display === "flex") {
+        return; // 让后面的监听器处理同步弹窗关闭
+      }
       if (event.key === "Escape" && document.getElementById("detailModal").style.display === "flex") {
         closeModal();
       }
@@ -3638,8 +4645,477 @@ Assistant: 哎呀，这个问题我暂时还没学会哦，正在催产品大大
       renderTraceTable();
       document.getElementById("traceTableBody").addEventListener("click", handleRowClick);
       setupScrollSync();
-      lucide.createIcons();
+      renderIcons();
       openDetailFromQuery();
+      
+
+    });
+
+    // ==================== 同步到评测集功能 ====================
+    const EVAL_SET_STORAGE_KEY = "evaluation_sets_demo_v2";
+    let currentSyncTrace = null;
+    let evalSetsData = [];
+    let filteredEvalSets = [];
+    let selectedEvalSetIds = new Set();
+    let currentSyncPage = 1;
+    const SYNC_PAGE_SIZE = 10;
+
+    // 创建默认评测集数据
+    function createDefaultEvalSets() {
+      return [
+        {
+          id: "A-001",
+          type: "app",
+          targetId: "app-001",
+          targetName: "投保助手",
+          project: "咯嗣保",
+          app: "投保助手",
+          name: "投保助手通用评测集",
+          owners: "wisewong",
+          updated: "2026-04-08 10:15",
+          cases: []
+        },
+        {
+          id: "P-001",
+          type: "prompt",
+          targetId: "prompt-001",
+          targetName: "意图分流NLU",
+          project: "咯嗣保-手小保",
+          app: "手小保",
+          name: "意图分流的评测集",
+          owners: "wisewong,mollie",
+          updated: "2026-04-08 10:15",
+          cases: []
+        }
+      ];
+    }
+
+    // 清除 localStorage 中的旧评测集数据（用于测试）
+    function clearEvalSetsStorage() {
+      localStorage.removeItem(EVAL_SET_STORAGE_KEY);
+    }
+
+    // 加载评测集数据
+    function loadEvalSets() {
+      try {
+        let raw = JSON.parse(localStorage.getItem(EVAL_SET_STORAGE_KEY) || "[]");
+        // 如果没有数据，创建默认数据
+        if (!raw || raw.length === 0) {
+          raw = createDefaultEvalSets();
+          localStorage.setItem(EVAL_SET_STORAGE_KEY, JSON.stringify(raw));
+        }
+        evalSetsData = raw.map(normalizeEvalSet);
+      } catch {
+        evalSetsData = createDefaultEvalSets();
+      }
+    }
+
+    // 标准化评测集数据
+    function normalizeEvalSet(raw, idx) {
+      return {
+        id: String(raw.id || `SET-${idx + 1}`),
+        type: raw.type === "app" ? "app" : "prompt",
+        project: String(raw.project || ""),
+        app: String(raw.app || ""),
+        targetName: String(raw.targetName || raw.name || ""),
+        name: String(raw.name || ""),
+        owners: String(raw.owners || "wisewong"),
+        updated: String(raw.updated || raw.updatedAt || new Date().toLocaleString()),
+        cases: Array.isArray(raw.cases) ? raw.cases : []
+      };
+    }
+
+    // 获取项目/应用选项
+    function getProjectOptions() {
+      const options = new Set();
+      evalSetsData.forEach(set => {
+        if (set.project && set.app) {
+          options.add(`${set.project}/${set.app}`);
+        }
+      });
+      return Array.from(options);
+    }
+
+    // 获取评测对象选项
+    function getObjectOptions() {
+      const type = document.getElementById("syncFilterType")?.value;
+      const projectApp = document.getElementById("syncFilterProject")?.value;
+      
+      let filtered = evalSetsData;
+      if (type) {
+        filtered = filtered.filter(s => s.type === type);
+      }
+      if (projectApp) {
+        const [proj, app] = projectApp.split("/");
+        filtered = filtered.filter(s => s.project === proj && s.app === app);
+      }
+      
+      const options = new Set();
+      filtered.forEach(set => {
+        if (set.targetName) {
+          options.add(set.targetName);
+        }
+      });
+      return Array.from(options);
+    }
+
+    // 初始化筛选下拉选项
+    function initSyncFilters(trace) {
+      // 默认类型为"应用"
+      const typeSelect = document.getElementById("syncFilterType");
+      typeSelect.value = "app";
+      
+      // 项目/应用下拉
+      const projectSelect = document.getElementById("syncFilterProject");
+      const projects = getProjectOptions();
+      projectSelect.innerHTML = '<option value="">请选择</option>' + 
+        projects.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join("");
+      
+      // 如果有当前 trace 的项目/应用，默认选中
+      if (trace && trace.project && trace.app) {
+        // 处理 project 格式：如果是 "咯嗣保-投保助手" 则提取 "咯嗣保"
+        let projectName = trace.project;
+        if (projectName.includes("-")) {
+          projectName = projectName.split("-")[0];
+        }
+        const traceProjectApp = `${projectName}/${trace.app}`;
+        if (projects.includes(traceProjectApp)) {
+          projectSelect.value = traceProjectApp;
+        }
+      }
+
+      // 刷新对象下拉
+      refreshObjectFilter();
+
+      // 如果有当前 trace 的应用名，默认选中对象
+      if (trace && trace.app) {
+        const objectSelect = document.getElementById("syncFilterObject");
+        const options = Array.from(objectSelect.options).map(o => o.value);
+        if (options.includes(trace.app)) {
+          objectSelect.value = trace.app;
+        }
+      }
+
+      // 负责人默认为 wisewong
+      document.getElementById("syncFilterOwner").value = "wisewong";
+    }
+
+    // 刷新对象下拉
+    function refreshObjectFilter() {
+      const objectSelect = document.getElementById("syncFilterObject");
+      const objects = getObjectOptions();
+      const currentValue = objectSelect.value;
+      objectSelect.innerHTML = '<option value="">请选择</option>' + 
+        objects.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+      if (objects.includes(currentValue)) {
+        objectSelect.value = currentValue;
+      }
+    }
+
+    // 打开同步弹窗
+    function openSyncEvalSetModal(trace) {
+      try {
+        currentSyncTrace = trace;
+        selectedEvalSetIds = new Set();
+        currentSyncPage = 1;
+        
+        loadEvalSets();
+        initSyncFilters(trace);
+        
+        // 重置其他筛选条件
+        document.getElementById("syncFilterType").value = "";
+        document.getElementById("syncFilterName").value = "";
+        
+        // 执行搜索
+        searchEvalSets();
+        
+        // 显示弹窗
+        document.getElementById("syncEvalSetModal").style.display = "flex";
+        
+        renderIcons();
+      } catch (err) {
+        console.error("打开同步弹窗失败:", err);
+      }
+    }
+
+    // 关闭同步弹窗
+    function closeSyncEvalSetModal() {
+      document.getElementById("syncEvalSetModal").style.display = "none";
+      // 只有当详情页也关闭时才移除 modal-open 类
+      if (document.getElementById("detailModal").style.display !== "flex") {
+
+      }
+      currentSyncTrace = null;
+      selectedEvalSetIds = new Set();
+    }
+
+    // 筛选评测集
+    function filterEvalSets() {
+      const type = document.getElementById("syncFilterType").value;
+      const projectApp = document.getElementById("syncFilterProject").value;
+      const object = document.getElementById("syncFilterObject").value;
+      const name = document.getElementById("syncFilterName").value.trim().toLowerCase();
+      const owner = document.getElementById("syncFilterOwner").value.trim().toLowerCase();
+
+      filteredEvalSets = evalSetsData.filter(set => {
+        if (type && set.type !== type) return false;
+        if (projectApp) {
+          const [proj, app] = projectApp.split("/");
+          if (set.project !== proj || set.app !== app) return false;
+        }
+        if (object && set.targetName !== object) return false;
+        if (name && !set.name.toLowerCase().includes(name) && !set.id.toLowerCase().includes(name)) return false;
+        if (owner && !set.owners.toLowerCase().includes(owner)) return false;
+        return true;
+      });
+
+    }
+
+    // 搜索评测集
+    function searchEvalSets() {
+      currentSyncPage = 1;
+      filterEvalSets();
+      renderSyncEvalSetTable();
+      renderSyncPagination();
+    }
+
+    // 重置筛选
+    function resetEvalSetFilters() {
+      document.getElementById("syncFilterType").value = "";
+      document.getElementById("syncFilterProject").value = "";
+      document.getElementById("syncFilterObject").value = "";
+      document.getElementById("syncFilterName").value = "";
+      document.getElementById("syncFilterOwner").value = "";
+      
+      // 重新初始化下拉选项
+      refreshObjectFilter();
+      
+      searchEvalSets();
+    }
+
+    // 渲染评测集表格
+    function renderSyncEvalSetTable() {
+      const tbody = document.getElementById("syncEvalSetTableBody");
+      const start = (currentSyncPage - 1) * SYNC_PAGE_SIZE;
+      const end = start + SYNC_PAGE_SIZE;
+      const pageData = filteredEvalSets.slice(start, end);
+
+      if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="sync-empty">暂无数据</td></tr>`;
+        document.getElementById("syncTotalCount").textContent = "0";
+        updateSelectAllCheckbox([]);
+        return;
+      }
+
+      tbody.innerHTML = pageData.map(set => {
+        const typeLabel = set.type === "app" ? "应用" : "提示词";
+        const typeClass = set.type === "app" ? "tag-green" : "tag-blue";
+        const isSelected = selectedEvalSetIds.has(set.id);
+        // 截断负责人显示（如果超过15个字符）
+        const ownerDisplay = set.owners.length > 15 ? set.owners.substring(0, 12) + "..." : set.owners;
+        return `
+          <tr class="${isSelected ? 'selected' : ''}" data-set-id="${escapeHtml(set.id)}" onclick="toggleEvalSetSelection('${escapeHtml(set.id)}')">
+            <td class="sync-col-select">
+              <input
+                type="checkbox"
+                class="sync-checkbox"
+                name="evalSetSelect"
+                value="${escapeHtml(set.id)}"
+                ${isSelected ? "checked" : ""}
+                aria-label="选择评测集 ${escapeHtml(set.name)}"
+                onclick="event.stopPropagation()"
+                onchange="toggleEvalSetSelection('${escapeHtml(set.id)}', this.checked)"
+              />
+            </td>
+            <td class="sync-col-type"><span class="tag ${typeClass}">${typeLabel}</span></td>
+            <td class="sync-col-project">${escapeHtml(`${set.project}/${set.app}`)}</td>
+            <td class="sync-col-object">${escapeHtml(set.targetName)}</td>
+            <td class="sync-col-name">${escapeHtml(set.name)}</td>
+            <td class="sync-col-owner" title="${escapeHtml(set.owners)}">${escapeHtml(ownerDisplay)}</td>
+            <td class="sync-col-time">${escapeHtml(set.updated)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("syncTotalCount").textContent = filteredEvalSets.length;
+      updateSelectAllCheckbox(pageData);
+    }
+
+    function updateEvalSetRowStates() {
+      document.querySelectorAll("#syncEvalSetTableBody tr[data-set-id]").forEach(tr => {
+        tr.classList.toggle("selected", selectedEvalSetIds.has(tr.dataset.setId));
+      });
+      document.querySelectorAll("input[name='evalSetSelect']").forEach(checkbox => {
+        checkbox.checked = selectedEvalSetIds.has(checkbox.value);
+      });
+    }
+
+    function updateSelectAllCheckbox(pageData = filteredEvalSets.slice((currentSyncPage - 1) * SYNC_PAGE_SIZE, currentSyncPage * SYNC_PAGE_SIZE)) {
+      const selectAllCheckbox = document.getElementById("syncSelectAllCheckbox");
+      if (!selectAllCheckbox) return;
+
+      if (pageData.length === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.disabled = true;
+        return;
+      }
+
+      const selectedCount = pageData.filter(set => selectedEvalSetIds.has(set.id)).length;
+      selectAllCheckbox.disabled = false;
+      selectAllCheckbox.checked = selectedCount === pageData.length;
+      selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < pageData.length;
+    }
+
+    function toggleEvalSetSelection(setId, forceChecked) {
+      const shouldSelect = typeof forceChecked === "boolean" ? forceChecked : !selectedEvalSetIds.has(setId);
+      if (shouldSelect) {
+        selectedEvalSetIds.add(setId);
+      } else {
+        selectedEvalSetIds.delete(setId);
+      }
+      updateEvalSetRowStates();
+      updateSelectAllCheckbox();
+    }
+
+    function toggleSelectAllEvalSets(checked) {
+      const start = (currentSyncPage - 1) * SYNC_PAGE_SIZE;
+      const end = start + SYNC_PAGE_SIZE;
+      const pageData = filteredEvalSets.slice(start, end);
+
+      pageData.forEach(set => {
+        if (checked) {
+          selectedEvalSetIds.add(set.id);
+        } else {
+          selectedEvalSetIds.delete(set.id);
+        }
+      });
+
+      updateEvalSetRowStates();
+      updateSelectAllCheckbox(pageData);
+    }
+
+    // 渲染分页
+    function renderSyncPagination() {
+      const totalPages = Math.ceil(filteredEvalSets.length / SYNC_PAGE_SIZE);
+      const container = document.getElementById("syncPageBtns");
+
+      if (totalPages <= 1) {
+        container.innerHTML = "";
+        return;
+      }
+
+      let html = "";
+      // 上一页
+      html += `<button class="sync-page-btn" ${currentSyncPage === 1 ? 'disabled' : ''} onclick="goSyncPage(${currentSyncPage - 1})">&lt;</button>`;
+      
+      // 页码
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentSyncPage - 1 && i <= currentSyncPage + 1)) {
+          html += `<button class="sync-page-btn ${i === currentSyncPage ? 'active' : ''}" onclick="goSyncPage(${i})">${i}</button>`;
+        } else if (i === currentSyncPage - 2 || i === currentSyncPage + 2) {
+          html += `<span style="padding: 0 4px;">...</span>`;
+        }
+      }
+      
+      // 下一页
+      html += `<button class="sync-page-btn" ${currentSyncPage === totalPages ? 'disabled' : ''} onclick="goSyncPage(${currentSyncPage + 1})">&gt;</button>`;
+      
+      container.innerHTML = html;
+    }
+
+    // 切换页码
+    function goSyncPage(page) {
+      const totalPages = Math.ceil(filteredEvalSets.length / SYNC_PAGE_SIZE);
+      if (page < 1 || page > totalPages) return;
+      currentSyncPage = page;
+      renderSyncEvalSetTable();
+      renderSyncPagination();
+    }
+
+    // 确认同步
+    function confirmSyncToEvalSet() {
+      const selectedIds = Array.from(selectedEvalSetIds);
+      if (selectedIds.length === 0) {
+        showSyncToast("请选择至少一个评测集");
+        return;
+      }
+
+      if (!currentSyncTrace) {
+        showSyncToast("当前没有Trace数据");
+        return;
+      }
+
+      const selectedSets = evalSetsData.filter(set => selectedEvalSetIds.has(set.id));
+      if (selectedSets.length === 0) {
+        showSyncToast("评测集不存在");
+        return;
+      }
+
+      selectedSets.forEach(set => {
+        const newCase = {
+          id: String(set.cases.length + 1).padStart(2, "0"),
+          name: `Trace用例-${new Date().toLocaleDateString()}`,
+          inputs: {
+            query: currentSyncTrace.input,
+            reference_output: currentSyncTrace.output
+          }
+        };
+
+        set.cases.push(newCase);
+        set.updated = new Date().toLocaleString();
+      });
+
+      // 保存到 localStorage
+      localStorage.setItem(EVAL_SET_STORAGE_KEY, JSON.stringify(evalSetsData));
+
+      showSyncToast(selectedSets.length === 1 ? "已同步到 1 个评测集" : `已同步到 ${selectedSets.length} 个评测集`);
+      closeSyncEvalSetModal();
+    }
+
+    // 显示提示
+    function showSyncToast(message) {
+      const toast = document.createElement("div");
+      toast.textContent = message;
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 6px;
+        z-index: 3000;
+        font-size: 14px;
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+
+    // 筛选事件绑定
+    document.getElementById("syncFilterType")?.addEventListener("change", () => {
+      refreshObjectFilter();
+      searchEvalSets();
+    });
+    document.getElementById("syncFilterProject")?.addEventListener("change", () => {
+      refreshObjectFilter();
+      searchEvalSets();
+    });
+    document.getElementById("syncFilterObject")?.addEventListener("change", searchEvalSets);
+
+    // 点击弹窗外部关闭
+    document.getElementById("syncEvalSetModal")?.addEventListener("click", (e) => {
+      if (e.target.id === "syncEvalSetModal") {
+        closeSyncEvalSetModal();
+      }
+    });
+
+    // ESC 关闭弹窗
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && document.getElementById("syncEvalSetModal")?.style.display === "flex") {
+        closeSyncEvalSetModal();
+      }
     });
   </script>
 </body>
