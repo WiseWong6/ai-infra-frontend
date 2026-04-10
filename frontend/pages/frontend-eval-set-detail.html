@@ -462,6 +462,56 @@
       min-height: 500px;
     }
 
+    .task-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .collapse-btn {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .collapse-btn:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    .expand-btn {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .expand-btn:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
     .task-list-panel {
       width: 200px;
       flex-shrink: 0;
@@ -471,20 +521,35 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      transition: width 0.2s ease;
     }
 
-    .task-list-header {
-      padding: 12px 16px;
-      background: #f8fafc;
-      border-bottom: 1px solid var(--line);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
+    .task-list-panel.collapsed {
+      width: 44px;
+      min-width: 44px;
+    }
+
+    .task-list-panel.collapsed .task-header-text,
+    .task-list-panel.collapsed .collapse-btn {
+      display: none;
+    }
+
+    .task-list-panel.collapsed .expand-btn {
+      display: flex;
+    }
+
+    .task-list-panel.collapsed .task-list-header {
+      justify-content: center;
+      padding: 12px 0;
     }
 
     .task-list-body {
       overflow-y: auto;
       flex: 1;
+    }
+
+    .task-list-panel.collapsed .task-list-body {
+      overflow-y: auto;
     }
 
     .task-list-item {
@@ -522,10 +587,58 @@
     .task-name-cell {
       font-weight: 500;
       color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-index-cell {
+      flex-shrink: 0;
+      width: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .task-name-text {
+      flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      flex: 1;
+    }
+
+    /* 收起状怋下只显示序号 */
+    .task-list-panel.collapsed .task-name-text,
+    .task-list-panel.collapsed .task-item-actions {
+      display: none;
+    }
+
+    .task-list-panel.collapsed .task-list-item {
+      padding: 12px 0;
+      justify-content: center;
+      min-height: 44px;
+      border-left: none;
+      overflow: visible;
+    }
+
+    .task-list-panel.collapsed .task-list-item.active {
+      padding-left: 0;
+      border-left: none;
+      background: #eff6ff;
+    }
+
+    .task-list-panel.collapsed .task-name-cell {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .task-list-panel.collapsed .task-index-cell {
+      color: var(--text);
+      font-weight: 600;
+      font-size: 13px;
+      width: 100%;
     }
 
     .task-item-actions {
@@ -1057,8 +1170,16 @@
             <!-- 任务左右分栏布局 -->
             <div class="task-split-layout">
               <!-- 左边：任务列表 -->
-              <div class="task-list-panel">
-                <div class="task-list-header">任务名称</div>
+              <div class="task-list-panel" id="taskListPanel">
+                <div class="task-list-header">
+                  <span class="task-header-text">任务名称</span>
+                  <button class="collapse-btn" id="collapseTaskList" title="收起">
+                    <i data-lucide="panel-left-close" style="width:16px;height:16px;"></i>
+                  </button>
+                  <button class="expand-btn" id="expandTaskList" title="展开任务列表">
+                    <i data-lucide="panel-left-open" style="width:16px;height:16px;"></i>
+                  </button>
+                </div>
                 <div id="taskListBody" class="task-list-body">
                   <!-- 任务列表项由JS动态生成 -->
                 </div>
@@ -1466,11 +1587,15 @@
         return;
       }
       
-      taskListBody.innerHTML = tasks.map(task => {
+      taskListBody.innerHTML = tasks.map((task, index) => {
         const isActive = String(currentTaskId) === String(task.id);
+        const seq = index + 1;
         
         return `<div class="task-list-item ${isActive ? 'active' : ''}" data-task-id="${task.id}">
-          <div class="task-name-cell">${task.name}</div>
+          <div class="task-name-cell">
+            <span class="task-index-cell">${seq}</span>
+            <span class="task-name-text">${task.name}</span>
+          </div>
           <div class="task-item-actions">
             <button class="icon-btn" data-action="edit-task" data-task-id="${task.id}" title="编辑">
               <i data-lucide="pencil" style="width:14px;height:14px;"></i>
@@ -2056,7 +2181,20 @@
     // 任务列表事件
     taskListBody.addEventListener('click', handleTaskListAction);
     
-
+    // 任务列表收起/展开
+    const taskListPanel = document.getElementById('taskListPanel');
+    const collapseBtn = document.getElementById('collapseTaskList');
+    const expandBtn = document.getElementById('expandTaskList');
+    
+    collapseBtn.addEventListener('click', () => {
+      taskListPanel.classList.add('collapsed');
+      lucide.createIcons();
+    });
+    
+    expandBtn.addEventListener('click', () => {
+      taskListPanel.classList.remove('collapsed');
+      lucide.createIcons();
+    });
     
     document.getElementById('detailRefreshBtn').addEventListener('click', () => {
       const tasks = currentSet?.tasks || [];
