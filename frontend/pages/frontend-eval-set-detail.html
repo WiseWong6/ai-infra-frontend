@@ -1270,8 +1270,8 @@
             <span class="char-count"><span id="createTaskCharCount">0</span>/100</span>
           </div>
         </div>
-        <!-- 任务对象选择 -->
-        <div class="form-field" style="margin-top: 16px;">
+        <!-- 任务对象选择（仅应用类型评测集显示） -->
+        <div id="taskTargetField" class="form-field" style="margin-top: 16px;">
           <label class="field-label">
             <span class="required">*</span>任务对象
           </label>
@@ -1286,9 +1286,7 @@
             </label>
           </div>
         </div>
-        <p style="margin: 12px 0 0; font-size: 13px; color: var(--muted);">
-          已选择 <strong id="selectedCaseCount">0</strong> 条用例
-        </p>
+
       </div>
       <div class="modal-foot">
         <button id="createTaskCancel" class="btn btn-secondary" type="button">取 消</button>
@@ -1314,8 +1312,8 @@
             <span class="char-count"><span id="editTaskCharCount">0</span>/100</span>
           </div>
         </div>
-        <!-- 任务对象选择 -->
-        <div class="form-field" style="margin-top: 16px;">
+        <!-- 任务对象选择（仅应用类型评测集显示） -->
+        <div id="editTaskTargetField" class="form-field" style="margin-top: 16px;">
           <label class="field-label">
             <span class="required">*</span>任务对象
           </label>
@@ -1682,9 +1680,17 @@
       selectedDetailCases.clear();
       isSelectAllDetailPages = false;
       
-      // 更新标题和版本标签
+      // 更新标题和版本标签（仅应用类型显示版本标签）
       detailTaskName.textContent = task.name;
-      updateTaskVersionTag(task.target);
+      const versionTag = document.getElementById("detailTaskVersion");
+      if (versionTag) {
+        if (currentSet?.type === 'app') {
+          versionTag.style.display = 'inline';
+          updateTaskVersionTag(task.target);
+        } else {
+          versionTag.style.display = 'none';
+        }
+      }
       
       // 渲染详情表格
       renderTaskDetailTable(task);
@@ -1910,7 +1916,6 @@
     const createTaskModal = document.getElementById("createTaskModal");
     const createTaskName = document.getElementById("createTaskName");
     const createTaskCharCount = document.getElementById("createTaskCharCount");
-    const selectedCaseCount = document.getElementById("selectedCaseCount");
     
     // 编辑任务弹窗
     const editTaskModal = document.getElementById("editTaskModal");
@@ -1924,9 +1929,16 @@
         showToast("请先选择用例");
         return;
       }
-      selectedCaseCount.textContent = count;
       createTaskName.value = "";
       createTaskCharCount.textContent = "0";
+      
+      // 根据评测集类型显示/隐藏任务对象字段
+      const taskTargetField = document.getElementById("taskTargetField");
+      if (taskTargetField) {
+        const isAppType = currentSet?.type === 'app';
+        taskTargetField.style.display = isAppType ? 'flex' : 'none';
+      }
+      
       createTaskModal.classList.remove("hidden");
       createTaskName.focus();
     }
@@ -1988,6 +2000,13 @@
       editingTaskId = taskId;
       editTaskName.value = task.name || '';
       editTaskCharCount.textContent = String(task.name || '').length;
+      
+      // 根据评测集类型显示/隐藏任务对象字段
+      const editTaskTargetField = document.getElementById("editTaskTargetField");
+      if (editTaskTargetField) {
+        const isAppType = currentSet?.type === 'app';
+        editTaskTargetField.style.display = isAppType ? 'flex' : 'none';
+      }
       
       // 设置任务对象选中状态
       const targetValue = task.target || 'online';
@@ -2114,7 +2133,7 @@
       }
     }
 
-    function editTaskName() {
+    function editCurrentTaskName() {
       if (!currentTaskId) {
         showToast("请先选择任务");
         return;

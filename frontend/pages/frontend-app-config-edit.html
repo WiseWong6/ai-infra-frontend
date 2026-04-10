@@ -995,10 +995,35 @@
         const assistantPromptTextarea = document.getElementById("assistantPromptTextarea");
 
         // 默认 MCP 数据（与 frontend-mcp-center.html 中的 mock 数据保持一致）
+        // 注意：MCP 的 ID 是自增数字，serverName 是名称
         const defaultMcps = [
-            { id: 'mcp-1', name: 'order_query', description: '查询用户订单列表，支持按状态、时间范围筛选。' },
-            { id: 'mcp-2', name: 'quote_lookup', description: '按产品版本和渠道规则查询保司报价。' },
-            { id: 'mcp-3', name: 'policy_risk_scan', description: '对投保请求进行风控规则扫描并返回命中结果。' }
+            { 
+                id: 1, 
+                serverName: 'order_query', 
+                description: '查询用户订单列表，支持按状态、时间范围筛选。',
+                serviceName: 'orderao',
+                interfaceName: 'list_orders',
+                owner: 'wisewong',
+                enabled: 'active'
+            },
+            { 
+                id: 2, 
+                serverName: 'quote_lookup', 
+                description: '按产品版本和渠道规则查询保司报价。',
+                serviceName: 'productao',
+                interfaceName: 'quote_lookup',
+                owner: 'sally',
+                enabled: 'active'
+            },
+            { 
+                id: 3, 
+                serverName: 'policy_risk_scan', 
+                description: '对投保请求进行风控规则扫描并返回命中结果。',
+                serviceName: 'riskao',
+                interfaceName: 'scan_policy_risk',
+                owner: 'wisewong',
+                enabled: 'inactive'
+            }
         ];
 
         // 资源绑定相关元素
@@ -1198,7 +1223,8 @@
             
             try {
                 // 使用默认 MCP 数据查找已选的 MCP
-                const selectedMcps = currentNodeMcpIds.map(id => defaultMcps.find(m => m.id === id)).filter(Boolean);
+                // 注意：currentNodeMcpIds 存储的可能是字符串，需要转换为数字进行比较
+                const selectedMcps = currentNodeMcpIds.map(id => defaultMcps.find(m => m.id === Number(id))).filter(Boolean);
                 
                 if (selectedMcps.length === 0) {
                     selectedMcpList.innerHTML = '<span style="color:var(--muted); font-size:13px;">暂未绑定 MCP</span>';
@@ -1219,12 +1245,12 @@
                             ${selectedMcps.map(mcp => `
                                 <tr style="border-bottom:1px solid var(--line);">
                                     <td style="padding:10px 12px; color:var(--muted);">${mcp.id}</td>
-                                    <td style="padding:10px 12px;">${mcp.name}</td>
+                                    <td style="padding:10px 12px;">${mcp.serverName}</td>
                                     <td style="padding:10px 12px; color:var(--muted);">${mcp.description || '-'}</td>
                                     <td style="padding:10px 12px;">
                                         <div style="display:flex; gap:8px;">
-                                            <button type="button" class="btn-text" onclick="editMcp('${mcp.id}')" style="color:var(--blue); background:none; border:none; cursor:pointer; font-size:13px; padding:0;">编辑</button>
-                                            <button type="button" class="btn-text" onclick="removeMcp('${mcp.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-size:13px; padding:0;">删除</button>
+                                            <button type="button" class="btn-text" onclick="editMcp(${mcp.id})" style="color:var(--blue); background:none; border:none; cursor:pointer; font-size:13px; padding:0;">编辑</button>
+                                            <button type="button" class="btn-text" onclick="removeMcp(${mcp.id})" style="color:var(--danger); background:none; border:none; cursor:pointer; font-size:13px; padding:0;">删除</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -1308,7 +1334,7 @@
                 mcps.forEach(m => {
                     const option = document.createElement('option');
                     option.value = m.id;
-                    option.textContent = `${m.name} - ${m.description || ''}`;
+                    option.textContent = `${m.serverName} - ${m.description || ''}`;
                     if (m.id === mcpId) option.selected = true;
                     mcpSelectDropdown.appendChild(option);
                 });
@@ -1324,7 +1350,8 @@
         // 移除 MCP
         window.removeMcp = function(mcpId) {
             if (!confirm('确定要删除该 MCP 绑定吗？')) return;
-            currentNodeMcpIds = currentNodeMcpIds.filter(id => id !== mcpId);
+            // 类型转换确保一致性（localStorage 可能存储字符串）
+            currentNodeMcpIds = currentNodeMcpIds.filter(id => Number(id) !== mcpId);
             saveNodeResourceBindings();
             renderSelectedMcpList();
             showToast('MCP 已删除');
@@ -1353,8 +1380,8 @@
                     mcpSelectEmpty.style.display = 'none';
                     document.getElementById('mcpFormContainer').style.display = 'flex';
                     
-                    // 过滤掉已绑定的 MCP
-                    const availableMcps = mcps.filter(m => !currentNodeMcpIds.includes(m.id));
+                    // 过滤掉已绑定的 MCP（注意类型转换）
+                    const availableMcps = mcps.filter(m => !currentNodeMcpIds.map(id => Number(id)).includes(m.id));
                     
                     if (availableMcps.length === 0) {
                         mcpSelectDropdown.innerHTML = '<option value="">暂无可选 MCP（已全部绑定）</option>';
@@ -1362,7 +1389,7 @@
                         availableMcps.forEach(m => {
                             const option = document.createElement('option');
                             option.value = m.id;
-                            option.textContent = `${m.name} - ${m.description || ''}`;
+                            option.textContent = `${m.serverName} - ${m.description || ''}`;
                             mcpSelectDropdown.appendChild(option);
                         });
                     }
@@ -1382,7 +1409,7 @@
 
         // 保存 MCP 选择
         function saveMcpSelection() {
-            const selectedMcpId = mcpSelectDropdown?.value;
+            const selectedMcpId = Number(mcpSelectDropdown?.value);
             
             if (!selectedMcpId) {
                 showToast('请选择一个 MCP');
@@ -1391,8 +1418,8 @@
             
             try {
                 if (editingMcpId) {
-                    // 编辑模式：替换原有 ID
-                    const index = currentNodeMcpIds.indexOf(editingMcpId);
+                    // 编辑模式：替换原有 ID（注意类型转换后比较）
+                    const index = currentNodeMcpIds.findIndex(id => Number(id) === editingMcpId);
                     if (index >= 0) {
                         currentNodeMcpIds[index] = selectedMcpId;
                     }
