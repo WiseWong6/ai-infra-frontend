@@ -1709,9 +1709,10 @@
           type: "app",
           projectApp: "咔嚓保-手小保/手小保",
           targetName: "手小保",
-          desc: "-",
+        objectLabel: "手小保",
+          desc: "手小保智能助手评测",
           owners: "wisewong,martin",
-          updated: "2026/04/07 17:06",
+          updated: nowString(),
           cases: JSON.parse(JSON.stringify(demoCases)),
           tasks: []
         };
@@ -2467,14 +2468,15 @@
     // 如果没有数据或数据格式不兼容，创建示例数据
     if (!currentSet) {
       const demoSet = {
-        id: generateId("set"),
+        id: setId || "A-001",
         name: "手小保的评测集",
         type: "app",
         projectApp: "咔嚓保-手小保/手小保",
         targetName: "手小保",
-        desc: "-",
+        objectLabel: "手小保",
+        desc: "手小保智能助手评测",
         owners: "wisewong,martin",
-        updated: "2026/04/07 17:06",
+        updated: nowString(),
         cases: JSON.parse(JSON.stringify(demoCases)),
         tasks: []
       };
@@ -2482,6 +2484,7 @@
       sets.push(demoSet);
       saveSets();
       currentSet = demoSet;
+      showToast("数据已自动恢复");
     } else {
       // 确保cases存在
       if (!currentSet.cases) currentSet.cases = [];
