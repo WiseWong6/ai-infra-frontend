@@ -2496,7 +2496,9 @@
       showToast("数据已自动恢复");
     } else {
       // 确保cases存在
-      if (!currentSet.cases) currentSet.cases = [];
+      if (!currentSet.cases || currentSet.cases.length === 0) {
+        currentSet.cases = JSON.parse(JSON.stringify(demoCases));
+      }
       if (!currentSet.tasks) currentSet.tasks = [];
       ensureDefaultTask(currentSet);
     }
