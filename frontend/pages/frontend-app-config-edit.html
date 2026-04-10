@@ -994,6 +994,13 @@
         const assistantPromptBlock = document.getElementById("assistantPromptBlock");
         const assistantPromptTextarea = document.getElementById("assistantPromptTextarea");
 
+        // 默认 MCP 数据（与 frontend-mcp-center.html 中的 mock 数据保持一致）
+        const defaultMcps = [
+            { id: 'mcp-1', name: 'order_query', description: '查询用户订单列表，支持按状态、时间范围筛选。' },
+            { id: 'mcp-2', name: 'quote_lookup', description: '按产品版本和渠道规则查询保司报价。' },
+            { id: 'mcp-3', name: 'policy_risk_scan', description: '对投保请求进行风控规则扫描并返回命中结果。' }
+        ];
+
         // 资源绑定相关元素
         const kbSelectModal = document.getElementById("kbSelectModal");
         const kbSelectList = document.getElementById("kbSelectList");
@@ -1177,11 +1184,8 @@
             if (!selectedMcpList) return;
             
             try {
-                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
-                const appState = allState[appId] || {};
-                const mcps = appState.mcps || [];
-                
-                const selectedMcps = mcps.filter(m => currentNodeMcpIds.includes(m.id));
+                // 使用默认 MCP 数据查找已选的 MCP
+                const selectedMcps = currentNodeMcpIds.map(id => defaultMcps.find(m => m.id === id)).filter(Boolean);
                 
                 if (selectedMcps.length === 0) {
                     selectedMcpList.innerHTML = '<span style="color:var(--muted); font-size:13px;">暂未绑定 MCP</span>';
@@ -1274,9 +1278,8 @@
             editingMcpId = mcpId;
             
             try {
-                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
-                const appState = allState[appId] || {};
-                const mcps = appState.mcps || [];
+                // 使用默认 MCP 数据
+                const mcps = defaultMcps;
                 const mcp = mcps.find(m => m.id === mcpId);
                 
                 if (!mcp) {
@@ -1321,9 +1324,8 @@
             editingMcpId = null;
             
             try {
-                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
-                const appState = allState[appId] || {};
-                const mcps = appState.mcps || [];
+                // 使用默认 MCP 数据
+                const mcps = defaultMcps;
                 
                 // 清空表单
                 mcpSelectDropdown.innerHTML = '<option value="">请选择 MCP</option>';
