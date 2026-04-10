@@ -717,12 +717,15 @@
                             </div>
                             
                             <!-- MCP -->
-                            <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px; opacity:0.6;">
+                            <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center;">
                                     <label style="font-size:13px; font-weight:500;">MCP</label>
-                                    <span class="placeholder-tag" style="display:inline-flex; align-items:center; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:600; background:#fff7ed; color:#d97706;">暂未开放</span>
+                                    <button id="selectMcpBtn" type="button"
+                                    style="background:none; border:none; color:var(--blue); font-size:12px; cursor:pointer; padding:0;">添加</button>
                                 </div>
-                                <div style="font-size:12px; color:var(--muted);">MCP 将在下一版接入，不参与当前节点绑定流程。</div>
+                                <div id="selectedMcpList">
+                                    <!-- 已选 MCP 表格将渲染在这里 -->
+                                </div>
                             </div>
                             
                             <!-- Skills -->
@@ -773,6 +776,39 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- MCP 添加/编辑弹窗 -->
+    <div class="modal-mask" id="mcpSelectModal" style="position:fixed; inset:0; background:rgba(15,23,42,0.32); display:none; align-items:center; justify-content:center; z-index:2000; padding:24px;">
+        <div class="modal" style="width:min(480px, calc(100vw - 48px)); max-height:calc(100vh - 48px); overflow:auto; background:#fff; border-radius:8px; box-shadow:0 10px 30px rgba(15,23,42,0.08); border:1px solid var(--line-strong);">
+            <div class="modal-header" style="padding:18px 20px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
+                <div id="mcpModalTitle" style="font-size:16px; font-weight:600;">添加 MCP</div>
+                <button class="close-btn" type="button" onclick="closeMcpModal()" style="width:32px; height:32px; border-radius:4px; border:1px solid var(--line-strong); background:#fff; color:var(--muted); cursor:pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding:24px;">
+                <div id="mcpSelectEmpty" class="empty-state" style="display:none; padding:24px; border:1px dashed var(--line-strong); border-radius:6px; text-align:center; color:var(--muted);">
+                    暂无可选 MCP
+                </div>
+                <div id="mcpFormContainer" style="display:flex; flex-direction:column; gap:20px;">
+                    <!-- MCP 选择 -->
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <label style="font-size:14px; color:var(--text);">
+                            <span style="color:var(--danger); margin-right:4px;">*</span>MCP 选择
+                        </label>
+                        <select id="mcpSelectDropdown" 
+                            style="height:40px; padding:0 12px; border:1px solid var(--line-strong); border-radius:6px; font-size:14px; outline:none; background:#fff; cursor:pointer;">
+                            <option value="">请选择 MCP</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding:16px 20px 20px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn btn-secondary" type="button" onclick="closeMcpModal()">取消</button>
+                <button class="btn" id="confirmMcpSelection" type="button">创建</button>
+            </div>
+        </div>
     </div>
 
     <!-- 知识库添加/编辑弹窗 -->
@@ -968,10 +1004,20 @@
         const kbResourceNameInput = document.getElementById("kbResourceNameInput");
         const kbSelectDropdown = document.getElementById("kbSelectDropdown");
         
+        // MCP 相关元素
+        const mcpSelectModal = document.getElementById("mcpSelectModal");
+        const mcpSelectEmpty = document.getElementById("mcpSelectEmpty");
+        const selectedMcpList = document.getElementById("selectedMcpList");
+        const selectMcpBtn = document.getElementById("selectMcpBtn");
+        const mcpModalTitle = document.getElementById("mcpModalTitle");
+        const mcpSelectDropdown = document.getElementById("mcpSelectDropdown");
+        
         // 节点资源绑定数据（模拟从 node-binding 页传递的数据结构）
         const APP_CONFIG_KEY = "app_config_node_binding_demo_v1";
         let currentNodeResourceIds = [];
+        let currentNodeMcpIds = []; // 当前节点绑定的 MCP IDs
         let editingKbId = null; // 当前编辑的知识库ID
+        let editingMcpId = null; // 当前编辑的 MCP ID
 
         // Tab 切换
         function initResourceBindingTab() {
@@ -1032,7 +1078,11 @@
                 if (node && node.resourceIds) {
                     currentNodeResourceIds = node.resourceIds.slice();
                 }
+                if (node && node.mcpIds) {
+                    currentNodeMcpIds = node.mcpIds.slice();
+                }
                 renderSelectedKbList();
+                renderSelectedMcpList();
             } catch (e) {
                 console.error('加载节点资源绑定失败:', e);
             }
@@ -1052,6 +1102,7 @@
                 const now = new Date().toISOString().slice(0, 19).replace("T", " ");
                 if (nodeIndex >= 0) {
                     nodes[nodeIndex].resourceIds = currentNodeResourceIds.slice();
+                    nodes[nodeIndex].mcpIds = currentNodeMcpIds.slice();
                     nodes[nodeIndex].updatedAt = now;
                     nodes[nodeIndex].updatedBy = "admin";
                 } else {
@@ -1059,6 +1110,7 @@
                     nodes.push({
                         id: resourceId,
                         resourceIds: currentNodeResourceIds.slice(),
+                        mcpIds: currentNodeMcpIds.slice(),
                         name: resourceNameInput?.value || '未命名节点',
                         updatedAt: now,
                         updatedBy: "admin"
@@ -1119,6 +1171,54 @@
             }
         }
 
+        // 渲染已选 MCP 列表（表格形式）
+        function renderSelectedMcpList() {
+            if (!selectedMcpList) return;
+            
+            try {
+                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+                const appState = allState[appId] || {};
+                const mcps = appState.mcps || [];
+                
+                const selectedMcps = mcps.filter(m => currentNodeMcpIds.includes(m.id));
+                
+                if (selectedMcps.length === 0) {
+                    selectedMcpList.innerHTML = '<span style="color:var(--muted); font-size:13px;">暂未绑定 MCP</span>';
+                    return;
+                }
+                
+                selectedMcpList.innerHTML = `
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="background:var(--head); border-bottom:1px solid var(--line-strong);">
+                                <th style="padding:10px 12px; text-align:left; font-weight:500; color:var(--muted); width:60px;">ID</th>
+                                <th style="padding:10px 12px; text-align:left; font-weight:500; color:var(--muted);">名称</th>
+                                <th style="padding:10px 12px; text-align:left; font-weight:500; color:var(--muted);">描述</th>
+                                <th style="padding:10px 12px; text-align:left; font-weight:500; color:var(--muted); width:100px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${selectedMcps.map(mcp => `
+                                <tr style="border-bottom:1px solid var(--line);">
+                                    <td style="padding:10px 12px; color:var(--muted);">${mcp.id}</td>
+                                    <td style="padding:10px 12px;">${mcp.name}</td>
+                                    <td style="padding:10px 12px; color:var(--muted);">${mcp.description || '-'}</td>
+                                    <td style="padding:10px 12px;">
+                                        <div style="display:flex; gap:8px;">
+                                            <button type="button" class="btn-text" onclick="editMcp('${mcp.id}')" style="color:var(--blue); background:none; border:none; cursor:pointer; font-size:13px; padding:0;">编辑</button>
+                                            <button type="button" class="btn-text" onclick="removeMcp('${mcp.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-size:13px; padding:0;">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (e) {
+                console.error('渲染 MCP 列表失败:', e);
+            }
+        }
+
         // 编辑知识库
         window.editKb = function(kbId) {
             editingKbId = kbId;
@@ -1167,6 +1267,134 @@
             renderSelectedKbList();
             showToast('知识库已删除');
         };
+
+        // 编辑 MCP
+        window.editMcp = function(mcpId) {
+            editingMcpId = mcpId;
+            
+            try {
+                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+                const appState = allState[appId] || {};
+                const mcps = appState.mcps || [];
+                const mcp = mcps.find(m => m.id === mcpId);
+                
+                if (!mcp) {
+                    showToast('MCP 不存在');
+                    return;
+                }
+                
+                // 设置标题
+                if (mcpModalTitle) mcpModalTitle.textContent = '编辑 MCP';
+                
+                // 填充下拉框（包含当前选项）
+                mcpSelectDropdown.innerHTML = '<option value="">请选择 MCP</option>';
+                mcps.forEach(m => {
+                    const option = document.createElement('option');
+                    option.value = m.id;
+                    option.textContent = `${m.name} - ${m.description || ''}`;
+                    if (m.id === mcpId) option.selected = true;
+                    mcpSelectDropdown.appendChild(option);
+                });
+                
+                mcpSelectEmpty.style.display = 'none';
+                document.getElementById('mcpFormContainer').style.display = 'flex';
+                mcpSelectModal.style.display = 'flex';
+            } catch (e) {
+                console.error('编辑 MCP 失败:', e);
+            }
+        };
+
+        // 移除 MCP
+        window.removeMcp = function(mcpId) {
+            if (!confirm('确定要删除该 MCP 绑定吗？')) return;
+            currentNodeMcpIds = currentNodeMcpIds.filter(id => id !== mcpId);
+            saveNodeResourceBindings();
+            renderSelectedMcpList();
+            showToast('MCP 已删除');
+        };
+
+        // 打开 MCP 选择弹窗
+        function openMcpModal() {
+            if (!mcpSelectDropdown) return;
+            
+            editingMcpId = null;
+            
+            try {
+                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
+                const appState = allState[appId] || {};
+                const mcps = appState.mcps || [];
+                
+                // 清空表单
+                mcpSelectDropdown.innerHTML = '<option value="">请选择 MCP</option>';
+                
+                // 设置标题
+                if (mcpModalTitle) mcpModalTitle.textContent = '添加 MCP';
+                
+                if (mcps.length === 0) {
+                    mcpSelectEmpty.style.display = 'block';
+                    document.getElementById('mcpFormContainer').style.display = 'none';
+                } else {
+                    mcpSelectEmpty.style.display = 'none';
+                    document.getElementById('mcpFormContainer').style.display = 'flex';
+                    
+                    // 过滤掉已绑定的 MCP
+                    const availableMcps = mcps.filter(m => !currentNodeMcpIds.includes(m.id));
+                    
+                    if (availableMcps.length === 0) {
+                        mcpSelectDropdown.innerHTML = '<option value="">暂无可选 MCP（已全部绑定）</option>';
+                    } else {
+                        availableMcps.forEach(m => {
+                            const option = document.createElement('option');
+                            option.value = m.id;
+                            option.textContent = `${m.name} - ${m.description || ''}`;
+                            mcpSelectDropdown.appendChild(option);
+                        });
+                    }
+                }
+                
+                mcpSelectModal.style.display = 'flex';
+            } catch (e) {
+                console.error('打开 MCP 弹窗失败:', e);
+            }
+        }
+
+        // 关闭 MCP 选择弹窗
+        window.closeMcpModal = function() {
+            if (mcpSelectModal) mcpSelectModal.style.display = 'none';
+            editingMcpId = null;
+        };
+
+        // 保存 MCP 选择
+        function saveMcpSelection() {
+            const selectedMcpId = mcpSelectDropdown?.value;
+            
+            if (!selectedMcpId) {
+                showToast('请选择一个 MCP');
+                return;
+            }
+            
+            try {
+                if (editingMcpId) {
+                    // 编辑模式：替换原有 ID
+                    const index = currentNodeMcpIds.indexOf(editingMcpId);
+                    if (index >= 0) {
+                        currentNodeMcpIds[index] = selectedMcpId;
+                    }
+                    showToast('MCP 已更新');
+                } else {
+                    // 添加模式
+                    currentNodeMcpIds.push(selectedMcpId);
+                    showToast('MCP 已添加');
+                }
+                
+                saveNodeResourceBindings();
+                renderSelectedMcpList();
+                closeMcpModal();
+            } catch (e) {
+                console.error('保存 MCP 选择失败:', e);
+                showToast('保存失败');
+            }
+        }
 
         // 打开知识库选择弹窗
         function openKbModal() {
