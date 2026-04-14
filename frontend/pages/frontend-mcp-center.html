@@ -538,17 +538,23 @@
       gap: 16px;
     }
 
-    .form-list .field label {
-      width: 280px;
-      flex: 0 0 280px;
+    .form-list .field > label {
+      width: 200px;
+      flex: 0 0 200px;
       margin: 0;
       padding-top: 8px;
-      white-space: nowrap;
+      line-height: 1.5;
     }
 
-    .form-list .field input,
-    .form-list .field select,
-    .form-list .field textarea {
+    .label-sub {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .form-list .field > input,
+    .form-list .field > select,
+    .form-list .field > textarea {
       flex: 1;
       width: auto;
       min-width: 0;
@@ -574,6 +580,178 @@
       min-height: 220px !important;
       font: 13px/1.7 SFMono-Regular, Monaco, Consolas, monospace;
       white-space: pre;
+    }
+
+    .schema-editor {
+      flex: 1;
+      min-width: 0;
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .schema-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .schema-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .schema-row {
+      display: grid;
+      grid-template-columns: 140px 140px 1fr 80px 36px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .schema-row-head {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .schema-row input:not([type="checkbox"]),
+    .schema-row select {
+      width: 100%;
+      min-height: 38px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      outline: none;
+      background: #fff;
+    }
+
+    .schema-row input:not([type="checkbox"]):focus,
+    .schema-row select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .schema-required {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .schema-required input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 36px;
+      height: 20px;
+      min-height: 20px;
+      padding: 0;
+      margin: 0;
+      flex-shrink: 0;
+      cursor: pointer;
+      background: #cbd5e1;
+      border: none;
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.2s;
+      outline: none;
+    }
+
+    .schema-required input[type="checkbox"]::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    .schema-required input[type="checkbox"]:checked {
+      background: var(--blue);
+    }
+
+    .schema-required input[type="checkbox"]:checked::after {
+      transform: translateX(16px);
+    }
+
+    .schema-required input[type="checkbox"]:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .schema-remove-btn {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: var(--red);
+      cursor: pointer;
+    }
+
+    .schema-remove-btn:hover {
+      background: var(--red-soft);
+    }
+
+    .schema-remove-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .schema-remove-btn svg {
+      width: 16px;
+      height: 16px;
+      pointer-events: none;
+    }
+
+
+    .schema-toolbar {
+      display: none;
+    }
+
+    .schema-foot {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .schema-foot .row-btn.primary {
+      background: transparent;
+      border: none;
+      color: var(--blue);
+      padding: 0;
+      height: auto;
+      font-weight: 600;
+    }
+
+    .schema-editor.readonly,
+    .schema-editor.readonly input,
+    .schema-editor.readonly select {
+      background: var(--line-soft);
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 960px) {
+      .schema-row {
+        grid-template-columns: 1fr;
+      }
+
+      .schema-row-head {
+        display: none;
+      }
     }
 
     .subcard {
@@ -831,15 +1009,17 @@
           <div class="section-title">基础配置</div>
           <div class="form-list">
             <div class="field">
-              <label>工具名称（server_name）<span class="required">*</span></label>
+              <label>
+              <div>工具名称 <span class="required">*</span></div>
+              <div class="label-sub">server_name</div>
+            </label>
               <input id="serverNameInput" placeholder="MCP Server 名称，对应 URL 路径中的 {name}" />
             </div>
             <div class="field">
-              <label>Nacos 服务名（service_name）<span class="required">*</span></label>
-              <input id="serviceNameInput" placeholder="Nacos 注册的服务名" />
-            </div>
-            <div class="field">
-              <label>负责人（owner）<span class="required">*</span></label>
+              <label>
+              <div>负责人 <span class="required">*</span></div>
+              <div class="label-sub">owner</div>
+            </label>
               <input id="ownerInput" placeholder="负责人名称，多输入使用英文逗号隔开" />
             </div>
           </div>
@@ -849,11 +1029,24 @@
           <div class="section-title">AO 服务配置</div>
           <div class="form-list">
             <div class="field">
-              <label>接口名称（interface_name）<span class="required">*</span></label>
+              <label>
+              <div>Nacos 服务名 <span class="required">*</span></div>
+              <div class="label-sub">service_name</div>
+            </label>
+              <input id="serviceNameInput" placeholder="Nacos 注册的服务名" />
+            </div>
+            <div class="field">
+              <label>
+              <div>接口名称 <span class="required">*</span></div>
+              <div class="label-sub">interface_name</div>
+            </label>
               <input id="interfaceNameInput" placeholder="AO 服务对应的接口名称" />
             </div>
             <div class="field">
-              <label>语言（lang）<span class="required">*</span></label>
+              <label>
+              <div>语言 <span class="required">*</span></div>
+              <div class="label-sub">lang</div>
+            </label>
               <select id="langInput">
                 <option value="python">python</option>
                 <option value="php">php</option>
@@ -861,7 +1054,10 @@
               </select>
             </div>
             <div class="field">
-              <label>超时时间（service_config.timeout）</label>
+              <label>
+              <div>超时时间</div>
+              <div class="label-sub">service_config.timeout</div>
+            </label>
               <input id="timeoutInput" type="number" min="1" step="1" placeholder='AO 服务调用配置，单位为秒' />
             </div>
           </div>
@@ -870,25 +1066,30 @@
         <div class="section-block">
           <div class="section-title">MCP 工具配置</div>
           <div class="form-list">
-            <div class="field readonly">
-              <label>工具标识（config.input.name）</label>
-              <input id="toolNameInput" placeholder="自动与 server_name 同步" readonly />
-            </div>
             <div class="field">
-              <label>工具描述（config.input.description）<span class="required">*</span></label>
+              <label>
+              <div>工具描述 <span class="required">*</span></div>
+              <div class="label-sub">config.input.description</div>
+            </label>
               <textarea id="descriptionInput" placeholder="描述工具能力，供 MCP tools/list 返回使用"></textarea>
             </div>
             <div class="field">
-              <label>输入参数（config.input.inputSchema）<span class="required">*</span></label>
-              <textarea id="schemaInput" class="textarea-code" spellcheck="false" placeholder='{
-  "type": "object",
-  "properties": {},
-  "required": []
-}'></textarea>
-              
+              <label>
+              <div>输入参数 <span class="required">*</span></div>
+              <div class="label-sub">config.input.inputSchema</div>
+            </label>
+              <div class="schema-editor" id="schemaEditor">
+                <div class="schema-grid" id="schemaRows"></div>
+                <div class="schema-foot" id="schemaFoot">
+                  <button class="row-btn primary" type="button" id="addSchemaParamBtn">+ 新增入参</button>
+                </div>
+              </div>
             </div>
             <div class="field">
-              <label>返回值（config.output）<span class="required">*</span></label>
+              <label>
+              <div>返回值 <span class="required">*</span></div>
+              <div class="label-sub">config.output</div>
+            </label>
               <textarea id="outputInput" placeholder="描述 AO 服务返回值的业务含义"></textarea>
             </div>
           </div>
@@ -1079,11 +1280,16 @@
       lang: document.getElementById("langInput"),
       owner: document.getElementById("ownerInput"),
       enabled: document.getElementById("enabledInput"),
-      toolName: document.getElementById("toolNameInput"),
       description: document.getElementById("descriptionInput"),
-      schema: document.getElementById("schemaInput"),
       output: document.getElementById("outputInput"),
       timeout: document.getElementById("timeoutInput")
+    };
+
+    const schemaElements = {
+      editor: document.getElementById("schemaEditor"),
+      rows: document.getElementById("schemaRows"),
+      empty: document.getElementById("schemaEmpty"),
+      addBtn: document.getElementById("addSchemaParamBtn")
     };
 
 
@@ -1099,6 +1305,13 @@
 
     let panelMode = "create";
     let editingId = "";
+    let schemaFields = [];
+    let schemaReadonly = false;
+    let schemaFieldIdCounter = 0;
+    const schemaFieldTypes = [
+      { value: "string", label: "string 文本" },
+      { value: "number", label: "number 数字" }
+    ];
 
     function nowString() {
       const now = new Date();
@@ -1122,8 +1335,7 @@
     }
 
     function getServer(id) {
-      const numId = Number(id);
-      return servers.find((item) => item.id === numId);
+      return servers.find((item) => String(item.id) === String(id));
     }
 
     function getFilteredServers() {
@@ -1194,26 +1406,149 @@
       if (window.lucide?.createIcons) window.lucide.createIcons();
     }
 
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function createSchemaField(field = {}) {
+      return {
+        id: `schema-field-${++schemaFieldIdCounter}`,
+        name: field.name || "",
+        type: field.type || "string",
+        description: field.description || "",
+        required: Boolean(field.required)
+      };
+    }
+
+    function schemaToFields(inputSchema) {
+      const schema = inputSchema && typeof inputSchema === "object" && !Array.isArray(inputSchema)
+        ? inputSchema
+        : {};
+      const properties = schema.properties && typeof schema.properties === "object" && !Array.isArray(schema.properties)
+        ? schema.properties
+        : {};
+      const required = Array.isArray(schema.required) ? schema.required : [];
+
+      const fields = Object.entries(properties).map(([name, config]) => {
+        const fieldConfig = config && typeof config === "object" && !Array.isArray(config) ? config : {};
+        return createSchemaField({
+          name,
+          type: fieldConfig.type || "string",
+          description: fieldConfig.description || "",
+          required: required.includes(name)
+        });
+      });
+      return fields.length ? fields : [createSchemaField()];
+    }
+
+    function renderSchemaFields() {
+      schemaElements.addBtn.style.display = schemaReadonly ? "none" : "inline-flex";
+      schemaElements.editor.classList.toggle("readonly", schemaReadonly);
+
+      schemaElements.rows.innerHTML = `
+        <div class="schema-row schema-row-head">
+          <span>参数名</span>
+          <span>类型</span>
+          <span>描述</span>
+          <span>必填</span>
+          <span aria-hidden="true"></span>
+        </div>
+        ${schemaFields.map((field) => {
+          const typeOptions = schemaFieldTypes.some((item) => item.value === field.type)
+            ? schemaFieldTypes
+            : [...schemaFieldTypes, { value: field.type, label: `${field.type}（已有）` }];
+          return `
+            <div class="schema-row" data-schema-id="${field.id}">
+              <input data-schema-field="name" value="${escapeHtml(field.name)}" placeholder="如 user_id" ${schemaReadonly ? "readonly" : ""} />
+              <select data-schema-field="type" ${schemaReadonly ? "disabled" : ""}>
+                ${typeOptions.map((item) => `
+                  <option value="${escapeHtml(item.value)}" ${item.value === field.type ? "selected" : ""}>${escapeHtml(item.label)}</option>
+                `).join("")}
+              </select>
+              <input data-schema-field="description" value="${escapeHtml(field.description)}" placeholder="描述这个参数的用途" ${schemaReadonly ? "readonly" : ""} />
+              <label class="schema-required">
+                <input data-schema-field="required" type="checkbox" ${field.required ? "checked" : ""} ${schemaReadonly ? "disabled" : ""} />
+              </label>
+              ${schemaFields.length > 1 ? `
+                <button class="schema-remove-btn" type="button" data-schema-remove="${field.id}" title="删除入参" aria-label="删除入参" ${schemaReadonly ? "disabled" : ""}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 6h18"></path>
+                    <path d="M8 6V4h8v2"></path>
+                    <path d="M19 6l-1 14H6L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                  </svg>
+                </button>
+              ` : `<span aria-hidden="true"></span>`}
+            </div>
+          `;
+        }).join("")}
+      `;
+    }
+
+    function buildInputSchema() {
+      const inputSchema = {
+        type: "object",
+        properties: {},
+        required: []
+      };
+
+      for (const field of schemaFields) {
+        const name = field.name.trim();
+        inputSchema.properties[name] = {
+          type: field.type,
+          description: field.description.trim()
+        };
+        if (field.required) inputSchema.required.push(name);
+      }
+
+      return inputSchema;
+    }
+
+    function validateSchemaFields() {
+      const seen = new Set();
+
+      for (const field of schemaFields) {
+        const name = field.name.trim();
+        if (!name) {
+          showToast("请填写入参名称");
+          return null;
+        }
+        if (!/^[A-Za-z0-9_]+$/.test(name)) {
+          showToast("入参名称仅支持字母、数字、下划线");
+          return null;
+        }
+        if (seen.has(name)) {
+          showToast(`入参名称重复：${name}`);
+          return null;
+        }
+        seen.add(name);
+      }
+
+      return buildInputSchema();
+    }
+
     function fillEditor(server) {
       inputs.serverName.value = server?.serverName || "";
       inputs.serviceName.value = server?.serviceName || "";
       inputs.interfaceName.value = server?.interfaceName || "";
       inputs.lang.value = server?.lang || "python";
       inputs.owner.value = server?.owner || "";
-      inputs.toolName.value = server?.config.input.name || "";
-      inputs.description.value = server?.config.input.description || "";
-      inputs.schema.value = server ? JSON.stringify(server.config.input.inputSchema, null, 2) : JSON.stringify({
-        type: "object",
-        properties: {},
-        required: []
-      }, null, 2);
-      inputs.output.value = server?.config.output || "";
-      inputs.timeout.value = server?.serviceConfig.timeout || "";
+      inputs.description.value = server?.config?.input?.description || "";
+      schemaFields = schemaToFields(server?.config?.input?.inputSchema);
+      renderSchemaFields();
+      inputs.output.value = server?.config?.output || "";
+      inputs.timeout.value = server?.serviceConfig?.timeout || "";
       syncToolName();
     }
 
     function syncToolName() {
-      inputs.toolName.value = inputs.serverName.value.trim();
+      return inputs.serverName.value.trim();
     }
 
     function openEditor(mode, id = "") {
@@ -1229,7 +1564,6 @@
         saveBtn.textContent = "保存配置";
         deleteBtn.style.display = "none";
         saveBtn.style.display = "inline-flex";
-        setInputsReadonly(false);
       } else if (isViewMode || !canEdit) {
         // 查看模式 或 无权限编辑
         panelTitle.textContent = server.serverName;
@@ -1238,7 +1572,6 @@
         panelStatusTag.style.display = "inline-flex";
         saveBtn.style.display = "none";
         deleteBtn.style.display = "none";
-        setInputsReadonly(true);
       } else {
         // 编辑模式
         panelTitle.textContent = server.serverName;
@@ -1248,10 +1581,10 @@
         saveBtn.textContent = "保存更新";
         saveBtn.style.display = "inline-flex";
         deleteBtn.style.display = "inline-flex";
-        setInputsReadonly(false);
       }
 
       fillEditor(server);
+      setInputsReadonly(mode !== "create" && (isViewMode || !canEdit));
       document.body.classList.add("modal-open");
       editorModal.classList.add("show");
       if (window.lucide?.createIcons) window.lucide.createIcons();
@@ -1260,12 +1593,10 @@
     function setInputsReadonly(readonly) {
       const allInputs = [
         inputs.serverName,
-        inputs.toolName,
         inputs.serviceName,
         inputs.interfaceName,
         inputs.owner,
         inputs.description,
-        inputs.schema,
         inputs.output,
         inputs.timeout
       ];
@@ -1304,6 +1635,9 @@
           }
         }
       });
+
+      schemaReadonly = readonly;
+      renderSchemaFields();
     }
 
     function closeEditor() {
@@ -1326,21 +1660,11 @@
         return null;
       }
 
-      let inputSchema;
-      try {
-        inputSchema = JSON.parse(inputs.schema.value.trim());
-      } catch (error) {
-        showToast("inputSchema 不是合法 JSON");
-        return null;
-      }
-
-      if (typeof inputSchema !== "object" || Array.isArray(inputSchema) || inputSchema === null) {
-        showToast("inputSchema 必须是 JSON object");
-        return null;
-      }
+      const inputSchema = validateSchemaFields();
+      if (!inputSchema) return null;
 
       const serverName = inputs.serverName.value.trim();
-      const duplicated = servers.some((item) => item.serverName === serverName && item.id !== editingId);
+      const duplicated = servers.some((item) => item.serverName === serverName && String(item.id) !== String(editingId));
       if (duplicated) {
         showToast("server_name 已存在，请更换");
         return null;
@@ -1350,7 +1674,7 @@
       const isNew = !editingId;
       const existingServer = isNew ? null : getServer(editingId);
       return {
-        id: editingId || serverName,
+        id: existingServer?.id || serverName,
         serverName,
         serviceName: inputs.serviceName.value.trim(),
         interfaceName: inputs.interfaceName.value.trim(),
@@ -1376,7 +1700,7 @@
       if (!payload) return;
 
       if (editingId) {
-        const index = servers.findIndex((item) => item.id === editingId);
+        const index = servers.findIndex((item) => String(item.id) === String(editingId));
         servers[index] = payload;
       } else {
         servers.unshift(payload);
@@ -1389,7 +1713,7 @@
     }
 
     function deleteServer() {
-      const index = servers.findIndex((item) => item.id === editingId);
+      const index = servers.findIndex((item) => String(item.id) === String(editingId));
       if (index === -1) return;
       servers.splice(index, 1);
       renderTable();
@@ -1463,6 +1787,50 @@
       if (action === "view") openEditor("view", id);
       if (action === "nodes") openNodesPanel(id);
       if (action === "toggle") toggleStatus(id);
+    });
+
+    schemaElements.addBtn.addEventListener("click", () => {
+      schemaFields.push(createSchemaField());
+      renderSchemaFields();
+    });
+
+    schemaElements.rows.addEventListener("input", (event) => {
+      const input = event.target.closest("[data-schema-field]");
+      const row = event.target.closest("[data-schema-id]");
+      if (!input || !row) return;
+
+      const field = schemaFields.find((item) => item.id === row.dataset.schemaId);
+      if (!field) return;
+
+      if (input.dataset.schemaField === "required") {
+        field.required = input.checked;
+      } else {
+        field[input.dataset.schemaField] = input.value;
+      }
+    });
+
+    schemaElements.rows.addEventListener("change", (event) => {
+      const input = event.target.closest("[data-schema-field]");
+      const row = event.target.closest("[data-schema-id]");
+      if (!input || !row) return;
+
+      const field = schemaFields.find((item) => item.id === row.dataset.schemaId);
+      if (!field) return;
+
+      if (input.dataset.schemaField === "required") {
+        field.required = input.checked;
+      } else {
+        field[input.dataset.schemaField] = input.value;
+      }
+    });
+
+    schemaElements.rows.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-schema-remove]");
+      if (!button || schemaReadonly) return;
+
+      if (schemaFields.length <= 1) return;
+      schemaFields = schemaFields.filter((field) => field.id !== button.dataset.schemaRemove);
+      renderSchemaFields();
     });
 
     inputs.serverName.addEventListener("input", syncToolName);
