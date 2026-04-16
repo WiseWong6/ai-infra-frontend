@@ -599,6 +599,43 @@
       gap: 12px;
     }
 
+    .schema-mode-link {
+      display: inline-block;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      margin-bottom: 6px;
+      margin-left: 2px;
+    }
+
+    .schema-mode-link:hover {
+      text-decoration: underline;
+    }
+
+    .schema-mode-link.disabled {
+      color: var(--muted);
+      pointer-events: none;
+      cursor: not-allowed;
+      text-decoration: none;
+    }
+
+    .schema-json {
+      width: 100%;
+      min-height: 1440px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      font: 13px/1.7 SFMono-Regular, Monaco, Consolas, monospace;
+      resize: vertical;
+      outline: none;
+    }
+
+    .schema-json:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
     .schema-grid {
       display: grid;
       gap: 10px;
@@ -606,7 +643,7 @@
 
     .schema-row {
       display: grid;
-      grid-template-columns: 140px 140px 1fr 80px 36px;
+      grid-template-columns: 140px 120px 1fr 80px 36px;
       gap: 8px;
       align-items: center;
     }
@@ -1075,11 +1112,13 @@
             </div>
             <div class="field">
               <label>
-              <div>输入参数 <span class="required">*</span></div>
-              <div class="label-sub">config.input.inputSchema</div>
-            </label>
+                <div>输入参数 <span class="required">*</span></div>
+                <div class="label-sub">config.input.inputSchema</div>
+                <a href="javascript:void(0)" class="schema-mode-link" id="schemaModeLink">自定义 JSON</a>
+              </label>
               <div class="schema-editor" id="schemaEditor">
                 <div class="schema-grid" id="schemaRows"></div>
+                <textarea class="schema-json" id="schemaJsonInput" placeholder='{"type":"object","properties":{},"required":[]}' hidden></textarea>
                 <div class="schema-foot" id="schemaFoot">
                   <button class="row-btn primary" type="button" id="addSchemaParamBtn">+ 新增入参</button>
                 </div>
@@ -1289,7 +1328,10 @@
       editor: document.getElementById("schemaEditor"),
       rows: document.getElementById("schemaRows"),
       empty: document.getElementById("schemaEmpty"),
-      addBtn: document.getElementById("addSchemaParamBtn")
+      addBtn: document.getElementById("addSchemaParamBtn"),
+      foot: document.getElementById("schemaFoot"),
+      modeLink: document.getElementById("schemaModeLink"),
+      jsonInput: document.getElementById("schemaJsonInput")
     };
 
 
@@ -1310,7 +1352,10 @@
     let schemaFieldIdCounter = 0;
     const schemaFieldTypes = [
       { value: "string", label: "string 文本" },
-      { value: "number", label: "number 数字" }
+      { value: "number", label: "number 数字" },
+      { value: "integer", label: "integer 整数" },
+      { value: "boolean", label: "boolean 布尔" },
+      { value: "enum", label: "enum 枚举" }
     ];
 
     function nowString() {
@@ -1447,8 +1492,30 @@
     }
 
     function renderSchemaFields() {
-      schemaElements.addBtn.style.display = schemaReadonly ? "none" : "inline-flex";
+      schemaElements.addBtn.style.display = (schemaReadonly || schemaEditorMode !== "table") ? "none" : "inline-flex";
       schemaElements.editor.classList.toggle("readonly", schemaReadonly);
+
+      if (schemaElements.modeLink) {
+        schemaElements.modeLink.textContent = schemaEditorMode === "table" ? "自定义 JSON" : "基础配置";
+        schemaElements.modeLink.classList.toggle("disabled", schemaReadonly);
+      }
+
+      if (schemaEditorMode === "json") {
+        schemaElements.rows.hidden = true;
+        schemaElements.rows.style.display = "none";
+        schemaElements.foot.hidden = true;
+        schemaElements.jsonInput.hidden = false;
+        schemaElements.jsonInput.readOnly = schemaReadonly;
+        schemaElements.jsonInput.style.background = schemaReadonly ? "var(--line-soft)" : "#fff";
+        schemaElements.jsonInput.style.color = schemaReadonly ? "var(--muted)" : "var(--text)";
+        schemaElements.jsonInput.style.cursor = schemaReadonly ? "not-allowed" : "auto";
+        return;
+      }
+
+      schemaElements.rows.hidden = false;
+      schemaElements.rows.style.display = "";
+      schemaElements.foot.hidden = false;
+      schemaElements.jsonInput.hidden = true;
 
       schemaElements.rows.innerHTML = `
         <div class="schema-row schema-row-head">
@@ -1511,6 +1578,26 @@
     }
 
     function validateSchemaFields() {
+      if (schemaEditorMode === "json") {
+        const raw = schemaElements.jsonInput.value.trim();
+        if (!raw) {
+          showToast("请填写 inputSchema JSON");
+          return null;
+        }
+        let parsed;
+        try {
+          parsed = JSON.parse(raw);
+        } catch (e) {
+          showToast("inputSchema JSON 格式错误");
+          return null;
+        }
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+          showToast("inputSchema 必须是 JSON Object");
+          return null;
+        }
+        return parsed;
+      }
+
       const seen = new Set();
 
       for (const field of schemaFields) {
@@ -1541,6 +1628,9 @@
       inputs.owner.value = server?.owner || "";
       inputs.description.value = server?.config?.input?.description || "";
       schemaFields = schemaToFields(server?.config?.input?.inputSchema);
+      schemaEditorMode = "table";
+      const inputSchema = server?.config?.input?.inputSchema || { type: "object", properties: {}, required: [] };
+      schemaElements.jsonInput.value = JSON.stringify(inputSchema, null, 2);
       renderSchemaFields();
       inputs.output.value = server?.config?.output || "";
       inputs.timeout.value = server?.serviceConfig?.timeout || "";
@@ -1637,6 +1727,25 @@
       });
 
       schemaReadonly = readonly;
+      renderSchemaFields();
+    }
+
+    function switchSchemaMode(mode) {
+      if (schemaReadonly || schemaEditorMode === mode) return;
+      if (mode === "json") {
+        const schema = buildInputSchema();
+        schemaElements.jsonInput.value = JSON.stringify(schema, null, 2);
+      } else {
+        let parsed;
+        try {
+          parsed = JSON.parse(schemaElements.jsonInput.value || "{}");
+        } catch (e) {
+          showToast("JSON 格式错误，无法切换到表格模式");
+          return;
+        }
+        schemaFields = schemaToFields(parsed);
+      }
+      schemaEditorMode = mode;
       renderSchemaFields();
     }
 
@@ -1822,6 +1931,7 @@
       } else {
         field[input.dataset.schemaField] = input.value;
       }
+
     });
 
     schemaElements.rows.addEventListener("click", (event) => {
@@ -1831,6 +1941,13 @@
       if (schemaFields.length <= 1) return;
       schemaFields = schemaFields.filter((field) => field.id !== button.dataset.schemaRemove);
       renderSchemaFields();
+    });
+
+    schemaElements.modeLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (schemaReadonly) return;
+      const nextMode = schemaEditorMode === "table" ? "json" : "table";
+      switchSchemaMode(nextMode);
     });
 
     inputs.serverName.addEventListener("input", syncToolName);
