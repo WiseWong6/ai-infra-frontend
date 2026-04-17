@@ -704,18 +704,6 @@
                         <div id="tab-resources" class="tab-content" style="display:none;">
                             <div style="font-weight:600; font-size:16px; margin-bottom:16px;">资源绑定</div>
                             
-                            <!-- 知识库 -->
-                            <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <label style="font-size:13px; font-weight:500;">知识库</label>
-                                    <button id="selectKbBtn" type="button"
-                                    style="background:none; border:none; color:var(--blue); font-size:12px; cursor:pointer; padding:0;">添加</button>
-                                </div>
-                                <div id="selectedKbList">
-                                    <!-- 已选知识库表格将渲染在这里 -->
-                                </div>
-                            </div>
-                            
                             <!-- MCP -->
                             <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -726,15 +714,6 @@
                                 <div id="selectedMcpList">
                                     <!-- 已选 MCP 表格将渲染在这里 -->
                                 </div>
-                            </div>
-                            
-                            <!-- Skills -->
-                            <div style="display:flex; flex-direction:column; gap:12px; opacity:0.6;">
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <label style="font-size:13px; font-weight:500;">Skills</label>
-                                    <span class="placeholder-tag" style="display:inline-flex; align-items:center; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:600; background:#fff7ed; color:#d97706;">暂未开放</span>
-                                </div>
-                                <div style="font-size:12px; color:var(--muted);">Skill 暂不纳入本版应用配置交互。</div>
                             </div>
                         </div><!-- /tab-resources -->
                     </div>
@@ -807,39 +786,6 @@
             <div class="modal-footer" style="padding:16px 20px 20px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:10px;">
                 <button class="btn btn-secondary" type="button" onclick="closeMcpModal()">取消</button>
                 <button class="btn" id="confirmMcpSelection" type="button">创建</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 知识库添加/编辑弹窗 -->
-    <div class="modal-mask" id="kbSelectModal" style="position:fixed; inset:0; background:rgba(15,23,42,0.32); display:none; align-items:center; justify-content:center; z-index:2000; padding:24px;">
-        <div class="modal" style="width:min(480px, calc(100vw - 48px)); max-height:calc(100vh - 48px); overflow:auto; background:#fff; border-radius:8px; box-shadow:0 10px 30px rgba(15,23,42,0.08); border:1px solid var(--line-strong);">
-            <div class="modal-header" style="padding:18px 20px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
-                <div id="kbModalTitle" style="font-size:16px; font-weight:600;">添加知识库</div>
-                <button class="close-btn" type="button" onclick="closeKbModal()" style="width:32px; height:32px; border-radius:4px; border:1px solid var(--line-strong); background:#fff; color:var(--muted); cursor:pointer;">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body" style="padding:24px;">
-                <div id="kbSelectEmpty" class="empty-state" style="display:none; padding:24px; border:1px dashed var(--line-strong); border-radius:6px; text-align:center; color:var(--muted);">
-                    当前应用还没有可选知识库
-                </div>
-                <div id="kbFormContainer" style="display:flex; flex-direction:column; gap:20px;">
-                    <!-- 知识库选择 -->
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <label style="font-size:14px; color:var(--text);">
-                            <span style="color:var(--danger); margin-right:4px;">*</span>知识库选择
-                        </label>
-                        <select id="kbSelectDropdown" 
-                            style="height:40px; padding:0 12px; border:1px solid var(--line-strong); border-radius:6px; font-size:14px; outline:none; background:#fff; cursor:pointer;">
-                            <option value="">请选择知识库</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer" style="padding:16px 20px 20px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:10px;">
-                <button class="btn btn-secondary" type="button" onclick="closeKbModal()">取消</button>
-                <button class="btn" id="confirmKbSelection" type="button">创建</button>
             </div>
         </div>
     </div>
@@ -1026,16 +972,6 @@
             }
         ];
 
-        // 资源绑定相关元素
-        const kbSelectModal = document.getElementById("kbSelectModal");
-        const kbSelectList = document.getElementById("kbSelectList");
-        const kbSelectEmpty = document.getElementById("kbSelectEmpty");
-        const selectedKbList = document.getElementById("selectedKbList");
-        const selectKbBtn = document.getElementById("selectKbBtn");
-        const kbModalTitle = document.getElementById("kbModalTitle");
-        const kbResourceNameInput = document.getElementById("kbResourceNameInput");
-        const kbSelectDropdown = document.getElementById("kbSelectDropdown");
-        
         // MCP 相关元素
         const mcpSelectModal = document.getElementById("mcpSelectModal");
         const mcpSelectEmpty = document.getElementById("mcpSelectEmpty");
@@ -1046,9 +982,7 @@
         
         // 节点资源绑定数据（模拟从 node-binding 页传递的数据结构）
         const APP_CONFIG_KEY = "app_config_node_binding_demo_v1";
-        let currentNodeResourceIds = [];
         let currentNodeMcpIds = []; // 当前节点绑定的 MCP IDs
-        let editingKbId = null; // 当前编辑的知识库ID
         let editingMcpId = null; // 当前编辑的 MCP ID
 
         // Tab 切换
@@ -1081,28 +1015,14 @@
             loadNodeResourceBindings();
             
             // 知识库选择按钮
-            if (selectKbBtn) {
-                selectKbBtn.addEventListener('click', openKbModal);
+            if (selectMcpBtn) {
                 selectMcpBtn.addEventListener('click', openMcpModal);
-            }
-            
-            // 确认知识库选择
-            const confirmBtn = document.getElementById("confirmKbSelection");
-            if (confirmBtn) {
-                confirmBtn.addEventListener('click', saveKbSelection);
             }
             
             // 确认 MCP 选择
             const confirmMcpBtn = document.getElementById("confirmMcpSelection");
             if (confirmMcpBtn) {
                 confirmMcpBtn.addEventListener('click', saveMcpSelection);
-            }
-            
-            // 弹窗遮罩点击关闭
-            if (kbSelectModal) {
-                kbSelectModal.addEventListener('click', (e) => {
-                    if (e.target === kbSelectModal) closeKbModal();
-                });
             }
             
             // MCP 弹窗遮罩点击关闭
@@ -1121,13 +1041,9 @@
                 const nodes = appState.nodes || [];
                 // resourceId 实际上就是 nodeId
                 const node = nodes.find(n => n.id === resourceId);
-                if (node && node.resourceIds) {
-                    currentNodeResourceIds = node.resourceIds.slice();
-                }
                 if (node && node.mcpIds) {
                     currentNodeMcpIds = node.mcpIds.slice();
                 }
-                renderSelectedKbList();
                 renderSelectedMcpList();
             } catch (e) {
                 console.error('加载节点资源绑定失败:', e);
@@ -1147,7 +1063,6 @@
                 
                 const now = new Date().toISOString().slice(0, 19).replace("T", " ");
                 if (nodeIndex >= 0) {
-                    nodes[nodeIndex].resourceIds = currentNodeResourceIds.slice();
                     nodes[nodeIndex].mcpIds = currentNodeMcpIds.slice();
                     nodes[nodeIndex].updatedAt = now;
                     nodes[nodeIndex].updatedBy = "admin";
@@ -1155,7 +1070,6 @@
                     // 如果节点不存在，创建一个新节点条目
                     nodes.push({
                         id: resourceId,
-                        resourceIds: currentNodeResourceIds.slice(),
                         mcpIds: currentNodeMcpIds.slice(),
                         name: resourceNameInput?.value || '未命名节点',
                         updatedAt: now,
@@ -1166,54 +1080,6 @@
                 localStorage.setItem(APP_CONFIG_KEY, JSON.stringify(allState));
             } catch (e) {
                 console.error('保存节点资源绑定失败:', e);
-            }
-        }
-
-        // 渲染已选知识库列表（表格形式）
-        function renderSelectedKbList() {
-            if (!selectedKbList) return;
-            
-            try {
-                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
-                const appState = allState[appId] || {};
-                const resources = appState.resources || [];
-                
-                const kbResources = resources.filter(r => 
-                    currentNodeResourceIds.includes(r.id) && r.type === 'knowledge_base'
-                );
-                
-                if (kbResources.length === 0) {
-                    selectedKbList.innerHTML = '<span style="color:var(--muted); font-size:13px;">暂未绑定知识库</span>';
-                    return;
-                }
-                
-                selectedKbList.innerHTML = `
-                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
-                        <thead>
-                            <tr style="background:var(--head); border-bottom:1px solid var(--line-strong);">
-                                <th style="padding:10px 12px; text-align:left; font-weight:500; color:var(--muted); width:60px;">ID</th>
-                                <th style="padding:10px 12px; text-align:left; font-weight:500; color:var(--muted);">名称</th>
-                                <th style="padding:10px 12px; text-align:left; font-weight:500; color:var(--muted); width:100px;">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${kbResources.map(kb => `
-                                <tr style="border-bottom:1px solid var(--line);">
-                                    <td style="padding:10px 12px; color:var(--muted);">${kb.id}</td>
-                                    <td style="padding:10px 12px;">${kb.name}</td>
-                                    <td style="padding:10px 12px;">
-                                        <div style="display:flex; gap:8px;">
-                                            <button type="button" class="btn-text" onclick="editKb('${kb.id}')" style="color:var(--blue); background:none; border:none; cursor:pointer; font-size:13px; padding:0;">编辑</button>
-                                            <button type="button" class="btn-text" onclick="removeKb('${kb.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-size:13px; padding:0;">删除</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            } catch (e) {
-                console.error('渲染知识库列表失败:', e);
             }
         }
 
@@ -1262,55 +1128,6 @@
                 console.error('渲染 MCP 列表失败:', e);
             }
         }
-
-        // 编辑知识库
-        window.editKb = function(kbId) {
-            editingKbId = kbId;
-            
-            try {
-                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
-                const appState = allState[appId] || {};
-                const resources = appState.resources || [];
-                const kb = resources.find(r => r.id === kbId && r.type === 'knowledge_base');
-                
-                if (!kb) {
-                    showToast('知识库不存在');
-                    return;
-                }
-                
-                // 设置标题
-                if (kbModalTitle) kbModalTitle.textContent = '编辑知识库';
-                
-                // 填充表单
-                if (kbResourceNameInput) kbResourceNameInput.value = kb.name;
-                
-                // 填充下拉框（包含当前选项）
-                kbSelectDropdown.innerHTML = '<option value="">请选择知识库</option>';
-                const kbResources = resources.filter(r => r.type === 'knowledge_base');
-                kbResources.forEach(r => {
-                    const option = document.createElement('option');
-                    option.value = r.id;
-                    option.textContent = r.name;
-                    if (r.id === kbId) option.selected = true;
-                    kbSelectDropdown.appendChild(option);
-                });
-                
-                kbSelectEmpty.style.display = 'none';
-                document.getElementById('kbFormContainer').style.display = 'flex';
-                kbSelectModal.style.display = 'flex';
-            } catch (e) {
-                console.error('编辑知识库失败:', e);
-            }
-        };
-
-        // 移除知识库
-        window.removeKb = function(kbId) {
-            if (!confirm('确定要删除该知识库绑定吗？')) return;
-            currentNodeResourceIds = currentNodeResourceIds.filter(id => id !== kbId);
-            saveNodeResourceBindings();
-            renderSelectedKbList();
-            showToast('知识库已删除');
-        };
 
         // 编辑 MCP
         window.editMcp = function(mcpId) {
@@ -1440,95 +1257,6 @@
         }
 
         // 打开知识库选择弹窗
-        function openKbModal() {
-            if (!kbSelectDropdown) return;
-            
-            editingKbId = null;
-            
-            try {
-                const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
-                const appState = allState[appId] || {};
-                const resources = appState.resources || [];
-                const kbResources = resources.filter(r => r.type === 'knowledge_base');
-                
-                // 清空表单
-                if (kbResourceNameInput) kbResourceNameInput.value = '';
-                kbSelectDropdown.innerHTML = '<option value="">请选择知识库</option>';
-                
-                // 设置标题
-                if (kbModalTitle) kbModalTitle.textContent = '添加知识库';
-                
-                if (kbResources.length === 0) {
-                    kbSelectEmpty.style.display = 'block';
-                    document.getElementById('kbFormContainer').style.display = 'none';
-                } else {
-                    kbSelectEmpty.style.display = 'none';
-                    document.getElementById('kbFormContainer').style.display = 'flex';
-                    
-                    // 过滤掉已绑定的知识库
-                    const availableKbs = kbResources.filter(kb => !currentNodeResourceIds.includes(kb.id));
-                    
-                    availableKbs.forEach(kb => {
-                        const option = document.createElement('option');
-                        option.value = kb.id;
-                        option.textContent = kb.name;
-                        kbSelectDropdown.appendChild(option);
-                    });
-                }
-                
-                kbSelectModal.style.display = 'flex';
-            } catch (e) {
-                console.error('打开知识库弹窗失败:', e);
-            }
-        }
-
-        // 关闭知识库选择弹窗
-        window.closeKbModal = function() {
-            if (kbSelectModal) kbSelectModal.style.display = 'none';
-        };
-
-        // 保存知识库选择
-        function saveKbSelection() {
-            if (!kbSelectDropdown) return;
-            
-            const selectedKbId = kbSelectDropdown.value;
-            const resourceName = kbResourceNameInput ? kbResourceNameInput.value.trim() : '';
-            
-            if (!selectedKbId) {
-                showToast('请选择知识库');
-                return;
-            }
-            
-            if (!resourceName) {
-                showToast('请输入资源名称');
-                return;
-            }
-            
-            // 如果是编辑模式，先移除旧的
-            if (editingKbId) {
-                currentNodeResourceIds = currentNodeResourceIds.filter(id => id !== editingKbId);
-            }
-            
-            // 保留非知识库的资源ID
-            const nonKbIds = currentNodeResourceIds.filter(id => {
-                try {
-                    const allState = JSON.parse(localStorage.getItem(APP_CONFIG_KEY) || '{}');
-                    const appState = allState[appId] || {};
-                    const resources = appState.resources || [];
-                    const resource = resources.find(r => r.id === id);
-                    return resource && resource.type !== 'knowledge_base';
-                } catch (e) {
-                    return false;
-                }
-            });
-            
-            currentNodeResourceIds = [...nonKbIds, selectedKbId];
-            saveNodeResourceBindings();
-            renderSelectedKbList();
-            closeKbModal();
-            showToast(editingKbId ? '知识库已更新' : '知识库已添加');
-        }
-
         function roleKey(role) {
             const text = String(role || "").toLowerCase();
             if (text.includes("assistant")) return "assistant";

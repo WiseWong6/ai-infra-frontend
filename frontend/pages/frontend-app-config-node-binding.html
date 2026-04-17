@@ -434,69 +434,6 @@
       opacity: 0.5;
     }
 
-    .batch-action-bar {
-      position: sticky;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-top: 1px solid var(--line-strong);
-      padding: 12px 20px;
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
-      z-index: 100;
-      margin-top: auto;
-    }
-
-    .batch-action-bar.is-open {
-      display: flex;
-    }
-
-    .batch-info {
-      font-size: 13px;
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    .batch-info span {
-      color: var(--blue);
-      font-weight: 600;
-    }
-
-    .batch-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .batch-controls label {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .batch-model-select {
-      height: 32px;
-      padding: 0 12px;
-      border: 1px solid var(--line-strong);
-      border-radius: 4px;
-      font-size: 13px;
-      background: #fff;
-      min-width: 160px;
-      cursor: pointer;
-      outline: none;
-    }
-
-    .batch-model-select:hover {
-      border-color: var(--blue);
-    }
-
-    .batch-model-select:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-    }
-
     .resource-tags {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -959,9 +896,6 @@
               
             </div>
             <div class="inline-actions">
-              <button class="btn btn-secondary" id="batchSwitchModelBtn" type="button" style="display:none;">
-                <i class="fa-solid fa-robot" style="font-size:12px;"></i> 切换模型
-              </button>
               <button class="btn" id="addNodeBtn" type="button">模型节点</button>
             </div>
           </div>
@@ -970,18 +904,12 @@
             <table>
               <thead>
                 <tr>
-                  <th style="text-align: left;">
-                    <input type="checkbox" id="selectAllNodes" class="row-checkbox" title="全选/取消">
-                  </th>
                   <th style="text-align: left;">ID</th>
                   <th style="text-align: left;">节点名称</th>
                   <th style="text-align: left;">模型</th>
                   <th style="text-align: left;">深度思考</th>
                   <th style="text-align: left;">JSON输出</th>
-                  <th style="text-align: left;">多模态</th>
-                  <th style="text-align: left;">知识库</th>
                   <th style="text-align: left;">MCP</th>
-                  <th style="text-align: left;">Skills</th>
                   <th style="text-align: left;">最近更新人</th>
                   <th style="text-align: left;">最近更新时间</th>
                   <th style="text-align: left;">操作</th>
@@ -1252,35 +1180,33 @@
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
-  <div class="tooltip" id="resourceTooltip"></div>
-
-  <div class="modal-mask" id="batchModelModal">
+  <!-- MCP 选择弹窗 -->
+  <div class="modal-mask" id="mcpSelectModal">
     <div class="modal" style="width: min(480px, calc(100vw - 48px));">
       <div class="modal-header">
         <div>
-          <div class="modal-title">批量切换模型</div>
-          <div class="field-hint">为选中的节点批量更新模型配置</div>
+          <div class="modal-title" id="mcpModalTitle">选择 MCP</div>
+          <div class="field-hint">为当前节点选择要绑定的 MCP 服务</div>
         </div>
-        <button class="close-btn" type="button" data-close-modal="batchModelModal">
+        <button class="close-btn" type="button" onclick="closeMcpModal()">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
       <div class="modal-body">
-        <div style="margin-bottom: 16px;">
-          已选择 <span id="batchSelectedCount" style="color: var(--blue); font-weight: 600;">0</span> 个模型节点
+        <div id="mcpSelectEmpty" class="empty-state" style="display:none;">
+          暂无可选 MCP
         </div>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <label style="font-size: 13px; color: var(--muted);">目标模型</label>
-          <select id="batchModelSelect" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 6px; font-size: 14px;"></select>
-        </div>
+        <div id="mcpSelectList" class="checkbox-list"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-close-modal="batchModelModal">取消</button>
-        <button class="btn" id="confirmBatchModelSwitch" type="button">确认切换</button>
+        <button class="btn btn-secondary" type="button" onclick="closeMcpModal()">取消</button>
+        <button class="btn" id="confirmMcpSelection" type="button">确认绑定</button>
       </div>
     </div>
   </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="tooltip" id="resourceTooltip"></div>
 
   <script>
     lucide.createIcons();
@@ -1475,7 +1401,7 @@
     let kbModalNodeId = "";
     let editingResourceId = "";
     let editingNodeId = "";
-    let selectedNodeIds = new Set();
+    let mcpModalNodeId = "";
 
     const appNameEl = document.getElementById("appName");
     const projectIdEl = document.getElementById("projectId");
@@ -1499,6 +1425,12 @@
     const promptTemplateSelect = document.getElementById("promptTemplateSelect");
     const nodeModelSelect = document.getElementById("nodeModelSelect");
 
+    // MCP 弹窗元素
+    const mcpSelectModal = document.getElementById("mcpSelectModal");
+    const mcpSelectList = document.getElementById("mcpSelectList");
+    const mcpSelectEmpty = document.getElementById("mcpSelectEmpty");
+    const mcpModalTitle = document.getElementById("mcpModalTitle");
+
     const nodeTemperatureInput = document.getElementById("nodeTemperatureInput");
     const nodeMaxTokensInput = document.getElementById("nodeMaxTokensInput");
     const nodeModelHint = document.getElementById("nodeModelHint");
@@ -1507,11 +1439,6 @@
     const assistantPromptTextarea = document.getElementById("assistantPromptTextarea");
     const drawerBreadcrumbText = document.getElementById("drawerBreadcrumbText");
     const toast = document.getElementById("toast");
-    const batchModelModal = document.getElementById("batchModelModal");
-    const batchModelSelect = document.getElementById("batchModelSelect");
-    const batchSelectedCount = document.getElementById("batchSelectedCount");
-    const batchSwitchModelBtn = document.getElementById("batchSwitchModelBtn");
-    const selectAllNodes = document.getElementById("selectAllNodes");
 
     function showToast(message) {
       if (!toast) return;
@@ -1591,37 +1518,46 @@
       return html;
     }
 
+    // 渲染 MCP 标签
+    function renderMcpTags(mcpIds) {
+      if (!mcpIds || mcpIds.length === 0) {
+        return '<span class="resource-tag-empty">-</span>';
+      }
+      
+      const defaultMcps = [
+        { id: 'mcp-1', name: '文档检索 MCP', description: '支持多种格式文档的智能检索' },
+        { id: 'mcp-2', name: '数据库查询 MCP', description: '支持 SQL 查询和数据分析' },
+        { id: 'mcp-3', name: '搜索引擎 MCP', description: '网络搜索和信息获取' },
+        { id: 'mcp-4', name: '产品检索 MCP', description: '保险产品数据查询' }
+      ];
+      
+      const mcps = mcpIds.map(id => defaultMcps.find(m => m.id === id)).filter(Boolean);
+      const maxPerRow = 2;
+      const maxRows = 2;
+      const maxDisplay = maxPerRow * maxRows - 1;
+      const displayMcps = mcps.slice(0, maxDisplay);
+      const hasMore = mcps.length > maxDisplay;
+      const allNames = mcps.map(m => m.name).join('\n');
+      
+      let html = `<div class="resource-tags" data-has-more="${hasMore}" data-tooltip="${allNames}">`;
+      displayMcps.forEach(mcp => {
+        html += `<span class="resource-tag" title="${mcp.name}">${mcp.name}</span>`;
+      });
+      
+      if (hasMore) {
+        html += '<span class="resource-tag-more">...</span>';
+      }
+      
+      html += '</div>';
+      return html;
+    }
+
     function renderNodeTable() {
       nodeTableBody.innerHTML = state.nodes.map((node) => {
         const model = window.ModelRegistryDemo?.getModelByKey(node.modelKey);
-        
-        // 获取节点关联的各类资源
-        const resources = (node.resourceIds || []).map(getResourceById).filter(Boolean);
-        const kbResources = resources.filter(r => r.type === 'knowledge_base');
-        // Mock MCP 和 Skills 数据
-        const mcpResources = node.id === 'node-101' ? [
-          { name: '文档检索 MCP' },
-          { name: '数据库查询 MCP' },
-          { name: '搜索引擎 MCP' }
-        ] : node.id === 'node-102' ? [
-          { name: '产品检索 MCP' }
-        ] : [];
-        const skillResources = node.id === 'node-101' ? [
-          { name: '意图识别 Skill' },
-          { name: '实体提取 Skill' },
-          { name: '情感分析 Skill' },
-          { name: '文本分类 Skill' }
-        ] : node.id === 'node-103' ? [
-          { name: '条款解析 Skill' }
-        ] : [];
-        
-        const isSelected = selectedNodeIds.has(node.id);
         const nodeIdNum = node.id.replace(/\\D/g, '');
         return `
           <tr class="node-row" data-node-id="${node.id}">
-            <td>
-              <input type="checkbox" class="row-checkbox node-checkbox" value="${node.id}" ${isSelected ? "checked" : ""}>
-            </td>
             <td style="color: var(--muted); font-size: 12px;">${nodeIdNum}</td>
             <td>
               <div class="node-name">${node.name}</div>
@@ -1643,12 +1579,9 @@
                 <span class="switch"></span>
               </span>
             </td>
-            <td>
-              ${model?.supportsImageInput ? '<i class="fa-solid fa-check icon-check"></i>' : '<i class="fa-solid fa-xmark icon-cross"></i>'}
+            <td onclick="openMcpSelect('${node.id}')" style="cursor: pointer;" title="点击编辑 MCP">
+              ${renderMcpTags(node.mcpIds || [])}
             </td>
-            <td>${renderResourceTags(kbResources, 2)}</td>
-            <td>${renderResourceTags(mcpResources, 2)}</td>
-            <td>${renderResourceTags(skillResources, 2)}</td>
             <td style="font-size: 12px; color: var(--muted);">${node.updatedBy || '-'}</td>
             <td style="font-size: 12px; color: var(--muted);">${node.updatedAt || '-'}</td>
             <td style="white-space: nowrap;">
@@ -1660,7 +1593,6 @@
           </tr>
         `;
       }).join("");
-      updateSelectAllCheckbox();
       // 延迟执行以确保 DOM 已渲染
       setTimeout(bindResourceTooltipEvents, 0);
     }
@@ -1718,29 +1650,7 @@
         `;
       }).join("");
 
-      resourceTableBody.innerHTML = `
-        ${kbRows}
-        <tr>
-          <td style="color: var(--muted); font-size: 12px;">-</td>
-          <td><span class="placeholder-tag">MCP</span></td>
-          <td>
-            <div class="resource-name">暂未开放</div>
-          </td>
-          <td style="font-size: 12px; color: var(--muted);">-</td>
-          <td style="font-size: 12px; color: var(--muted);">-</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <td style="color: var(--muted); font-size: 12px;">-</td>
-          <td><span class="placeholder-tag">Skill</span></td>
-          <td>
-            <div class="resource-name">暂未开放</div>
-          </td>
-          <td style="font-size: 12px; color: var(--muted);">-</td>
-          <td style="font-size: 12px; color: var(--muted);">-</td>
-          <td>-</td>
-        </tr>
-      `;
+      resourceTableBody.innerHTML = kbRows || '<tr><td colspan="6" style="text-align:center; color: var(--muted);">暂无资源配置</td></tr>';
     }
 
     function openModal(modalEl) {
@@ -1918,10 +1828,8 @@
     function deleteNode(nodeId) {
       if (!confirm("确定要删除该模型节点吗？")) return;
       state.nodes = state.nodes.filter((node) => node.id !== nodeId);
-      selectedNodeIds.delete(nodeId);
       saveCurrentState();
       renderNodeTable();
-      updateBatchSwitchButton();
       showToast("模型节点已删除");
     }
 
@@ -1936,6 +1844,77 @@
       renderNodeTable();
       closeModal(kbSelectModal);
       showToast("节点知识库绑定已更新");
+    }
+
+    // MCP 相关函数
+    function openMcpSelect(nodeId) {
+      mcpModalNodeId = nodeId;
+      const node = getNodeById(nodeId);
+      const currentMcpIds = node?.mcpIds || [];
+      
+      const defaultMcps = [
+        { id: 'mcp-1', name: '文档检索 MCP', description: '支持多种格式文档的智能检索' },
+        { id: 'mcp-2', name: '数据库查询 MCP', description: '支持 SQL 查询和数据分析' },
+        { id: 'mcp-3', name: '搜索引擎 MCP', description: '网络搜索和信息获取' },
+        { id: 'mcp-4', name: '产品检索 MCP', description: '保险产品数据查询' }
+      ];
+      
+      mcpSelectList.innerHTML = "";
+      
+      if (defaultMcps.length === 0) {
+        mcpSelectEmpty.style.display = "block";
+        mcpSelectList.style.display = "none";
+      } else {
+        mcpSelectEmpty.style.display = "none";
+        mcpSelectList.style.display = "flex";
+        
+        defaultMcps.forEach(mcp => {
+          const isChecked = currentMcpIds.includes(mcp.id);
+          const item = document.createElement('div');
+          item.className = 'checkbox-item';
+          item.innerHTML = `
+            <input type="checkbox" value="${mcp.id}" ${isChecked ? 'checked' : ''}>
+            <div>
+              <div class="checkbox-item-title">${mcp.name}</div>
+              <div class="checkbox-item-desc">${mcp.description || ''}</div>
+            </div>
+          `;
+          mcpSelectList.appendChild(item);
+        });
+      }
+      
+      openModal(mcpSelectModal);
+    }
+
+    function closeMcpModal() {
+      closeModal(mcpSelectModal);
+      mcpModalNodeId = "";
+    }
+
+    function saveMcpSelection() {
+      const node = getNodeById(mcpModalNodeId);
+      if (!node) return;
+      
+      const selectedIds = Array.from(mcpSelectList.querySelectorAll('input[type="checkbox"]:checked')).map((input) => input.value);
+      node.mcpIds = selectedIds;
+      node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
+      
+      saveCurrentState();
+      renderNodeTable();
+      closeMcpModal();
+      showToast("MCP 绑定已更新");
+    }
+
+    function unbindMcp(nodeId, mcpId) {
+      const node = getNodeById(nodeId);
+      if (!node) return;
+      node.mcpIds = (node.mcpIds || []).filter((id) => id !== mcpId);
+      node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+      node.updatedBy = "admin";
+      saveCurrentState();
+      renderNodeTable();
+      showToast("已移除 MCP");
     }
 
     function unbindResource(nodeId, resourceId) {
@@ -2053,115 +2032,10 @@
       }
     }
 
-    function updateBatchSwitchButton() {
-      if (batchSwitchModelBtn) {
-        batchSwitchModelBtn.style.display = selectedNodeIds.size > 0 ? "flex" : "none";
-      }
-    }
-
-    function updateSelectAllCheckbox() {
-      if (!selectAllNodes) return;
-      const checkboxes = document.querySelectorAll(".node-checkbox");
-      const checked = document.querySelectorAll(".node-checkbox:checked");
-
-      if (checkboxes.length === 0) {
-        selectAllNodes.checked = false;
-        selectAllNodes.indeterminate = false;
-      } else if (checked.length === 0) {
-        selectAllNodes.checked = false;
-        selectAllNodes.indeterminate = false;
-      } else if (checked.length === checkboxes.length) {
-        selectAllNodes.checked = true;
-        selectAllNodes.indeterminate = false;
-      } else {
-        selectAllNodes.checked = false;
-        selectAllNodes.indeterminate = true;
-      }
-    }
-
-    function handleSelectAllNodes(event) {
-      const checked = event.target.checked;
-      const checkboxes = document.querySelectorAll(".node-checkbox");
-      checkboxes.forEach((cb) => {
-        const nodeId = cb.value;
-        if (checked) {
-          selectedNodeIds.add(nodeId);
-        } else {
-          selectedNodeIds.delete(nodeId);
-        }
-      });
-      renderNodeTable();
-      updateBatchSwitchButton();
-    }
-
-    function handleNodeCheckboxChange(event) {
-      const checkbox = event.target;
-      const nodeId = checkbox.value;
-      if (checkbox.checked) {
-        selectedNodeIds.add(nodeId);
-      } else {
-        selectedNodeIds.delete(nodeId);
-      }
-      updateBatchSwitchButton();
-      updateSelectAllCheckbox();
-    }
-
-    function openBatchModelModal() {
-      if (selectedNodeIds.size === 0) {
-        showToast("请先选择要切换模型的节点");
-        return;
-      }
-      window.ModelRegistryDemo?.renderModelOptions(batchModelSelect, {});
-      if (batchSelectedCount) {
-        batchSelectedCount.textContent = selectedNodeIds.size;
-      }
-      openModal(batchModelModal);
-    }
-
-    function closeBatchModelModal() {
-      closeModal(batchModelModal);
-    }
-
     function closeFloatingLayers() {
       closeModal(kbSelectModal);
       closeResourceModal();
-      closeBatchModelModal();
       closeNodeDrawerPanel();
-    }
-
-    function confirmBatchModelSwitch() {
-      const targetModelKey = batchModelSelect?.value;
-      if (!targetModelKey) {
-        showToast("请选择目标模型");
-        return;
-      }
-
-      const targetModel = window.ModelRegistryDemo?.getModelByKey(targetModelKey);
-      if (!targetModel) {
-        showToast("无效的模型");
-        return;
-      }
-
-      let successCount = 0;
-      selectedNodeIds.forEach((nodeId) => {
-        const node = getNodeById(nodeId);
-        if (node) {
-          const config = window.ModelRegistryDemo?.buildModelConfig({ modelKey: targetModelKey });
-          node.modelKey = targetModelKey;
-          node.thinkingMode = config?.thinkingMode || targetModel.defaultConfig?.thinkingMode || "disabled";
-          node.jsonMode = config?.jsonMode || targetModel.defaultConfig?.jsonMode || "none";
-          node.updatedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
-          node.updatedBy = "admin";
-          successCount++;
-        }
-      });
-
-      saveCurrentState();
-      renderNodeTable();
-      updateBatchSwitchButton();
-      updateSelectAllCheckbox();
-      closeBatchModelModal();
-      showToast(`${successCount} 个节点已切换至 ${targetModel.displayName}`);
     }
 
     function addNode() {
@@ -2209,29 +2083,6 @@
       nodeTableBody.addEventListener("click", handleTableClick);
       resourceTableBody.addEventListener("click", handleTableClick);
       
-      // 复选框事件委托
-      nodeTableBody.addEventListener("change", (event) => {
-        if (event.target.classList.contains("node-checkbox")) {
-          handleNodeCheckboxChange(event);
-        }
-      });
-      
-      // 全选复选框
-      if (selectAllNodes) {
-        selectAllNodes.addEventListener("change", handleSelectAllNodes);
-      }
-      
-      // 批量切换模型按钮
-      if (batchSwitchModelBtn) {
-        batchSwitchModelBtn.addEventListener("click", openBatchModelModal);
-      }
-      
-      // 批量切换模型确认
-      const confirmBatchBtn = document.getElementById("confirmBatchModelSwitch");
-      if (confirmBatchBtn) {
-        confirmBatchBtn.addEventListener("click", confirmBatchModelSwitch);
-      }
-      
       // 添加模型节点按钮
       const addNodeBtn = document.getElementById("addNodeBtn");
       if (addNodeBtn) {
@@ -2239,17 +2090,12 @@
       }
       
       document.getElementById("confirmKbSelection").addEventListener("click", saveKbSelection);
+      document.getElementById("confirmMcpSelection").addEventListener("click", saveMcpSelection);
       document.getElementById("addResourceBtn").addEventListener("click", () => openResourceModal());
       document.getElementById("saveResourceBtn").addEventListener("click", saveResource);
       document.getElementById("closeNodeDrawer").addEventListener("click", closeNodeDrawerPanel);
       document.getElementById("saveNodeBtn").addEventListener("click", saveNode);
       document.getElementById("repullPromptBtn").addEventListener("click", repullPromptTemplate);
-      const drawerSelectKbBtn = document.getElementById("drawerSelectKbBtn");
-      if (drawerSelectKbBtn) {
-        drawerSelectKbBtn.addEventListener("click", () => {
-          if (editingNodeId) openKbSelect(editingNodeId);
-        });
-      }
       nodeModelSelect.addEventListener("change", () => {
         const modelKey = nodeModelSelect.value;
         const config = window.ModelRegistryDemo?.buildModelConfig(modelKey);
@@ -2270,8 +2116,6 @@
             closeResourceModal();
           } else if (modalId === "kbSelectModal") {
             closeModal(kbSelectModal);
-          } else if (modalId === "batchModelModal") {
-            closeBatchModelModal();
           }
         });
       });
@@ -2279,17 +2123,15 @@
       kbSelectModal.addEventListener("click", (event) => {
         if (event.target === kbSelectModal) closeModal(kbSelectModal);
       });
+      mcpSelectModal.addEventListener("click", (event) => {
+        if (event.target === mcpSelectModal) closeMcpModal();
+      });
       resourceModal.addEventListener("click", (event) => {
         if (event.target === resourceModal) closeResourceModal();
       });
       nodeDrawer.addEventListener("click", (event) => {
         if (event.target === nodeDrawer) closeNodeDrawerPanel();
       });
-      if (batchModelModal) {
-        batchModelModal.addEventListener("click", (event) => {
-          if (event.target === batchModelModal) closeBatchModelModal();
-        });
-      }
 
       document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;
