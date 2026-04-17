@@ -643,7 +643,7 @@
 
     .schema-row {
       display: grid;
-      grid-template-columns: 140px 120px 1fr 80px 36px;
+      grid-template-columns: 140px 120px 1fr 140px 80px 36px;
       gap: 8px;
       align-items: center;
     }
@@ -1354,8 +1354,7 @@
       { value: "string", label: "string 文本" },
       { value: "number", label: "number 数字" },
       { value: "integer", label: "integer 整数" },
-      { value: "boolean", label: "boolean 布尔" },
-      { value: "enum", label: "enum 枚举" }
+      { value: "boolean", label: "boolean 布尔" }
     ];
 
     function nowString() {
@@ -1466,6 +1465,7 @@
         name: field.name || "",
         type: field.type || "string",
         description: field.description || "",
+        enum: field.enum || "",
         required: Boolean(field.required)
       };
     }
@@ -1481,10 +1481,14 @@
 
       const fields = Object.entries(properties).map(([name, config]) => {
         const fieldConfig = config && typeof config === "object" && !Array.isArray(config) ? config : {};
+        const enumValue = Array.isArray(fieldConfig.enum)
+          ? fieldConfig.enum.join(", ")
+          : "";
         return createSchemaField({
           name,
           type: fieldConfig.type || "string",
           description: fieldConfig.description || "",
+          enum: enumValue,
           required: required.includes(name)
         });
       });
@@ -1522,6 +1526,7 @@
           <span>参数名</span>
           <span>类型</span>
           <span>描述</span>
+          <span>枚举值</span>
           <span>必填</span>
           <span aria-hidden="true"></span>
         </div>
@@ -1538,6 +1543,7 @@
                 `).join("")}
               </select>
               <input data-schema-field="description" value="${escapeHtml(field.description)}" placeholder="描述这个参数的用途" ${schemaReadonly ? "readonly" : ""} />
+              <input data-schema-field="enum" value="${escapeHtml(field.enum)}" placeholder="选填" ${schemaReadonly ? "readonly" : ""} />
               <label class="schema-required">
                 <input data-schema-field="required" type="checkbox" ${field.required ? "checked" : ""} ${schemaReadonly ? "disabled" : ""} />
               </label>
@@ -1567,10 +1573,26 @@
 
       for (const field of schemaFields) {
         const name = field.name.trim();
-        inputSchema.properties[name] = {
+        const prop = {
           type: field.type,
           description: field.description.trim()
         };
+        const enumRaw = field.enum ? field.enum.trim() : "";
+        if (enumRaw) {
+          prop.enum = enumRaw.split(/,\s*/).map((v) => {
+            const trimmed = v.trim();
+            if (field.type === "number" || field.type === "integer") {
+              const num = Number(trimmed);
+              return Number.isNaN(num) ? trimmed : num;
+            }
+            if (field.type === "boolean") {
+              if (trimmed === "true") return true;
+              if (trimmed === "false") return false;
+            }
+            return trimmed;
+          });
+        }
+        inputSchema.properties[name] = prop;
         if (field.required) inputSchema.required.push(name);
       }
 
