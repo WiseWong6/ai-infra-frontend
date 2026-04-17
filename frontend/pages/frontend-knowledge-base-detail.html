@@ -26,12 +26,9 @@
             --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
-        html,
-        body {
+        html, body {
             margin: 0;
             min-height: 100%;
             background: var(--bg);
@@ -40,12 +37,8 @@
             font-size: 14px;
         }
 
-        .app {
-            display: flex;
-            min-height: 100vh;
-        }
+        .app { display: flex; min-height: 100vh; }
 
-        /* Sidebar */
         .sidebar {
             width: 220px;
             background: var(--sidebar);
@@ -54,9 +47,7 @@
             flex-shrink: 0;
         }
 
-        .menu-group {
-            margin-bottom: 24px;
-        }
+        .menu-group { margin-bottom: 24px; }
 
         .menu-title {
             margin: 0 0 8px;
@@ -79,28 +70,16 @@
             transition: var(--transition);
         }
 
-        .menu-item:hover {
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        .menu-item.active {
-            background: var(--active);
-            color: var(--active-blue);
-            position: relative;
-        }
-
+        .menu-item:hover { background: var(--bg); color: var(--text); }
+        .menu-item.active { background: var(--active); color: var(--active-blue); position: relative; }
         .menu-item.active::before {
             content: "";
             position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
+            left: 0; top: 0; bottom: 0;
             width: 3px;
             background: var(--active-blue);
         }
 
-        /* Main */
         .main {
             flex: 1;
             min-width: 0;
@@ -119,13 +98,8 @@
             flex-shrink: 0;
         }
 
-        .topbar h1 {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0;
-        }
+        .topbar h1 { font-size: 16px; font-weight: 600; margin: 0; }
 
-        /* Content Area */
         .content {
             padding: 20px 24px;
             display: flex;
@@ -150,10 +124,14 @@
             margin-bottom: 12px;
         }
 
-        .kb-title {
+        .kb-title-wrap {
             display: flex;
             align-items: center;
             gap: 8px;
+            cursor: pointer;
+        }
+
+        .kb-title {
             font-size: 18px;
             font-weight: 600;
         }
@@ -172,15 +150,9 @@
             color: var(--muted);
         }
 
-        .meta-item b {
-            font-weight: 500;
-            color: var(--text);
-        }
+        .meta-item b { font-weight: 500; color: var(--text); }
 
-        .header-actions {
-            display: flex;
-            gap: 12px;
-        }
+        .header-actions { display: flex; gap: 12px; }
 
         /* Layout Grid */
         .kb-layout {
@@ -188,12 +160,11 @@
             gap: 16px;
             flex: 1;
             min-height: 0;
-            /* Important for inner scrolling */
         }
 
         /* Left Panel: File Tree */
         .file-panel {
-            width: 320px;
+            width: 360px;
             background: var(--white);
             border: 1px solid var(--line-strong);
             border-radius: 8px;
@@ -203,15 +174,19 @@
         }
 
         .panel-search {
-            padding: 16px;
+            padding: 12px 16px;
             border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .input-group {
+        .search-input-wrap {
             position: relative;
+            flex: 1;
         }
 
-        .input-group i {
+        .search-input-wrap i {
             position: absolute;
             left: 10px;
             top: 50%;
@@ -231,59 +206,133 @@
             outline: none;
         }
 
-        .search-input:focus {
-            border-color: var(--blue);
-        }
+        .search-input:focus { border-color: var(--blue); }
 
         .file-tree {
             flex: 1;
-            padding: 12px;
+            padding: 8px 0;
             overflow-y: auto;
         }
 
         .tree-node {
             display: flex;
             align-items: center;
-            gap: 8px;
-            height: 32px;
-            padding: 0 8px;
+            gap: 6px;
+            height: 34px;
+            padding: 0 12px 0 16px;
             border-radius: 4px;
             cursor: pointer;
             transition: var(--transition);
             font-size: 13px;
             color: var(--text);
+            margin: 0 8px;
         }
 
-        .tree-node:hover {
-            background: var(--hover-bg);
-        }
-
-        .tree-node.active {
-            background: var(--active);
-        }
+        .tree-node:hover { background: var(--hover-bg); }
+        .tree-node.active { background: var(--active); }
 
         .tree-node i {
             width: 16px;
             height: 16px;
             color: var(--muted);
+            flex-shrink: 0;
         }
 
-        .node-folder i {
-            color: #fbbf24;
+        .node-folder i.folder-icon { color: #f59e0b; }
+        .node-file i.file-icon { color: var(--muted); }
+
+        .node-label {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .node-error {
-            margin-left: auto;
-            color: var(--danger);
-            width: 14px;
-            height: 14px;
+        .node-actions {
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: opacity 0.2s;
         }
+
+        .tree-node:hover .node-actions { opacity: 1; }
+
+        .node-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .node-action-btn:hover { color: var(--text); }
+
+        .retry-icon { color: var(--danger); }
+
+        .tree-children {
+            padding-left: 18px;
+            display: block;
+        }
+        .tree-children.collapsed { display: none; }
+        .chevron-icon { transition: transform 0.2s; }
+        .chevron-icon.collapsed { transform: rotate(-90deg); }
 
         .file-actions {
-            padding: 16px;
+            padding: 12px 16px;
             display: flex;
             gap: 8px;
             border-top: 1px solid var(--line);
+            align-items: center;
+        }
+
+        /* Buttons */
+        .btn {
+            height: 32px;
+            padding: 0 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: var(--blue-hover); }
+
+        .btn-secondary { background: #fff; border-color: var(--blue); color: var(--blue); }
+        .btn-secondary:hover { background: var(--active); }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--line-strong);
+            color: var(--muted);
+        }
+        .btn-ghost:hover { background: var(--hover-bg); color: var(--text); }
+
+        .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+
+        /* Checkbox */
+        .checkbox {
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--line-strong);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            position: relative;
         }
 
         /* Right Panel: Content */
@@ -298,7 +347,7 @@
         }
 
         .content-header {
-            padding: 16px;
+            padding: 12px 16px;
             display: flex;
             gap: 12px;
             border-bottom: 1px solid var(--line);
@@ -306,11 +355,11 @@
 
         .chunk-list {
             flex: 1;
-            padding: 20px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
 
         .chunk-card {
@@ -323,13 +372,10 @@
             background: #fdfdfd;
         }
 
-        .chunk-card:hover {
-            border-color: var(--blue);
-            background: var(--white);
-        }
+        .chunk-card:hover { border-color: var(--blue); background: var(--white); }
 
         .footer {
-            padding: 16px 20px;
+            padding: 12px 16px;
             border-top: 1px solid var(--line);
             display: flex;
             justify-content: space-between;
@@ -338,65 +384,6 @@
             color: var(--muted);
         }
 
-        /* Buttons */
-        .btn {
-            height: 32px;
-            padding: 0 12px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid transparent;
-            gap: 6px;
-        }
-
-        .btn-primary {
-            background: var(--blue);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: var(--blue-hover);
-        }
-
-        .btn-secondary {
-            background: #fff;
-            border-color: var(--blue);
-            color: var(--blue);
-        }
-
-        .btn-secondary:hover {
-            background: var(--active);
-        }
-
-        .btn-ghost {
-            background: transparent;
-            border: 1px solid var(--line-strong);
-            color: var(--muted);
-        }
-
-        .btn-ghost:hover {
-            background: var(--hover-bg);
-            color: var(--text);
-        }
-
-        /* Checkbox */
-        .checkbox {
-            width: 14px;
-            height: 14px;
-            border: 1px solid var(--line-strong);
-            border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        /* Pagination */
         .pagination {
             display: flex;
             align-items: center;
@@ -412,13 +399,10 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            font-size: 13px;
         }
 
-        .page-item.active {
-            background: var(--blue);
-            color: #fff;
-            border-color: var(--blue);
-        }
+        .page-item.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 
         .page-input {
             width: 40px;
@@ -427,6 +411,234 @@
             border-radius: 4px;
             text-align: center;
             outline: none;
+            font-size: 13px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--muted);
+            gap: 12px;
+        }
+
+        .processing-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--blue);
+            gap: 12px;
+        }
+
+        .processing-state i { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-state {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .error-alert {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            padding: 12px 16px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: #fff;
+            border-radius: 8px;
+            width: 800px;
+            max-width: 92vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .modal-sm { width: 500px; }
+        .modal-md { width: 600px; }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            padding: 4px;
+            display: flex;
+        }
+        .modal-close:hover { color: var(--text); }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .form-row:last-child { margin-bottom: 0; }
+
+        .form-label {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 500;
+        }
+        .form-label .required { color: var(--danger); margin-right: 4px; }
+
+        .form-input, .form-textarea, .form-select {
+            height: 36px;
+            border: 1px solid var(--line-strong);
+            border-radius: 4px;
+            padding: 0 12px;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            transition: var(--transition);
+            background: #fff;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--blue); }
+        .form-textarea { height: auto; min-height: 80px; padding: 10px 12px; resize: vertical; }
+
+        .checkbox-group, .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item, .radio-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .form-group-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 24px 0 12px;
+            padding-left: 12px;
+            border-left: 3px solid var(--blue);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--line-strong);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: var(--muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .upload-area:hover { border-color: var(--blue); background: var(--active); }
+
+        .tag-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tag-row .form-input, .tag-row .form-select { width: 200px; margin: 0; }
+
+        .link-btn {
+            background: none;
+            border: none;
+            color: var(--blue);
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0;
+        }
+        .link-btn:hover { text-decoration: underline; }
+
+        .folder-list {
+            min-height: 200px;
+            max-height: 320px;
+            overflow-y: auto;
+            border: 1px solid var(--line-strong);
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            gap: 8px;
+        }
+        .folder-item:hover { background: var(--hover-bg); }
+        .folder-item i { color: var(--blue); }
+        .folder-name { flex: 1; font-size: 14px; }
+        .folder-type { font-size: 12px; color: var(--muted); }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .breadcrumb span { cursor: pointer; }
+        .breadcrumb span:hover { color: var(--blue); }
+        .breadcrumb .current { font-weight: 600; color: var(--text); cursor: default; }
+
+        input[type="checkbox"], input[type="radio"] {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -444,12 +656,13 @@
                 <!-- Header Info Card -->
                 <div class="header-card">
                     <div class="header-top">
-                        <div class="kb-title">
-                            zale测试专用 <i data-lucide="edit-3" class="edit-icon"></i>
+                        <div class="kb-title-wrap" onclick="location.href='#'">
+                            <span class="kb-title">zale测试专用</span>
+                            <i data-lucide="edit-3" class="edit-icon" onclick="event.stopPropagation();openModal('editBaseModal')"></i>
                         </div>
                         <div class="header-actions">
-                            <button class="btn btn-secondary">召回测试</button>
-                            <button class="btn btn-primary">分段配置</button>
+                            <button class="btn btn-secondary" onclick="openModal('recallModal')">召回测试</button>
+                            <button class="btn btn-primary" onclick="openModal('viewConfigModal')">分段配置</button>
                         </div>
                     </div>
                     <div class="header-meta">
@@ -463,111 +676,143 @@
                     <!-- Left: File Tree -->
                     <div class="file-panel">
                         <div class="panel-search">
-                            <div class="input-group">
+                            <div class="checkbox"><input type="checkbox" style="opacity:0;width:100%;height:100%;cursor:pointer;position:absolute;left:0;top:0;"></div>
+                            <div class="search-input-wrap">
                                 <i data-lucide="search"></i>
                                 <input type="text" class="search-input" placeholder="搜索文件或文件夹" />
                             </div>
                         </div>
                         <div class="file-tree">
                             <div class="tree-node node-folder">
-                                <i data-lucide="chevron-down"></i>
-                                <i data-lucide="folder"></i>
-                                <span>知识库文件夹</span>
+                                <i data-lucide="chevron-down" class="chevron-icon" onclick="toggleFolder(this)" style="width:14px;height:14px;"></i>
+                                <i data-lucide="folder" class="folder-icon"></i>
+                                <span class="node-label">知识库文件夹</span>
+                                <div class="node-actions">
+                                    <button class="node-action-btn" onclick="event.stopPropagation();openModal('moveModal')"><i data-lucide="more-vertical" style="width:14px;height:14px;"></i></button>
+                                </div>
                             </div>
-                            <div style="padding-left: 20px;">
-                                <div class="tree-node">
-                                    <div class="checkbox"></div>
-                                    <i data-lucide="file-text"></i>
-                                    <span>提示词.md</span>
+                            <div class="tree-children">
+                                <div class="tree-node node-file">
+                                    <div class="checkbox" style="margin-right:2px;"><input type="checkbox" style="opacity:0;width:100%;height:100%;cursor:pointer;position:absolute;left:0;top:0;"></div>
+                                    <i data-lucide="file-text" class="file-icon"></i>
+                                    <span class="node-label">提示词.md</span>
+                                    <div class="node-actions">
+                                        <button class="node-action-btn" onclick="openModal('sliceConfigModal')"><i data-lucide="settings-2" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn" onclick="openModal('moveModal')"><i data-lucide="move" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+                                    </div>
                                 </div>
-                                <div class="tree-node">
-                                    <div class="checkbox"></div>
-                                    <i data-lucide="file"></i>
-                                    <span>test.csv</span>
-                                    <i data-lucide="alert-circle" class="node-error"></i>
+                                <div class="tree-node node-file">
+                                    <div class="checkbox" style="margin-right:2px;"><input type="checkbox" style="opacity:0;width:100%;height:100%;cursor:pointer;position:absolute;left:0;top:0;"></div>
+                                    <i data-lucide="file" class="file-icon"></i>
+                                    <span class="node-label">test.csv</span>
+                                    <i data-lucide="alert-circle" style="width:14px;height:14px;color:var(--danger);margin-left:auto;"></i>
+                                    <div class="node-actions">
+                                        <button class="node-action-btn" onclick="event.stopPropagation();openModal('sliceConfigModal')"><i data-lucide="settings-2" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn" onclick="openModal('moveModal')"><i data-lucide="move" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+                                    </div>
                                 </div>
-                                <div class="tree-node">
-                                    <div class="checkbox"></div>
-                                    <i data-lucide="file"></i>
-                                    <span>test.docx</span>
-                                    <i data-lucide="alert-circle" class="node-error"></i>
+                                <div class="tree-node node-file">
+                                    <div class="checkbox" style="margin-right:2px;"><input type="checkbox" style="opacity:0;width:100%;height:100%;cursor:pointer;position:absolute;left:0;top:0;"></div>
+                                    <i data-lucide="file" class="file-icon"></i>
+                                    <span class="node-label">test.docx</span>
+                                    <i data-lucide="alert-circle" style="width:14px;height:14px;color:var(--danger);margin-left:auto;"></i>
+                                    <div class="node-actions">
+                                        <button class="node-action-btn" onclick="openModal('sliceConfigModal')"><i data-lucide="settings-2" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn" onclick="openModal('moveModal')"><i data-lucide="move" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+                                    </div>
                                 </div>
-                                <div class="tree-node">
-                                    <div class="checkbox"></div>
-                                    <i data-lucide="file"></i>
-                                    <span>test.md</span>
-                                    <i data-lucide="alert-circle" class="node-error"></i>
+                                <div class="tree-node node-file">
+                                    <div class="checkbox" style="margin-right:2px;"><input type="checkbox" style="opacity:0;width:100%;height:100%;cursor:pointer;position:absolute;left:0;top:0;"></div>
+                                    <i data-lucide="file" class="file-icon"></i>
+                                    <span class="node-label">test.md</span>
+                                    <i data-lucide="alert-circle" style="width:14px;height:14px;color:var(--danger);margin-left:auto;"></i>
+                                    <div class="node-actions">
+                                        <button class="node-action-btn" onclick="openModal('sliceConfigModal')"><i data-lucide="settings-2" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn" onclick="openModal('moveModal')"><i data-lucide="move" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+                                    </div>
                                 </div>
-                                <div class="tree-node">
-                                    <div class="checkbox"></div>
-                                    <i data-lucide="file"></i>
-                                    <span>test.pdf</span>
-                                    <i data-lucide="alert-circle" class="node-error"></i>
+                                <div class="tree-node node-file">
+                                    <div class="checkbox" style="margin-right:2px;"><input type="checkbox" style="opacity:0;width:100%;height:100%;cursor:pointer;position:absolute;left:0;top:0;"></div>
+                                    <i data-lucide="file" class="file-icon"></i>
+                                    <span class="node-label">test.pdf</span>
+                                    <i data-lucide="alert-circle" style="width:14px;height:14px;color:var(--danger);margin-left:auto;"></i>
+                                    <div class="node-actions">
+                                        <button class="node-action-btn" onclick="openModal('sliceConfigModal')"><i data-lucide="settings-2" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn" onclick="openModal('moveModal')"><i data-lucide="move" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+                                    </div>
                                 </div>
-                                <div class="tree-node">
-                                    <div class="checkbox"></div>
-                                    <i data-lucide="file"></i>
-                                    <span>test.xlsx</span>
-                                    <i data-lucide="alert-circle" class="node-error"></i>
+                                <div class="tree-node node-file">
+                                    <div class="checkbox" style="margin-right:2px;"><input type="checkbox" style="opacity:0;width:100%;height:100%;cursor:pointer;position:absolute;left:0;top:0;"></div>
+                                    <i data-lucide="file" class="file-icon"></i>
+                                    <span class="node-label">test.xlsx</span>
+                                    <i data-lucide="alert-circle" style="width:14px;height:14px;color:var(--danger);margin-left:auto;"></i>
+                                    <div class="node-actions">
+                                        <button class="node-action-btn" onclick="openModal('sliceConfigModal')"><i data-lucide="settings-2" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn" onclick="openModal('moveModal')"><i data-lucide="move" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+                                    </div>
                                 </div>
-                                <div class="tree-node active">
-                                    <div class="checkbox"></div>
-                                    <i data-lucide="file"></i>
-                                    <span>test.txt</span>
+                                <div class="tree-node node-file active">
+                                    <div class="checkbox" style="margin-right:2px;"><input type="checkbox" style="opacity:0;width:100%;height:100%;cursor:pointer;position:absolute;left:0;top:0;"></div>
+                                    <i data-lucide="file" class="file-icon"></i>
+                                    <span class="node-label">test.txt</span>
+                                    <div class="node-actions">
+                                        <button class="node-action-btn" onclick="openModal('sliceConfigModal')"><i data-lucide="settings-2" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn" onclick="openModal('moveModal')"><i data-lucide="move" style="width:14px;height:14px;"></i></button>
+                                        <button class="node-action-btn"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="file-actions">
-                            <button class="btn btn-primary">创建文件夹</button>
-                            <button class="btn btn-primary">上传文件</button>
-                            <button class="btn" style="background: #eff6ff; color: var(--blue); border: 0;">批量操作 <i
-                                    data-lucide="chevron-down"></i></button>
+                            <button class="btn btn-primary btn-sm" onclick="openModal('createFolderModal')">创建文件夹</button>
+                            <button class="btn btn-primary btn-sm" onclick="openModal('uploadModal')">上传文件</button>
+                            <button class="btn btn-ghost btn-sm" id="batchBtn" disabled>批量操作 <i data-lucide="chevron-down" style="width:12px;height:12px;"></i></button>
                         </div>
                     </div>
 
                     <!-- Right: Chunks -->
                     <div class="content-panel">
                         <div class="content-header">
-                            <div class="input-group" style="flex: 1;">
-                                <input type="text" class="search-input" style="padding-left: 12px;"
-                                    placeholder="搜索切片内容" />
+                            <div class="search-input-wrap" style="flex:1;">
+                                <input type="text" class="search-input" style="padding-left:12px;" placeholder="搜索切片内容" />
                             </div>
-                            <button class="btn btn-ghost" style="padding: 0 8px;"><i
-                                    data-lucide="refresh-cw"></i></button>
+                            <button class="btn btn-ghost" style="padding:0 8px;"><i data-lucide="refresh-cw" style="width:14px;height:14px;"></i></button>
                         </div>
                         <div class="chunk-list">
                             <div class="chunk-card">
-                                [ "# 文档内容\n北京人寿保险股份有限公司 请扫描以查询验证条款北京人寿康宝贝 V 款重大疾病保险（互联网专属）条款\n阅读 指
-                                引\n本．阅．读．指．引．有．助．于．您．理．解．本．合．同．内．容．的．解．释．以．条．款．为．准。。\n[] 您拥有的重要权益\nl 签收本合同之日起 15
-                                日内您可以要求退还扣除工本费外的所交保险费... 1.4\n' 本合同提供的保障在保险责任条款中列明... 2.4\n 您有退保的权利 ...
-                                7.1\n与您有重大利害关系的条款\n为您、被保险人及受益人的切身利益，请务必认真阅读" ]
+                                [ "# 文档内容\n北京人寿保险股份有限公司 请扫描以查询验证条款北京人寿康宝贝 V 款重大疾病保险（互联网专属）条款\n阅读 指引\n本．阅．读．指．引．有．助．于．您．理．解．本．合．同．内．容．的．解．释．以．条．款．为．准。。\n[] 您拥有的重要权益\nl 签收本合同之日起 15 日内您可以要求退还扣除工本费外的所交保险费... 1.4\n' 本合同提供的保障在保险责任条款中列明... 2.4\n 您有退保的权利 ... 7.1\n与您有重大利害关系的条款\n为您、被保险人及受益人的切身利益，请务必认真阅读" ]
                             </div>
                             <div class="chunk-card">
-                                [ " 本合同有责任免除条款，请注意 ... ...2.5\n 保险事故发生后，请及时通知我们 3.2\n 您应当按时支付保险费....... ...4.1\n
-                                退保可能会给您造成一定的损失，请慎重决策.... ...7.1\n 您有如实告知的义务 ... 8.1\n 我们对一些重要术语进行了解释，并作了显著标识，请注意 9\n
-                                本保险条款中其他加粗字体部分内容（包括但不限于附表保险责任、免除或减轻我们责任的条款），请重点关注\n保险合同的重要内容，为充分保障您的权益，请仔细阅读本保险条款\n条款目录"
-                                ]
+                                [ " 本合同有责任免除条款，请注意 ... ...2.5\n 保险事故发生后，请及时通知我们 3.2\n 您应当按时支付保险费....... ...4.1\n 退保可能会给您造成一定的损失，请慎重决策.... ...7.1\n 您有如实告知的义务 ... 8.1\n 我们对一些重要术语进行了解释，并作了显著标识，请注意 9\n 本保险条款中其他加粗字体部分内容（包括但不限于附表保险责任、免除或减轻我们责任的条款），请重点关注\n保险合同的重要内容，为充分保障您的权益，请仔细阅读本保险条款\n条款目录" ]
                             </div>
                             <div class="chunk-card">
-                                [ "1．双方订立的合同 4.2宽限期1.1 合同构成 5．效力中止与恢复1.2 合同成立与生效 5.1 效力中止与恢复1.3 投保范围 6．现金价值权益1.4 犹豫期 6.1
-                                现金价值\n2．我们提供的保障 6.2 保单贷款2.1 基本保险金额 6.3 自动垫交2.2 未成年人身故保险金 7．合同解除限制 7.1 您解除合同的手续及2.3 保险期间
-                                风险2.4 保险责任 8．其他需要关注的事项2.5 责任免除 8.1 明确说明与如实告知2.6 其他免责条款 8.2 年龄性别错误的处理" ]
+                                [ "1．双方订立的合同 4.2宽限期1.1 合同构成 5．效力中止与恢复1.2 合同成立与生效 5.1 效力中止与恢复1.3 投保范围 6．现金价值权益1.4 犹豫期 6.1 现金价值\n2．我们提供的保障 6.2 保单贷款2.1 基本保险金额 6.3 自动垫交2.2 未成年人身故保险金 7．合同解除限制 7.1 您解除合同的手续及2.3 保险期间 风险2.4 保险责任 8．其他需要关注的事项2.5 责任免除 8.1 明确说明与如实告知2.6 其他免责条款 8.2 年龄性别错误的处理" ]
                             </div>
                             <div class="chunk-card">
-                                [ "3．保险金的申请 8.3本公司合同解除权的3.1 受益人 限制3.2 保险事故通知 8.4 合同终止3.3 保险金申请 8.5 未还款项3.4 保险金给付 8.6
-                                合同内容变更3.5 宣告死亡处理 8.7 联系方式变更3.6 诉讼时效 8.8 争议处理\n4.保险费的支付 9.释放4.1 保险费的支付 9.1 保单年度\n9.2
-                                保险费约定支付日 重度“转移或扩散\n9.3 周岁 9.20 ”恶性肿瘤——\n9.4 有效身份证件 重度“仍持续存在\n9.5 意外伤害 9.21 毒品" ]
+                                [ "3．保险金的申请 8.3本公司合同解除权的3.1 受益人 限制3.2 保险事故通知 8.4 合同终止3.3 保险金申请 8.5 未还款项3.4 保险金给付 8.6 合同内容变更3.5 宣告死亡处理 8.7 联系方式变更3.6 诉讼时效 8.8 争议处理\n4.保险费的支付 9.释放4.1 保险费的支付 9.1 保单年度\n9.2 保险费约定支付日 重度"转移或扩散\n9.3 周岁 9.20 "恶性肿瘤——\n9.4 有效身份证件 重度"仍持续存在\n9.5 意外伤害 9.21 毒品" ]
                             </div>
                         </div>
                         <div class="footer">
                             <span>共 374 条</span>
                             <div class="pagination">
-                                <select
-                                    style="border: 1px solid var(--line-strong); height: 28px; border-radius: 4px; font-size: 13px;">
+                                <select style="border:1px solid var(--line-strong);height:28px;border-radius:4px;font-size:13px;padding:0 6px;">
                                     <option>10条/页</option>
                                     <option>20条/页</option>
                                 </select>
-                                <div class="page-item"><i data-lucide="chevron-left" style="width: 14px;"></i></div>
+                                <div class="page-item"><i data-lucide="chevron-left" style="width:14px;height:14px;"></i></div>
                                 <div class="page-item active">1</div>
                                 <div class="page-item">2</div>
                                 <div class="page-item">3</div>
@@ -576,10 +821,10 @@
                                 <div class="page-item">6</div>
                                 <div class="page-item">...</div>
                                 <div class="page-item">38</div>
-                                <div class="page-item"><i data-lucide="chevron-right" style="width: 14px;"></i></div>
-                                <span style="margin: 0 4px;">前往</span>
+                                <div class="page-item"><i data-lucide="chevron-right" style="width:14px;height:14px;"></i></div>
+                                <span style="margin:0 4px;">前往</span>
                                 <input type="text" class="page-input" value="1" />
-                                <span style="margin-left: 4px;">页</span>
+                                <span style="margin-left:4px;">页</span>
                             </div>
                         </div>
                     </div>
@@ -588,8 +833,178 @@
         </main>
     </div>
 
+    <!-- Edit Base Modal -->
+    <div class="modal-overlay" id="editBaseModal">
+        <div class="modal">
+            <div class="modal-header"><h3>编辑知识库</h3><button class="modal-close" onclick="closeModal('editBaseModal')"><i data-lucide="x" style="width:16px;height:16px;"></i></button></div>
+            <div class="modal-body">
+                <div class="form-row"><label class="form-label"><span class="required">*</span>名称</label><input type="text" class="form-input" value="zale测试专用" /></div>
+                <div class="form-row"><label class="form-label">描述</label><textarea class="form-textarea">zale测试专用</textarea></div>
+                <div class="form-row"><label class="form-label"><span class="required">*</span>负责人</label><input type="text" class="form-input" value="zale" /></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('editBaseModal')">取消</button><button class="btn btn-primary" onclick="closeModal('editBaseModal')">确定</button></div>
+        </div>
+    </div>
+
+    <!-- View Config Modal -->
+    <div class="modal-overlay" id="viewConfigModal">
+        <div class="modal">
+            <div class="modal-header"><h3>分段配置(查看)</h3><button class="modal-close" onclick="closeModal('viewConfigModal')"><i data-lucide="x" style="width:16px;height:16px;"></i></button></div>
+            <div class="modal-body">
+                <div class="form-row"><label class="form-label">名称</label><input type="text" class="form-input" value="zale测试专用" disabled style="background:#f8fafc;color:var(--muted);" /></div>
+                <div class="form-row"><label class="form-label">描述</label><input type="text" class="form-input" value="zale测试专用" disabled style="background:#f8fafc;color:var(--muted);" /></div>
+                <div class="form-row"><label class="form-label">负责人</label><input type="text" class="form-input" value="zale" disabled style="background:#f8fafc;color:var(--muted);" /></div>
+                <div class="form-row"><label class="form-label">模型</label><input type="text" class="form-input" value="text-embedding v4" disabled style="background:#f8fafc;color:var(--muted);" /></div>
+                <div class="form-row"><label class="form-label">解析增强</label><label class="checkbox-item"><input type="checkbox" disabled /><span>表格增强</span></label></div>
+                <div class="form-row"><label class="form-label">召回方式</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" checked disabled /><span>向量检索</span></label><label class="checkbox-item"><input type="checkbox" disabled /><span>ES检索</span></label></div></div>
+                <div class="form-group-title">文本分段方式</div>
+                <div class="form-row"><label class="form-label">分段策略</label><div class="radio-group"><label class="radio-item"><input type="radio" checked disabled /><span>大小分段</span></label></div></div>
+                <div class="form-row"><label class="form-label">分段大小</label><input type="number" class="form-input" value="1024" disabled style="background:#f8fafc;color:var(--muted);" /></div>
+                <div class="form-group-title">表格分段方式</div>
+                <div class="form-row"><label class="form-label">分段策略</label><div class="radio-group"><label class="radio-item"><input type="radio" checked disabled /><span>大小分段</span></label><label class="radio-item"><input type="radio" disabled /><span>按行分段</span></label></div></div>
+                <div class="form-row"><label class="form-label">分段大小</label><input type="number" class="form-input" value="1024" disabled style="background:#f8fafc;color:var(--muted);" /></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('viewConfigModal')">关闭</button></div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal">
+            <div class="modal-header"><h3>文件上传</h3><button class="modal-close" onclick="closeModal('uploadModal')"><i data-lucide="x" style="width:16px;height:16px;"></i></button></div>
+            <div class="modal-body">
+                <div class="form-row"><label class="form-label"><span class="required">*</span>上传位置</label><select class="form-select"><option>知识库文件夹</option></select></div>
+                <div class="form-row"><label class="form-label"><span class="required">*</span>文件列表</label><div class="upload-area"><i data-lucide="upload-cloud" style="width:40px;height:40px;margin-bottom:8px;"></i><div>点击或将文件拖拽到这里上传</div><div style="font-size:12px;margin-top:8px;">支持格式: txt、docx、doc、pdf、md、csv、xlsx，单个文件不超过50MB</div></div></div>
+                <div class="form-row"><label class="form-label">文件标签</label><div class="tag-row"><select class="form-select"><option>请选择标签</option></select><input type="text" class="form-input" placeholder="标签值" /><button class="link-btn"><i data-lucide="trash-2" style="width:14px;height:14px;"></i> 删除</button></div><button class="link-btn"><i data-lucide="plus" style="width:14px;height:14px;"></i> 添加标签</button></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('uploadModal')">取消</button><button class="btn btn-primary" onclick="closeModal('uploadModal')">确定</button></div>
+        </div>
+    </div>
+
+    <!-- Slice Config Modal -->
+    <div class="modal-overlay" id="sliceConfigModal">
+        <div class="modal">
+            <div class="modal-header"><h3>切片配置</h3><button class="modal-close" onclick="closeModal('sliceConfigModal')"><i data-lucide="x" style="width:16px;height:16px;"></i></button></div>
+            <div class="modal-body">
+                <div class="form-row"><label class="form-label">模型</label><div style="font-size:14px;padding:8px 0;">text-embedding v4</div></div>
+                <div class="form-row"><label class="form-label">解析增强</label><label class="checkbox-item"><input type="checkbox" /><span>表格增强</span></label><div class="form-tips">如文档表格较多，建议开启增强模式</div></div>
+                <div class="form-row"><label class="form-label"><span class="required">*</span>召回方式</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" checked /><span>向量检索</span></label><label class="checkbox-item"><input type="checkbox" /><span>ES检索</span></label></div></div>
+                <div class="form-group-title">文本分段方式</div>
+                <div class="form-row"><label class="form-label"><span class="required">*</span>分段策略</label><div class="radio-group"><label class="radio-item"><input type="radio" name="scText" checked /><span>大小分段</span></label></div></div>
+                <div class="form-row"><label class="form-label"><span class="required">*</span>分段大小</label><input type="number" class="form-input" value="1024" /></div>
+                <div class="form-row"><label class="form-label">标签配置</label><div class="tag-row"><select class="form-select"><option>请选择标签</option></select><input type="text" class="form-input" placeholder="标签值" /><button class="link-btn"><i data-lucide="trash-2" style="width:14px;height:14px;"></i> 删除</button></div><button class="link-btn"><i data-lucide="plus" style="width:14px;height:14px;"></i> 添加标签</button></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('sliceConfigModal')">取消</button><button class="btn btn-primary" onclick="closeModal('sliceConfigModal')">确定</button></div>
+        </div>
+    </div>
+
+    <!-- Recall Test Modal -->
+    <div class="modal-overlay" id="recallModal">
+        <div class="modal" style="width:900px;">
+            <div class="modal-header"><h3>召回测试</h3><button class="modal-close" onclick="closeModal('recallModal')"><i data-lucide="x" style="width:16px;height:16px;"></i></button></div>
+            <div class="modal-body">
+                <div class="form-row"><label class="form-label">问题</label><textarea class="form-textarea" rows="3" placeholder="请输入测试问题"></textarea></div>
+                <div class="form-row"><label class="form-label">标签配置</label><div class="tag-row"><select class="form-select"><option>请选择标签名</option></select><input type="text" class="form-input" placeholder="标签值" /><button class="link-btn"><i data-lucide="trash-2" style="width:14px;height:14px;"></i> 删除</button></div><button class="link-btn"><i data-lucide="plus" style="width:14px;height:14px;"></i> 添加标签</button></div>
+                <div class="form-row"><label class="form-label"><span class="required">*</span>召回数量</label><input type="number" class="form-input" value="10" /></div>
+                <div class="form-row"><label class="form-label"> </label><button class="btn btn-primary">召回</button></div>
+                <div class="form-row"><label class="form-label">命中结果</label><div style="font-size:13px;color:var(--muted);margin-bottom:8px;">输入问题后召回，查看命中结果</div><div style="border:1px solid var(--line-strong);border-radius:4px;padding:16px;min-height:120px;display:flex;align-items:center;justify-content:center;color:var(--muted);">暂无召回结果</div></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('recallModal')">关闭</button></div>
+        </div>
+    </div>
+
+    <!-- Move Modal -->
+    <div class="modal-overlay" id="moveModal">
+        <div class="modal modal-md">
+            <div class="modal-header"><h3>移动: test.txt (文件)</h3><button class="modal-close" onclick="closeModal('moveModal')"><i data-lucide="x" style="width:16px;height:16px;"></i></button></div>
+            <div class="modal-body">
+                <div class="breadcrumb"><span>根目录</span><span>/</span><span class="current">知识库文件夹</span></div>
+                <div class="folder-list">
+                    <div class="folder-item"><i data-lucide="folder" style="width:18px;height:18px;"></i><span class="folder-name">子文件夹 A</span><span class="folder-type">文件夹</span></div>
+                    <div class="folder-item"><i data-lucide="folder" style="width:18px;height:18px;"></i><span class="folder-name">子文件夹 B</span><span class="folder-type">文件夹</span></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('moveModal')">取消</button><button class="btn btn-primary" onclick="closeModal('moveModal')">移动至此</button></div>
+        </div>
+    </div>
+
+    <!-- Create Folder Modal -->
+    <div class="modal-overlay" id="createFolderModal">
+        <div class="modal modal-sm">
+            <div class="modal-header"><h3>创建文件夹</h3><button class="modal-close" onclick="closeModal('createFolderModal')"><i data-lucide="x" style="width:16px;height:16px;"></i></button></div>
+            <div class="modal-body">
+                <div class="form-row"><label class="form-label"><span class="required">*</span>创建位置</label><select class="form-select"><option>知识库文件夹</option></select></div>
+                <div class="form-row"><label class="form-label"><span class="required">*</span>文件夹名称</label><input type="text" class="form-input" placeholder="请输入文件夹名称" /></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('createFolderModal')">取消</button><button class="btn btn-primary" onclick="closeModal('createFolderModal')">确定</button></div>
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) closeModal(this.id);
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(function(overlay) {
+                    closeModal(overlay.id);
+                });
+            }
+        });
+
+        // Toggle folder expand/collapse
+        function toggleFolder(chevron) {
+            event.stopPropagation();
+            var children = chevron.parentElement.nextElementSibling;
+            if (children && children.classList.contains('tree-children')) {
+                children.classList.toggle('collapsed');
+                chevron.classList.toggle('collapsed');
+            }
+        }
+
+        // Batch operations button state based on checkboxes
+        var fileCheckboxes = document.querySelectorAll('.tree-children .checkbox input[type="checkbox"]');
+        var selectAllCheckbox = document.querySelector('.panel-search .checkbox input[type="checkbox"]');
+        var batchBtn = document.getElementById('batchBtn');
+
+        function updateBatchState() {
+            var anyChecked = false;
+            fileCheckboxes.forEach(function(cb) {
+                if (cb.checked) anyChecked = true;
+            });
+            batchBtn.disabled = !anyChecked;
+        }
+
+        fileCheckboxes.forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                updateBatchState();
+                // Sync select-all if all are checked
+                var allChecked = true;
+                fileCheckboxes.forEach(function(c) { if (!c.checked) allChecked = false; });
+                if (selectAllCheckbox) selectAllCheckbox.checked = allChecked;
+            });
+        });
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                fileCheckboxes.forEach(function(cb) {
+                    cb.checked = selectAllCheckbox.checked;
+                });
+                updateBatchState();
+            });
+        }
     </script>
 </body>
 

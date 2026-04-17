@@ -34,12 +34,9 @@
             --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
-        html,
-        body {
+        html, body {
             margin: 0;
             min-height: 100%;
             background: var(--bg);
@@ -48,10 +45,7 @@
             font-size: 14px;
         }
 
-        .app {
-            display: flex;
-            min-height: 100vh;
-        }
+        .app { display: flex; min-height: 100vh; }
 
         .sidebar {
             width: 220px;
@@ -61,9 +55,7 @@
             flex-shrink: 0;
         }
 
-        .menu-group {
-            margin-bottom: var(--spacing-xl);
-        }
+        .menu-group { margin-bottom: var(--spacing-xl); }
 
         .menu-title {
             margin: 0 0 var(--spacing-sm);
@@ -88,22 +80,12 @@
             position: relative;
         }
 
-        .menu-item:hover {
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        .menu-item.active {
-            background: var(--active);
-            color: var(--blue);
-        }
-
+        .menu-item:hover { background: var(--bg); color: var(--text); }
+        .menu-item.active { background: var(--active); color: var(--blue); }
         .menu-item.active::before {
             content: "";
             position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
+            left: 0; top: 0; bottom: 0;
             width: 3px;
             background: var(--blue);
         }
@@ -125,11 +107,7 @@
             background: #ffffff;
         }
 
-        .topbar h1 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 600;
-        }
+        .topbar h1 { margin: 0; font-size: 18px; font-weight: 600; }
 
         .content {
             padding: 24px;
@@ -204,18 +182,8 @@
             margin-bottom: 20px;
         }
 
-        .table-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .table-title span {
-            font-size: 13px;
-            color: var(--muted);
-            font-weight: normal;
-            margin-left: 8px;
-        }
+        .table-title { font-size: 16px; font-weight: 600; color: var(--text); }
+        .table-title span { font-size: 13px; color: var(--muted); font-weight: normal; margin-left: 8px; }
 
         .table-container {
             border: 1px solid var(--line);
@@ -224,11 +192,7 @@
             background: #fff;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
 
         th {
             background: #f8fafc;
@@ -248,47 +212,15 @@
             color: #334155;
         }
 
-        tbody tr:hover {
-            background: #f8fafc;
-        }
+        tbody tr:hover { background: #f8fafc; }
+        tbody tr:last-child td { border-bottom: none; }
 
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .cell-id {
-            width: 80px;
-            color: var(--muted);
-            font-family: "Menlo", monospace;
-        }
-
-        .cell-name {
-            font-weight: 500;
-            color: var(--text);
-            width: 240px;
-        }
-
-        .cell-desc {
-            color: var(--muted);
-            max-width: 400px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .cell-time {
-            width: 180px;
-            color: var(--muted);
-        }
-
-        .cell-owner {
-            width: 200px;
-        }
-
-        .cell-op {
-            width: 120px;
-            text-align: right;
-        }
+        .cell-id { width: 80px; color: var(--muted); font-family: "Menlo", monospace; }
+        .cell-name { font-weight: 500; color: var(--text); width: 240px; }
+        .cell-desc { color: var(--muted); max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cell-time { width: 180px; color: var(--muted); }
+        .cell-owner { width: 200px; }
+        .cell-op { width: 120px; text-align: right; }
 
         .link {
             color: var(--blue);
@@ -298,18 +230,9 @@
             font-weight: 500;
         }
 
-        .link:hover {
-            text-decoration: underline;
-            color: var(--blue-dark);
-        }
-
-        .link.danger {
-            color: var(--danger);
-        }
-
-        .link.danger:hover {
-            color: var(--danger-dark);
-        }
+        .link:hover { text-decoration: underline; color: var(--blue-dark); }
+        .link.danger { color: var(--danger); }
+        .link.danger:hover { color: var(--danger-dark); }
 
         .btn {
             height: 36px;
@@ -326,31 +249,13 @@
             border: none;
         }
 
-        .btn-primary {
-            background: var(--blue);
-            color: #fff;
-        }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: var(--blue-dark); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
 
-        .btn-primary:hover {
-            background: var(--blue-dark);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-        }
+        .btn-secondary { background: #fff; color: var(--text); border: 1px solid var(--line-strong); }
+        .btn-secondary:hover { background: var(--hover-bg); border-color: var(--line-strong); }
 
-        .btn-secondary {
-            background: #fff;
-            color: var(--text);
-            border: 1px solid var(--line-strong);
-        }
-
-        .btn-secondary:hover {
-            background: var(--hover-bg);
-            border-color: var(--line-strong);
-        }
-
-        .btn i {
-            width: 16px;
-            height: 16px;
-        }
+        .btn i { width: 16px; height: 16px; }
 
         .pagination {
             display: flex;
@@ -360,10 +265,7 @@
             padding: 0 4px;
         }
 
-        .pagination-info {
-            font-size: 13px;
-            color: var(--muted);
-        }
+        .pagination-info { font-size: 13px; color: var(--muted); }
 
         .pagination-pages {
             display: flex;
@@ -386,22 +288,9 @@
             transition: var(--transition);
         }
 
-        .page-btn:hover:not(.disabled) {
-            border-color: var(--blue);
-            color: var(--blue);
-        }
-
-        .page-btn.active {
-            background: var(--blue);
-            color: #fff;
-            border-color: var(--blue);
-        }
-
-        .page-btn.disabled {
-            cursor: not-allowed;
-            color: #cbd5e1;
-            background: #f8fafc;
-        }
+        .page-btn:hover:not(.disabled) { border-color: var(--blue); color: var(--blue); }
+        .page-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+        .page-btn.disabled { cursor: not-allowed; color: #cbd5e1; background: #f8fafc; }
 
         .page-size {
             height: 32px;
@@ -421,6 +310,124 @@
             text-align: center;
             font-size: 13px;
             outline: none;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: #fff;
+            border-radius: 8px;
+            width: 800px;
+            max-width: 92vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            padding: 4px;
+            display: flex;
+        }
+        .modal-close:hover { color: var(--text); }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .form-row:last-child { margin-bottom: 0; }
+
+        .form-label {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 500;
+        }
+        .form-label .required { color: var(--danger); margin-right: 4px; }
+
+        .form-input, .form-textarea {
+            height: 36px;
+            border: 1px solid var(--line-strong);
+            border-radius: 4px;
+            padding: 0 12px;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            transition: var(--transition);
+        }
+        .form-input:focus, .form-textarea:focus { border-color: var(--blue); }
+        .form-textarea { height: auto; min-height: 80px; padding: 10px 12px; resize: vertical; }
+
+        .form-tips {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-top: 4px;
+        }
+
+        .checkbox-group, .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item, .radio-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .form-group-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 24px 0 12px;
+            padding-left: 12px;
+            border-left: 3px solid var(--blue);
+        }
+
+        input[type="checkbox"], input[type="radio"] {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -448,8 +455,8 @@
                     </div>
                     <div class="filter-actions">
                         <button class="btn btn-secondary">重置</button>
-                        <button class="btn btn-primary"><i data-lucide="search"></i>查询</button>
-                        <button class="btn btn-primary"><i data-lucide="plus"></i>新建知识库</button>
+                        <button class="btn btn-primary"><i data-lucide="search"></i>搜索</button>
+                        <button class="btn btn-primary" onclick="openModal()"><i data-lucide="plus"></i>新建知识库</button>
                     </div>
                 </div>
 
@@ -462,7 +469,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th class="cell-id">Id</th>
+                                    <th class="cell-id">id</th>
                                     <th class="cell-name">名称</th>
                                     <th class="cell-desc">描述</th>
                                     <th class="cell-time">创建时间</th>
@@ -607,8 +614,98 @@
         </main>
     </div>
 
+    <!-- Create/Edit Modal -->
+    <div class="modal-overlay" id="kbModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>创建知识库</h3>
+                <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <label class="form-label"><span class="required">*</span>名称</label>
+                    <input type="text" class="form-input" placeholder="请输入知识库名称" />
+                </div>
+                <div class="form-row">
+                    <label class="form-label">描述</label>
+                    <textarea class="form-textarea" placeholder="请输入知识库描述"></textarea>
+                </div>
+                <div class="form-row">
+                    <label class="form-label"><span class="required">*</span>负责人</label>
+                    <input type="text" class="form-input" placeholder="多个负责人用英文逗号分隔" />
+                </div>
+                <div class="form-row">
+                    <label class="form-label">模型</label>
+                    <input type="text" class="form-input" value="text-embedding v4" disabled style="background:#f8fafc;color:var(--muted);" />
+                </div>
+                <div class="form-row">
+                    <label class="form-label">解析增强</label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" />
+                        <span>表格增强</span>
+                    </label>
+                    <div class="form-tips">如文件表格较多，且必须精准提取表格而非文字，建议开启增强模式，但会影响解析速度</div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label"><span class="required">*</span>召回方式</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" checked /><span>向量检索</span></label>
+                        <label class="checkbox-item"><input type="checkbox" /><span>ES检索</span></label>
+                    </div>
+                </div>
+
+                <div class="form-group-title">文本分段方式</div>
+                <div class="form-row">
+                    <label class="form-label"><span class="required">*</span>分段策略</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="textSeg" checked /><span>大小分段</span></label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label"><span class="required">*</span>分段大小</label>
+                    <input type="number" class="form-input" value="1024" />
+                </div>
+
+                <div class="form-group-title">表格分段方式</div>
+                <div class="form-row">
+                    <label class="form-label"><span class="required">*</span>分段策略</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="tableSeg" checked /><span>大小分段</span></label>
+                        <label class="radio-item"><input type="radio" name="tableSeg" /><span>按行分段</span></label>
+                    </div>
+                    <div class="form-tips">按行分段，默认首行为表头，按每行返回JSON</div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label"><span class="required">*</span>分段大小</label>
+                    <input type="number" class="form-input" value="1024" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="closeModal()">确定</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
+
+        function openModal() {
+            document.getElementById('kbModal').classList.add('active');
+        }
+        function closeModal() {
+            document.getElementById('kbModal').classList.remove('active');
+        }
+
+        document.getElementById('kbModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
     </script>
 </body>
 
