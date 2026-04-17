@@ -433,6 +433,24 @@
       cursor: not-allowed;
       opacity: 0.55;
     }
+    .multimodal-row {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) minmax(160px, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .multimodal-delete-btn {
+      width: 36px;
+      min-width: 36px;
+      height: 36px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--blue);
+      border-color: var(--line-strong);
+    }
     .pricing-summary {
       padding: 10px 12px;
       border: 1px dashed var(--line-strong);
@@ -441,7 +459,32 @@
       color: var(--muted);
       font-size: 12px;
       line-height: 1.6;
-      white-space: pre-line;
+    }
+    .pricing-summary table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: auto;
+      font-size: 12px;
+    }
+    .pricing-summary th,
+    .pricing-summary td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line-soft);
+      text-align: left;
+      vertical-align: top;
+    }
+    .pricing-summary th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .pricing-summary tr:last-child td {
+      border-bottom: none;
+    }
+    .pricing-summary .empty-cell {
+      color: var(--muted);
+      text-align: center;
+      padding: 12px;
     }
     .toggle-inline {
       display: inline-flex;
@@ -581,6 +624,7 @@
               <div class="pricing-mode" style="margin-bottom: 0;">
                 <label class="choice-radio"><input type="radio" name="pricingMode" value="flat" checked /> 统一</label>
                 <label class="choice-radio"><input type="radio" name="pricingMode" value="tiered" /> 梯度</label>
+                <label class="choice-radio"><input type="radio" name="pricingMode" value="multimodal" /> 多模态</label>
               </div>
             </div>
 
@@ -605,7 +649,7 @@
               </div>
             </div>
 
-            <div class="pricing-block">
+            <div class="pricing-block" id="nonThinkingPricingBlock">
               <div class="pricing-block-title">非思考</div>
               <div class="pricing-grid" id="nonThinkingFlatField">
                 <div class="field">
@@ -623,6 +667,16 @@
                   <button type="button" class="row-btn" id="addNonThinkingTierBtn">新增梯度</button>
                 </div>
                 <div class="hint">"至该档上限（含）"表示闭区间上界；仅最后一档可以留空，表示大于上一档上限。</div>
+              </div>
+            </div>
+
+            <div class="pricing-block" id="multimodalPricingBlock">
+              <div class="pricing-block-title">多模态</div>
+              <div class="multimodal-list" id="multimodalList"></div>
+              <div style="display:flex; justify-content:flex-start; margin-top:8px;">
+                <button type="button" class="row-btn" id="addMultimodalTypeBtn" style="background:transparent; border:none; padding:0; color:var(--blue); font-weight:500;">
+                  <i class="fa-solid fa-plus" style="margin-right:4px;"></i>新增类型
+                </button>
               </div>
             </div>
 
@@ -1157,6 +1211,17 @@
     const maxTokensInput = document.getElementById("maxTokensInput");
     const timeoutInput = document.getElementById("timeoutInput");
     const extraBodyInput = document.getElementById("extraBodyInput");
+    const multimodalList = document.getElementById("multimodalList");
+    const addMultimodalTypeBtn = document.getElementById("addMultimodalTypeBtn");
+    const thinkingPricingBlock = document.getElementById("thinkingPricingBlock");
+    const nonThinkingPricingBlock = document.getElementById("nonThinkingPricingBlock");
+    const multimodalPricingBlock = document.getElementById("multimodalPricingBlock");
+    const MULTIMODAL_TYPES = [
+      { value: "text", label: "文本" },
+      { value: "image", label: "图片" },
+      { value: "voice", label: "语音" },
+      { value: "video", label: "视频" }
+    ];
 
     // 关联节点弹窗元素
     const nodesModal = document.getElementById("nodesModal");
@@ -1344,6 +1409,7 @@
 
     function createEmptyPricing() {
       return {
+        mode: "flat",
         thinking: {
           flat: { input: "", output: "" },
           tiers: [{ upTo: "", input: "", output: "" }]
@@ -1351,8 +1417,51 @@
         nonThinking: {
           flat: { input: "", output: "" },
           tiers: [{ upTo: "", input: "", output: "" }]
-        }
+        },
+        multimodal: []
       };
+    }
+
+    function renderMultimodalRows(rows) {
+      const nextRows = Array.isArray(rows) && rows.length ? rows : [{ type: "", input: "", output: "" }];
+      const selectedTypes = nextRows.map((r) => r.type).filter(Boolean);
+      multimodalList.innerHTML = nextRows.map((row, index) => `
+        <div class="multimodal-row" data-multimodal-index="${index}">
+          <div class="field">
+            <label>类型</label>
+            <select data-mm-field="type">
+              <option value="">请选择</option>
+              ${MULTIMODAL_TYPES.map(t => {
+                const disabled = selectedTypes.includes(t.value) && row.type !== t.value ? "disabled" : "";
+                const selected = row.type === t.value ? "selected" : "";
+                return `<option value="${t.value}" ${selected} ${disabled}>${t.label}</option>`;
+              }).join("")}
+            </select>
+          </div>
+          <div class="field">
+            <label>输入价格</label>
+            <input data-mm-field="input" value="${String(row?.input || "").replace(/"/g, "&quot;")}" placeholder="如 0.0004" />
+          </div>
+          <div class="field">
+            <label>输出价格</label>
+            <input data-mm-field="output" value="${String(row?.output || "").replace(/"/g, "&quot;")}" placeholder="如 0.0012" />
+          </div>
+          <div class="field" style="gap:0;">
+            <label style="visibility:hidden;">删除</label>
+            <button type="button" class="row-btn multimodal-delete-btn" data-mm-remove aria-label="删除该类型" title="${nextRows.length === 1 ? "至少保留一条" : "删除该类型"}" ${nextRows.length === 1 ? "hidden" : ""}>
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function collectMultimodalRows() {
+      return Array.from(multimodalList.querySelectorAll(".multimodal-row")).map((row) => ({
+        type: row.querySelector('[data-mm-field="type"]').value.trim(),
+        input: row.querySelector('[data-mm-field="input"]').value.trim(),
+        output: row.querySelector('[data-mm-field="output"]').value.trim()
+      }));
     }
 
     function isNonNegativeNumber(value) {
@@ -1454,6 +1563,13 @@
     function defineGlobalModeListeners() {
       globalPricingModeInputs.forEach((node) => {
         node.addEventListener("change", () => {
+          const mode = getCheckedValue(globalPricingModeInputs, "flat");
+          if (mode === "multimodal") {
+            const rows = collectMultimodalRows();
+            if (!rows.length) {
+              renderMultimodalRows([{ type: "", input: "", output: "" }]);
+            }
+          }
           syncPricingFieldVisibility();
           refreshPricingSummary();
         });
@@ -1466,11 +1582,15 @@
       // use cacheHit values; otherwise use the flat structure
       const thinkingBucket = nextPricing.thinking?.cacheHit || nextPricing.thinking;
       const nonThinkingBucket = nextPricing.nonThinking?.cacheHit || nextPricing.nonThinking;
-      // Set global mode (use thinking bucket mode as default, or flat if not set)
-      const mode = thinkingBucket?.mode || "flat";
+      // Set global mode (use pricing.mode if present, otherwise infer from data)
+      const mode = nextPricing.mode || (nextPricing.multimodal?.length ? "multimodal" : thinkingBucket?.mode) || "flat";
       setCheckedValue(globalPricingModeInputs, mode, "flat");
       setBucketFormValue(bucketEditors.thinking, thinkingBucket);
       setBucketFormValue(bucketEditors.nonThinking, nonThinkingBucket);
+      const mmRows = Array.isArray(nextPricing.multimodal) && nextPricing.multimodal.length
+        ? nextPricing.multimodal
+        : [{ type: "", input: "", output: "" }];
+      renderMultimodalRows(mmRows);
       syncPricingFieldVisibility();
       refreshPricingSummary();
     }
@@ -1484,29 +1604,116 @@
     }
 
     function refreshPricingSummary() {
+      const mode = getCheckedValue(globalPricingModeInputs, "flat");
+      if (mode === "multimodal") {
+        const rows = collectMultimodalRows().filter((r) => r.type || r.input || r.output);
+        const typeMap = { text: "文本", image: "图片", voice: "语音", video: "视频" };
+        if (!rows.length) {
+          pricingSummary.innerHTML = `<div class="empty-cell">未配置模型价格</div>`;
+          return;
+        }
+        pricingSummary.innerHTML = `
+          <table>
+            <thead><tr><th>类型</th><th>输入价格</th><th>输出价格</th></tr></thead>
+            <tbody>
+              ${rows.map((r) => `
+                <tr>
+                  <td>${typeMap[r.type] || r.type || "-"}</td>
+                  <td>${r.input || "-"}</td>
+                  <td>${r.output || "-"}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+          <div class="hint" style="margin-top:6px;">单位：元/千tokens</div>
+        `;
+        return;
+      }
+
       const formPricing = buildPricingFromForm();
       const supportsThinking = supportsThinkingAutoInput.checked || supportsThinkingOnoffInput.checked;
-      // Build simplified pricing for display (2 buckets instead of 4)
-      const displayPricing = {
-        version: 4,
-        thinking: { cacheHit: formPricing.thinking.cacheHit, cacheMiss: formPricing.thinking.cacheMiss },
-        nonThinking: { cacheHit: formPricing.nonThinking.cacheHit, cacheMiss: formPricing.nonThinking.cacheMiss }
-      };
-      if (!supportsThinking) {
-        displayPricing.thinking = { cacheHit: { mode: "flat", flat: {}, tiers: [] }, cacheMiss: { mode: "flat", flat: {}, tiers: [] } };
+      const hasStructuredPricing = [
+        formPricing.thinking.cacheHit,
+        formPricing.thinking.cacheMiss,
+        formPricing.nonThinking.cacheHit,
+        formPricing.nonThinking.cacheMiss
+      ].some((bucket) => {
+        const b = bucket || {};
+        const flat = b.flat || {};
+        return flat.input || flat.output || (b.tiers || []).some((t) => t.upTo || t.input || t.output);
+      });
+
+      if (!hasStructuredPricing) {
+        pricingSummary.innerHTML = `<div class="empty-cell">未配置模型价格</div>`;
+        return;
       }
-      const lines = buildPriceLinesForSummary(displayPricing, supportsThinking);
-      pricingSummary.textContent = lines.length
-        ? lines.map((line) => `${line} (元/千tokens)`).join("\n")
-        : "未配置模型价格";
+
+      const rows = [];
+      const pushBucketRow = (label, bucket) => {
+        const b = bucket || {};
+        const flat = b.flat || {};
+        if (mode === "flat") {
+          rows.push({ label, mode: "统一", input: flat.input || "-", output: flat.output || "-", detail: "-" });
+        } else {
+          const tiers = (b.tiers || []).filter((t) => t.upTo || t.input || t.output);
+          if (!tiers.length) {
+            rows.push({ label, mode: "梯度", input: "-", output: "-", detail: "-" });
+          } else {
+            let prev = "";
+            const detail = tiers.map((t, i) => {
+              const isLast = i === tiers.length - 1;
+              let range = "";
+              if (i === 0) {
+                range = isLast && !t.upTo ? "全部 token" : `≤${t.upTo || "待填写"}（含）`;
+              } else if (isLast && !t.upTo) {
+                range = `${prev || "上一档上限"} < x`;
+              } else {
+                range = `${prev || "上一档上限"} < x ≤ ${t.upTo || "待填写"}（含）`;
+              }
+              if (t.upTo) prev = t.upTo;
+              return `<div>${range}：输入 ${t.input || "-"} / 输出 ${t.output || "-"}</div>`;
+            }).join("");
+            rows.push({ label, mode: "梯度", input: "-", output: "-", detail });
+          }
+        }
+      };
+
+      if (supportsThinking) {
+        pushBucketRow("思考 · 缓存命中", formPricing.thinking.cacheHit);
+        pushBucketRow("思考 · 缓存未命中", formPricing.thinking.cacheMiss);
+      }
+      pushBucketRow("非思考 · 缓存命中", formPricing.nonThinking.cacheHit);
+      pushBucketRow("非思考 · 缓存未命中", formPricing.nonThinking.cacheMiss);
+
+      const showDetailCol = mode === "tiered";
+      pricingSummary.innerHTML = `
+        <table>
+          <thead>
+            <tr><th>场景</th><th>模式</th>${showDetailCol ? "<th>梯度详情</th>" : "<th>输入</th><th>输出</th>"}</tr>
+          </thead>
+          <tbody>
+            ${rows.map((r) => `
+              <tr>
+                <td>${r.label}</td>
+                <td>${r.mode}</td>
+                ${showDetailCol ? `<td>${r.detail}</td>` : `<td>${r.input}</td><td>${r.output}</td>`}
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+        <div class="hint" style="margin-top:6px;">单位：元/千tokens</div>
+      `;
     }
 
     function buildPricingFromForm() {
+      const mode = getCheckedValue(globalPricingModeInputs, "flat");
       const thinkingBucket = readBucketFormValue(bucketEditors.thinking);
       const nonThinkingBucket = readBucketFormValue(bucketEditors.nonThinking);
+      const multimodal = mode === "multimodal" ? collectMultimodalRows() : [];
       // For backward compatibility, duplicate values to both cacheHit and cacheMiss
       return {
         version: 4,
+        mode,
         thinking: {
           cacheHit: thinkingBucket,
           cacheMiss: clonePricing({ thinking: thinkingBucket, nonThinking: nonThinkingBucket }).thinking
@@ -1514,13 +1721,20 @@
         nonThinking: {
           cacheHit: nonThinkingBucket,
           cacheMiss: clonePricing({ thinking: thinkingBucket, nonThinking: nonThinkingBucket }).nonThinking
-        }
+        },
+        multimodal
       };
     }
 
     function syncPricingFieldVisibility() {
-      // 价格和是否支持思考功能没有强关联，始终显示所有价格配置块
-      Object.values(bucketEditors).forEach(syncBucketVisibility);
+      const mode = getCheckedValue(globalPricingModeInputs, "flat");
+      const isMultimodal = mode === "multimodal";
+      thinkingPricingBlock.hidden = isMultimodal;
+      nonThinkingPricingBlock.hidden = isMultimodal;
+      multimodalPricingBlock.hidden = !isMultimodal;
+      if (!isMultimodal) {
+        Object.values(bucketEditors).forEach(syncBucketVisibility);
+      }
     }
 
     function validatePricingForm(supportsThinking) {
@@ -1565,6 +1779,20 @@
       }
 
       const mode = getCheckedValue(globalPricingModeInputs, "flat");
+
+      if (mode === "multimodal") {
+        const multimodalRows = pricing.multimodal || [];
+        for (let i = 0; i < multimodalRows.length; i++) {
+          const row = multimodalRows[i];
+          const hasAny = row.type || row.input || row.output;
+          if (!hasAny && multimodalRows.length === 1) continue;
+          if (!row.type) return { error: `多模态第 ${i + 1} 行需选择类型` };
+          if (!isNonNegativeNumber(row.input)) return { error: `多模态第 ${i + 1} 行输入价格需填写非负数字` };
+          if (!isNonNegativeNumber(row.output)) return { error: `多模态第 ${i + 1} 行输出价格需填写非负数字` };
+        }
+        return { pricing };
+      }
+
       const bucketsToValidate = [
         { enabled: supportsThinking, label: "思考", bucket: { ...pricing.thinking, mode } },
         { enabled: true, label: "非思考", bucket: { ...pricing.nonThinking, mode } }
@@ -2045,6 +2273,30 @@ defineGlobalModeListeners();
       editor.tierList.addEventListener("change", refreshPricingSummary);
       editor.tierList.addEventListener("input", () => updateTierRangeLabels(editor.tierList));
       editor.tierList.addEventListener("change", () => updateTierRangeLabels(editor.tierList));
+    });
+
+    addMultimodalTypeBtn.addEventListener("click", () => {
+      const rows = collectMultimodalRows();
+      rows.push({ type: "", input: "", output: "" });
+      renderMultimodalRows(rows);
+      refreshPricingSummary();
+    });
+    multimodalList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-mm-remove]");
+      if (!button) return;
+      const rows = Array.from(multimodalList.querySelectorAll(".multimodal-row"));
+      if (rows.length <= 1) return;
+      const targetRow = button.closest(".multimodal-row");
+      const nextRows = collectMultimodalRows().filter((_, index) => rows[index] !== targetRow);
+      renderMultimodalRows(nextRows);
+      refreshPricingSummary();
+    });
+    multimodalList.addEventListener("input", refreshPricingSummary);
+    multimodalList.addEventListener("change", (e) => {
+      if (e.target.matches('[data-mm-field="type"]')) {
+        renderMultimodalRows(collectMultimodalRows());
+      }
+      refreshPricingSummary();
     });
 
     // 深度思考 checkbox 互斥逻辑

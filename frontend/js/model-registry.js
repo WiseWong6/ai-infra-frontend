@@ -11,6 +11,7 @@
   function createEmptyPricing() {
     return {
       version: 4,
+      mode: "flat",
       thinking: {
         cacheHit: {
           mode: "flat",
@@ -34,7 +35,8 @@
           flat: { input: "", output: "" },
           tiers: [{ upTo: "", input: "", output: "" }]
         }
-      }
+      },
+      multimodal: []
     };
   }
 
@@ -367,8 +369,24 @@
     const pricing = rawPricing && typeof rawPricing === "object" ? rawPricing : {};
     const thinking = pricing.thinking && typeof pricing.thinking === "object" ? pricing.thinking : {};
     const nonThinking = pricing.nonThinking && typeof pricing.nonThinking === "object" ? pricing.nonThinking : {};
+    const rawMultimodal = Array.isArray(pricing.multimodal) ? pricing.multimodal : [];
+    const multimodal = rawMultimodal.map((item) => ({
+      type: normalizePriceValue(item?.type),
+      input: normalizePriceValue(item?.input),
+      output: normalizePriceValue(item?.output)
+    })).filter((item) => item.type || item.input || item.output);
+    let mode = String(pricing.mode || "").toLowerCase();
+    if (!mode) {
+      if (multimodal.length) {
+        mode = "multimodal";
+      } else {
+        mode = normalizeTierMode(thinking.cacheHit?.mode || nonThinking.cacheHit?.mode);
+      }
+    }
+    if (!["flat", "tiered", "multimodal"].includes(mode)) mode = "flat";
     return {
       version: 4,
+      mode,
       thinking: {
         cacheHit: normalizeBucket(thinking.cacheHit),
         cacheMiss: normalizeBucket(thinking.cacheMiss)
@@ -376,7 +394,8 @@
       nonThinking: {
         cacheHit: normalizeBucket(nonThinking.cacheHit),
         cacheMiss: normalizeBucket(nonThinking.cacheMiss)
-      }
+      },
+      multimodal
     };
   }
 
@@ -847,7 +866,9 @@
       })
     ].some((value) => String(value || "").trim());
 
-    if (!hasStructuredPricing) {
+    const hasMultimodalPricing = (pricing.multimodal || []).some((item) => item.type || item.input || item.output);
+
+    if (!hasStructuredPricing && !hasMultimodalPricing) {
       return model.pricingHint ? [model.pricingHint] : [];
     }
 
@@ -865,6 +886,13 @@
         : `统一 输入 ${flat.input || "-"} / 输出 ${flat.output || "-"}`;
       lines.push(`${label} ${summary}`);
     });
+
+    const typeMap = { text: "文本", image: "图片", voice: "语音", video: "视频" };
+    (pricing.multimodal || []).forEach((item) => {
+      if (!item.type && !item.input && !item.output) return;
+      lines.push(`多模态 · ${typeMap[item.type] || item.type || "-"} 输入 ${item.input || "-"} / 输出 ${item.output || "-"}`);
+    });
+
     return lines;
   }
 
