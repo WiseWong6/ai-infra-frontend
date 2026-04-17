@@ -43,7 +43,7 @@
   const DEFAULT_SUPPLIERS = [
     {
       supplierCode: "volc",
-      supplierName: "火山方舟",
+      supplierName: "火山引擎",
       status: "active",
       description: "适合接入豆包 / Responses 风格模型。",
       sortOrder: 10
@@ -75,7 +75,8 @@
     {
       modelKey: "volc-doubao-seed-2-0-pro",
       supplierCode: "volc",
-      displayName: "Doubao Seed 2.0 Pro",
+      displayName: "Doubao Seed 2.0 Pro · 火山引擎",
+      tag: "推荐",
       providerModelId: "doubao-seed-2-0-pro-250415",
       status: "active",
       supportsThinking: true,
@@ -131,7 +132,7 @@
     {
       modelKey: "volc-doubao-seed-1-6-flash",
       supplierCode: "volc",
-      displayName: "Doubao Seed 1.6 Flash",
+      displayName: "Doubao Seed 1.6 Flash · 火山引擎",
       providerModelId: "doubao-seed-1-6-flash-250228",
       status: "active",
       supportsThinking: false,
@@ -183,7 +184,7 @@
     {
       modelKey: "aliyun-qwen-3-5-plus",
       supplierCode: "aliyun",
-      displayName: "Qwen 3.5 Plus",
+      displayName: "Qwen 3.5 Plus · 阿里云百炼",
       providerModelId: "qwen3.5-plus",
       status: "active",
       supportsThinking: true,
@@ -210,7 +211,8 @@
     {
       modelKey: "aliyun-qwen-3-5-flash",
       supplierCode: "aliyun",
-      displayName: "Qwen 3.5 Flash",
+      displayName: "Qwen 3.5 Flash · 阿里云百炼",
+      tag: "已下架",
       providerModelId: "qwen3.5-flash",
       status: "active",
       supportsThinking: false,
@@ -236,7 +238,8 @@
     {
       modelKey: "deepseek-v3-2",
       supplierCode: "deepseek",
-      displayName: "DeepSeek V3.2",
+      displayName: "DeepSeek V3.2 · DeepSeek",
+      tag: "即将下架",
       providerModelId: "deepseek-v3.2",
       status: "active",
       supportsThinking: true,
@@ -262,7 +265,7 @@
     {
       modelKey: "openai-gpt-4o-mini",
       supplierCode: "openai",
-      displayName: "GPT-4o mini",
+      displayName: "GPT-4o mini · OpenAI",
       providerModelId: "gpt-4o-mini",
       status: "active",
       supportsThinking: false,
@@ -616,7 +619,8 @@
       pricing,
       defaultConfig,
       pricingHint: String(raw?.pricingHint || raw?.pricingNote || "").trim(),
-      description: String(raw?.description || "").trim()
+      description: String(raw?.description || "").trim(),
+      tag: raw?.tag ? String(raw.tag).trim() : undefined
     };
 
     if (!normalized.supportsThinking) {
@@ -634,19 +638,8 @@
   }
 
   function ensureSeedData() {
-    const currentSuppliers = loadJSON(STORAGE_KEYS.suppliers, []);
-    if (!Array.isArray(currentSuppliers) || !currentSuppliers.length) {
-      saveJSON(STORAGE_KEYS.suppliers, DEFAULT_SUPPLIERS.map(normalizeSupplier));
-    } else {
-      saveJSON(STORAGE_KEYS.suppliers, currentSuppliers.map(normalizeSupplier));
-    }
-
-    const currentModels = loadJSON(STORAGE_KEYS.models, []);
-    if (!Array.isArray(currentModels) || !currentModels.length) {
-      saveJSON(STORAGE_KEYS.models, DEFAULT_MODELS.map(normalizeModel));
-    } else {
-      saveJSON(STORAGE_KEYS.models, currentModels.map(normalizeModel));
-    }
+    saveJSON(STORAGE_KEYS.suppliers, DEFAULT_SUPPLIERS.map(normalizeSupplier));
+    saveJSON(STORAGE_KEYS.models, DEFAULT_MODELS.map(normalizeModel));
   }
 
   function getSuppliers(options = {}) {
@@ -805,11 +798,7 @@
       ? getModelsBySupplier(supplierCode, { includeDisabled })
       : getModels({ includeDisabled });
     selectEl.innerHTML = models
-      .map((model) => {
-        const supplier = getSupplierByCode(model.supplierCode);
-        const suffix = supplier ? ` · ${supplier.supplierName}` : "";
-        return `<option value="${model.modelKey}">${model.displayName}${suffix}</option>`;
-      })
+      .map((model) => `<option value="${model.modelKey}">${model.displayName}</option>`)
       .join("");
     if (preferredKey && models.some((item) => item.modelKey === preferredKey)) {
       selectEl.value = preferredKey;

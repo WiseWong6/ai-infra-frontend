@@ -488,6 +488,34 @@
       font-size: 12px;
     }
 
+    .model-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .model-tag-recommend {
+      background: #dcfce7;
+      color: #16a34a;
+      border: 1px solid #bbf7d0;
+    }
+
+    .model-tag-deprecating {
+      background: #ffedd5;
+      color: #ea580c;
+      border: 1px solid #fed7aa;
+    }
+
+    .model-tag-deprecated {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+
     .tooltip {
       position: fixed;
       background: rgba(15, 23, 42, 0.95);
@@ -1563,7 +1591,10 @@
               <div class="node-name">${node.name}</div>
             </td>
             <td>
-              <div class="resource-name">${model?.displayName || node.modelKey}</div>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:nowrap;">
+                <div class="resource-name">${model?.displayName || node.modelKey}</div>
+                ${model?.tag ? `<span class="model-tag model-tag-${model.tag === '推荐' ? 'recommend' : model.tag === '即将下架' ? 'deprecating' : 'deprecated'}">${model.tag}</span>` : ''}
+              </div>
             </td>
             <td>
               <span class="toggle-switch ${node.thinkingMode === 'enabled' || node.thinkingMode === 'auto' ? (node.thinkingMode === 'auto' ? 'auto' : 'on') : ''}" 
